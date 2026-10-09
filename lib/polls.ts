@@ -29,7 +29,7 @@ export function parseWordPress(data:unknown,source:{name:string;url:string;domai
  if(!Array.isArray(data))return [];return data.flatMap((p:any)=>{const title=plainText(p?.title?.rendered||''),url=safeUrl(p?.link||'',source.domain),publishedAt=date(p?.date_gmt?`${p.date_gmt}Z`:p?.date);return url&&publishedAt&&/^2026-/.test(publishedAt)&&/presiden/i.test(title)?[{institute:source.name,title:title.slice(0,240),url,publishedAt,source:source.url,kind:'publication' as const}]:[];}).slice(0,20);
 }
 export function parseAtlas(html:string,source:{name:string;url:string;domain:string}):Publication[]{
- const found=new Map<string,Publication>();for(const m of html.matchAll(/(?:href=["']|https:\/\/atlasintel\.org)(\/poll\/brazil-national-(2026-\d{2}-\d{2}))["']/g)){const url=safeUrl(`https://atlasintel.org${m[1]}`,source.domain);if(url)found.set(url,{institute:'AtlasIntel',title:`Pesquisa nacional AtlasIntel · ${m[2]}`,url,publishedAt:date(m[2]+'T12:00:00Z'),source:source.url,kind:'publication',dateOnly:true});}return [...found.values()].slice(0,20);
+ const found=new Map<string,Publication>();for(const m of html.matchAll(/(?:href=["']|https:\/\/atlasintel\.org)(\/poll\/brazil-national-(2026-\d{2}-\d{2}))["']/g)){const url=safeUrl(`https://atlasintel.org${m[1]}`,source.domain);if(url)found.set(url,{institute:'AtlasIntel',title:`Pesquisa nacional AtlasIntel · ${m[2]}`,url,publishedAt:date(m[2]+'T00:00:00-03:00'),source:source.url,kind:'publication',dateOnly:true});}return [...found.values()].slice(0,20);
 }
 // Deliberately narrow adapter: primary PoderData article JSON-LD, explicit valid-vote
 // pair in its opening paragraph, methodology and BR registration are all required.
