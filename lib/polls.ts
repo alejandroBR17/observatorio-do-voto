@@ -6,9 +6,10 @@ export const pollSnapshots:PollSnapshot[]=[
  {id:'BR-02949/2026',institute:'Datafolha',publishedAt:'2026-10-08T18:40:00-03:00',fieldwork:'6 e 7/10/2026, conforme reportagem da Folha',sample:2520,margin:2,confidence:null,registration:'BR-02949/2026',scope:'Brasil',turn:2,basis:'valid',flavio:52,lula:48,source:'https://www1.folha.uol.com.br/poder/2026/10/datafolha-flavio-bolsonaro-tem-52-e-lula-48-em-votos-validos-no-segundo-turno.shtml',mode:'snapshot',totalVotes:{flavio:49,lula:45,blankNull:5,undecided:1},note:'Retrato conferido em 8/10. A Folha informa campo em 6 e 7/10; outras publicações mencionam 6 a 8/10. Confira a metodologia no registro.'},
  {id:'BR-08134/2026',institute:'PoderData/Aya',publishedAt:'2026-10-08T07:30:00-03:00',fieldwork:'5 a 7/10/2026',sample:3000,margin:1.8,confidence:95,registration:'BR-08134/2026',scope:'Brasil',turn:2,basis:'valid',flavio:53,lula:47,source:'https://www.poder360.com.br/poderdata/flavio-tem-53-contra-47-de-lula-no-2o-turno-diz-poderdata-aya/',mode:'snapshot',note:'Telefone/URA; 705 municípios, 27 UFs. Retrato conferido em 8/10, sem atualização automática dos percentuais.'}
 ];
-export type Publication={institute:string;title:string;url:string;publishedAt:string|null;source:string;kind:'publication';dateOnly?:boolean};
+export type Publication={institute:string;title:string;url:string;publishedAt:string|null;source:string;kind:'publication';dateOnly?:boolean;publisher?:string};
 const sources=[
  {name:'Folha / Datafolha',url:'https://feeds.folha.uol.com.br/poder/rss091.xml',format:'rss',domain:'folha.uol.com.br'},
+ {name:'G1 · pesquisas',url:'https://g1.globo.com/rss/g1/politica/',format:'rss',domain:'g1.globo.com'},
  {name:'PoderData',url:'https://www.poder360.com.br/category/poderdata/feed/',format:'rss',domain:'poder360.com.br'},
  {name:'Quaest',url:'https://quaest.com.br/wp-json/wp/v2/relatorios?search=presidente&per_page=10',format:'wp',domain:'quaest.com.br'},
  {name:'AtlasIntel',url:'https://atlasintel.org/polls/exclusive-polls',format:'atlas',domain:'atlasintel.org'}
@@ -22,7 +23,7 @@ export function parseRss(xml:string,source:{name:string;url:string;domain:string
  const part=block[1],get=(tag:string)=>part.match(new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)<\\/${tag}>`,'i'))?.[1]||'';
  const title=plainText(get('title')),url=safeUrl(get('link'),source.domain),publishedAt=date(plainText(get('pubDate')));
  if(!url||!publishedAt||!/^2026-/.test(publishedAt)||!/datafolha|poderdata|quaest|atlasintel/i.test(title)||!/lula|fl[aá]vio|presiden/i.test(title))continue;
- out.push({institute:institute(title,source.name),title:title.slice(0,240),url,publishedAt,source:source.url,kind:'publication'});
+ out.push({institute:institute(title,source.name),title:title.slice(0,240),url,publishedAt,source:source.url,kind:'publication',publisher:source.name==='G1 · pesquisas'?'G1':undefined});
  }return out.slice(0,20);
 }
 export function parseWordPress(data:unknown,source:{name:string;url:string;domain:string}):Publication[]{
@@ -62,9 +63,9 @@ export function polls(db?:Database):Promise<any>{
  return pending;
 }
 async function collectPolls(db?:Database){
- const key='polls:publications:v2';const previous=db?await db.prepare('SELECT value, updated FROM cache WHERE key=?').bind(key).first<{value:string;updated:number}>():temporaryCache;
- if(previous&&Date.now()-previous.updated<300000)return {...JSON.parse(previous.value),cached:true,cacheStorage:db?'shared':'temporary'};
- const lease=db?await db.prepare('INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?').bind('lease:polls:v2','',Date.now(),Date.now()-30000).run():{meta:{changes:1}};
+ const key='polls:publications:v3';const stored=db?await db.prepare('SELECT value, updated FROM cache WHERE key=?').bind(key).first<{value:string;updated:number}>():temporaryCache;const previous=stored||(db?await db.prepare('SELECT value, updated FROM cache WHERE key=?').bind('polls:publications:v2').first<{value:string;updated:number}>():null);
+ if(stored&&Date.now()-stored.updated<300000)return {...JSON.parse(previous.value),cached:true,cacheStorage:db?'shared':'temporary'};
+ const lease=db?await db.prepare('INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?').bind('lease:polls:v3','',Date.now(),Date.now()-30000).run():{meta:{changes:1}};
  if(!lease.meta.changes)return previous?{...JSON.parse(previous.value),cached:true,stale:true}:{status:'loading',checkedAt:null,cacheSeconds:300,polls:pollSnapshots,publications:[],sources:[],notice:'Consultando as fontes públicas. Resultados conferidos em 08 e 09/10; a data de publicação aparece em cada pesquisa.',registrationSource:'https://pesqele-divulgacao.tse.jus.br/'};
  const checkedAt=new Date().toISOString();const results=await Promise.all(sources.map(async s=>{try{
  const response=await fetch(s.url,{cache:'no-store',signal:AbortSignal.timeout(10000),headers:{Accept:s.format==='wp'?'application/json':'application/rss+xml, text/html;q=0.9, */*;q=0.5'}});if(!response.ok)throw new Error(`HTTP ${response.status}`);
