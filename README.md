@@ -17,6 +17,12 @@ Acompanhe as eleições presidenciais brasileiras em uma interface com mapas, gr
 
 O menu pode ser aberto quando você precisar. Seções extensas têm controles para expandir e recolher informações. O tema acompanha o sistema do seu dispositivo por padrão; você pode escolher Claro ou Escuro no seletor da barra superior, e as transições respeitam a preferência de movimento reduzido do dispositivo.
 
+## Para começar ou aprofundar
+
+Escolha **Essencial** para explicações curtas, exemplos de “cada 100 respostas” e nomes mais fáceis nos indicadores. Use **Detalhado** para conferir metodologia, critérios de cálculo, campos de origem e exportar pesquisas em CSV ou JSON. A opção fica salva neste navegador, e os resultados são os mesmos nas duas visualizações.
+
+O **Guia de leitura e termos** acompanha cada tela. Ele explica os primeiros passos e inclui um glossário pesquisável para termos como votos válidos, margem de erro, UF e pontos percentuais. Fontes e detalhes continuam acessíveis no modo Essencial.
+
 ## Como usar
 
 Abra o endereço publicado do app no navegador. Você não precisa de uma conta para consultar os dados. Use os filtros para mudar a eleição ou a região e abra as fontes para entender de onde vem cada informação.

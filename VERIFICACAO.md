@@ -22,3 +22,11 @@ O ZIP contém somente código, configurações, documentação e assets. Não co
 - Pesquisas funcionam sem banco configurado ou quando ele falha, usando cache temporário por instância; o banco continua necessário para inscrições push e os outros serviços compartilhados.
 - O tema padrão acompanha o sistema e pode ser alterado para Claro ou Escuro. Preferências antigas sem o novo campo de tema passam a usar Automático.
 - Validação em navegador Edge: troca automática do tema do sistema, persistência da escolha manual, migração das preferências antigas, pesquisas sem banco e barra superior em 320 e 390 px passaram.
+
+## Leitura Essencial e Detalhada
+
+- Visão Essencial com linguagem simples, exemplos por 100 respostas, ajuda por tela e glossário pesquisável.
+- Visão Detalhada com metodologia expandida, critérios de cálculo, dicionário dos campos e exportação de pesquisas e progressão em CSV/JSON.
+- Tabelas alternativas aos gráficos, com navegação por teclado nos contêineres de rolagem.
+- Validação em navegador: escolha persistente, mesmos percentuais entre visualizações, filtros preservados na troca, busca de termos com e sem resultados, exportações do recorte selecionado, ressalvas do acervo histórico e telas de 320/390 px passaram.
+- Os testes de dados e o build de produção passaram. As opções de leitura não modificam os resultados, a atualização das fontes ou as inscrições de alerta.
