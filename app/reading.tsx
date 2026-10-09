@@ -5,8 +5,8 @@ type Reading='essential'|'detailed';
 const ReadingContext=createContext<{reading:Reading;setReading:(value:Reading)=>void;storageError:boolean}>({reading:'essential',setReading:()=>{},storageError:false});
 export function ReadingProvider({children}:{children:React.ReactNode}){
  const [reading,setValue]=useState<Reading>('essential'),[storageError,setStorageError]=useState(false);
- useEffect(()=>{try{if(localStorage.getItem('observatorio.reading')==='detailed')setValue('detailed');}catch{}},[]);
- function setReading(value:Reading){setValue(value);try{localStorage.setItem('observatorio.reading',value);setStorageError(false);}catch{setStorageError(true);}}
+ useEffect(()=>{try{if(localStorage.getItem('observatorio.analysisDetails')==='expanded')setValue('detailed');}catch{}},[]);
+ function setReading(value:Reading){setValue(value);try{localStorage.setItem('observatorio.analysisDetails',value==='detailed'?'expanded':'collapsed');setStorageError(false);}catch{setStorageError(true);}}
  return <ReadingContext.Provider value={{reading,setReading,storageError}}>{children}</ReadingContext.Provider>;
 }
 export const useReading=()=>useContext(ReadingContext);
