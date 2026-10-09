@@ -27,3 +27,11 @@ O ZIP contém somente código, configurações, documentação e assets. Não co
 
 A apresentação foi simplificada: sem seletor fixo, glossário, dicionário de campos ou exportações CSV/JSON. A preferência para abrir os detalhes das pesquisas fica em Meu perfil. A profundidade se concentra em metodologia e comparação eleitoral, sem alterar percentuais ou filtros. Textos repetidos sobre datas, interpretação e atualização foram reduzidos.
 - Verificação em navegador passou: ausência de controles fixos/glossário/downloads, preferência persistente no perfil, metodologia sob demanda, mesmos resultados e layout em 320/390 px.
+
+
+## Boas-vindas e integração Turso da Vercel
+
+- Reconhecidas as variáveis STORAGE_TURSO_DATABASE_URL e STORAGE_TURSO_AUTH_TOKEN geradas pela integração, mantendo o par URL/token do mesmo banco.
+- Testes de provedores push (Apple, Chrome, Firefox e Windows), rejeição de endpoints inseguros e estabilidade das chaves VAPID passaram.
+- Onboarding testado em navegador: personalização, pular, persistência, retorno pelo perfil e ausência de rolagem horizontal em 320/390/1280 px.
+- Ativação só é oferecida quando o serviço confirma conexão. No iPhone, a interface explica a instalação na Tela de Início. Entrega em aparelhos reais ainda exige verificação no aparelho com permissão concedida.

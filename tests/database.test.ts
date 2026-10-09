@@ -1,7 +1,13 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createClient} from '@libsql/client';
-import {createDatabase} from '../lib/database';
+import {createDatabase,databaseConfig} from '../lib/database';
+
+test('Vercel storage integration uses its paired URL and token without mixing databases',()=>{
+ assert.deepEqual(databaseConfig({STORAGE_TURSO_DATABASE_URL:'libsql://integration.turso.io',STORAGE_TURSO_AUTH_TOKEN:'integration-token'}),{url:'libsql://integration.turso.io',authToken:'integration-token'});
+ assert.deepEqual(databaseConfig({TURSO_DATABASE_URL:'libsql://manual.turso.io',TURSO_AUTH_TOKEN:'manual-token',STORAGE_TURSO_DATABASE_URL:'libsql://integration.turso.io',STORAGE_TURSO_AUTH_TOKEN:'integration-token'}),{url:'libsql://manual.turso.io',authToken:'manual-token'});
+ assert.equal(databaseConfig({NODE_ENV:'production'}).url,'');
+});
 test('portable database persists cache, counts lease changes and prevents duplicate claims',async()=>{
  const client=createClient({url:'file::memory:'});const db=createDatabase(client);
  await db.prepare('INSERT INTO cache(key,value,updated) VALUES(?,?,?)').bind('result','{"votes":123}',10).run();

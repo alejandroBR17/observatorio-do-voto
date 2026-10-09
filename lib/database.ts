@@ -21,11 +21,15 @@ export function createDatabase(client:Client):Database{
  return {prepare};
 }
 let singleton:Database|undefined;
+export function databaseConfig(env:Record<string,string|undefined>=process.env){
+ const integrated=!env.TURSO_DATABASE_URL&&!!env.STORAGE_TURSO_DATABASE_URL;
+ return {url:env.TURSO_DATABASE_URL||env.STORAGE_TURSO_DATABASE_URL||(env.NODE_ENV==='development'?'file:.data/observatorio.db':''),authToken:integrated?env.STORAGE_TURSO_AUTH_TOKEN:env.TURSO_AUTH_TOKEN};
+}
 export function getDatabase():Database|undefined{
  if(singleton)return singleton;
- const url=process.env.TURSO_DATABASE_URL||(process.env.NODE_ENV==='development'?'file:.data/observatorio.db':'');
+ const {url,authToken}=databaseConfig();
  if(!url)return undefined;
  if(process.env.VERCEL&&url.startsWith('file:'))throw Error('Use a remote Turso database on Vercel.');
  if(url.startsWith('file:'))mkdirSync('.data',{recursive:true});
- singleton=createDatabase(createClient({url,authToken:process.env.TURSO_AUTH_TOKEN}));return singleton;
+ singleton=createDatabase(createClient({url,authToken}));return singleton;
 }

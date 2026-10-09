@@ -4,7 +4,7 @@ export const dynamic='force-dynamic';
 export const maxDuration=60;
 import {env} from '@/lib/runtime';
 import {pushKeys,validEndpoint} from '@/lib/push';
-export async function GET(){if(!env.DB)return Response.json({error:'Banco indisponível'},{status:503});const keys=await pushKeys(env.DB);return Response.json({publicKey:keys.public});}
+export async function GET(){try{const db=env.DB;if(!db)throw Error('Missing database');const keys=await pushKeys(db);return Response.json({publicKey:keys.public},{headers:{'Cache-Control':'no-store'}});}catch{return Response.json({error:'Não foi possível conectar ao serviço de notificações. Tente novamente em instantes.'},{status:503,headers:{'Cache-Control':'no-store'}});}}
 export async function POST(req:Request){
  if(!isSameOrigin(req))return Response.json({error:'Origem inválida'},{status:403});
  if(!env.DB)return Response.json({error:'Banco indisponível'},{status:503});

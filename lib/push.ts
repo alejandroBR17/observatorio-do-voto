@@ -7,7 +7,7 @@ export async function pushKeys(db:Database){
  await db.prepare('INSERT OR IGNORE INTO cache(key,value,updated) VALUES(?,?,?)').bind('pushkeys',JSON.stringify(data),Date.now()).run();
  return JSON.parse((await db.prepare('SELECT value FROM cache WHERE key=?').bind('pushkeys').first<{value:string}>())!.value);
 }
-export function validEndpoint(endpoint:string){try{const u=new URL(endpoint);return u.protocol==='https:'&&['fcm.googleapis.com','updates.push.services.mozilla.com','web.push.apple.com','wns2-bl2p.notify.windows.com'].some(h=>u.hostname===h)&&!u.username&&!u.password&&!u.port;}catch{return false;}}
+export function validEndpoint(endpoint:string){try{const u=new URL(endpoint);const trusted=u.hostname==='fcm.googleapis.com'||['push.apple.com','push.services.mozilla.com','notify.windows.com'].some(h=>u.hostname.endsWith('.'+h));return u.protocol==='https:'&&trusted&&!u.username&&!u.password&&!u.port;}catch{return false;}}
 export async function dispatchPush(db:Database){
  const row=await db.prepare('SELECT value,updated FROM cache WHERE key=?').bind('event').first<{value:string;updated:number}>();if(!row)return;
  const event=JSON.parse(row.value);const claim=await db.prepare('INSERT OR IGNORE INTO cache(key,value,updated) VALUES(?,?,?)').bind(`sent:${event.result.id}`,row.value,Date.now()).run();if(!claim.meta.changes)return;

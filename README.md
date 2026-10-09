@@ -21,6 +21,8 @@ Você pode abrir os detalhes de cada pesquisa para conferir entrevistas, margem 
 
 ## Como usar
 
+No primeiro acesso, as boas-vindas permitem escolher seu nome, quem deseja acompanhar e quanto contexto quer ver nas pesquisas. Você pode pular e começar a explorar, ou rever a personalização no Meu perfil.
+
 Abra o endereço publicado do app no navegador. Você não precisa de uma conta para consultar os dados. Use os filtros para mudar a eleição ou a região e abra as fontes para entender de onde vem cada informação.
 
 Para receber alertas, visite a área de notificações e permita o envio no navegador. A entrega depende do dispositivo, das permissões e da disponibilidade do serviço. No iPhone compatível, adicione o app à tela inicial antes de ativar as notificações.
