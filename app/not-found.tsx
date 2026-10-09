@@ -1,0 +1,1 @@
+export default function NotFound(){return <main><section className="panel empty"><h1>Esta página não foi encontrada.</h1><p>Volte ao panorama para continuar acompanhando a eleição.</p><a className="button primary" href="/">Abrir o Observatório</a></section></main>}

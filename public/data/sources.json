@@ -1,0 +1,151 @@
+{
+  "retrievedAt": "2026-10-08T22:30:41.128Z",
+  "sources": [
+    {
+      "uf": "BR",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/br/br-c0001-e006257-u.json",
+      "idg": "2837531"
+    },
+    {
+      "uf": "RO",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ro/ro-c0001-e006257-u.json",
+      "idg": "2833766"
+    },
+    {
+      "uf": "AC",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ac/ac-c0001-e006257-u.json",
+      "idg": "2837527"
+    },
+    {
+      "uf": "AM",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/am/am-c0001-e006257-u.json",
+      "idg": "2839170"
+    },
+    {
+      "uf": "RR",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rr/rr-c0001-e006257-u.json",
+      "idg": "2838602"
+    },
+    {
+      "uf": "PA",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pa/pa-c0001-e006257-u.json",
+      "idg": "2838608"
+    },
+    {
+      "uf": "AP",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ap/ap-c0001-e006257-u.json",
+      "idg": "2837524"
+    },
+    {
+      "uf": "TO",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/to/to-c0001-e006257-u.json",
+      "idg": "2833769"
+    },
+    {
+      "uf": "MA",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ma/ma-c0001-e006257-u.json",
+      "idg": "2835812"
+    },
+    {
+      "uf": "PI",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pi/pi-c0001-e006257-u.json",
+      "idg": "2839174"
+    },
+    {
+      "uf": "CE",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ce/ce-c0001-e006257-u.json",
+      "idg": "2835000"
+    },
+    {
+      "uf": "RN",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rn/rn-c0001-e006257-u.json",
+      "idg": "2835810"
+    },
+    {
+      "uf": "PB",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pb/pb-c0001-e006257-u.json",
+      "idg": "2833770"
+    },
+    {
+      "uf": "PE",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pe/pe-c0001-e006257-u.json",
+      "idg": "2839173"
+    },
+    {
+      "uf": "AL",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/al/al-c0001-e006257-u.json",
+      "idg": "2835807"
+    },
+    {
+      "uf": "SE",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/se/se-c0001-e006257-u.json",
+      "idg": "2837528"
+    },
+    {
+      "uf": "BA",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ba/ba-c0001-e006257-u.json",
+      "idg": "2837532"
+    },
+    {
+      "uf": "MG",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/mg/mg-c0001-e006257-u.json",
+      "idg": "2838611"
+    },
+    {
+      "uf": "ES",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/es/es-c0001-e006257-u.json",
+      "idg": "2839171"
+    },
+    {
+      "uf": "RJ",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rj/rj-c0001-e006257-u.json",
+      "idg": "2835811"
+    },
+    {
+      "uf": "SP",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/sp/sp-c0001-e006257-u.json",
+      "idg": "2837533"
+    },
+    {
+      "uf": "PR",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pr/pr-c0001-e006257-u.json",
+      "idg": "2833772"
+    },
+    {
+      "uf": "SC",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/sc/sc-c0001-e006257-u.json",
+      "idg": "2836295"
+    },
+    {
+      "uf": "RS",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rs/rs-c0001-e006257-u.json",
+      "idg": "2836296"
+    },
+    {
+      "uf": "MS",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ms/ms-c0001-e006257-u.json",
+      "idg": "2837529"
+    },
+    {
+      "uf": "MT",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/mt/mt-c0001-e006257-u.json",
+      "idg": "2832694"
+    },
+    {
+      "uf": "GO",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/go/go-c0001-e006257-u.json",
+      "idg": "2832695"
+    },
+    {
+      "uf": "DF",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/df/df-c0001-e006257-u.json",
+      "idg": "2834997"
+    },
+    {
+      "uf": "ZZ",
+      "url": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/zz/zz-c0001-e006257-u.json",
+      "idg": "2836294"
+    }
+  ],
+  "mapUrl": "https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo%2Bjson&qualidade=minima&intrarregiao=UF"
+}
