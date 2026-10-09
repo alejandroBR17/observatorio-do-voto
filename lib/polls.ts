@@ -64,7 +64,7 @@ export function polls(db?:Database):Promise<any>{
 }
 async function collectPolls(db?:Database){
  const key='polls:publications:v3';const stored=db?await db.prepare('SELECT value, updated FROM cache WHERE key=?').bind(key).first<{value:string;updated:number}>():temporaryCache;const previous=stored||(db?await db.prepare('SELECT value, updated FROM cache WHERE key=?').bind('polls:publications:v2').first<{value:string;updated:number}>():null);
- if(stored&&Date.now()-stored.updated<300000)return {...JSON.parse(previous.value),cached:true,cacheStorage:db?'shared':'temporary'};
+ if(stored&&Date.now()-stored.updated<300000)return {...JSON.parse(stored.value),cached:true,cacheStorage:db?'shared':'temporary'};
  const lease=db?await db.prepare('INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?').bind('lease:polls:v3','',Date.now(),Date.now()-30000).run():{meta:{changes:1}};
  if(!lease.meta.changes)return previous?{...JSON.parse(previous.value),cached:true,stale:true}:{status:'loading',checkedAt:null,cacheSeconds:300,polls:pollSnapshots,publications:[],sources:[],notice:'Consultando as fontes públicas. Resultados conferidos em 08 e 09/10; a data de publicação aparece em cada pesquisa.',registrationSource:'https://pesqele-divulgacao.tse.jus.br/'};
  const checkedAt=new Date().toISOString();const results=await Promise.all(sources.map(async s=>{try{
