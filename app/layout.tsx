@@ -3,6 +3,7 @@ import "./globals.css";
 import "./redesign.css";
 import "./motion.css";
 import "./onboarding.css";
+import "./experience.css";
 
 const origin=process.env.SITE_URL||(process.env.VERCEL_PROJECT_PRODUCTION_URL?'https://'+process.env.VERCEL_PROJECT_PRODUCTION_URL:process.env.VERCEL_URL?'https://'+process.env.VERCEL_URL:'https://observatorio-voto.vercel.app');
 export const metadata:Metadata={
@@ -20,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{__html:"(()=>{let t='system';try{t=JSON.parse(localStorage.getItem('observatorio.preferences')||'{}').theme||'system'}catch{}document.documentElement.dataset.theme=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'})()"}}/></head>
+      <head><link rel="stylesheet" href="/assets/fonts.css"/><script dangerouslySetInnerHTML={{__html:"(()=>{let t='system';try{t=JSON.parse(localStorage.getItem('observatorio.preferences')||'{}').theme||'system'}catch{}document.documentElement.dataset.theme=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'})()"}}/></head>
       <body className="antialiased">{children}</body>
     </html>
   );

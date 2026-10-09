@@ -11,9 +11,10 @@ Acompanhe as eleições presidenciais brasileiras em uma interface com mapas, gr
 - **Panorama:** visão geral da eleição e dos indicadores disponíveis.
 - **Histórico:** compare eleições anteriores, de 1989 a 2022, com filtros de ano, turno, estado e região.
 - **Pesquisas:** consulte intenções de voto, datas, metodologia e fontes das pesquisas disponíveis.
-- **Apuração:** acompanhe os resultados parciais disponibilizados pelo TSE, com gráficos e atualização automática.
+- **Apuração:** veja a contagem regressiva até 25/10 às 17h de Brasília e ative os alertas. Quando o TSE divulgar resultados, acompanhe os parciais com gráficos e atualização automática.
 - **Cobertura:** explore conteúdos públicos relacionados à eleição.
-- **Perfil e alertas:** escolha seu candidato preferido e os estados de interesse, ajuste notificações e tema.
+- **Meu acompanhamento:** escolha estados no mapa ou pelo nome, compare seus resultados e use os atalhos para apuração e histórico. Organize o caderno por título, assunto e estado.
+- **Perfil e alertas:** veja um resumo do seu espaço pessoal, escolha seu candidato preferido e ajuste notificações e tema.
 
 O menu pode ser aberto quando você precisar. Seções extensas têm controles para expandir e recolher informações. O tema acompanha o sistema do seu dispositivo por padrão; você pode escolher Claro ou Escuro no seletor da barra superior, e as transições respeitam a preferência de movimento reduzido do dispositivo.
 
@@ -21,7 +22,7 @@ Você pode abrir os detalhes de cada pesquisa para conferir entrevistas, margem 
 
 ## Como usar
 
-No primeiro acesso, as boas-vindas permitem escolher seu nome, quem deseja acompanhar e quanto contexto quer ver nas pesquisas. Você pode pular e começar a explorar, ou rever a personalização no Meu perfil.
+No primeiro acesso, as boas-vindas permitem escolher seu nome, quem deseja acompanhar e quanto contexto quer ver nas pesquisas. Você pode continuar sem personalizar. Antes de entrar, leia e aceite os [Termos de Uso](https://observatorio-voto.vercel.app/termos); as notificações são opcionais e têm uma ativação separada. Você pode rever a personalização no Meu perfil.
 
 Abra o endereço publicado do app no navegador. Você não precisa de uma conta para consultar os dados. Use os filtros para mudar a eleição ou a região e abra as fontes para entender de onde vem cada informação.
 
@@ -32,6 +33,10 @@ Você também pode instalar o app pelo menu do navegador ou pela opção **Adici
 ## Seus dados e preferências
 
 Seu candidato preferido, suas notas e outras preferências ficam neste navegador. Usar outro aparelho, limpar os dados do navegador ou navegar em modo privado pode remover essas configurações. Elas não formam um perfil público e não são sincronizadas entre aparelhos.
+
+Anotações do caderno anterior são preservadas como uma entrada. É possível criar várias anotações, excluir e desfazer a última exclusão enquanto a tela estiver aberta. Os estados seguidos servem à comparação pessoal e aos atalhos; os alertas continuam nacionais. Veja o [Aviso de Privacidade](https://observatorio-voto.vercel.app/privacidade) para conhecer os dados usados nas notificações e na hospedagem.
+
+Cartões de notícias e publicações mostram a imagem disponibilizada pelo veículo quando ela pode ser carregada. Sem imagem acessível, uma composição por assunto mantém o cartão legível. As matérias completas continuam nos sites de origem.
 
 Os dados públicos são compartilhados entre os visitantes. O app não oferece edição de resultados oficiais, contas de editor ou salas de colaboração.
 

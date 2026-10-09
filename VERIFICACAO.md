@@ -49,3 +49,16 @@ A apresentação foi simplificada: sem seletor fixo, glossário, dicionário de 
 - Teste funcional em navegador passou: botão de push dentro do onboarding, pedido de permissão disparado pelo clique, erro de permissão exibido no modal, comparação regional sem alterar filtro, restauração do Brasil sem voltar ao topo, categorias novas, RSS e horário da fonte, larguras 320/390/1280 px.
 - Publicações de pesquisas incluem o RSS do G1, com identificação do veículo; manchetes não alteram automaticamente os percentuais dos retratos conferidos.
 - TypeScript, 11 testes automatizados e build de produção passaram após a inclusão da quinta fonte de publicações.
+
+
+## Revisão visual, acompanhamento e teste push
+- Cartões de candidatos e pesquisas mantêm alturas independentes ao expandir; verificação em navegador passou.
+- Contagem regressiva usa 25/10/2026 às 17h em Brasília e não antecipa resultados antes dos dados do TSE.
+- Imagem real do G1 obtida pelo adaptador de metadados; cartões usam fallback quando a fonte não permite uma prévia.
+- Estados escolhidos no mapa/lista são persistidos e oferecem resultados comparativos e atalhos por UF.
+- Caderno antigo migrado para entradas; persistência, exclusão e desfazer verificados.
+- Onboarding exige aceite explícito dos termos, separado de notificações, e salva apenas versão/horário no navegador.
+- Perfil mostra estados, entradas e situação das notificações; telas verificadas em 320, 390 e 1440 px.
+- Teste push verificado com respostas controladas: falha permanece na tela; inscrição expirada é renovada uma vez; confirmação de recebimento fica visível. Isso não constitui teste de entrega real em todos os aparelhos.
+- Logs da Vercel mostraram uma rejeição de envio ao FCM; diagnóstico passa a diferenciar expiração, identificação rejeitada, limitação e falha do serviço, sem registrar endpoint/chaves.
+- WebSocket só abre durante a apuração ao vivo; renovação antecipada evita manter conexões ociosas até o limite da função.
