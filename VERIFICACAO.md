@@ -8,7 +8,7 @@ Verificado localmente em 09/10/2026, com Node.js 24:
 - Servidor de produção: páginas, metadados sociais, manifesto, ícones, mapa e service worker responderam corretamente.
 - APIs: validação de entradas, proteção do monitor, rejeição de origem externa e resposta push sem chave privada passaram.
 
-O teste do banco usou SQLite local. A conexão com seu Turso remoto, o upgrade WebSocket na Vercel e a entrega push em dispositivos reais dependem das credenciais e da hospedagem final. O código foi publicado no repositório público https://github.com/alejandroBR17/observatorio-do-voto. Endereço de produção informado: https://observatorio-voto.vercel.app/.
+Os testes automatizados do banco usaram SQLite local. A integração Turso e a inscrição push também foram verificadas na Vercel; a entrega de uma notificação de teste no computador foi confirmada pelo usuário em 09/10/2026. Entrega em Android e iPhone e upgrade WebSocket na Vercel não foram verificados em aparelhos reais. O código está no repositório público https://github.com/alejandroBR17/observatorio-do-voto. Produção: https://observatorio-voto.vercel.app/.
 
 Execute `npm ci`, `npm run typecheck`, `npm test` e `npm run build` para repetir os checks. O script `scripts/smoke.mjs` verifica um servidor em execução; use `TEST_URL` para definir sua URL.
 
@@ -34,7 +34,7 @@ A apresentação foi simplificada: sem seletor fixo, glossário, dicionário de 
 - Reconhecidas as variáveis STORAGE_TURSO_DATABASE_URL e STORAGE_TURSO_AUTH_TOKEN geradas pela integração, mantendo o par URL/token do mesmo banco.
 - Testes de provedores push (Apple, Chrome, Firefox e Windows), rejeição de endpoints inseguros e estabilidade das chaves VAPID passaram.
 - Onboarding testado em navegador: personalização, pular, persistência, retorno pelo perfil e ausência de rolagem horizontal em 320/390/1280 px.
-- Ativação só é oferecida quando o serviço confirma conexão. No iPhone, a interface explica a instalação na Tela de Início. Entrega em aparelhos reais ainda exige verificação no aparelho com permissão concedida.
+- Ativação só é oferecida quando o serviço confirma conexão. No iPhone, a interface explica a instalação na Tela de Início. O teste no computador foi recebido; Android e iPhone ainda precisam de verificação nesses aparelhos.
 
 
 ## Alertas antes da eleição e atualização das fontes
@@ -47,3 +47,5 @@ A apresentação foi simplificada: sem seletor fixo, glossário, dicionário de 
 - Atualizado Next.js para 16.3.8; auditoria das dependências sem vulnerabilidades identificadas.
 
 - Teste funcional em navegador passou: botão de push dentro do onboarding, pedido de permissão disparado pelo clique, erro de permissão exibido no modal, comparação regional sem alterar filtro, restauração do Brasil sem voltar ao topo, categorias novas, RSS e horário da fonte, larguras 320/390/1280 px.
+- Publicações de pesquisas incluem o RSS do G1, com identificação do veículo; manchetes não alteram automaticamente os percentuais dos retratos conferidos.
+- TypeScript, 11 testes automatizados e build de produção passaram após a inclusão da quinta fonte de publicações.
