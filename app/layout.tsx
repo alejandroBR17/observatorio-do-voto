@@ -3,7 +3,7 @@ import "./globals.css";
 import "./redesign.css";
 import "./motion.css";
 
-const origin=process.env.SITE_URL||(process.env.VERCEL_PROJECT_PRODUCTION_URL?'https://'+process.env.VERCEL_PROJECT_PRODUCTION_URL:process.env.VERCEL_URL?'https://'+process.env.VERCEL_URL:'http://localhost:3000');
+const origin=process.env.SITE_URL||(process.env.VERCEL_PROJECT_PRODUCTION_URL?'https://'+process.env.VERCEL_PROJECT_PRODUCTION_URL:process.env.VERCEL_URL?'https://'+process.env.VERCEL_URL:'https://observatorio-voto.vercel.app');
 export const metadata:Metadata={
  metadataBase:new URL(origin),title:{default:'Observatório do Voto • Eleições presidenciais',template:'%s | Observatório do Voto'},description:'O Brasil, voto a voto. Dados oficiais, história, pesquisas e acompanhamento eleitoral.',applicationName:'Observatório do Voto',manifest:'/manifest.webmanifest',
  icons:{icon:[{url:'/favicon.ico',sizes:'any'},{url:'/favicon.svg',type:'image/svg+xml'}],apple:[{url:'/apple-touch-icon.png',sizes:'180x180',type:'image/png'}]},
@@ -18,7 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{__html:"(()=>{let t='system';try{t=JSON.parse(localStorage.getItem('observatorio.preferences')||'{}').theme||'system'}catch{}document.documentElement.dataset.theme=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'})()"}}/></head>
       <body className="antialiased">{children}</body>
     </html>
   );

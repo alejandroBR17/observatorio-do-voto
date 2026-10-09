@@ -1,10 +1,12 @@
-# Observatório do Voto
+# Instalação e publicação do Observatório do Voto
 
 ![Observatório do Voto](public/og-image.png)
 
 App responsivo para acompanhar as eleições presidenciais brasileiras: panorama de 2026, histórico de 1989–2022, pesquisas, mapas por estado, cobertura pública, perfil local e notificações. Inclui tema escuro, animações acessíveis e instalação como PWA.
 
 Esta é a versão independente **Next.js para GitHub e Vercel**. Não depende de ChatGPT, Sites, Vinext, Cloudflare D1 ou de uma conta do criador para o visitante abrir o app. As credenciais e o banco da hospedagem anterior não foram exportados.
+
+Endereço de produção: **https://observatorio-voto.vercel.app/**. Configure `SITE_URL` com esse endereço, sem os parâmetros de navegação.
 
 ## Publicar em 5 passos
 
@@ -57,7 +59,8 @@ WebSocket na Vercel usa a API `experimental_upgradeWebSocket` do SDK oficial. Pa
 | Item | Configuração |
 | --- | --- |
 | Panorama, mapas e histórico | Arquivos locais em `public/data`; funcionam sem chave |
-| Pesquisas, cobertura e apuração | Banco Turso para cache compartilhado e fontes públicas |
+| Pesquisas | Fontes públicas; funciona sem Turso, com cache temporário por instância. Turso habilita cache compartilhado |
+| Cobertura e apuração | Banco Turso para cache compartilhado e fontes públicas |
 | Push | HTTPS, permissão de cada navegador e banco; chaves VAPID geradas no servidor |
 | Dados iguais para visitantes | Banco centralizado; WebSocket com fallback de consulta de 30 s |
 | Perfil, preferência, estados e notas | LocalStorage de cada navegador; não são contas na nuvem |
@@ -77,7 +80,7 @@ Push depende do navegador e não tem garantia de entrega. O despachante atual te
 
 - Resultados e vitória oficial: TSE. Os dados históricos e do primeiro turno são retratos incluídos no pacote, com fonte identificada.
 - Mapa: IBGE. Regiões derivadas das unidades da federação.
-- Pesquisas: retratos conferidos em 08/10/2026 e consulta a fontes públicas. O adaptador PoderData extrai números somente com contexto e metodologia inequívocos. Não é uma API completa de todos os institutos e não é previsão garantida.
+- Pesquisas: retratos conferidos em 08 e 09/10/2026 e consulta a fontes públicas. O adaptador PoderData extrai números somente com contexto e metodologia inequívocos. Não é uma API completa de todos os institutos e não é previsão garantida.
 - Cobertura: SapiensLabs, com atribuição CC BY 4.0. Não há estatísticas individuais de eleitores ou rastreamento de redes sociais.
 - A eleição futura não tem resultados inventados: o app mostra espera ou indisponibilidade até receber a fonte correta.
 

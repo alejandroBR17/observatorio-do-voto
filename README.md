@@ -4,6 +4,8 @@
 
 Acompanhe as eleições presidenciais brasileiras em uma interface com mapas, gráficos, pesquisas e histórico. Compare resultados por estado e região, consulte as fontes e personalize sua experiência no celular ou no computador.
 
+[**Abrir o Observatório do Voto**](https://observatorio-voto.vercel.app/)
+
 ## Explore o app
 
 - **Panorama:** visão geral da eleição e dos indicadores disponíveis.
@@ -13,7 +15,7 @@ Acompanhe as eleições presidenciais brasileiras em uma interface com mapas, gr
 - **Cobertura:** explore conteúdos públicos relacionados à eleição.
 - **Perfil e alertas:** escolha seu candidato preferido e os estados de interesse, ajuste notificações e tema.
 
-O menu pode ser aberto quando você precisar. Seções extensas têm controles para expandir e recolher informações. O tema escuro facilita a leitura, e as transições respeitam a preferência de movimento reduzido do dispositivo.
+O menu pode ser aberto quando você precisar. Seções extensas têm controles para expandir e recolher informações. O tema acompanha o sistema do seu dispositivo por padrão; você pode escolher Claro ou Escuro no seletor da barra superior, e as transições respeitam a preferência de movimento reduzido do dispositivo.
 
 ## Como usar
 
