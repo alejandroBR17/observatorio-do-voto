@@ -1,5 +1,7 @@
 import type {Database} from './database';
 import { normalize, victory } from './elections';
+import {resultAlertTypes,voteGap} from './alerts';
+import {queuePush,eventId} from './push';
 const BASE='https://resultados.tse.jus.br/oficial';
 export async function live(db:Database,uf='BR'){
  const key=`live:${uf}`;const old=await db.prepare('SELECT value, updated FROM cache WHERE key=?').bind(key).first<{value:string;updated:number}>();
@@ -32,8 +34,13 @@ export async function live(db:Database,uf='BR'){
  if(payload.result&&(!old||JSON.parse(old.value).result?.id!==payload.result.id)&&uf==='BR'){
  const prior=old?JSON.parse(old.value).result:null;const current=payload.result;
  const previousVictory=prior?victory(prior).kind:null;
- const event=payload.victory.kind==='official'&&previousVictory!=='official'?'winner':payload.victory.kind==='mathematical'&&previousVictory!=='mathematical'?'mathematical':prior&&prior.candidates[0]?.number!==current.candidates[0]?.number?'lead':prior&&Math.abs((current.candidates[0].percent-current.candidates[1].percent)-(prior.candidates[0].percent-prior.candidates[1].percent))>=0.5?'margin':'progress';
- await db.prepare('INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated=excluded.updated').bind('event',JSON.stringify({event,result:current,victory:payload.victory}),Date.now()).run();
+ const baseline=await db.prepare('SELECT value FROM cache WHERE key=?').bind('alert:margin').first<{value:string}>();
+ const types=resultAlertTypes(current,prior,payload.victory.kind,previousVictory,baseline?Number(baseline.value):prior?voteGap(prior):voteGap(current));
+ if(!baseline||types.includes('margin'))await db.prepare('INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated=excluded.updated').bind('alert:margin',String(voteGap(current)),Date.now()).run();
+ const labels={winner:'Resultado confirmado pelo TSE',mathematical:'Vantagem numericamente irreversível',lead:'Mudança de liderança',margin:'Mudança na vantagem',progress:'Atualização da apuração',polls:'Nova pesquisa',coverage:'Noticiário'};
+ const title=labels[types[0]],body=types.includes('winner')||types.includes('mathematical')?payload.victory.message:current.candidates.slice(0,2).map((c:any)=>`${c.name}: ${c.percent.toLocaleString('pt-BR',{maximumFractionDigits:2})}%`).join(' · ')+` · ${current.counted.toLocaleString('pt-BR')}% apurado`;
+ await queuePush(db,{id:eventId('live',current.id),types,title,body,url:'/?tab=live',urgent:types.some(t=>['winner','mathematical','lead'].includes(t))});
+ await db.prepare('INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated=excluded.updated').bind('event',JSON.stringify({event:types[0],result:current,victory:payload.victory}),Date.now()).run();
  }
  return payload;
 }

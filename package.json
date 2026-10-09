@@ -11,22 +11,24 @@
     "build": "next build --webpack",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types scripts/verify.mjs && node --experimental-strip-types scripts/verify-polls.mjs && tsx --test tests/*.test.ts",
+    "test": "tsx scripts/verify.mjs && tsx scripts/verify-polls.mjs && tsx --test tests/*.test.ts",
     "db:init": "tsx scripts/init-database.ts"
   },
   "dependencies": {
     "@libsql/client": "0.18.0",
     "@vercel/functions": "3.9.11",
-    "next": "16.3.4",
+    "lucide-react": "1.31.0",
+    "next": "^16.3.8",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "lucide-react": "1.31.0"
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
-    "typescript": "5.9.3",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "tsx": "^4.20.5"
+    "@types/web-push": "^3.6.4",
+    "tsx": "^4.20.5",
+    "typescript": "5.9.3"
   }
 }

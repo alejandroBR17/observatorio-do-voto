@@ -1,11 +1,12 @@
 import type {Database} from './database';
+import {queueContentAlerts} from './content-alerts';
 export type PollSnapshot={id:string;institute:string;publishedAt:string;fieldwork:string;sample:number;margin:number;confidence:number|null;registration:string;scope:string;turn:number;basis:'valid'|'total';flavio:number;lula:number;source:string;mode:'snapshot'|'automatic';totalVotes?:{flavio:number;lula:number;blankNull?:number;undecided?:number;other?:number};note?:string};
 export const pollSnapshots:PollSnapshot[]=[
  {id:'BR-03663/2026',institute:'AtlasIntel/Bloomberg',publishedAt:'2026-10-09T07:30:00-03:00',fieldwork:'3 a 8/10/2026 · recrutamento digital aleatório (Atlas RDR)',sample:5026,margin:1,confidence:95,registration:'BR-03663/2026',scope:'Brasil',turn:2,basis:'valid',flavio:52.8,lula:47.2,source:'https://cdn1.atlasintel.org/pesquisa_atlas_bloomberg__nacional_261009_3da0d6d3d6d32fe1.pdf',mode:'snapshot',totalVotes:{flavio:51.1,lula:45.7,other:3.2},note:'Conferido no relatório original de 09/10: metodologia na página 5, votos totais na página 7 e válidos na página 8. Brancos, nulos e indecisos são divulgados juntos (3,2%); não foram separados por estimativa.'},
  {id:'BR-02949/2026',institute:'Datafolha',publishedAt:'2026-10-08T18:40:00-03:00',fieldwork:'6 e 7/10/2026, conforme reportagem da Folha',sample:2520,margin:2,confidence:null,registration:'BR-02949/2026',scope:'Brasil',turn:2,basis:'valid',flavio:52,lula:48,source:'https://www1.folha.uol.com.br/poder/2026/10/datafolha-flavio-bolsonaro-tem-52-e-lula-48-em-votos-validos-no-segundo-turno.shtml',mode:'snapshot',totalVotes:{flavio:49,lula:45,blankNull:5,undecided:1},note:'Retrato conferido em 8/10. A Folha informa campo em 6 e 7/10; outras publicações mencionam 6 a 8/10. Confira a metodologia no registro.'},
  {id:'BR-08134/2026',institute:'PoderData/Aya',publishedAt:'2026-10-08T07:30:00-03:00',fieldwork:'5 a 7/10/2026',sample:3000,margin:1.8,confidence:95,registration:'BR-08134/2026',scope:'Brasil',turn:2,basis:'valid',flavio:53,lula:47,source:'https://www.poder360.com.br/poderdata/flavio-tem-53-contra-47-de-lula-no-2o-turno-diz-poderdata-aya/',mode:'snapshot',note:'Telefone/URA; 705 municípios, 27 UFs. Retrato conferido em 8/10, sem atualização automática dos percentuais.'}
 ];
-export type Publication={institute:string;title:string;url:string;publishedAt:string|null;source:string;kind:'publication'};
+export type Publication={institute:string;title:string;url:string;publishedAt:string|null;source:string;kind:'publication';dateOnly?:boolean};
 const sources=[
  {name:'Folha / Datafolha',url:'https://feeds.folha.uol.com.br/poder/rss091.xml',format:'rss',domain:'folha.uol.com.br'},
  {name:'PoderData',url:'https://www.poder360.com.br/category/poderdata/feed/',format:'rss',domain:'poder360.com.br'},
@@ -28,7 +29,7 @@ export function parseWordPress(data:unknown,source:{name:string;url:string;domai
  if(!Array.isArray(data))return [];return data.flatMap((p:any)=>{const title=plainText(p?.title?.rendered||''),url=safeUrl(p?.link||'',source.domain),publishedAt=date(p?.date_gmt?`${p.date_gmt}Z`:p?.date);return url&&publishedAt&&/^2026-/.test(publishedAt)&&/presiden/i.test(title)?[{institute:source.name,title:title.slice(0,240),url,publishedAt,source:source.url,kind:'publication' as const}]:[];}).slice(0,20);
 }
 export function parseAtlas(html:string,source:{name:string;url:string;domain:string}):Publication[]{
- const found=new Map<string,Publication>();for(const m of html.matchAll(/(?:href=["']|https:\/\/atlasintel\.org)(\/poll\/brazil-national-(2026-\d{2}-\d{2}))["']/g)){const url=safeUrl(`https://atlasintel.org${m[1]}`,source.domain);if(url)found.set(url,{institute:'AtlasIntel',title:`Pesquisa nacional AtlasIntel · ${m[2]}`,url,publishedAt:date(m[2]+'T12:00:00Z'),source:source.url,kind:'publication'});}return [...found.values()].slice(0,20);
+ const found=new Map<string,Publication>();for(const m of html.matchAll(/(?:href=["']|https:\/\/atlasintel\.org)(\/poll\/brazil-national-(2026-\d{2}-\d{2}))["']/g)){const url=safeUrl(`https://atlasintel.org${m[1]}`,source.domain);if(url)found.set(url,{institute:'AtlasIntel',title:`Pesquisa nacional AtlasIntel · ${m[2]}`,url,publishedAt:date(m[2]+'T12:00:00Z'),source:source.url,kind:'publication',dateOnly:true});}return [...found.values()].slice(0,20);
 }
 // Deliberately narrow adapter: primary PoderData article JSON-LD, explicit valid-vote
 // pair in its opening paragraph, methodology and BR registration are all required.
@@ -72,7 +73,9 @@ async function collectPolls(db?:Database){
  const items=s.format==='wp'?parseWordPress(JSON.parse(text),s):s.format==='atlas'?parseAtlas(text,s):parseRss(text,s);
  return {name:s.name,url:s.url,status:items.length?'ok':'empty',checkedAt,count:items.length,items};
  }catch{return {name:s.name,url:s.url,status:'unavailable',checkedAt,count:0,items:[] as Publication[]};}}));
- const current=results.flatMap(s=>s.items);const staleItems=previous?JSON.parse(previous.value).publications||[]:[];
+ const current:Publication[]=results.flatMap(s=>s.items);
+ for(const p of pollSnapshots)if(!current.some(item=>item.institute.startsWith(p.institute.split('/')[0])&&item.publishedAt?.slice(0,10)===p.publishedAt.slice(0,10)))current.push({institute:p.institute,title:`${p.institute}: intenção de voto no segundo turno presidencial`,url:p.source,publishedAt:p.publishedAt,source:p.source,kind:'publication',dateOnly:true});
+ const staleItems=previous?JSON.parse(previous.value).publications||[]:[];
  const fallback=staleItems.filter((p:Publication)=>results.some(s=>s.url===p.source&&s.status==='unavailable')).map((p:Publication)=>({...p,stale:true}));
  const publications=[...new Map([...current,...fallback].map(p=>[p.url,p])).values()].sort((a:any,b:any)=>(b.publishedAt||'').localeCompare(a.publishedAt||'')).slice(0,40);
  const priorPolls:PollSnapshot[]=previous?JSON.parse(previous.value).polls||[]:[];
@@ -82,5 +85,5 @@ async function collectPolls(db?:Database){
  const numeric=[...new Map([...pollSnapshots,...priorPolls.filter(p=>p.mode==='automatic'),...extracted.filter((p):p is PollSnapshot=>!!p)].map(p=>[p.id,p])).values()].sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt));
  const payload={status:results.some(s=>s.status==='ok')?'ready':'unavailable',checkedAt,latestPublishedAt:numeric[0]?.publishedAt||null,cacheSeconds:300,cacheStorage:db?'shared':'temporary',polls:numeric,publications,sources:results.map(({items,...rest})=>rest),notice:'Fontes consultadas a cada 5 minutos com o app em uso. A data da consulta não é a data de uma nova pesquisa. PoderData: percentuais extraídos quando cenário e metodologia são inequívocos. Datafolha e AtlasIntel: retratos conferidos em 08 e 09/10. As novas publicações dos institutos são descobertas automaticamente; números sem validação permanecem apenas como links. Não há previsão de vencedor nem média automática.',registrationSource:'https://pesqele-divulgacao.tse.jus.br/'};
  temporaryCache={value:JSON.stringify(payload),updated:Date.now()};
- if(db)await db.prepare('INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated=excluded.updated').bind(key,temporaryCache.value,temporaryCache.updated).run();return payload;
+ if(db){await db.prepare('INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated=excluded.updated').bind(key,temporaryCache.value,temporaryCache.updated).run();await queueContentAlerts(db,payload,previous?JSON.parse(previous.value):null,'polls');}return payload;
 }

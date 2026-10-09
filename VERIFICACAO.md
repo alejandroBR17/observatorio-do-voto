@@ -35,3 +35,15 @@ A apresentação foi simplificada: sem seletor fixo, glossário, dicionário de 
 - Testes de provedores push (Apple, Chrome, Firefox e Windows), rejeição de endpoints inseguros e estabilidade das chaves VAPID passaram.
 - Onboarding testado em navegador: personalização, pular, persistência, retorno pelo perfil e ausência de rolagem horizontal em 320/390/1280 px.
 - Ativação só é oferecida quando o serviço confirma conexão. No iPhone, a interface explica a instalação na Tela de Início. Entrega em aparelhos reais ainda exige verificação no aparelho com permissão concedida.
+
+
+## Alertas antes da eleição e atualização das fontes
+
+- Gatilhos de resultado, vantagem irreversível, troca de líder e variação acumulada da vantagem testados juntos, sem categoria suprimir outra.
+- Fila testada para preferências, falhas transitórias, duplicidade e remoção de inscrições expiradas.
+- Pesquisas/publicações e novas notícias usam categorias próprias, sem avisar retroativamente sobre a carga inicial.
+- Notícias de Folha e G1 complementam o acervo SapiensLabs. Datas de consulta e coleta da fonte são distintas.
+- Monitor gratuito no GitHub consulta APIs a cada 5 minutos previstos, mesmo sem visitantes; a agenda não garante pontualidade.
+- Atualizado Next.js para 16.3.8; auditoria das dependências sem vulnerabilidades identificadas.
+
+- Teste funcional em navegador passou: botão de push dentro do onboarding, pedido de permissão disparado pelo clique, erro de permissão exibido no modal, comparação regional sem alterar filtro, restauração do Brasil sem voltar ao topo, categorias novas, RSS e horário da fonte, larguras 320/390/1280 px.

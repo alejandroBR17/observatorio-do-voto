@@ -25,7 +25,7 @@ No primeiro acesso, as boas-vindas permitem escolher seu nome, quem deseja acomp
 
 Abra o endereço publicado do app no navegador. Você não precisa de uma conta para consultar os dados. Use os filtros para mudar a eleição ou a região e abra as fontes para entender de onde vem cada informação.
 
-Para receber alertas, visite a área de notificações e permita o envio no navegador. A entrega depende do dispositivo, das permissões e da disponibilidade do serviço. No iPhone compatível, adicione o app à tela inicial antes de ativar as notificações.
+Para receber alertas, use o botão das boas-vindas ou visite Alertas e permita o envio no navegador. Você pode escolher avisos de pesquisas, notícias, mudanças na apuração e confirmação do resultado. Um botão de teste ajuda a conferir o recebimento neste aparelho. Com o app em uso, a apuração é consultada a cada 30 segundos. Sem visitantes, um monitor consulta as fontes em intervalos previstos de 5 minutos, sujeitos a atrasos. A entrega depende do dispositivo, das permissões e da disponibilidade do serviço. No iPhone compatível, adicione o app à tela inicial antes de ativar as notificações.
 
 Você também pode instalar o app pelo menu do navegador ou pela opção **Adicionar à tela inicial**. Ele continua acessível pelo endereço da hospedagem.
 

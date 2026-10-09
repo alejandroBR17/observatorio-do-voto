@@ -70,18 +70,18 @@ Os visitantes não precisam de contas GitHub, Vercel ou Turso. Não há sala com
 
 ## Alertas com o app fechado
 
-Novos dados são coletados enquanto há clientes consultando o app. As notificações podem alcançar outro navegador inscrito que esteja fechado, se a plataforma permitir. **Sem nenhum cliente conectado, não existe coleta contínua automática.**
+Novos dados são coletados enquanto há clientes consultando o app. As notificações podem alcançar outro navegador inscrito que esteja fechado, se a plataforma permitir. **Sem visitantes, o workflow `.github/workflows/monitor.yml` consulta as três APIs públicas em intervalos previstos de 5 minutos.** A agenda do GitHub pode atrasar ou perder execuções; não é uma garantia de coleta em tempo real. O workflow pode ser executado manualmente em Actions e é suspenso pelo GitHub após 60 dias sem atividade no repositório público. A frequência não consome um plano pago de cron da Vercel.
 
 Incluí `/api/monitor`, protegido por `Authorization: Bearer CRON_SECRET`. Gere um segredo longo e configure-o na Vercel e no monitor externo de sua escolha. Esse endpoint consulta o TSE e despacha os eventos. Não é público e não expõe o segredo na URL. Não incluí uma agenda incompatível com Hobby: o [cron gratuito da Vercel](https://vercel.com/docs/cron-jobs/usage-and-pricing) executa no máximo uma vez por dia. Um monitor externo com intervalo menor é necessário para apuração frequente sem visitantes; não foi provisionado neste pacote.
 
-Push depende do navegador e não tem garantia de entrega. O despachante atual tem limite de 500 inscrições por evento, registra uma tentativa por atualização e não tem fila persistente de reenvio. Para audiência maior, prepare fila e paginação antes de prometer notificações a todos. HTTPS e instalação na tela inicial são necessários no iPhone compatível. Trocar domínio ou banco exige uma nova inscrição; as inscrições da hospedagem antiga não migraram.
+Push depende do navegador e não tem garantia de entrega. O despachante usa fila SQL e registro por evento/aparelho, com até três tentativas para falhas transitórias. Cada consulta despacha no máximo 100 entregas; as restantes são retomadas nas próximas consultas. Eventos expiram em 24 horas. Chaves de inscrição permitem enviar o conteúdo criptografado de cada alerta. Para confirmar recebimento no aparelho, use o botão de teste em Alertas. A resposta do provedor confirma aceitação, não leitura nem exibição pelo sistema. HTTPS e instalação na tela inicial são necessários no iPhone compatível. Trocar domínio ou banco exige uma nova inscrição; as inscrições da hospedagem antiga não migraram.
 
 ## Dados e confiança
 
 - Resultados e vitória oficial: TSE. Os dados históricos e do primeiro turno são retratos incluídos no pacote, com fonte identificada.
 - Mapa: IBGE. Regiões derivadas das unidades da federação.
 - Pesquisas: retratos conferidos em 08 e 09/10/2026 e consulta a fontes públicas. O adaptador PoderData extrai números somente com contexto e metodologia inequívocos. Não é uma API completa de todos os institutos e não é previsão garantida.
-- Cobertura: SapiensLabs, com atribuição CC BY 4.0. Não há estatísticas individuais de eleitores ou rastreamento de redes sociais.
+- Cobertura: acervo e estatísticas SapiensLabs, com atribuição CC BY 4.0; notícias complementadas pelos RSS públicos de Folha e G1. Não há estatísticas individuais de eleitores ou rastreamento de redes sociais.
 - A eleição futura não tem resultados inventados: o app mostra espera ou indisponibilidade até receber a fonte correta.
 
 ## Gratuidade e uso compartilhado

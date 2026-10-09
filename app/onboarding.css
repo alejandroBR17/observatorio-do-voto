@@ -8,3 +8,5 @@
 
 .welcome-content .form-label>span{display:flex;align-items:center;gap:10px}.welcome-content .form-label small{font-size:11px;font-weight:400}
 @media(max-height:650px){.welcome-dialog{padding:22px}.welcome-top{margin-bottom:16px}.welcome-progress{margin-bottom:18px}.welcome-content h2{font-size:27px;margin:10px 0 12px}.welcome-content p{margin-bottom:12px;font-size:12px}.welcome-content .form-label{margin:16px 0}.welcome-actions{margin-top:16px}}
+
+.welcome-notifications{display:flex;gap:12px;margin-top:22px;padding:18px 0 0;border-top:1px solid var(--line)}.welcome-notifications>svg{flex-shrink:0;color:var(--green);margin-top:2px}.welcome-notifications strong{font-size:13px}.welcome-notifications p{font-size:12px;margin:8px 0 12px;line-height:1.6}.welcome-notifications .button{white-space:normal;font-size:12px}
