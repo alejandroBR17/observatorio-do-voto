@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useId, useState } from 'react';
-import { ArrowUpRight, Newspaper } from 'lucide-react';
+import { ArrowUpRight, Newspaper, CircleCheck, Compass, ChartNoAxesCombined } from 'lucide-react';
 import { updateItems, type UpdateItem } from '@/lib/recent-updates';
 export function RecentUpdates({ onGo }: { onGo: (destination: string) => void }) {
   const [items, setItems] = useState<UpdateItem[]>([]),
@@ -118,12 +118,38 @@ export function RecentUpdates({ onGo }: { onGo: (destination: string) => void })
             </button>
           </div>
         ) : !items.length ? (
-          <div className="recent-state">
-            <p>
-              {returning
-                ? 'Nenhuma atualização nova desde sua última visita neste navegador.'
-                : 'Nenhuma atualização disponível nas fontes consultadas.'}
-            </p>
+          <div className="recent-empty">
+            <div className="recent-empty-copy">
+              <div className="recent-empty-heading">
+                <span className="recent-empty-icon" aria-hidden="true">
+                  {returning ? <CircleCheck size={23} /> : <Compass size={23} />}
+                </span>
+                <h3>{returning ? 'Você está em dia.' : 'Explore a eleição.'}</h3>
+              </div>
+              <p>
+                {returning
+                  ? 'Nenhuma novidade identificada desde sua última visita. Enquanto isso, continue explorando.'
+                  : 'Ainda não há destaques para mostrar. Conheça as pesquisas e acompanhe a cobertura.'}
+              </p>
+            </div>
+            <div className="recent-empty-actions" role="group" aria-label="Explorar a eleição">
+              <button className="button secondary" onClick={() => onGo('polls')}>
+                <ChartNoAxesCombined size={19} aria-hidden="true" />
+                <span>
+                  <strong>Ver pesquisas</strong>
+                  <small>Resultados e publicações</small>
+                </span>
+                <ArrowUpRight size={16} aria-hidden="true" />
+              </button>
+              <button className="button secondary" onClick={() => onGo('social')}>
+                <Newspaper size={19} aria-hidden="true" />
+                <span>
+                  <strong>Ler notícias</strong>
+                  <small>Cobertura de diferentes veículos</small>
+                </span>
+                <ArrowUpRight size={16} aria-hidden="true" />
+              </button>
+            </div>
           </div>
         ) : (
           <div className="recent-list">
@@ -147,7 +173,9 @@ export function RecentUpdates({ onGo }: { onGo: (destination: string) => void })
           ? 'Consultando as fontes…'
           : status === 'unavailable'
             ? 'As demais seções continuam disponíveis.'
-            : `Fontes consultadas às ${checked}. Abra um destaque para conferir a origem.`}
+            : !items.length
+              ? `Última consulta às ${checked}.`
+              : `Fontes consultadas às ${checked}. Abra um destaque para conferir a origem.`}
       </small>
     </section>
   );
