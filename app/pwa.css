@@ -159,3 +159,115 @@
     min-height: 44px;
   }
 }
+.pwa-command h2 {
+  font-size: clamp(20px, 3vw, 28px);
+  margin: 22px 0;
+}
+.pwa-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.pwa-status span {
+  padding: 7px 11px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+.pwa-launchers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.pwa-launchers button {
+  display: grid;
+  gap: 12px;
+  text-align: left;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--soft);
+  min-width: 0;
+}
+.pwa-launchers button:hover {
+  border-color: var(--accent);
+}
+.pwa-launchers span {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.pwa-guide summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+@media (max-width: 900px) {
+  .topbar:has(.header-app) {
+    gap: 12px;
+    padding-inline: 16px;
+  }
+  .topbar:has(.header-app) .top-brand {
+    gap: 8px;
+    min-width: 0;
+  }
+  .topbar:has(.header-app) .header-brand > span {
+    display: none;
+  }
+  .topbar:has(.header-app) .header-brand img {
+    display: block;
+    width: 30px;
+    height: 30px;
+  }
+  .topbar:has(.header-app) .menu-trigger span {
+    display: none;
+  }
+  .topbar:has(.header-app) .top-actions {
+    gap: 4px;
+  }
+}
+@media (max-width: 600px) {
+  .pwa-launchers {
+    grid-template-columns: 1fr;
+  }
+  .pwa-launchers button {
+    grid-template-columns: 28px 1fr;
+    gap: 6px 12px;
+    padding: 16px;
+  }
+  .pwa-launchers button svg {
+    grid-row: span 2;
+  }
+  .pwa-panels .panel {
+    padding: 20px;
+  }
+  .topbar:has(.header-app) {
+    padding-inline: 10px;
+    gap: 6px;
+  }
+}
+@media (max-width: 380px) {
+  .topbar:has(.header-app) .header-brand {
+    display: none;
+  }
+  .header-app {
+    padding: 6px;
+  }
+  .header-app span {
+    max-width: 58px;
+    font-size: 10px;
+  }
+  .topbar:has(.header-app) .top-actions {
+    gap: 2px;
+  }
+  .app-dock {
+    width: calc(100% - 24px);
+    justify-content: space-around;
+  }
+  .app-dock button {
+    padding: 9px 12px;
+  }
+  .pwa-panels .panel {
+    padding: 16px;
+  }
+}

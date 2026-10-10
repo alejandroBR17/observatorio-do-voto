@@ -8,6 +8,14 @@
   "orientation": "any",
   "start_url": "/",
   "scope": "/",
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://observatorio-voto.vercel.app/manifest.webmanifest",
+      "id": "https://observatorio-voto.vercel.app/"
+    }
+  ],
+  "prefer_related_applications": false,
   "display": "standalone",
   "background_color": "#f4f2ec",
   "theme_color": "#14283d",

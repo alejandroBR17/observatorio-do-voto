@@ -1,4 +1,4 @@
-const OFFLINE = 'observatorio-offline-v4';
+const OFFLINE = 'observatorio-offline-v5';
 const OFFLINE_ASSETS = ['/offline.html', '/offline.css', '/offline.js', '/app-icon.svg'];
 self.addEventListener('install', (event) =>
   event.waitUntil(

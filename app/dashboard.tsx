@@ -1059,7 +1059,9 @@ function DashboardContent() {
               </div>
             )}
 
-            {tab === 'app' && <PwaPanel result={national} onAlerts={() => go('alerts')} />}
+            {tab === 'app' && (
+              <PwaPanel result={national} onAlerts={() => go('alerts')} onGo={go} />
+            )}
             {tab === 'profile' && (
               <Profile
                 nickname={nickname}

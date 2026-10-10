@@ -65,7 +65,7 @@ function worker() {
       },
     },
     caches: {
-      keys: async () => ['observatorio-offline-v3', 'observatorio-offline-v4', 'another-app'],
+      keys: async () => ['observatorio-offline-v4', 'observatorio-offline-v5', 'another-app'],
       delete: async (key: string) => {
         deleted.push(key);
       },
@@ -123,7 +123,7 @@ test('service worker removes only its old caches and never caches live APIs', as
   ]);
   w.handlers.activate(w.base);
   await w.complete();
-  assert.deepEqual(w.deleted, ['observatorio-offline-v3']);
+  assert.deepEqual(w.deleted, ['observatorio-offline-v4']);
   let intercepted = false;
   w.handlers.fetch({
     ...w.base,
@@ -167,10 +167,12 @@ test('offline companion renders notes as text, tolerates bad storage and perform
       this.children.push(...nodes);
     }
     addEventListener() {}
+    setAttribute() {}
   }
   const nodes = new Map<string, Element>();
   const values: Record<string, string> = {
     'observatorio.preferences': 'broken',
+    'observatorio.offline-result': JSON.stringify(offlineSnapshot(result)),
     'observatorio.watch': JSON.stringify({
       entries: [null, { title: '<img onerror=evil()>', body: '<script>evil()</script>' }],
     }),
@@ -192,4 +194,10 @@ test('offline companion renders notes as text, tolerates bad storage and perform
   });
   assert.equal(nodes.get('notes')?.children[0].children[1].textContent, '<script>evil()</script>');
   assert.match(nodes.get('connection')!.textContent, /Sem conexão/);
+  const rows = nodes
+    .get('saved-result')!
+    .children.filter((node) => node.className === 'saved-candidate');
+  assert.equal(rows.length, result.candidates.length);
+  assert.equal(rows[0].children[0].textContent, result.candidates[0].name);
+  assert.equal(rows[0].children[2].className, 'vote-bar');
 });

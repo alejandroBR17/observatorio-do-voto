@@ -10,6 +10,8 @@ type InstallPrompt = Event & {
 };
 type PwaState = {
   installed: boolean;
+  hasApp: boolean;
+  pending: boolean;
   canInstall: boolean;
   platform: ReturnType<typeof installationPlatform>;
   message: string;
@@ -19,6 +21,8 @@ type PwaState = {
 const PwaContext = createContext<PwaState | null>(null);
 const fallback: PwaState = {
   installed: false,
+  hasApp: false,
+  pending: false,
   canInstall: false,
   platform: 'desktop',
   message: '',
@@ -30,33 +34,86 @@ export const usePwa = () => useContext(PwaContext) || fallback;
 export function PwaProvider({ children }: { children: ReactNode }) {
   const prompt = useRef<InstallPrompt | null>(null);
   const [installed, setInstalled] = useState(false);
+  const [hasApp, setHasApp] = useState(false);
+  const [pending, setPending] = useState(false);
   const [canInstall, setCanInstall] = useState(false);
   const [platform, setPlatform] = useState<PwaState['platform']>('desktop');
   const [message, setMessage] = useState('');
   const [installing, setInstalling] = useState(false);
   useEffect(() => {
+    let canceled = false;
+    const remember = () => {
+      setHasApp(true);
+      setPending(false);
+      try {
+        localStorage.setItem('observatorio.app-installed', '1');
+      } catch {
+        /* Installation detection still works without writable storage. */
+      }
+    };
     const media = matchMedia('(display-mode: standalone)');
-    const update = () =>
-      setInstalled(
-        media.matches || !!(navigator as Navigator & { standalone?: boolean }).standalone,
-      );
+    const update = () => {
+      const standalone =
+        media.matches || !!(navigator as Navigator & { standalone?: boolean }).standalone;
+      setInstalled(standalone);
+      if (standalone) remember();
+    };
+    try {
+      setHasApp(localStorage.getItem('observatorio.app-installed') === '1');
+    } catch {
+      /* The browser may block local storage. */
+    }
     update();
     setPlatform(installationPlatform(navigator.userAgent, navigator.maxTouchPoints));
     const ready = (event: Event) => {
       event.preventDefault();
       prompt.current = event as InstallPrompt;
+      setHasApp(false);
+      setPending(false);
+      try {
+        localStorage.removeItem('observatorio.app-installed');
+      } catch {
+        /* A new native offer takes precedence over the stored hint. */
+      }
       setCanInstall(true);
     };
     const complete = () => {
       prompt.current = null;
       setCanInstall(false);
+      remember();
       setMessage('Instalação concluída. Abra o Observatório pelo ícone do aparelho.');
       update();
     };
+    const detect = async () => {
+      const nav = navigator as Navigator & {
+        getInstalledRelatedApps?: () => Promise<{ platform?: string; url?: string; id?: string }[]>;
+      };
+      if (!nav.getInstalledRelatedApps) return;
+      try {
+        const apps = await nav.getInstalledRelatedApps();
+        if (
+          !canceled &&
+          apps.some(
+            (app) =>
+              app.platform === 'webapp' &&
+              app.url &&
+              new URL(app.url, location.href).href ===
+                new URL('/manifest.webmanifest', location.href).href,
+          )
+        )
+          remember();
+      } catch {
+        /* Keep the local installation hint when the browser cannot check. */
+      }
+    };
+    void detect();
+    window.addEventListener('focus', detect);
     media.addEventListener('change', update);
     window.addEventListener('beforeinstallprompt', ready);
     window.addEventListener('appinstalled', complete);
     return () => {
+      canceled = true;
+      window.removeEventListener('focus', detect);
       media.removeEventListener('change', update);
       window.removeEventListener('beforeinstallprompt', ready);
       window.removeEventListener('appinstalled', complete);
@@ -71,6 +128,7 @@ export function PwaProvider({ children }: { children: ReactNode }) {
     try {
       await event.prompt();
       const choice = await event.userChoice;
+      setPending(choice.outcome === 'accepted');
       setMessage(
         choice.outcome === 'accepted'
           ? 'Abra o app pelo novo ícone para usar o modo instalado.'
@@ -85,7 +143,9 @@ export function PwaProvider({ children }: { children: ReactNode }) {
     }
   }
   return (
-    <PwaContext.Provider value={{ installed, canInstall, platform, message, installing, install }}>
+    <PwaContext.Provider
+      value={{ installed, hasApp, pending, canInstall, platform, message, installing, install }}
+    >
       {children}
     </PwaContext.Provider>
   );
@@ -93,7 +153,15 @@ export function PwaProvider({ children }: { children: ReactNode }) {
 
 export function InstallAction({ onOpen }: { onOpen: () => void }) {
   const pwa = usePwa();
-  const label = pwa.installed ? 'Meu app' : pwa.canInstall ? 'Instalar app' : 'Como instalar';
+  const label = pwa.installing
+    ? 'Instalando…'
+    : pwa.installed || pwa.hasApp
+      ? 'Meu app'
+      : pwa.pending
+        ? 'Instalação solicitada'
+        : pwa.canInstall
+          ? 'Instalar app'
+          : 'Como instalar';
   return (
     <button
       className="header-app"
@@ -101,10 +169,7 @@ export function InstallAction({ onOpen }: { onOpen: () => void }) {
       title={label}
       disabled={pwa.installing}
       onClick={() => {
-        if (pwa.canInstall && !pwa.installed)
-          void pwa.install().then((opened) => {
-            if (!opened) onOpen();
-          });
+        if (pwa.canInstall && !pwa.installed && !pwa.hasApp) void pwa.install().then(onOpen);
         else onOpen();
       }}
     >
@@ -114,10 +179,39 @@ export function InstallAction({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-export function PwaPanel({ result, onAlerts }: { result?: Result; onAlerts: () => void }) {
+export function PwaPanel({
+  result,
+  onAlerts,
+  onGo,
+}: {
+  result?: Result;
+  onAlerts: () => void;
+  onGo?: (tab: string) => void;
+}) {
   const pwa = usePwa();
   const [saved, setSaved] = useState('');
   const [error, setError] = useState('');
+  const [online, setOnline] = useState(true);
+  const [notifications, setNotifications] = useState('Ainda não ativadas');
+  useEffect(() => {
+    const update = () => {
+      setOnline(navigator.onLine);
+      setNotifications(
+        typeof Notification !== 'undefined' && Notification.permission === 'granted'
+          ? 'Permitidas neste ambiente'
+          : 'Confira suas preferências',
+      );
+    };
+    update();
+    window.addEventListener('online', update);
+    window.addEventListener('offline', update);
+    window.addEventListener('focus', update);
+    return () => {
+      window.removeEventListener('online', update);
+      window.removeEventListener('offline', update);
+      window.removeEventListener('focus', update);
+    };
+  }, []);
   useEffect(() => {
     try {
       const data = JSON.parse(localStorage.getItem('observatorio.offline-result') || 'null');
@@ -170,14 +264,20 @@ export function PwaPanel({ result, onAlerts }: { result?: Result; onAlerts: () =
           <h2>
             {pwa.installed
               ? 'Seu app, pronto para acompanhar.'
-              : 'Leve o país, voto a voto, com você.'}
+              : pwa.hasApp
+                ? 'Seu app já está no aparelho.'
+                : pwa.pending
+                  ? 'Instalação solicitada.'
+                  : 'Leve o país, voto a voto, com você.'}
           </h2>
           <p>
             {pwa.installed
               ? 'Acesso direto, atalhos na tela e um espaço para consultar mesmo sem conexão.'
-              : 'Gratuito, sem loja de aplicativos. Abra pelo ícone e tenha uma experiência dedicada.'}
+              : pwa.hasApp || pwa.pending
+                ? 'Abra pelo ícone do Observatório na tela inicial ou na lista de aplicativos. Você está navegando pelo site agora.'
+                : 'Gratuito, sem loja de aplicativos. Abra pelo ícone e tenha uma experiência dedicada.'}
           </p>
-          {!pwa.installed && pwa.canInstall && (
+          {!pwa.installed && !pwa.hasApp && !pwa.pending && pwa.canInstall && (
             <button
               className="button primary"
               disabled={pwa.installing}
@@ -200,7 +300,31 @@ export function PwaPanel({ result, onAlerts }: { result?: Result; onAlerts: () =
           {pwa.message}
         </p>
       )}
-      {!pwa.installed && (
+      {pwa.installed && (
+        <section className="panel pwa-command">
+          <div className="pwa-status">
+            <span>{online ? 'Conexão disponível' : 'Sem conexão'}</span>
+            <span>{notifications}</span>
+          </div>
+          <h2>O que você quer acompanhar agora?</h2>
+          <div className="pwa-launchers">
+            {(
+              [
+                ['live', 'Apuração', 'Acompanhe a votação e prepare seus alertas.', Radio],
+                ['municipality', 'Meu município', 'Encontre seu colégio e sua seção.', Globe2],
+                ['watch', 'Meu caderno', 'Registre o que vale acompanhar.', BookOpen],
+              ] as const
+            ).map(([id, label, text, Icon]) => (
+              <button key={id} onClick={() => onGo?.(id)}>
+                <Icon size={24} />
+                <strong>{label}</strong>
+                <span>{text}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+      {!pwa.installed && !pwa.hasApp && !pwa.pending && (
         <section className="panel pwa-guide">
           <h2>Como instalar neste aparelho</h2>
           <ol>
@@ -214,18 +338,34 @@ export function PwaPanel({ result, onAlerts }: { result?: Result; onAlerts: () =
           </p>
         </section>
       )}
-      <div className="pwa-features">
-        <section className="panel">
-          <Smartphone size={23} />
-          <h3>Uma experiência própria</h3>
-          <p>
-            Ao abrir pelo ícone, use os atalhos fixos para Panorama, Apuração e Caderno. Navegadores
-            compatíveis também oferecem atalhos ao pressionar o ícone do app.
+      {!pwa.installed && (pwa.hasApp || pwa.pending) && (
+        <details className="panel pwa-guide">
+          <summary>Não encontrou o ícone? Ver ajuda de instalação</summary>
+          <ol>
+            {guides[pwa.platform].map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+          <p className="fine">
+            O registro neste navegador não confirma se você removeu o app depois. Se necessário,
+            instale novamente pelo menu do navegador.
           </p>
-        </section>
+        </details>
+      )}
+      <div className="pwa-features">
+        {!pwa.installed && (
+          <section className="panel">
+            <Smartphone size={23} />
+            <h3>Uma experiência própria</h3>
+            <p>
+              Ao abrir pelo ícone, use os atalhos fixos para Panorama, Apuração e Caderno.
+              Navegadores compatíveis também oferecem atalhos ao pressionar o ícone do app.
+            </p>
+          </section>
+        )}
         <section className="panel">
           <Radio size={23} />
-          <h3>Prepare os seus alertas</h3>
+          <h3>{pwa.installed ? 'Seus alertas' : 'Prepare os seus alertas'}</h3>
           <p>
             Escolha pesquisas, notícias e eventos da apuração. No iPhone compatível, ative depois de
             abrir pela tela inicial.
@@ -277,6 +417,11 @@ export function PwaPanel({ result, onAlerts }: { result?: Result; onAlerts: () =
             No app instalado, mantenha a tela acesa enquanto acompanha a tela especial, quando o
             aparelho permitir. Você controla quando ativar e desligar.
           </p>
+          {pwa.installed && (
+            <button className="button secondary" onClick={() => onGo?.('live')}>
+              Abrir acompanhamento da apuração
+            </button>
+          )}
         </section>
       </div>
       <p className="fine">

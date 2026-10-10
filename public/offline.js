@@ -63,13 +63,16 @@
       );
       for (const c of candidates) {
         const row = element('div', '', 'saved-candidate');
-        row.append(
-          element('strong', c.name.slice(0, 100)),
-          element(
-            'span',
-            `${c.percent.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}% · ${c.votes.toLocaleString('pt-BR')} votos`,
-          ),
+        const values = element('div', '', 'candidate-values');
+        values.append(
+          element('strong', `${c.percent.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%`),
+          element('span', `${c.votes.toLocaleString('pt-BR')} votos`),
         );
+        const bar = element('progress', '', 'vote-bar');
+        bar.max = 100;
+        bar.value = c.percent;
+        bar.setAttribute('aria-label', `Percentual de votos de ${c.name.slice(0, 100)}`);
+        row.append(element('strong', c.name.slice(0, 100)), values, bar);
         container.append(row);
       }
       if (typeof result.generated === 'string')

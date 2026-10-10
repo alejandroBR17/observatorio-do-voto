@@ -105,7 +105,7 @@ O workflow de monitoramento consulta as APIs públicas para que a coleta não de
 
 ### Experiência PWA
 
-`app/pwa.tsx` detecta execução standalone (incluindo `navigator.standalone` no iOS), retém `beforeinstallprompt` somente até o uso e distingue instalação aceita de abertura pelo ícone. Sem prompt nativo, mostra instruções por plataforma. Não detecta com certeza um app instalado quando a mesma origem é aberta em uma aba comum.
+`app/pwa.tsx` detecta execução standalone (incluindo `navigator.standalone` no iOS), retém `beforeinstallprompt` somente até o uso e distingue instalação aceita de abertura pelo ícone. Sem prompt nativo, mostra instruções por plataforma. Usa `getInstalledRelatedApps` quando disponível e registra `appinstalled`/execução standalone em `observatorio.app-installed` como indicação local. O registro pode ficar desatualizado depois de uma remoção; uma nova oferta nativa de instalação o limpa. Instalação solicitada, presença do app e execução standalone são estados distintos. Em uma aba comum, a ajuda explica como abrir pelo ícone, sem prometer abrir uma janela nativa por código.
 
 O modo instalado inclui navegação fixa, atalhos no manifest e Wake Lock opcional na noite da apuração; o lock é liberado ao fechar a tela e retomado quando ela volta a ficar visível, sujeito ao sistema. O service worker guarda apenas os arquivos da área offline, limpa versões antigas de seu próprio cache e não armazena APIs de apuração/pesquisas. Ao tocar em um alerta, tenta reutilizar uma janela da mesma origem antes de abrir outra.
 
