@@ -62,3 +62,13 @@ A apresentação foi simplificada: sem seletor fixo, glossário, dicionário de 
 - Teste push verificado com respostas controladas: falha permanece na tela; inscrição expirada é renovada uma vez; confirmação de recebimento fica visível. Isso não constitui teste de entrega real em todos os aparelhos.
 - Logs da Vercel mostraram uma rejeição de envio ao FCM; diagnóstico passa a diferenciar expiração, identificação rejeitada, limitação e falha do serviço, sem registrar endpoint/chaves.
 - WebSocket só abre durante a apuração ao vivo; renovação antecipada evita manter conexões ociosas até o limite da função.
+
+## Clareza, tema e preferências de frequência
+- Menu de tema Radix personalizado com identificação no celular, seleção persistida, teclado, Escape e retorno de foco verificados.
+- Um único botão de alertas na contagem regressiva. Barras de rolagem acompanham a identidade e os temas, respeitando os recursos do navegador.
+- Pesquisa aparece uma vez por levantamento; alternância de base mantém números publicados e identifica bases indisponíveis, sem estimativas. Exemplo fictício fica recolhido.
+- Simulação conserva os votos e exclui brancos/nulos/abstenções do denominador final; interface mostra origem e destinos da transferência.
+- Caderno começa pelo texto livre; organização é opcional. Salvamento, recarga, exclusão/desfazer, erro de armazenamento e contexto de pesquisa foram verificados em navegador.
+- Panorama mostra até três publicações identificadas desde a visita anterior. Referências da visita permanecem no navegador; consulta e publicação mantêm datas distintas.
+- Frequências imediata, horária e diária processadas no servidor: agrupamento, adiamento, retenção de pendentes por 48 horas e exceção para eventos prioritários selecionados passaram nos testes.
+- 18 testes automatizados e TypeScript passaram. Navegação e layouts verificados em 320, 390 e 1440 pixels. A entrega push em Android e iPhone continua dependente de verificação nesses aparelhos.

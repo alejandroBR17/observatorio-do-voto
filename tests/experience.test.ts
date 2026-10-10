@@ -26,3 +26,22 @@ test('notebook preserves legacy notes and deletion without resurrecting a migrat
  const modern=readWatch({entries:[{id:'entry',title:'Título',body:'Texto',uf:'invalid',topic:'invalid',updated:'not-a-date'}]});
  assert.equal(modern.entries[0].uf,'BR');assert.equal(modern.entries[0].topic,'Observações');assert.equal(modern.entries[0].updated,null);
 });
+
+import {pollNumbers,transferScenario} from '../lib/poll-view';
+import {updateItems} from '../lib/recent-updates';
+test('poll views retain published denominators and never fabricate an unavailable basis',()=>{
+ const p={basis:'valid',flavio:52,lula:48,totalVotes:{flavio:49,lula:45}};
+ assert.deepEqual(pollNumbers(p,'valid'),{flavio:52,lula:48});assert.deepEqual(pollNumbers(p,'total'),{flavio:49,lula:45});
+ assert.equal(pollNumbers({...p,totalVotes:undefined},'total'),null);assert.equal(pollNumbers({basis:'total',flavio:45,lula:40},'valid'),null);
+});
+test('transfer hypothesis conserves votes and treats excluded votes outside the final denominator',()=>{
+ const s=transferScenario(450,400,150,60,20);
+ assert.equal(s.aVotes,522);assert.equal(s.bVotes,448);assert.equal(s.excluded,30);assert.equal(s.aVotes+s.bVotes+s.excluded,1000);
+ assert.equal(s.aShare+s.bShare+20,100);assert.equal(s.aPercent+s.bPercent,100);
+ const excluded=transferScenario(450,400,150,100,100);assert.equal(excluded.aVotes,450);assert.equal(excluded.bVotes,400);
+});
+test('visit highlights deduplicate source items and reject invalid or future publication dates',()=>{
+ const now=new Date().toISOString(),item={url:'https://example.com/a',title:'Publicação',publishedAt:now};
+ const items=updateItems({publications:[item,item,{...item,url:'bad',publishedAt:'bad'},{...item,url:'future',publishedAt:'2099-01-01'}]},null);
+ assert.equal(items.length,1);assert.equal(items[0].destination,'polls');
+});

@@ -39,3 +39,30 @@ test('content alerts establish a baseline and only notify for fresh unseen publi
  await queueContentAlerts(db,{publications:[{...publication,url:'https://example.com/old',publishedAt:'2026-01-01'}]},{publications:[]},'polls');assert.equal((await db.prepare('SELECT id FROM push_events').all()).results.length,1);
  }finally{client.close();}
 });
+
+test('frequency groups common events, defers subsequent updates and never delays selected decisive alerts',async()=>{
+ const client=createClient({url:'file::memory:'}),db=createDatabase(client),key=webpush.generateVAPIDKeys().publicKey,endpoint='https://fcm.googleapis.com/fcm/send/frequency';
+ const subscription={endpoint,keys:{p256dh:key,auth:Buffer.alloc(16,1).toString('base64url')}};
+ try{
+ await db.prepare('INSERT INTO subscriptions(endpoint,preferences,updated) VALUES(?,?,?)').bind(endpoint,JSON.stringify({frequency:'hourly',polls:true,coverage:true,lead:true}),0).run();
+ await db.prepare('INSERT INTO subscription_keys(endpoint,value,created) VALUES(?,?,?)').bind(endpoint,JSON.stringify(subscription),0).run();
+ const sent:any[]=[];const sender=async(_db:any,_sub:any,event:any)=>{sent.push(event);return {} as any};
+ await queuePush(db,{id:'p1',types:['polls'],title:'Pesquisa',body:'Pesquisa A',url:'/?tab=polls'});
+ await queuePush(db,{id:'n1',types:['coverage'],title:'Notícia',body:'Notícia B',url:'/?tab=social'});
+ await dispatchPush(db,sender);assert.equal(sent.length,1);assert.match(sent[0].body,/2 atualizações agrupadas/);
+ await queuePush(db,{id:'p2',types:['polls'],title:'Pesquisa',body:'Pesquisa C',url:'/?tab=polls'});
+ await dispatchPush(db,sender);assert.equal(sent.length,1);assert.equal((await db.prepare('SELECT status FROM push_deliveries WHERE event_id=?').bind('p2').first<{status:string}>())?.status,'deferred');
+ await queuePush(db,{id:'lead1',types:['lead','progress'],title:'Liderança mudou',body:'Mudança',url:'/?tab=live',urgent:true});
+ await dispatchPush(db,sender);assert.equal(sent.length,2);assert.equal(sent[1].id,'lead1');
+ await db.prepare("UPDATE push_deliveries SET updated=? WHERE status='sent' AND event_id!='lead1'").bind(Date.now()-3600001).run();
+ await db.prepare("UPDATE push_deliveries SET updated=0 WHERE status='deferred'").run();await dispatchPush(db,sender);assert.equal(sent.length,3);assert.equal(sent[2].id,'p2');
+ await db.prepare('UPDATE subscriptions SET preferences=?').bind(JSON.stringify({frequency:'daily',polls:true,coverage:true,lead:false,progress:true})).run();
+ await db.prepare("UPDATE push_deliveries SET updated=? WHERE status='sent'").bind(Date.now()-86400001).run();
+ await queuePush(db,{id:'daily-old',types:['polls'],title:'Resumo diário',body:'Atualização pendente',url:'/?tab=polls'});
+ await db.prepare('UPDATE push_events SET created=? WHERE id=?').bind(Date.now()-90000000,'daily-old').run();
+ await dispatchPush(db,sender);assert.equal(sent.length,4);assert.equal(sent[3].id,'daily-old');
+ await queuePush(db,{id:'disabled-lead',types:['lead','progress'],title:'Parcial',body:'Parcial comum',url:'/?tab=live',urgent:true});
+ await dispatchPush(db,sender);assert.equal(sent.length,4);assert.equal((await db.prepare('SELECT status FROM push_deliveries WHERE event_id=?').bind('disabled-lead').first<{status:string}>())?.status,'deferred');
+ assert.equal(alertPreferences({frequency:'garbage'}).frequency,'immediate');assert.equal(alertPreferences({frequency:'daily'}).frequency,'daily');
+ }finally{client.close();}
+});

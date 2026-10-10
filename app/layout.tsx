@@ -4,6 +4,7 @@ import "./redesign.css";
 import "./motion.css";
 import "./onboarding.css";
 import "./experience.css";
+import "./usability.css";
 
 const origin=process.env.SITE_URL||(process.env.VERCEL_PROJECT_PRODUCTION_URL?'https://'+process.env.VERCEL_PROJECT_PRODUCTION_URL:process.env.VERCEL_URL?'https://'+process.env.VERCEL_URL:'https://observatorio-voto.vercel.app');
 export const metadata:Metadata={

@@ -7,6 +7,7 @@
 - SapiensLabs — Eleições 2026 — CC BY 4.0: cobertura pública de imprensa com atribuição na interface.
 - Fontes tipográficas locais: Manrope e DM Sans. Ver arquivos de licença em `public/assets/licenses`.
 - Retratos dos candidatos: arquivos preservados do projeto anterior. Verifique a autorização/licença de uso desses retratos antes de qualquer reutilização comercial ou redistribuição como banco de imagens; este pacote não atribui direitos que não foram documentados.
+- Menu acessível: Radix UI Primitives (MIT), com estilos próprios do projeto.
 - Ícones de interface: Lucide (ISC). Os demais pacotes seguem suas próprias licenças disponíveis no npm.
 - Identidade visual e ícones do aplicativo: criados para este projeto.
 

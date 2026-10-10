@@ -13,10 +13,10 @@ Acompanhe as eleições presidenciais brasileiras em uma interface com mapas, gr
 - **Pesquisas:** consulte intenções de voto, datas, metodologia e fontes das pesquisas disponíveis.
 - **Apuração:** veja a contagem regressiva até 25/10 às 17h de Brasília e ative os alertas. Quando o TSE divulgar resultados, acompanhe os parciais com gráficos e atualização automática.
 - **Cobertura:** explore conteúdos públicos relacionados à eleição.
-- **Meu acompanhamento:** escolha estados no mapa ou pelo nome, compare seus resultados e use os atalhos para apuração e histórico. Organize o caderno por título, assunto e estado.
+- **Meu acompanhamento:** escolha estados no mapa ou pelo nome, compare seus resultados e use os atalhos para apuração e histórico. Escreva no caderno com salvamento automático; título, assunto e estado são opcionais.
 - **Perfil e alertas:** veja um resumo do seu espaço pessoal, escolha seu candidato preferido e ajuste notificações e tema.
 
-O menu pode ser aberto quando você precisar. Seções extensas têm controles para expandir e recolher informações. O tema acompanha o sistema do seu dispositivo por padrão; você pode escolher Claro ou Escuro no seletor da barra superior, e as transições respeitam a preferência de movimento reduzido do dispositivo.
+O menu pode ser aberto quando você precisar. Seções extensas têm controles para expandir e recolher informações. O tema acompanha o sistema do seu dispositivo por padrão; você pode escolher Claro ou Escuro no menu **Tema** da barra superior, e as transições respeitam a preferência de movimento reduzido do dispositivo.
 
 Você pode abrir os detalhes de cada pesquisa para conferir entrevistas, margem de erro e metodologia. Em **Meu perfil → Preferências**, ative a opção de mostrar esses detalhes automaticamente, se quiser mais contexto nas análises.
 
@@ -27,6 +27,8 @@ No primeiro acesso, as boas-vindas permitem escolher seu nome, quem deseja acomp
 Abra o endereço publicado do app no navegador. Você não precisa de uma conta para consultar os dados. Use os filtros para mudar a eleição ou a região e abra as fontes para entender de onde vem cada informação.
 
 Para receber alertas, use o botão das boas-vindas ou visite Alertas e permita o envio no navegador. Você pode escolher avisos de pesquisas, notícias, mudanças na apuração e confirmação do resultado. Um botão de teste ajuda a conferir o recebimento neste aparelho. Com o app em uso, a apuração é consultada a cada 30 segundos. Sem visitantes, um monitor consulta as fontes em intervalos previstos de 5 minutos, sujeitos a atrasos. A entrega depende do dispositivo, das permissões e da disponibilidade do serviço. No iPhone compatível, adicione o app à tela inicial antes de ativar as notificações.
+
+Em Alertas, escolha receber atualizações comuns assim que houver novidades, no máximo uma vez por hora ou no máximo uma vez por dia. Avisos comuns são agrupados; resultado, vantagem irreversível e mudança de liderança continuam imediatos quando selecionados, sujeitos à consulta e entrega do serviço.
 
 Você também pode instalar o app pelo menu do navegador ou pela opção **Adicionar à tela inicial**. Ele continua acessível pelo endereço da hospedagem.
 
@@ -40,9 +42,15 @@ Cartões de notícias e publicações mostram a imagem disponibilizada pelo veí
 
 Os dados públicos são compartilhados entre os visitantes. O app não oferece edição de resultados oficiais, contas de editor ou salas de colaboração.
 
+O Panorama destaca até três publicações novas identificadas desde a última visita neste navegador. Nas pesquisas e nos resultados, **Anotar sobre este resultado/pesquisa** guarda o contexto e a fonte no caderno. O indicador no topo confirma o salvamento no aparelho.
+
 ## Entenda os números
 
 Resultados eleitorais usam o TSE como referência; o mapa usa dados do IBGE. Cada pesquisa deve ser lida com sua data, amostra, metodologia e fonte. Nem todos os institutos têm integração automática, e os dados históricos são retratos das eleições indicadas.
+
+Nas pesquisas, alterne entre **Entre quem escolheu um candidato** e **Incluindo brancos, nulos e indecisos**. O levantamento é o mesmo; muda a base dos percentuais. Bases que o instituto não publicou são identificadas, sem números estimados.
+
+A simulação redistribui apenas os votos dos demais candidatos do primeiro turno. Os votos dos finalistas ficam fixos; o cenário é uma hipótese pessoal, sem valor de pesquisa ou previsão.
 
 Intenção de voto não é resultado oficial nem garantia de vitória. Durante a apuração, confira o percentual de urnas processadas e a identificação de cada resultado. Antes de a fonte disponibilizar dados, o app informa espera ou indisponibilidade.
 
