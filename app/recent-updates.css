@@ -1,0 +1,127 @@
+/* Reserve the same footprint while sources load, finish or fail. */
+.recent-updates .panel-head {
+  min-height: 64px;
+  align-items: flex-start;
+}
+.recent-updates .panel-head h2 {
+  font-size: 19px;
+  margin: 8px 0 0;
+}
+.recent-content {
+  height: 156px;
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.recent-content .recent-list {
+  height: 100%;
+  gap: 8px;
+}
+.recent-content .recent-list button,
+.recent-placeholder {
+  min-width: 0;
+  min-height: 0;
+  height: 156px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--soft);
+}
+.recent-content .recent-list button {
+  min-height: 44px;
+  justify-content: space-between;
+  gap: 8px;
+}
+.recent-content .recent-list button:hover {
+  border-color: var(--green);
+  background: var(--surface);
+}
+.recent-content .recent-list strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.recent-placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.recent-placeholder i {
+  height: 12px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--muted) 15%, var(--soft));
+}
+.recent-placeholder i:first-child {
+  width: 55%;
+  height: 8px;
+}
+.recent-placeholder i:last-child {
+  width: 75%;
+}
+.recent-state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+}
+.recent-state p {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+.recent-updates > small {
+  min-height: 40px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.recent-content > :not(.recent-skeleton) {
+  animation: recent-reveal 180ms ease-out;
+}
+@keyframes recent-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 650px) {
+  .recent-content {
+    height: 256px;
+  }
+  .recent-content .recent-list {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(3, 80px);
+  }
+  .recent-content .recent-list button,
+  .recent-placeholder {
+    height: 80px;
+    padding: 10px 12px;
+  }
+  .recent-content .recent-list button {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 18px;
+    grid-template-rows: 15px minmax(0, 1fr);
+    gap: 4px 8px;
+  }
+  .recent-list button > .eyebrow {
+    grid-column: 1 / -1;
+  }
+  .recent-content .recent-list strong {
+    -webkit-line-clamp: 2;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .recent-placeholder {
+    gap: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .recent-content > :not(.recent-skeleton) {
+    animation: none;
+  }
+}

@@ -1111,6 +1111,7 @@ function DashboardContent() {
                 onTest={pushTest}
               />
             )}
+            {tab === 'overview' && <RecentUpdates onGo={go} />}
             {['profile', 'alerts', 'app'].includes(tab) ? null : busy ? (
               <div className="loading large">
                 <RefreshCw size={20} />
@@ -1120,7 +1121,6 @@ function DashboardContent() {
               <>
                 {tab === 'overview' && selected && (
                   <>
-                    <RecentUpdates onGo={go} />
                     <DataFreshness archived generated={selected.generated} />
                     <button
                       className="text-button municipality-entry"

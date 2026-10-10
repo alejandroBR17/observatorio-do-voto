@@ -9,6 +9,7 @@ import './usability.css';
 import './local-experience.css';
 import './pwa.css';
 import './actions.css';
+import './recent-updates.css';
 
 const origin =
   process.env.SITE_URL ||

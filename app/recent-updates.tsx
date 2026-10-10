@@ -1,16 +1,19 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { ArrowUpRight, Newspaper } from 'lucide-react';
 import { updateItems, type UpdateItem } from '@/lib/recent-updates';
 export function RecentUpdates({ onGo }: { onGo: (destination: string) => void }) {
   const [items, setItems] = useState<UpdateItem[]>([]),
     [returning, setReturning] = useState(false),
     [checked, setChecked] = useState(''),
-    [empty, setEmpty] = useState(false);
+    [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading'),
+    [retry, setRetry] = useState(0);
+  const titleId = useId();
   useEffect(() => {
     let canceled = false,
       timer: ReturnType<typeof setTimeout>,
       attempt = 0;
+    let activeRequest: AbortController | undefined;
     let baseline: { ids: string[]; at: string } | null = null;
     try {
       const saved = JSON.parse(localStorage.getItem('observatorio.lastVisit') || 'null');
@@ -18,26 +21,34 @@ export function RecentUpdates({ onGo }: { onGo: (destination: string) => void })
     } catch {
       // Without a readable baseline, show the latest items as a first visit.
     }
+    setReturning(!!baseline);
     const run = async () => {
+      if (canceled) return;
+      const controller = new AbortController();
+      activeRequest = controller;
+      const timeout = setTimeout(() => controller.abort(), 12000);
       try {
-        const responses = await Promise.all([fetch('/api/polls'), fetch('/api/media')]);
-        if (responses.some((r) => !r.ok)) return;
+        const responses = await Promise.all([
+          fetch('/api/polls', { signal: controller.signal }),
+          fetch('/api/media', { signal: controller.signal }),
+        ]);
+        if (responses.some((r) => !r.ok)) throw new Error('Source unavailable');
         const [polls, media] = await Promise.all(responses.map((r) => r.json()));
         if (canceled) return;
         if ([polls, media].some((d) => d.status === 'loading')) {
           if (attempt++ < 10) timer = setTimeout(run, 2000);
+          else setStatus('unavailable');
           return;
         }
         if (
           [polls, media].some((d) => d.status === 'unavailable' || d.status === 'stale' || d.stale)
         )
-          return;
+          throw new Error('Source not current');
         const all = updateItems(polls, media);
-        if (!all.length) return;
         const fresh = baseline ? all.filter((x) => !baseline!.ids.includes(x.id)) : all;
         setReturning(!!baseline);
         setItems(fresh.slice(0, 3));
-        setEmpty(!!baseline && !fresh.length);
+        setStatus('ready');
         setChecked(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
         try {
           localStorage.setItem(
@@ -51,44 +62,92 @@ export function RecentUpdates({ onGo }: { onGo: (destination: string) => void })
           // Keep showing updates even when the visit baseline cannot be saved.
         }
       } catch {
-        // Highlights are optional; a failed source must not block the panorama.
+        if (!canceled) setStatus('unavailable');
+      } finally {
+        clearTimeout(timeout);
+        controller.abort();
       }
     };
     void run();
     return () => {
       canceled = true;
+      activeRequest?.abort();
       clearTimeout(timer);
     };
-  }, []);
-  if (!items.length && !empty) return null;
+  }, [retry]);
   return (
-    <section className="recent-updates panel">
+    <section
+      className="recent-updates panel"
+      aria-labelledby={titleId}
+      aria-busy={status === 'loading'}
+    >
       <div className="panel-head">
         <div>
-          <span className="eyebrow">{returning ? 'DESDE SUA ÚLTIMA VISITA' : 'PARA COMEÇAR'}</span>
-          <h2>{returning ? 'O que mudou por aqui?' : 'As últimas publicações.'}</h2>
+          <span className="eyebrow">
+            {returning ? 'DESDE SUA ÚLTIMA VISITA' : 'AS ÚLTIMAS ATUALIZAÇÕES'}
+          </span>
+          <h2 id={titleId}>Novidades por aqui.</h2>
         </div>
         <Newspaper size={22} />
       </div>
-      {empty ? (
-        <p>Nenhuma publicação nova identificada desde sua última visita neste navegador.</p>
-      ) : (
-        <div className="recent-list">
-          {items.map((item) => (
-            <button key={item.id} onClick={() => onGo(item.destination)}>
-              <span className="eyebrow">
-                {item.kind} ·{' '}
-                {new Date(item.date).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
-              </span>
-              <strong>{item.title}</strong>
-              <ArrowUpRight size={17} />
+      <div className="recent-content">
+        {status === 'loading' ? (
+          <div className="recent-list recent-skeleton" aria-hidden="true">
+            {[0, 1, 2].map((key) => (
+              <div className="recent-placeholder" key={key}>
+                <i />
+                <i />
+                <i />
+              </div>
+            ))}
+          </div>
+        ) : status === 'unavailable' ? (
+          <div className="recent-state">
+            <p>
+              Não conseguimos consultar as novidades agora. Você pode continuar explorando o
+              Observatório.
+            </p>
+            <button
+              className="button secondary"
+              onClick={() => {
+                setStatus('loading');
+                setRetry((n) => n + 1);
+              }}
+            >
+              Tentar novamente
             </button>
-          ))}
-        </div>
-      )}
-      <small>
-        Fontes consultadas nesta visita às {checked}. Abra a seção para conferir a publicação
-        original.
+          </div>
+        ) : !items.length ? (
+          <div className="recent-state">
+            <p>
+              {returning
+                ? 'Nenhuma atualização nova desde sua última visita neste navegador.'
+                : 'Nenhuma atualização disponível nas fontes consultadas.'}
+            </p>
+          </div>
+        ) : (
+          <div className="recent-list">
+            {items.map((item) => (
+              <button key={item.id} title={item.title} onClick={() => onGo(item.destination)}>
+                <span className="eyebrow">
+                  {item.kind} ·{' '}
+                  {new Date(item.date).toLocaleDateString('pt-BR', {
+                    timeZone: 'America/Sao_Paulo',
+                  })}
+                </span>
+                <strong>{item.title}</strong>
+                <ArrowUpRight size={17} />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <small role="status" aria-atomic="true">
+        {status === 'loading'
+          ? 'Consultando as fontes…'
+          : status === 'unavailable'
+            ? 'As demais seções continuam disponíveis.'
+            : `Fontes consultadas às ${checked}. Abra um destaque para conferir a origem.`}
       </small>
     </section>
   );
