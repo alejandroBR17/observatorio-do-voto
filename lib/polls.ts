@@ -1,5 +1,6 @@
 import type { Database } from './database';
 import { queueContentAlerts } from './content-alerts';
+import { newsPublishers } from './news-sources';
 export type PollSnapshot = {
   id: string;
   institute: string;
@@ -177,6 +178,14 @@ const sources = [
     format: 'atlas',
     domain: 'atlasintel.org',
   },
+  ...newsPublishers
+    .filter((publisher) => ['CNN Brasil', 'Metrópoles'].includes(publisher.name) && publisher.feed)
+    .map((publisher) => ({
+      name: publisher.name,
+      url: publisher.feed!,
+      format: 'rss',
+      domain: publisher.domain,
+    })),
 ];
 export function plainText(s: string) {
   return s
@@ -270,7 +279,12 @@ export function parseRss(
       publishedAt,
       source: source.url,
       kind: 'publication',
-      publisher: source.name === 'G1 · pesquisas' ? 'G1' : undefined,
+      publisher:
+        source.name === 'G1 · pesquisas'
+          ? 'G1'
+          : ['CNN Brasil', 'Metrópoles'].includes(source.name)
+            ? source.name
+            : undefined,
     });
   }
   return out.slice(0, 20);

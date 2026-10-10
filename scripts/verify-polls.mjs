@@ -32,6 +32,19 @@ const ipespeItems = parseRss(
 assert.equal(ipespeItems.length, 2);
 assert.equal(ipespeItems[0].institute, 'Ipespe');
 assert.equal(ipespeItems[0].flavio, undefined);
+const cnn = {
+  name: 'CNN Brasil',
+  domain: 'cnnbrasil.com.br',
+  url: 'https://www.cnnbrasil.com.br/feed/',
+};
+const reported = parseRss(
+  item('Vox Brasil: Lula e Flávio no segundo turno', 'https://www.cnnbrasil.com.br/eleicoes/vox/'),
+  cnn,
+);
+assert.equal(reported.length, 1);
+assert.equal(reported[0].institute, 'Vox Brasil');
+assert.equal(reported[0].publisher, 'CNN Brasil');
+assert.equal(reported[0].flavio, undefined);
 assert.equal(
   parseRss(item('Datafolha: Lula &amp; Flávio na eleição', 'javascript:alert(1)'), src).length,
   0,
