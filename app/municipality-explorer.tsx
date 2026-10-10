@@ -6,6 +6,7 @@ import { searchText, type LocalResponse, type PlaceSummary } from '@/lib/local-r
 import { candidateName, formatVotes, formatPercent } from '@/lib/presentation';
 import { DataFreshness } from './components/data-freshness';
 import { Source } from './components/source-link';
+import { rememberedCity, type RememberedCity } from '@/lib/remembered-city';
 
 export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
   const [uf, setUf] = useState(states.some((s) => s[1] === initialUf) ? initialUf : 'SP');
@@ -24,9 +25,26 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [retry, setRetry] = useState(0);
+  const [ready, setReady] = useState(false);
+  const [storageStatus, setStorageStatus] = useState<'saved' | 'unavailable' | ''>('');
+  const restore = useRef<RememberedCity | null>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
   const request = useRef<AbortController | null>(null);
   const resultHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
+    try {
+      const saved = rememberedCity(localStorage.getItem('observatorio.municipality'));
+      if (saved) {
+        restore.current = saved;
+        setUf(saved.uf);
+      }
+    } catch {
+      /* Browsing still works when local storage is unavailable. */
+    }
+    setReady(true);
+  }, []);
+  useEffect(() => {
+    if (!ready) return;
     const controller = new AbortController();
     setIndex(null);
     setCity(null);
@@ -42,16 +60,38 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
         if (!r.ok) throw Error(d.error);
         return d as LocalResponse;
       })
-      .then(setIndex)
+      .then(async (d) => {
+        if (controller.signal.aborted) return;
+        setIndex(d);
+        const saved = restore.current;
+        if (!saved || saved.uf !== uf || !d.municipalities?.some((m) => m.code === saved.code))
+          return;
+        restore.current = null;
+        request.current = controller;
+        setBusy(true);
+        const response = await fetch(
+          `/api/local-results?${new URLSearchParams({ uf, municipality: saved.code })}`,
+          { signal: controller.signal },
+        );
+        const cityData = await response.json();
+        if (!response.ok) throw Error(cityData.error || 'Não foi possível retomar seu município.');
+        if (!controller.signal.aborted) {
+          setCity(cityData);
+          setStorageStatus('saved');
+        }
+      })
       .catch((e: Error) => {
         if (!controller.signal.aborted)
           setError(e.message || 'Não foi possível carregar os municípios.');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setBusy(false);
       });
     return () => {
       controller.abort();
       request.current?.abort();
     };
-  }, [uf, retry]);
+  }, [uf, retry, ready]);
   async function load(
     code: string,
     place?: PlaceSummary,
@@ -81,10 +121,27 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
           setDetail(null);
           setShowSectionPicker(false);
           setCity(d);
+          setQuery('');
           setLocalQuery('');
           setShowPlaces(false);
           setZone('');
           setSection('');
+          if (d.municipality) {
+            try {
+              localStorage.setItem(
+                'observatorio.municipality',
+                JSON.stringify({
+                  version: 1,
+                  uf,
+                  code: d.municipality.code,
+                  name: d.municipality.name,
+                }),
+              );
+              setStorageStatus('saved');
+            } catch {
+              setStorageStatus('unavailable');
+            }
+          }
         } else {
           setDetail(d);
           if (place && !bySection) {
@@ -131,10 +188,44 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
         <span className="eyebrow">PRESIDÊNCIA · 2026 · 1º TURNO</span>
         <h2>Como a sua cidade votou?</h2>
         <p>Encontre o município. Depois, explore a escola ou a seção onde você votou.</p>
+        {city?.municipality && (
+          <div className="remembered-city">
+            <div>
+              <strong>
+                {city.municipality.name} · {uf}
+              </strong>
+              <small role="status">
+                {storageStatus === 'saved'
+                  ? 'Sua escolha fica lembrada neste navegador.'
+                  : storageStatus === 'unavailable'
+                    ? 'Este navegador não permitiu guardar sua escolha.'
+                    : 'Município selecionado'}
+              </small>
+            </div>
+            <button
+              className="text-button"
+              onClick={() => {
+                setCity(null);
+                setDetail(null);
+                setQuery('');
+                setError('');
+                searchInput.current?.focus();
+              }}
+            >
+              Pesquisar outro município
+            </button>
+          </div>
+        )}
         <div className="local-search-fields">
           <label>
             Estado
-            <select value={uf} onChange={(e) => setUf(e.target.value)}>
+            <select
+              value={uf}
+              onChange={(e) => {
+                restore.current = null;
+                setUf(e.target.value);
+              }}
+            >
               {states.map((s) => (
                 <option key={s[1]} value={s[1]}>
                   {s[2]}
@@ -147,6 +238,7 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
             <div className="local-search-input">
               <Search size={18} aria-hidden="true" />
               <input
+                ref={searchInput}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 type="search"

@@ -540,6 +540,20 @@ function ClockLabel({ value }: { value: string }) {
 }
 export function MediaExplorer() {
   const { data, loading } = useRemote('/api/media', 300000);
+  const [vehicle, setVehicle] = useState('all');
+  const articles = (data?.articles || []) as {
+    id: string;
+    title: string;
+    url: string;
+    source: string;
+    publishedAt: string;
+  }[];
+  const vehicles = [
+    ...new Set(articles.map((a) => a.source).filter((s) => typeof s === 'string' && !!s.trim())),
+  ].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  const currentVehicle = vehicles.includes(vehicle) ? vehicle : 'all';
+  const visibleArticles =
+    currentVehicle === 'all' ? articles : articles.filter((a) => a.source === currentVehicle);
   return (
     <>
       <section className="panel discovery-head">
@@ -619,9 +633,27 @@ export function MediaExplorer() {
       {data?.articles?.length > 0 && (
         <section className="panel">
           <h2>No noticiário</h2>
+          <div className="news-filter">
+            <p className="fine">
+              {articles.length} notícias de {vehicles.length} veículos nesta coleta. As mais
+              recentes aparecem primeiro.
+            </p>
+            <label>
+              Veículo{' '}
+              <select value={currentVehicle} onChange={(e) => setVehicle(e.target.value)}>
+                <option value="all">Todos os veículos</option>
+                {vehicles.map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
           <ExpandList
+            key={currentVehicle}
             className="news-grid"
-            items={data.articles || []}
+            items={visibleArticles}
             initial={4}
             moreLabel="Ver mais notícias"
             lessLabel="Ver menos notícias"

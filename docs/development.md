@@ -117,6 +117,8 @@ As tabelas `cache`, `subscriptions`, `subscription_keys`, `push_events` e `push_
 
 Nome local, candidato preferido, estados seguidos, anotações, tema e aceite dos termos ficam no navegador. Eles não são contas autenticadas nem sincronizados entre aparelhos. O aceite local não é uma prova centralizada vinculada a uma identidade.
 
+`observatorio.municipality` lembra somente UF, código e nome do último município consultado com sucesso. `lib/remembered-city.ts` rejeita dados locais inválidos; a restauração confere o código no índice oficial do estado antes de consultar a cidade. Escola, zona e seção não são persistidas. Falhas de armazenamento não impedem a consulta.
+
 As rotas de escrita verificam origem e validam inscrições. Prévias de artigos usam domínios permitidos, limites de resposta e verificação de redirecionamentos. Segredos não devem usar o prefixo `NEXT_PUBLIC_`.
 
 O layout inclui Vercel Web Analytics para métricas agregadas de acesso. `app/components/site-analytics.tsx` filtra eventos para visualizações e remove parâmetros e fragmentos da URL antes do envio. Não lê preferências, nome, candidato ou anotações do LocalStorage.

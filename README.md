@@ -10,7 +10,7 @@ Acompanhe as eleições presidenciais brasileiras em uma interface com mapas, gr
 
 - **Panorama:** visão geral da eleição e dos indicadores disponíveis.
 - **Histórico:** compare eleições anteriores, de 1989 a 2022, com filtros de ano, turno, estado e região.
-- **Seu município:** busque uma cidade e explore os votos presidenciais do primeiro turno de 2026 por escola, local de votação, zona ou seção. Os dados são coletivos e não revelam o voto de uma pessoa.
+- **Seu município:** busque uma cidade e explore os votos presidenciais do primeiro turno de 2026 por escola, local de votação, zona ou seção. Sua última cidade fica lembrada neste navegador; use “Pesquisar outro município” para mudar. O colégio e a seção não são guardados automaticamente. Os dados são coletivos e não revelam o voto de uma pessoa.
 - **Pesquisas:** consulte intenções de voto, datas, metodologia e fontes das pesquisas disponíveis.
 - **Apuração:** veja a contagem regressiva até 25/10 às 17h de Brasília e ative os alertas. Quando o TSE divulgar resultados, acompanhe os parciais com gráficos e atualização automática.
 
