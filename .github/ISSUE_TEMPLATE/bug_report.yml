@@ -1,0 +1,25 @@
+name: Relatar um problema
+description: Informe algo que não funcionou como esperado.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Não publique tokens, dados de inscrições ou preferências políticas pessoais. Vulnerabilidades devem ser relatadas pela aba Security.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: O que aconteceu e o que esperava?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Como reproduzir?
+      description: Indique a tela e os passos. Capturas sem dados pessoais são úteis.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Aparelho e navegador
+      placeholder: Exemplo — Android, Chrome; Windows, Edge

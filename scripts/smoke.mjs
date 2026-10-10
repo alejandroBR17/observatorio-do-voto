@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-const base = process.env.TEST_URL || 'http://localhost:3000';
+const base = process.env.TEST_URL || process.argv[2] || 'http://localhost:3000';
 for (const path of [
   '/',
   '/manifest.webmanifest',

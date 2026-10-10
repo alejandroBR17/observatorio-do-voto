@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.vercel/
+.data/
+coverage/
+package-lock.json
+next-env.d.ts
+public/data/
+public/assets/
+public/*.svg
+*.tsbuildinfo

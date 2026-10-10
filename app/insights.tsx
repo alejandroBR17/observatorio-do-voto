@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import {
   ArrowUpRight,
   RefreshCw,
-  UserRound,
   Share2,
   Bell,
   MapPin,
@@ -11,8 +10,6 @@ import {
   Bookmark,
   Newspaper,
   ShieldCheck,
-  Globe2,
-  Radio,
   Plus,
   X,
 } from 'lucide-react';
@@ -709,9 +706,7 @@ export function MediaExplorer() {
 export function Watchboard({
   selectedNote,
   favorite,
-  onProfile,
   onAlerts,
-  onGo,
   onState,
   data,
   region,
@@ -721,9 +716,7 @@ export function Watchboard({
 }: {
   selectedNote?: string;
   favorite: string;
-  onProfile: () => void;
   onAlerts: () => void;
-  onGo: (s: string) => void;
   onState: (code: string, destination: string) => void;
   data: Result[];
   region: string;
@@ -746,7 +739,9 @@ export function Watchboard({
       setFollow(v.states);
       setEntries(v.entries);
       setFocus(v.states[0] || '');
-    } catch {}
+    } catch {
+      // Start with an empty notebook if local storage cannot be read.
+    }
     setReady(true);
   }, []);
   useEffect(() => {

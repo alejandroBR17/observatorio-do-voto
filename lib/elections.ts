@@ -27,35 +27,62 @@ export type Result = {
   candidates: Candidate[];
   final: boolean;
 };
-export function normalize(raw: any, source: string, year = 2026): Result {
-  if (raw.f !== 'o' || String(raw.carg?.[0]?.cd) !== '1' || !['1', '2'].includes(String(raw.t)))
+function record(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    throw new Error('Estrutura do arquivo eleitoral inválida.');
+  return value as Record<string, unknown>;
+}
+
+function records(value: unknown): Record<string, unknown>[] {
+  if (!Array.isArray(value)) throw new Error('Lista eleitoral inválida.');
+  return value.map(record);
+}
+
+// Missing counts must never become zero: remaining electorate bounds victory calls.
+function statistic(value: unknown, percent = false): number {
+  if (
+    !['string', 'number'].includes(typeof value) ||
+    String(value).trim() === '' ||
+    !Number.isFinite(num(value)) ||
+    num(value) < 0 ||
+    (percent ? num(value) > 100 : !Number.isSafeInteger(num(value)))
+  )
+    throw new Error('Arquivo incompleto ou estatísticas inválidas.');
+  return num(value);
+}
+
+export function normalize(input: unknown, source: string, year = 2026): Result {
+  const raw = record(input);
+  const offices = records(raw.carg);
+  const office = offices[0];
+  if (raw.f !== 'o' || String(office?.cd) !== '1' || !['1', '2'].includes(String(raw.t)))
     throw new Error('Arquivo não oficial ou cargo inesperado.');
-  for (const value of [raw.e?.te, raw.e?.esnt, raw.v?.vv, raw.s?.pstn ?? raw.s?.pst])
-    if (value === undefined || !Number.isFinite(num(value)) || num(value) < 0)
-      throw new Error('Arquivo incompleto ou estatísticas inválidas.');
-  if (num(raw.e.esnt) > num(raw.e.te) || num(raw.s.pstn ?? raw.s.pst) > 100)
+  const electorateData = record(raw.e);
+  const votesData = record(raw.v);
+  const sections = record(raw.s);
+  const electorate = statistic(electorateData.te);
+  const remaining = statistic(electorateData.esnt);
+  const valid = statistic(votesData.vv);
+  const counted = statistic(sections.pstn ?? sections.pst, true);
+  if (remaining > electorate || valid > electorate)
     throw new Error('Estatísticas fora dos limites.');
-  const candidates: Candidate[] = raw.carg[0].agr
-    .flatMap((a: any) =>
-      a.par.flatMap((p: any) =>
-        (p.cand || []).map((c: any) => ({
+  const candidates: Candidate[] = records(office.agr)
+    .flatMap((a) =>
+      records(a.par).flatMap((p) =>
+        (p.cand === undefined ? [] : records(p.cand)).map((c) => ({
           number: String(c.n),
-          name: c.nmu || c.nm,
-          party: p.sg,
-          votes: num(c.vap),
-          percent: num(c.pvapn ?? c.pvap),
-          status: c.st,
-          elected: c.e === 's' && /eleit/i.test(c.st),
+          name: String(c.nmu || c.nm || ''),
+          party: String(p.sg || ''),
+          votes: statistic(c.vap),
+          percent: statistic(c.pvapn ?? c.pvap, true),
+          status: String(c.st || ''),
+          elected: c.e === 's' && /eleit/i.test(String(c.st)),
           photo: `https://resultados.tse.jus.br/oficial/ele${year}/${raw.ele}/fotos/br/${c.sqcand}.jpeg`,
         })),
       ),
     )
     .sort((a: Candidate, b: Candidate) => b.votes - a.votes);
-  if (
-    candidates.some(
-      (c) => !Number.isSafeInteger(c.votes) || c.votes < 0 || c.percent < 0 || c.percent > 100,
-    )
-  )
+  if (candidates.some((c) => !c.name || !c.party || c.votes > valid))
     throw new Error('Votação inválida.');
   return {
     year,
@@ -64,14 +91,14 @@ export function normalize(raw: any, source: string, year = 2026): Result {
     source,
     generated: `${raw.dg} ${raw.hg} (Brasília)`,
     id: String(raw.idg),
-    counted: num(raw.s.pstn ?? raw.s.pst),
-    electorate: num(raw.e.te),
-    remaining: num(raw.e.esnt),
-    turnout: num(raw.e.c),
-    abstention: num(raw.e.pan ?? raw.e.pa),
-    blank: num(raw.v.vb),
-    nullVotes: num(raw.v.tvn),
-    valid: num(raw.v.vv),
+    counted,
+    electorate,
+    remaining,
+    turnout: statistic(electorateData.c),
+    abstention: statistic(electorateData.pan ?? electorateData.pa, true),
+    blank: statistic(votesData.vb),
+    nullVotes: statistic(votesData.tvn),
+    valid,
     candidates,
     final: raw.and === 'f',
   };

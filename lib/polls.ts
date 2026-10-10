@@ -518,7 +518,10 @@ async function collectPolls(db?: Database) {
     cacheStorage: db ? 'shared' : 'temporary',
     polls: numeric,
     publications,
-    sources: results.map(({ items, ...rest }) => rest),
+    sources: results.map((source) => {
+      const { items: _items, ...metadata } = source;
+      return metadata;
+    }),
     notice:
       'Fontes consultadas a cada 5 minutos com o app em uso. A data da consulta não é a data de uma nova pesquisa. PoderData: percentuais extraídos quando cenário e metodologia são inequívocos. Datafolha e AtlasIntel: retratos conferidos em 08 e 09/10. As novas publicações dos institutos são descobertas automaticamente; números sem validação permanecem apenas como links. Não há previsão de vencedor nem média automática.',
     registrationSource: 'https://pesqele-divulgacao.tse.jus.br/',

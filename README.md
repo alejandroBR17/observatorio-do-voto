@@ -58,10 +58,10 @@ Não há acesso ao engajamento individual de eleitores nas redes sociais. A cobe
 
 ## Disponibilidade dos alertas
 
-As atualizações são coletadas enquanto o app é consultado. O acompanhamento contínuo sem visitantes depende de um monitor configurado pelo responsável pela hospedagem. Notificações podem atrasar ou não chegar; consulte a tela de apuração para conferir os dados disponíveis.
+Notificações podem atrasar ou não chegar; consulte a tela de apuração para conferir os dados disponíveis. A coleta em segundo plano depende do monitor e da disponibilidade das fontes.
 
 ## Sugestões e problemas
 
 Use a aba **Issues** deste repositório para relatar problemas ou sugerir melhorias. Descreva a tela, o comportamento esperado e seu navegador. Não publique preferências políticas pessoais, tokens ou outros dados privados no relato.
 
-Para quem deseja executar ou hospedar sua própria versão, as instruções técnicas estão no [guia de instalação e publicação](DEPLOY.md). As atribuições estão em [NOTICE.md](NOTICE.md).
+Para executar ou contribuir com o código, consulte [CONTRIBUTING.md](CONTRIBUTING.md), a [arquitetura](docs/architecture.md) e o [guia de testes](docs/testing.md). A hospedagem está documentada em [DEPLOY.md](DEPLOY.md); as atribuições, em [NOTICE.md](NOTICE.md).

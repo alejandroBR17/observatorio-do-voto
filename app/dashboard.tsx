@@ -11,12 +11,9 @@ import {
   Globe2,
   Heart,
   Info,
-  MapPin,
-  Moon,
   Radio,
   Search,
   ShieldCheck,
-  Sun,
   Users,
   X,
   TrendingUp,
@@ -43,21 +40,16 @@ import { RecentUpdates } from './recent-updates';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
 import { termsVersion } from '@/lib/terms';
 import { alertPreferences, defaultAlerts } from '@/lib/alerts';
+import { Source } from './components/source-link';
+import { Progression, type ProgressionPoint } from './components/vote-progression';
+import {
+  formatVotes as fmt,
+  formatPercent as pct,
+  candidateColor as color,
+  candidateName as name,
+} from '@/lib/presentation';
 const readJson = (r: Response): Promise<any> => r.json();
 const regions = ['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'];
-const fmt = (n: number) => n.toLocaleString('pt-BR');
-const pct = (n: number, d = 2) =>
-  n.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }) + '%';
-const color = (n: string) =>
-  n === '13' ? '#c96856' : n === '22' || n === '17' ? '#24796d' : '#87999b';
-const name = (n: string) =>
-  n === 'FLAVIO BOLSONARO'
-    ? 'Flávio Bolsonaro'
-    : n === 'LULA'
-      ? 'Lula'
-      : n === 'JAIR BOLSONARO'
-        ? 'Jair Bolsonaro'
-        : n;
 const nav = [
   ['overview', 'Panorama', Globe2],
   ['live', 'Apuração ao vivo', Radio],
@@ -69,98 +61,6 @@ const nav = [
   ['profile', 'Meu perfil', UserRound],
   ['alerts', 'Alertas', Bell],
 ] as const;
-function Source({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <a className="source" href={href} target="_blank" rel="noreferrer">
-      {children}
-      <ArrowUpRight size={12} />
-    </a>
-  );
-}
-function Progression({
-  points,
-  label = 'Progressão real da apuração presidencial de 2022',
-  greenName = 'Jair Bolsonaro',
-}: {
-  points: any[];
-  label?: string;
-  greenName?: string;
-}) {
-  const [showAll, setShowAll] = useState(false);
-  const valid = points.filter((p) => [p.counted, p.lula, p.bolsonaro].every(Number.isFinite)),
-    values = valid.flatMap((p) => [p.lula, p.bolsonaro]);
-  const lower = values.length ? Math.max(0, Math.floor((Math.min(...values) - 2) / 5) * 5) : 40,
-    upper = values.length ? Math.min(100, Math.ceil((Math.max(...values) + 2) / 5) * 5) : 60,
-    range = Math.max(1, upper - lower);
-  const y = (n: number) => 180 - ((n - lower) / range) * 150,
-    line = (k: string) => valid.map((p) => `${35 + p.counted * 6.1},${y(p[k])}`).join(' ');
-  return (
-    <>
-      <svg viewBox="0 0 680 230" role="img" aria-label={label} className="line-chart">
-        {Array.from({ length: 5 }, (_, i) => lower + (range * i) / 4).map((n) => (
-          <g key={n}>
-            <line x1="35" x2="645" y1={y(n)} y2={y(n)} stroke="var(--line)" strokeDasharray="3 5" />
-            <text x="0" y={y(n) + 4}>
-              {n.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%
-            </text>
-          </g>
-        ))}
-        <polyline points={line('lula')} fill="none" stroke="#c96856" strokeWidth="3" />
-        <polyline points={line('bolsonaro')} fill="none" stroke="#24796d" strokeWidth="3" />
-        {[0, 25, 50, 75, 100].map((n) => (
-          <text key={n} x={35 + n * 6.1} y="215" textAnchor="middle">
-            {n}% apurado
-          </text>
-        ))}
-      </svg>
-      <p className="fine">
-        O gráfico mostra como a participação de cada candidato mudou durante a apuração. As linhas
-        ligam os resultados divulgados.
-      </p>
-      <details className="inline-details">
-        <summary>Ver valores do gráfico em tabela</summary>
-        <p className="fine">
-          {valid.length} registros disponíveis. Cada coluna identifica um candidato. Os valores são
-          os mesmos usados para desenhar as linhas.
-        </p>
-        <div
-          className="table-scroll"
-          tabIndex={0}
-          role="region"
-          aria-label="Valores da progressão de apuração"
-        >
-          <table>
-            <thead>
-              <tr>
-                <th>Seções totalizadas</th>
-                <th>Lula</th>
-                <th>{greenName}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(showAll ? valid : valid.slice(0, 10)).map((p, i) => (
-                <tr key={p.id || i}>
-                  <td>{pct(p.counted)}</td>
-                  <td>{pct(p.lula)}</td>
-                  <td>{pct(p.bolsonaro)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {valid.length > 10 && (
-          <button
-            className="text-button"
-            aria-expanded={showAll}
-            onClick={() => setShowAll(!showAll)}
-          >
-            {showAll ? 'Ver menos registros' : `Ver todos os ${valid.length} registros`}
-          </button>
-        )}
-      </details>
-    </>
-  );
-}
 export default function Dashboard() {
   return (
     <ReadingProvider>
@@ -192,7 +92,6 @@ function DashboardContent() {
   }, []);
   const [tab, setTab] = useState('overview'),
     [mobile, setMobile] = useState(false),
-    [dark, setDark] = useState(false),
     [region, setRegion] = useState('Brasil'),
     [uf, setUf] = useState('BR'),
     [all, setAll] = useState<Result[]>([]),
@@ -205,7 +104,7 @@ function DashboardContent() {
     [favorite, setFavorite] = useState(''),
     [live, setLive] = useState<any>({ status: 'waiting' }),
     [connection, setConnection] = useState('Conectando'),
-    [points, setPoints] = useState<any[]>([]),
+    [points, setPoints] = useState<ProgressionPoint[]>([]),
     [prefs, setPrefs] = useState(defaultAlerts),
     [notification, setNotification] = useState('Desativadas'),
     [historyError, setHistoryError] = useState(''),
@@ -240,7 +139,7 @@ function DashboardContent() {
     document.documentElement.dataset.motion =
       typeof document.startViewTransition === 'function' ? 'native' : 'fallback';
   }, []);
-  const [livePoints, setLivePoints] = useState<any[]>([]),
+  const [livePoints, setLivePoints] = useState<ProgressionPoint[]>([]),
     [liveStates, setLiveStates] = useState<Result[]>([]);
   function notify(s: string) {
     setToast(s);
@@ -345,6 +244,7 @@ function DashboardContent() {
   useEffect(() => {
     if (!mobile) return;
     const old = document.body.style.overflow;
+    const trigger = menuButton.current;
     document.body.style.overflow = 'hidden';
     const drawer = document.getElementById('main-navigation');
     drawer?.querySelector<HTMLButtonElement>('button')?.focus();
@@ -372,7 +272,7 @@ function DashboardContent() {
     return () => {
       document.body.style.overflow = old;
       document.removeEventListener('keydown', onKey);
-      menuButton.current?.focus({ preventScroll: true });
+      trigger?.focus({ preventScroll: true });
     };
   }, [mobile]);
   useEffect(() => {
@@ -420,7 +320,9 @@ function DashboardContent() {
       const profile = JSON.parse(localStorage.getItem('observatorio.profile') || '{}');
       setNickname(typeof profile.nickname === 'string' ? profile.nickname.slice(0, 40) : '');
       setPrefs(alertPreferences(p.alerts));
-    } catch {}
+    } catch {
+      // Unreadable local preferences leave the initial defaults in place.
+    }
     const params = new URLSearchParams(location.search);
     if (nav.some((n) => n[0] === params.get('tab'))) setTab(params.get('tab')!);
     if (states.some((s) => s[1] === params.get('uf'))) setUf(params.get('uf')!);
@@ -457,7 +359,9 @@ function DashboardContent() {
         let stored;
         try {
           stored = JSON.parse(localStorage.getItem('observatorio.preferences') || '{}').alerts;
-        } catch {}
+        } catch {
+          // Normalize absent preferences to the default alert categories below.
+        }
         const saved = await fetch('/api/push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -476,7 +380,6 @@ function DashboardContent() {
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const apply = () => {
       const next = theme === 'dark' || (theme === 'system' && media.matches);
-      setDark(next);
       document.documentElement.dataset.theme = next ? 'dark' : 'light';
     };
     apply();
@@ -533,7 +436,9 @@ function DashboardContent() {
         try {
           const m = JSON.parse(e.data);
           if (m.type === 'live' && uf === 'BR') setLive(m.data);
-        } catch {}
+        } catch {
+          // Discard malformed socket messages; HTTP polling remains available.
+        }
       };
       ws.onclose = () => {
         if (!stop) {
@@ -595,7 +500,9 @@ function DashboardContent() {
         try {
           const d: any = await (await fetch(`/api/live?uf=${s[1]}`)).json();
           if (d.result) result.push(d.result);
-        } catch {}
+        } catch {
+          // One unavailable state must not prevent loading the other states.
+        }
       }
       if (!canceled) setLiveStates(result);
     };
@@ -771,14 +678,6 @@ function DashboardContent() {
     }
   }
 
-  async function copy(s: string) {
-    try {
-      await navigator.clipboard.writeText(s);
-      notify('Link copiado.');
-    } catch {
-      notify('Selecione o link para copiar.');
-    }
-  }
   const legend = (
     <div className="legend">
       <span>
@@ -1861,9 +1760,7 @@ function DashboardContent() {
                   <Watchboard
                     selectedNote={selectedNote}
                     favorite={favorite}
-                    onProfile={() => go('profile')}
                     onAlerts={() => go('alerts')}
-                    onGo={go}
                     data={all}
                     region={region}
                     uf={uf}

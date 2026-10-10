@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import {
   Bell,
   Check,
-  Heart,
   ShieldCheck,
   UserRound,
   Radio,
@@ -52,7 +51,9 @@ export function Profile({
   useEffect(() => {
     try {
       setWatch(readWatch(JSON.parse(localStorage.getItem('observatorio.watch') || '{}')));
-    } catch {}
+    } catch {
+      // Keep the empty local summary when notebook storage is unreadable.
+    }
   }, []);
   function submit(e: React.FormEvent) {
     e.preventDefault();

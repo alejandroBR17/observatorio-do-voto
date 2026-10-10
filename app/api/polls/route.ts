@@ -8,7 +8,9 @@ export async function GET() {
   let db;
   try {
     db = env.DB;
-  } catch {}
+  } catch {
+    // Poll discovery can still use its temporary cache without the database.
+  }
   const data = await polls(db);
   if (db) await dispatchPush(db).catch(() => {});
   return Response.json(data, { headers: { 'Cache-Control': 'no-store' } });

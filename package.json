@@ -12,7 +12,14 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "tsx scripts/verify.mjs && tsx scripts/verify-polls.mjs && tsx --test tests/*.test.ts",
-    "db:init": "tsx scripts/init-database.ts"
+    "db:init": "tsx scripts/init-database.ts",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "test:unit": "tsx --test tests/*.test.ts",
+    "test:data": "tsx scripts/verify.mjs && tsx scripts/verify-polls.mjs",
+    "test:smoke": "node scripts/smoke.mjs",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test"
   },
   "dependencies": {
     "@libsql/client": "0.18.0",
@@ -25,11 +32,18 @@
     "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/web-push": "^3.6.4",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
     "tsx": "^4.20.5",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.71.1"
   }
 }

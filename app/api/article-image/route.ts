@@ -69,7 +69,9 @@ export async function GET(req: Request) {
       .bind(key)
       .first<{ value: string; updated: number }>();
     if (row) cached = { image: JSON.parse(row.value), updated: row.updated };
-  } catch {}
+  } catch {
+    // A failed shared cache read leaves the in-memory fallback available.
+  }
   if (cached && Date.now() - cached.updated < (cached.image ? 86400000 : 3600000))
     return Response.json(
       { image: cached.image },
@@ -91,6 +93,8 @@ export async function GET(req: Request) {
       )
       .bind(key, JSON.stringify(image), Date.now())
       .run();
-  } catch {}
+  } catch {
+    // Serve the collected preview even if the shared cache write failed.
+  }
   return Response.json({ image }, { headers: { 'Cache-Control': 'public, max-age=3600' } });
 }

@@ -13,7 +13,9 @@ export function ReadingProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       if (localStorage.getItem('observatorio.analysisDetails') === 'expanded') setValue('detailed');
-    } catch {}
+    } catch {
+      // Keep the essential reading mode when storage access is denied.
+    }
   }, []);
   function setReading(value: Reading) {
     setValue(value);

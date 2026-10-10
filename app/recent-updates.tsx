@@ -15,7 +15,9 @@ export function RecentUpdates({ onGo }: { onGo: (destination: string) => void })
     try {
       const saved = JSON.parse(localStorage.getItem('observatorio.lastVisit') || 'null');
       if (Array.isArray(saved?.ids) && typeof saved.at === 'string') baseline = saved;
-    } catch {}
+    } catch {
+      // Without a readable baseline, show the latest items as a first visit.
+    }
     const run = async () => {
       try {
         const responses = await Promise.all([fetch('/api/polls'), fetch('/api/media')]);
@@ -45,8 +47,12 @@ export function RecentUpdates({ onGo }: { onGo: (destination: string) => void })
               ids: [...new Set([...all.map((x) => x.id), ...(baseline?.ids || [])])].slice(0, 500),
             }),
           );
-        } catch {}
-      } catch {}
+        } catch {
+          // Keep showing updates even when the visit baseline cannot be saved.
+        }
+      } catch {
+        // Highlights are optional; a failed source must not block the panorama.
+      }
     };
     void run();
     return () => {
