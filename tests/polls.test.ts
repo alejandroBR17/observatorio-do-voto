@@ -16,7 +16,7 @@ test('poll discovery works without a database, deduplicates concurrent queries a
   };
   try {
     const [first, concurrent] = await Promise.all([polls(), polls()]);
-    assert.equal(requests, 5);
+    assert.equal(requests, 6);
     assert.equal(first, concurrent);
     assert.equal(first.status, 'ready');
     assert.equal(first.cacheStorage, 'temporary');
@@ -24,7 +24,7 @@ test('poll discovery works without a database, deduplicates concurrent queries a
     assert.match(first.sources.find((s: any) => s.name === 'AtlasIntel').url, /exclusive-polls/);
     const cached = await polls();
     assert.equal(cached.cached, true);
-    assert.equal(requests, 5);
+    assert.equal(requests, 6);
     const broken = {
       prepare() {
         throw new Error('Database unavailable');
@@ -33,7 +33,8 @@ test('poll discovery works without a database, deduplicates concurrent queries a
     const fallback = await polls(broken);
     assert.equal(fallback.cacheStorage, 'temporary');
     assert.equal(fallback.polls.length, 3);
-    assert.equal(requests, 5);
+    assert.equal(requests, 6);
+    assert.ok(first.publications.some((p: { institute: string }) => p.institute === 'Ipespe'));
   } finally {
     globalThis.fetch = original;
   }

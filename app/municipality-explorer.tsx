@@ -17,6 +17,7 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
   const [method, setMethod] = useState<'name' | 'section'>('name');
   const [zone, setZone] = useState('');
   const [section, setSection] = useState('');
+  const [sectionQuery, setSectionQuery] = useState('');
   const [showPlaces, setShowPlaces] = useState(false);
   const [showCandidates, setShowCandidates] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -80,7 +81,10 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
           setShowPlaces(false);
           setZone('');
           setSection('');
-        } else setDetail(d);
+        } else {
+          setDetail(d);
+          if (place && !bySection) setSectionQuery('');
+        }
         requestAnimationFrame(() =>
           resultHeading.current?.focus({ preventScroll: !place && !bySection }),
         );
@@ -100,8 +104,14 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
     ) || [];
   const active = detail || city;
   const tally = active?.tally;
-  const title = detail?.selection?.place
-    ? detail.selection.place.name
+  const selectedPlace = detail?.selection?.place;
+  const selectedSection = detail?.selection?.section;
+  const matchingSections =
+    selectedPlace?.sections.filter(
+      (s) => !sectionQuery || String(Number(s)).includes(String(Number(sectionQuery))),
+    ) || [];
+  const title = selectedPlace
+    ? `${selectedPlace.name}${selectedSection ? ` · Seção ${Number(selectedSection)}` : ''}`
     : detail?.selection?.section
       ? `Zona ${Number(detail.selection.zone)} · seção ${Number(detail.selection.section)}`
       : detail?.selection?.zone
@@ -342,6 +352,70 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
               {detail.selection.place.address} · Zona {Number(detail.selection.place.zone)}
             </p>
           )}
+          {selectedPlace && (
+            <div
+              className="local-section-picker"
+              role="group"
+              aria-labelledby="local-section-heading"
+            >
+              <div className="panel-head">
+                <div>
+                  <h3 id="local-section-heading">Veja o colégio inteiro ou encontre sua seção</h3>
+                  <p className="fine">
+                    Zona {Number(selectedPlace.zone)} · {selectedPlace.sections.length} seções neste
+                    local
+                  </p>
+                </div>
+                <button
+                  className="button secondary"
+                  aria-pressed={!selectedSection}
+                  onClick={() => void load(city!.municipality!.code, selectedPlace)}
+                >
+                  Colégio inteiro
+                </button>
+              </div>
+              <label className="local-search-label">
+                Procurar seção neste colégio
+                <input
+                  type="search"
+                  inputMode="numeric"
+                  value={sectionQuery}
+                  maxLength={4}
+                  placeholder="Digite o número da sua seção"
+                  aria-controls="local-section-options"
+                  onChange={(e) => setSectionQuery(e.target.value.replace(/\D/g, ''))}
+                />
+              </label>
+              <div className="section-buttons" id="local-section-options">
+                {matchingSections.map((s) => (
+                  <button
+                    key={s}
+                    className="button secondary"
+                    aria-pressed={selectedSection === s}
+                    onClick={() =>
+                      void load(city!.municipality!.code, selectedPlace, true, {
+                        zone: selectedPlace.zone,
+                        section: s,
+                      })
+                    }
+                  >
+                    Seção {Number(s)}
+                  </button>
+                ))}
+              </div>
+              {!matchingSections.length && (
+                <p className="fine" role="status">
+                  Essa seção não está neste colégio. Confira o número ou procure pela zona e seção
+                  no município.
+                </p>
+              )}
+              <p className="fine">
+                {selectedSection
+                  ? `Mostrando somente a seção ${Number(selectedSection)}.`
+                  : 'Mostrando os votos de todas as seções do colégio.'}
+              </p>
+            </div>
+          )}
           <div className="local-tally-stats">
             <div>
               <strong>{formatVotes(tally.total)}</strong>
@@ -380,34 +454,6 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
           <p className="fine">
             Brancos: {formatVotes(tally.blank)} · Nulos: {formatVotes(tally.nullVotes)}.
           </p>
-          {detail?.selection?.place && (
-            <details className="inline-details">
-              <summary>Ver uma seção deste local</summary>
-              <div className="section-buttons">
-                {detail.selection.place.sections.map((s) => (
-                  <button
-                    key={s}
-                    className="button secondary"
-                    disabled={busy}
-                    onClick={() => {
-                      setZone(detail.selection!.place!.zone);
-                      setSection(s);
-                      setMethod('section');
-                      void load(detail.municipality!.code, undefined, true, {
-                        zone: detail.selection!.place!.zone,
-                        section: s,
-                      });
-                    }}
-                  >
-                    Seção {Number(s)}
-                  </button>
-                ))}
-              </div>
-              <p className="fine">
-                Selecione uma seção para consultar somente os votos registrados nela.
-              </p>
-            </details>
-          )}
           <DataFreshness archived checkedAt={active.importedAt} generated={active.generated} />
           <Source href={active.source}>Fonte: votos por seção do TSE</Source>
           <p className="fine local-privacy">

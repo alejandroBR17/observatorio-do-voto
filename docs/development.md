@@ -97,6 +97,8 @@ Os endpoints e seus estados estão descritos em [Rotas do servidor](#rotas-do-se
 
 O histórico e os retratos eleitorais incluídos em `public/data` são arquivos versionados, não uma coleta contínua. Pesquisas combinam retratos conferidos e descoberta de publicações; nem todo instituto permite extrair números automaticamente. Cada cartão preserva a data da fonte, separada da data da consulta.
 
+A descoberta também consulta o feed oficial do Ipespe e reconhece outros institutos nos feeds jornalísticos. Publicações localizadas manualmente preservam o veículo e a data real em `verifiedPublications`. Elas não se tornam dados numéricos automaticamente: o relato Ipespe de 10/10 permanece como publicação até conferência do relatório original, pois as reportagens divergem sobre o método de entrevista.
+
 Na apuração, o servidor valida o arquivo do TSE e usa cache compartilhado com uma concessão SQL temporária para reduzir consultas concorrentes. As chamadas HTTP são periódicas. Na Vercel, a tela ao vivo também pode abrir WebSocket pelo SDK experimental, com renovação da conexão e fallback HTTP. `next dev` não oferece esse upgrade.
 
 O workflow de monitoramento consulta as APIs públicas para que a coleta não dependa de visitantes. A agenda e os provedores externos podem atrasar; não existe garantia de atualização ou entrega instantânea.

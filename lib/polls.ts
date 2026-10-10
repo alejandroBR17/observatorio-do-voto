@@ -96,7 +96,27 @@ export type Publication = {
   dateOnly?: boolean;
   publisher?: string;
 };
+// Newly located reporting stays in publications until the original numeric
+// report and its methodology have been checked. Never infer totals from a headline.
+const verifiedPublications: Publication[] = [
+  {
+    institute: 'Ipespe',
+    title: 'Ipespe: Flávio soma 52,7% dos votos válidos e Lula registra 47,3% no 2º turno',
+    url: 'https://www.itatiaia.com.br/politica/eleicoes/pesquisas/ipespe-flavio-soma-527-dos-votos-validos-e-lula-registra-473-no-2o-turno/',
+    publishedAt: '2026-10-10T10:26:00-03:00',
+    source:
+      'https://www.itatiaia.com.br/politica/eleicoes/pesquisas/ipespe-flavio-soma-527-dos-votos-validos-e-lula-registra-473-no-2o-turno/',
+    kind: 'publication',
+    publisher: 'Itatiaia',
+  },
+];
 const sources = [
+  {
+    name: 'Ipespe',
+    url: 'https://ipespe.org.br/feed/',
+    format: 'rss',
+    domain: 'ipespe.org.br',
+  },
   {
     name: 'Folha / Datafolha',
     url: 'https://feeds.folha.uol.com.br/poder/rss091.xml',
@@ -170,7 +190,17 @@ function institute(title: string, fallback: string) {
         ? 'Quaest'
         : /atlas/i.test(title)
           ? 'AtlasIntel'
-          : fallback;
+          : /ipespe/i.test(title)
+            ? 'Ipespe'
+            : /verit[aá]/i.test(title)
+              ? 'Veritá'
+              : /vox brasil/i.test(title)
+                ? 'Vox Brasil'
+                : /cnt\s*[/–-]?\s*mda/i.test(title)
+                  ? 'CNT/MDA'
+                  : /real time|realtime/i.test(title)
+                    ? 'Real Time Big Data'
+                    : fallback;
 }
 export function parseRss(
   xml: string,
@@ -188,9 +218,13 @@ export function parseRss(
       !url ||
       !publishedAt ||
       !/^2026-/.test(publishedAt) ||
-      !/datafolha|poderdata|quaest|atlasintel/i.test(title) ||
+      !/datafolha|poderdata|quaest|atlasintel|ipespe|verit[aá]|vox brasil|cnt\s*[/–-]?\s*mda|real time|realtime/i.test(
+        title,
+      ) ||
       !/lula|fl[aá]vio|presiden/i.test(title)
     )
+      continue;
+    if (source.name === 'Ipespe' && !/presiden|lula.*fl[aá]vio|fl[aá]vio.*lula/i.test(title))
       continue;
     out.push({
       institute: institute(title, source.name),
@@ -360,7 +394,7 @@ export function polls(db?: Database): Promise<any> {
   return pending;
 }
 async function collectPolls(db?: Database) {
-  const key = 'polls:publications:v3';
+  const key = 'polls:publications:v4';
   const stored = db
     ? await db
         .prepare('SELECT value, updated FROM cache WHERE key=?')
@@ -372,7 +406,7 @@ async function collectPolls(db?: Database) {
     (db
       ? await db
           .prepare('SELECT value, updated FROM cache WHERE key=?')
-          .bind('polls:publications:v2')
+          .bind('polls:publications:v3')
           .first<{ value: string; updated: number }>()
       : null);
   if (stored && Date.now() - stored.updated < 300000)
@@ -382,7 +416,7 @@ async function collectPolls(db?: Database) {
         .prepare(
           'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?',
         )
-        .bind('lease:polls:v3', '', Date.now(), Date.now() - 30000)
+        .bind('lease:polls:v4', '', Date.now(), Date.now() - 30000)
         .run()
     : { meta: { changes: 1 } };
   if (!lease.meta.changes)
@@ -393,7 +427,7 @@ async function collectPolls(db?: Database) {
           checkedAt: null,
           cacheSeconds: 300,
           polls: pollSnapshots,
-          publications: [],
+          publications: verifiedPublications,
           sources: [],
           notice:
             'Consultando as fontes públicas. Resultados conferidos em 08 e 09/10; a data de publicação aparece em cada pesquisa.',
@@ -449,7 +483,7 @@ async function collectPolls(db?: Database) {
       }
     }),
   );
-  const current: Publication[] = results.flatMap((s) => s.items);
+  const current: Publication[] = [...results.flatMap((s) => s.items), ...verifiedPublications];
   for (const p of pollSnapshots)
     if (
       !current.some(
@@ -523,7 +557,7 @@ async function collectPolls(db?: Database) {
       return metadata;
     }),
     notice:
-      'Fontes consultadas a cada 5 minutos com o app em uso. A data da consulta não é a data de uma nova pesquisa. PoderData: percentuais extraídos quando cenário e metodologia são inequívocos. Datafolha e AtlasIntel: retratos conferidos em 08 e 09/10. As novas publicações dos institutos são descobertas automaticamente; números sem validação permanecem apenas como links. Não há previsão de vencedor nem média automática.',
+      'Fontes consultadas a cada 5 minutos com o app em uso. A data da consulta não é a data de uma nova pesquisa. Os gráficos mostram levantamentos com números e metodologia conferidos. Publicações mais recentes, incluindo Ipespe de 10/10, podem aparecer antes de seus percentuais entrarem nos gráficos. Números sem conferência permanecem como links para a fonte. Não há previsão de vencedor nem média automática.',
     registrationSource: 'https://pesqele-divulgacao.tse.jus.br/',
   };
   temporaryCache = { value: JSON.stringify(payload), updated: Date.now() };

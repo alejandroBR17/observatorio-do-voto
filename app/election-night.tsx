@@ -2,12 +2,37 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Expand, Minimize, X } from 'lucide-react';
-import type { Result } from '@/lib/elections';
+import type { Candidate, Result } from '@/lib/elections';
 import { candidateName, formatPercent, formatVotes } from '@/lib/presentation';
 import { Map } from './geo-map';
 import { DataFreshness } from './components/data-freshness';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
 import { Source } from './components/source-link';
+
+function CandidatePortrait({ candidate }: { candidate: Candidate }) {
+  const [failed, setFailed] = useState(false);
+  const photo =
+    candidate.number === '13'
+      ? '/assets/lula.jpeg'
+      : candidate.number === '22'
+        ? '/assets/flavio.jpeg'
+        : candidate.photo;
+  return (
+    <span className="night-portrait" aria-hidden="true">
+      {photo && !failed ? (
+        <img src={photo} alt="" loading="lazy" onError={() => setFailed(true)} />
+      ) : (
+        <span>
+          {candidateName(candidate.name)
+            .split(' ')
+            .map((word) => word[0])
+            .slice(0, 2)
+            .join('')}
+        </span>
+      )}
+    </span>
+  );
+}
 
 export function ElectionNight({
   preview,
@@ -150,7 +175,8 @@ export function ElectionNight({
             <progress value={shown.counted} max={100} aria-label="Seções totalizadas" />
             {(allCandidates ? shown.candidates : shown.candidates.slice(0, 3)).map((c, i) => (
               <div key={c.number} className="night-candidate">
-                <span>{String(i + 1).padStart(2, '0')}</span>
+                <span className="night-rank">{String(i + 1).padStart(2, '0')}</span>
+                <CandidatePortrait key={c.number} candidate={c} />
                 <div>
                   <h4>{candidateName(c.name)}</h4>
                   <small>{formatVotes(c.votes)} votos válidos</small>

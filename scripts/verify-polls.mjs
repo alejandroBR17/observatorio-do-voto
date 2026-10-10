@@ -24,6 +24,14 @@ assert.equal(parsed.length, 1);
 assert.equal(parsed[0].institute, 'PoderData/Aya');
 assert.equal(parsed[0].kind, 'publication');
 assert.equal(parsed[0].flavio, undefined, 'headline percentage must not become voting data');
+const ipespe = { name: 'Ipespe', url: 'https://ipespe.org.br/feed/', domain: 'ipespe.org.br' };
+const ipespeItems = parseRss(
+  `<rss>${item('Ipespe: Lula e Flávio no segundo turno', 'https://ipespe.org.br/presidente/')}${item('Ipespe: Elmano fala do apoio de Lula', 'https://ipespe.org.br/ceara/')}${item('Ipespe: pesquisa de presidente', 'https://attacker.test/')}</rss>`,
+  ipespe,
+);
+assert.equal(ipespeItems.length, 1);
+assert.equal(ipespeItems[0].institute, 'Ipespe');
+assert.equal(ipespeItems[0].flavio, undefined);
 assert.equal(
   parseRss(item('Datafolha: Lula &amp; Flávio na eleição', 'javascript:alert(1)'), src).length,
   0,
