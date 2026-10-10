@@ -20,6 +20,7 @@ import { NewsVisual } from './news-visual';
 import { DataFreshness } from './components/data-freshness';
 import { Map } from './geo-map';
 import { Notebook } from './notebook';
+import { ShareButton } from './components/share-button';
 import { pollNumbers, type PollBasis } from '@/lib/poll-view';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
 type Poll = {
@@ -573,7 +574,8 @@ export function MediaExplorer() {
           <ClockLabel value={data.stats.updated} />
           <span>
             A fonte coleta às 7h, 10h, 13h, 16h e 21h (Brasília). Esse horário vale para o acervo de
-            estatísticas. Os links da Folha e do G1 são consultados também a cada 5 minutos.
+            estatísticas. Os feeds públicos dos veículos listados em Fontes e critérios são
+            consultados também a cada 5 minutos.
           </span>
         </div>
       )}
@@ -658,19 +660,39 @@ export function MediaExplorer() {
             moreLabel="Ver mais notícias"
             lessLabel="Ver menos notícias"
             render={(a: any) => (
-              <a className="news-card" href={a.url} target="_blank" rel="noreferrer" key={a.id}>
-                <NewsVisual url={a.url} title={a.title} source={a.source} />
+              <article className="news-card" key={a.id}>
+                <a
+                  href={a.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`Ler ${a.title} em ${a.source} (abre em outra aba)`}
+                >
+                  <NewsVisual url={a.url} title={a.title} source={a.source} preview={a.image} />
+                </a>
                 <div className="news-copy">
                   <span className="eyebrow">
                     {a.source} · {time(a.publishedAt)}
                   </span>
-                  <h3>{a.title}</h3>
-                  <span className="text-button">
-                    Ler na origem
-                    <ArrowUpRight size={14} />
-                  </span>
+                  <h3>
+                    <a href={a.url} target="_blank" rel="noreferrer">
+                      {a.title}
+                    </a>
+                  </h3>
+                  <div className="news-actions">
+                    <a
+                      className="text-button"
+                      href={a.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Ler na origem: ${a.title} (abre em outra aba)`}
+                    >
+                      Ler na origem
+                      <ArrowUpRight size={14} aria-hidden="true" />
+                    </a>
+                    <ShareButton title={a.title} url={a.url} text={`${a.title} — ${a.source}`} />
+                  </div>
                 </div>
-              </a>
+              </article>
             )}
           />
         </section>
@@ -703,6 +725,15 @@ export function MediaExplorer() {
             <Link href="https://eleicoes2026.sapienslabs.com.br/api">
               SapiensLabs — Eleições 2026 · CC BY 4.0
             </Link>
+          </div>
+          <div>
+            <strong>Veículos brasileiros · notícias</strong>
+            <p>
+              Seleção por domínio do veículo, com fontes de diferentes linhas editoriais.
+              Consultamos também feeds públicos de G1, Folha, CNN Brasil, Metrópoles, Brasil de Fato
+              e Agência Brasil. Mantemos até 12 matérias por veículo, em ordem de publicação, sem
+              reproduzir o texto integral.
+            </p>
           </div>
         </div>
         <div className="source-health">

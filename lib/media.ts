@@ -1,15 +1,12 @@
 import type { Database } from './database';
 import { queueContentAlerts } from './content-alerts';
 import { plainText } from './polls';
+import { imageUrl } from './article-image';
+import { newsPublishers, newsPublisher, newsKey } from './news-sources';
 const BASE = 'https://eleicoes2026.sapienslabs.com.br/api/v1';
-export const newsSources = [
-  { name: 'G1', url: 'https://g1.globo.com/rss/g1/politica/', domain: 'g1.globo.com' },
-  {
-    name: 'Folha',
-    url: 'https://feeds.folha.uol.com.br/poder/rss091.xml',
-    domain: 'folha.uol.com.br',
-  },
-];
+export const newsSources = newsPublishers
+  .filter((p) => p.feed)
+  .map((p) => ({ name: p.name, domain: p.domain, url: p.feed! }));
 export function parseNewsRss(xml: string, source: (typeof newsSources)[number], now = Date.now()) {
   const items = [];
   for (const m of xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)) {
@@ -26,7 +23,9 @@ export function parseNewsRss(xml: string, source: (typeof newsSources)[number], 
       !Number.isFinite(published) ||
       published > now + 300000 ||
       published < now - 7 * 86400000 ||
-      !/lula|fl[aá]vio bolsonaro|presid[eê]ncia/i.test(plainText(part))
+      !/\blula\b|fl[aá]vio(?: bolsonaro)?|presid[eê]ncia|presidencial/i.test(
+        title + ' ' + get('description').slice(0, 500),
+      )
     )
       continue;
     try {
@@ -45,9 +44,21 @@ export function parseNewsRss(xml: string, source: (typeof newsSources)[number], 
       url,
       source: source.name,
       publishedAt: new Date(published).toISOString(),
+      image: rssImage(part, url),
     });
   }
   return items.slice(0, 24);
+}
+function rssImage(part: string, base: string) {
+  const candidates = [
+    ...[
+      ...part.matchAll(
+        /<(?:media:content|media:thumbnail|enclosure)\b[^>]*\burl=["']([^"']+)["'][^>]*>/gi,
+      ),
+    ].map((m) => m[1]),
+    ...[...part.matchAll(/<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)].map((m) => m[1]),
+  ];
+  return candidates.map((value) => imageUrl(value, base)).find(Boolean) || undefined;
 }
 export function normalizeMedia(stats: any, candidates: any, articles: any) {
   if (
@@ -58,13 +69,6 @@ export function normalizeMedia(stats: any, candidates: any, articles: any) {
     !Array.isArray(articles?.data)
   )
     throw new Error('Formato da fonte incompatível.');
-  const safeUrl = (s: string) => {
-    try {
-      return new URL(s).protocol === 'https:' ? s : null;
-    } catch {
-      return null;
-    }
-  };
   return {
     stats: {
       articles: stats.data.total_articles_imprensa,
@@ -82,18 +86,18 @@ export function normalizeMedia(stats: any, candidates: any, articles: any) {
       )
       .map((c: any) => ({ slug: c.slug, name: c.name, articles: c.kpis.articles })),
     articles: articles.data
-      .filter((a: any) => safeUrl(a.url) && typeof a.title === 'string')
+      .filter((a: any) => newsPublisher(a.url) && typeof a.title === 'string')
       .map((a: any) => ({
         id: a.id,
         title: a.title.slice(0, 240),
         url: a.url,
-        source: a.source || a.source_canonical,
+        source: newsPublisher(a.url)!.name,
         publishedAt: a.published_at,
       })),
   };
 }
 export async function media(db: Database) {
-  const key = 'media:v2',
+  const key = 'media:v3',
     stored = await db
       .prepare('SELECT value,updated FROM cache WHERE key=?')
       .bind(key)
@@ -102,14 +106,14 @@ export async function media(db: Database) {
       stored ||
       (await db
         .prepare('SELECT value,updated FROM cache WHERE key=?')
-        .bind('media:v1')
+        .bind('media:v2')
         .first<{ value: string; updated: number }>());
   if (stored && Date.now() - stored.updated < 300000) return JSON.parse(stored.value);
   const lease = await db
     .prepare(
       'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?',
     )
-    .bind('lease:media:v2', '', Date.now(), Date.now() - 25000)
+    .bind('lease:media:v3', '', Date.now(), Date.now() - 25000)
     .run();
   if (!lease.meta.changes)
     return old
@@ -118,7 +122,7 @@ export async function media(db: Database) {
   const checkedAt = new Date().toISOString();
   const [primary, feeds] = await Promise.all([
     Promise.all(
-      ['stats', 'candidates', 'articles?page_size=24'].map(async (p) => {
+      ['stats', 'candidates', 'articles?page_size=60'].map(async (p) => {
         const r = await fetch(`${BASE}/${p}`, {
           cache: 'no-store',
           signal: AbortSignal.timeout(10000),
@@ -159,13 +163,27 @@ export async function media(db: Database) {
         (previous?.stats
           ? { stats: previous.stats, candidates: previous.candidates, articles: [] }
           : {});
+    const sourceCounts = new Map<string, number>();
     const articles = [
       ...new Map(
-        [...(primary?.articles || []), ...feeds.flatMap((f) => f.items)].map((a) => [a.url, a]),
+        [...(primary?.articles || previous?.articles || []), ...feeds.flatMap((f) => f.items)]
+          .filter(
+            (a) =>
+              newsPublisher(a.url) &&
+              Date.parse(a.publishedAt) >= Date.now() - 7 * 86400000 &&
+              Date.parse(a.publishedAt) <= Date.now() + 300000,
+          )
+          .map((a) => ({ ...a, source: newsPublisher(a.url)!.name }))
+          .map((a) => [newsKey(a.url), a]),
       ).values(),
     ]
       .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
-      .slice(0, 40);
+      .filter((a) => {
+        const count = sourceCounts.get(a.source) || 0;
+        sourceCounts.set(a.source, count + 1);
+        return count < 12;
+      })
+      .slice(0, 80);
     payload = {
       status: 'live',
       ...base,
@@ -176,12 +194,15 @@ export async function media(db: Database) {
       attribution: 'SapiensLabs — Eleições 2026 — CC BY 4.0',
       message: primary
         ? undefined
-        : 'Os totais da cobertura estão temporariamente indisponíveis. Os links dos veículos continuam sendo consultados.',
+        : 'O agregador está temporariamente indisponível. Consultamos os feeds dos veículos e preservamos os links recentes da última coleta.',
     };
   } else
     payload = old
       ? {
           ...JSON.parse(old.value),
+          articles: (JSON.parse(old.value).articles || [])
+            .filter((a: any) => newsPublisher(a.url))
+            .map((a: any) => ({ ...a, source: newsPublisher(a.url)!.name })),
           status: 'stale',
           message: 'As fontes não responderam. Exibindo a última coleta recebida.',
         }

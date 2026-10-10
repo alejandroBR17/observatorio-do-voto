@@ -17,6 +17,8 @@ Acompanhe as eleições presidenciais brasileiras em uma interface com mapas, gr
 - **Cobertura:** explore conteúdos públicos relacionados à eleição.
 - **Meu acompanhamento:** escolha estados no mapa ou pelo nome, compare seus resultados e use os atalhos para apuração e histórico. Escreva no caderno com salvamento automático; título, assunto e estado são opcionais.
 - **Perfil e alertas:** veja um resumo do seu espaço pessoal, escolha seu candidato preferido e ajuste notificações e tema.
+- **Compartilhamento:** envie uma notícia pela opção do próprio aparelho ou copie seu link. Nos resultados, compartilhe a consulta com os filtros escolhidos, incluindo município, colégio ou seção, sem enviar suas preferências pessoais.
+- **Avisos recebidos:** consulte em Alertas até 50 notificações dos últimos 30 dias neste aparelho. O histórico começa nesta atualização e pode ser apagado sem desativar as notificações.
 
 Na apuração, **Ver prévia com o 1º turno** apresenta a tela ampliada com resultados finais reais, claramente identificados. A noite da apuração ao vivo fica disponível após o início da divulgação do segundo turno. Mapas podem ser explorados pelo teclado ou pela tabela de estados; os gráficos de progressão também oferecem os valores em tabela.
 

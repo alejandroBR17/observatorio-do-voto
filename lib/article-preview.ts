@@ -8,11 +8,11 @@ async function collect(url: string) {
     timer = setTimeout(() => controller.abort(), 5000);
   try {
     let current = url;
-    for (let redirects = 0; redirects < 3; redirects++) {
+    for (let redirects = 0; redirects < 5; redirects++) {
       const r = await fetch(current, {
         redirect: 'manual',
         signal: controller.signal,
-        headers: { Accept: 'text/html' },
+        headers: { Accept: 'text/html', 'User-Agent': 'ObservatorioDoVoto/1.0 (article preview)' },
       });
       if ([301, 302, 303, 307, 308].includes(r.status)) {
         const next = articleUrl(new URL(r.headers.get('location') || '', current).href);
@@ -57,7 +57,7 @@ async function collect(url: string) {
 export async function articlePreview(value: string, db?: Database): Promise<string | null> {
   const url = articleUrl(value);
   if (!url) return null;
-  const key = eventId('article-image:v1', url.href);
+  const key = eventId('article-image:v2', url.href);
   let cached = memory.get(key);
   try {
     const row = await db
@@ -68,7 +68,7 @@ export async function articlePreview(value: string, db?: Database): Promise<stri
   } catch {
     // A failed shared cache read leaves the in-memory fallback available.
   }
-  if (cached && Date.now() - cached.updated < (cached.image ? 86400000 : 3600000))
+  if (cached && Date.now() - cached.updated < (cached.image ? 86400000 : 300000))
     return cached.image;
   let task = pending.get(key);
   if (!task) {

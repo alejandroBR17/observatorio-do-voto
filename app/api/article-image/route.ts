@@ -14,5 +14,8 @@ export async function GET(req: Request) {
     /* The memory cache also works without a configured database. */
   }
   const image = await articlePreview(url.href, db);
-  return Response.json({ image }, { headers: { 'Cache-Control': 'public, max-age=3600' } });
+  return Response.json(
+    { image },
+    { headers: { 'Cache-Control': `public, max-age=${image ? 3600 : 120}` } },
+  );
 }

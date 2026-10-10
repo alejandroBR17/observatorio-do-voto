@@ -1,10 +1,5 @@
-const articleHosts = [
-  'g1.globo.com',
-  'folha.uol.com.br',
-  'poder360.com.br',
-  'quaest.com.br',
-  'atlasintel.org',
-];
+import { newsPublishers } from './news-sources';
+const articleHosts = [...newsPublishers.map((p) => p.domain), 'quaest.com.br', 'atlasintel.org'];
 export function articleUrl(value: string) {
   try {
     const u = new URL(value);
@@ -28,6 +23,10 @@ const imageHosts = [
   'webflow.com',
   'website-files.com',
   'cdn.prod.website-files.com',
+  'metroimg.com',
+  'imagens.ebc.com.br',
+  'cdn.oantagonista.com',
+  'img.band.uol.com.br',
 ];
 export function imageUrl(value: string, base: string) {
   try {
@@ -51,7 +50,13 @@ export function imageUrl(value: string, base: string) {
 }
 export function articleImage(html: string, base: string) {
   const tags = [...html.matchAll(/<meta\b[^>]*>/gi)];
-  for (const key of ['og:image:secure_url', 'og:image', 'twitter:image'])
+  for (const key of [
+    'og:image:secure_url',
+    'og:image',
+    'og:image:url',
+    'twitter:image',
+    'twitter:image:src',
+  ])
     for (const [tag] of tags) {
       const attrs = Object.fromEntries(
         [...tag.matchAll(/([\w:-]+)\s*=\s*(["'])([\s\S]*?)\2/g)].map((m) => [

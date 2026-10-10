@@ -47,6 +47,8 @@ import { Source } from './components/source-link';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
 import { DataFreshness } from './components/data-freshness';
 import { MunicipalityExplorer } from './municipality-explorer';
+import { ShareButton } from './components/share-button';
+import { resultLink } from '@/lib/sharing';
 import { ElectionNight } from './election-night';
 import { electionNightAvailable } from '@/lib/election-night';
 import { AppDock, InstallAction, PwaPanel, PwaProvider, usePwa } from './pwa';
@@ -930,6 +932,21 @@ function DashboardContent() {
                                       : 'Conheça as trajetórias dos dois candidatos à Presidência.'}
                 </p>
               </div>
+              {['overview', 'history', 'live'].includes(tab) && (
+                <ShareButton
+                  title={`Resultado presidencial · ${tab === 'history' ? year : 2026} · ${uf === 'BR' ? region : uf}`}
+                  label="Compartilhar resultado"
+                  url={() =>
+                    resultLink(location.origin, {
+                      tab,
+                      uf,
+                      region,
+                      year: tab === 'history' ? year : 2026,
+                      turn: tab === 'history' ? turn : tab === 'live' ? 2 : 1,
+                    })
+                  }
+                />
+              )}
             </div>
             {error && (
               <div className="notice error">

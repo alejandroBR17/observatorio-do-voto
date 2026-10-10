@@ -57,6 +57,7 @@ function worker() {
   };
   runInNewContext(readFileSync('public/sw.js', 'utf8'), {
     URL,
+    importScripts: () => {},
     self: {
       location: { origin: 'https://example.test' },
       skipWaiting: async () => undefined,
@@ -65,7 +66,12 @@ function worker() {
       },
     },
     caches: {
-      keys: async () => ['observatorio-offline-v4', 'observatorio-offline-v5', 'another-app'],
+      keys: async () => [
+        'observatorio-offline-v4',
+        'observatorio-offline-v5',
+        'observatorio-offline-v6',
+        'another-app',
+      ],
       delete: async (key: string) => {
         deleted.push(key);
       },
@@ -123,7 +129,7 @@ test('service worker removes only its old caches and never caches live APIs', as
   ]);
   w.handlers.activate(w.base);
   await w.complete();
-  assert.deepEqual(w.deleted, ['observatorio-offline-v4']);
+  assert.deepEqual(w.deleted, ['observatorio-offline-v4', 'observatorio-offline-v5']);
   let intercepted = false;
   w.handlers.fetch({
     ...w.base,

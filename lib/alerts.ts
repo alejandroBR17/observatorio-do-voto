@@ -27,7 +27,7 @@ export function alertPreferences(value: unknown): AlertPreferences {
   } as AlertPreferences;
 }
 export const frequencyWindow = (prefs: AlertPreferences) =>
-  prefs.frequency === 'hourly' ? 3600000 : prefs.frequency === 'daily' ? 86400000 : 0;
+  prefs.frequency === 'hourly' ? 3600000 : prefs.frequency === 'daily' ? 86400000 : 900000;
 export const priorityAlert = (types: AlertType[], prefs: AlertPreferences) =>
   types.some((t) => prefs[t] && ['winner', 'mathematical', 'lead'].includes(t));
 export const voteGap = (r: Result) =>

@@ -38,7 +38,6 @@ export async function live(db: Database, uf = 'BR') {
       .find((p: any) => p.c === 'ele2026' && p.dt === '04/10/2026')
       ?.e?.find((e: any) => e.abr?.some((a: any) => a.cp?.some((c: any) => String(c.cd) === '1')));
     const code = election?.cd || first?.cdt2;
-    if (!code) throw new Error('Código do segundo turno ainda não publicado.');
     if (Date.now() < Date.parse('2026-10-25T17:00:00-03:00'))
       payload = {
         status: 'waiting',
@@ -47,19 +46,21 @@ export async function live(db: Database, uf = 'BR') {
         code,
       };
     else {
+      if (!code) throw new Error('Código do segundo turno ainda não publicado.');
       const source = `${BASE}/ele2026/${code}/dados/${uf.toLowerCase()}/${uf.toLowerCase()}-c0001-e${String(code).padStart(6, '0')}-u.json`;
       const res = await fetch(source, { signal: AbortSignal.timeout(12000) });
       if (!res.ok)
         throw new Error(`TSE respondeu ${res.status}; a divulgação pode não ter começado.`);
       const result = normalize(await res.json(), source);
-      if (result.turn !== 2) throw new Error('Turno incompatível.');
+      if (result.turn !== 2 || result.uf !== uf || result.candidates.length !== 2)
+        throw new Error('Resultado incompatível com a consulta presidencial do segundo turno.');
       payload = { status: 'live', result, victory: victory(result) };
     }
   } catch (e) {
     payload = {
       status: 'unavailable',
       message: e instanceof Error ? e.message : 'Fonte indisponível',
-      lastGood: old ? JSON.parse(old.value).result : undefined,
+      lastGood: oldPayload?.result || oldPayload?.lastGood,
     };
   }
   payload.checkedAt = new Date().toISOString();
@@ -74,7 +75,7 @@ export async function live(db: Database, uf = 'BR') {
     (!old || JSON.parse(old.value).result?.id !== payload.result.id) &&
     uf === 'BR'
   ) {
-    const prior = old ? JSON.parse(old.value).result : null;
+    const prior = oldPayload?.result || oldPayload?.lastGood || null;
     const current = payload.result;
     const previousVictory = prior ? victory(prior).kind : null;
     const baseline = await db

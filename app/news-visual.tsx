@@ -1,11 +1,22 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { BarChart3, Newspaper, MessagesSquare, Vote } from 'lucide-react';
-export function NewsVisual({ url, title, source }: { url: string; title: string; source: string }) {
+export function NewsVisual({
+  url,
+  title,
+  source,
+  preview,
+}: {
+  url: string;
+  title: string;
+  source: string;
+  preview?: string;
+}) {
   const root = useRef<HTMLDivElement>(null),
-    [image, setImage] = useState<string | null>(null),
+    [image, setImage] = useState<string | null>(preview || null),
     [failed, setFailed] = useState(false);
   useEffect(() => {
+    if (preview) return;
     let canceled = false;
     const controller = new AbortController();
     const observer = new IntersectionObserver(
@@ -27,7 +38,7 @@ export function NewsVisual({ url, title, source }: { url: string; title: string;
       observer.disconnect();
       controller.abort();
     };
-  }, [url]);
+  }, [url, preview]);
   const topic = /debate|governo|entrevista/i.test(title)
     ? 'O debate político'
     : /pesquisa|datafolha|quaest|atlas|poderdata/i.test(title)

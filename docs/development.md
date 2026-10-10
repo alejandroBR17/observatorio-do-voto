@@ -172,6 +172,18 @@ O teste recebe `{ endpoint }` e retorna um identificador quando o provedor aceit
 
 ### Imagens dos alertas
 
+`lib/news-sources.ts` centraliza os veículos brasileiros selecionados e seus feeds públicos. A identificação do veículo vem do domínio do artigo; o rótulo do agregador não define a fonte. O cache `media:v3` estabelece uma nova linha de base sem enviar os artigos importados como novidade. URLs equivalentes são deduplicadas, cada veículo ocupa até 12 entradas e a lista é ordenada por publicação. O status de cada feed aparece na interface; falhas preservam a última coleta sem prometer atualidade. RSS pode fornecer a imagem; sem ela, usamos metadados de prévia, com domínios permitidos, limite de tamanho e tempo, sem contornar bloqueios ou paywalls.
+
+Atualizações comuns respeitam no mínimo 15 minutos entre resumos por inscrição; as opções de uma hora e um dia ampliam esse intervalo. Eventos selecionados de resultado confirmado, limite matemático e liderança mantêm prioridade. O service worker substitui o aviso comum visível pelo resumo mais recente, preserva alertas decisivos separados e registra apenas o payload efetivamente recebido, sem criar notificações para preencher o histórico.
+
+`public/notification-store.js` mantém até 50 avisos em IndexedDB neste dispositivo e exibe os recebidos nos últimos 30 dias. A interface acessa a lista por `MessageChannel` com o service worker, atualiza ao receber um aviso ou voltar à página e permite limpar somente esse histórico. Não há consulta pública de endpoints, chaves ou entregas de outros usuários. Falhas de armazenamento não impedem a exibição de uma notificação.
+
+Compartilhamentos usam a API nativa quando disponível, cópia do link ou um campo selecionável. Links de resultados são reconstruídos somente com filtros explícitos; município/local compartilhado tem prioridade sobre a preferência local ao abrir o link, sem sobrescrever essa preferência. A API valida o escopo e identifica a seção dentro do local. Preferência por candidato, nome e anotações não integram os links.
+
+### Ensaio da apuração
+
+`tests/election-night-rehearsal.test.ts` executa o fluxo de espera, abertura, perda repetida de conexão e recuperação com relógio e respostas TSE controlados e banco SQLite em memória. Também verifica rejeição de dados de primeiro turno e ausência de repetição do aviso de eleito. O adaptador de envio é substituído e não existem inscrições. Nenhum modo de teste, rota pública ou dado simulado é adicionado à produção. Nas prévias, mantenha banco e inscrições separados conforme `deployment.md`; não use credenciais de produção em ensaios.
+
 Prévias de artigos são resolvidas em `lib/article-preview.ts`, compartilhando o cache da interface e dos alertas. Somente fontes e imagens permitidas são aceitas; sem prévia, o texto continua disponível. Notícias usam a manchete como título. Alertas decisivos podem usar o retrato do candidato relacionado ao evento, independentemente da preferência local do usuário.
 
 O payload push inclui título, texto, destino, categorias e URLs de imagem/ícone. O service worker tenta exibir a imagem e preserva o alerta textual se o navegador rejeitar o recurso. A apresentação final depende do navegador e do sistema operacional. Os testes executam o handler do service worker com payloads controlados; não comprovam a aparência ou a entrega em um aparelho real.

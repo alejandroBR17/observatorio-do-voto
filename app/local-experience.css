@@ -1,4 +1,98 @@
 /* The existing civic identity, extended for local discovery and election night. */
+.share-control {
+  display: flex;
+  gap: 6px 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  min-width: 0;
+}
+.share-control input {
+  width: 100%;
+  min-width: 0;
+}
+.share-button {
+  min-height: 44px;
+}
+.copy-link-button {
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+}
+.share-feedback {
+  font-size: 12px;
+  color: var(--muted);
+}
+.news-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.news-actions > a {
+  min-height: 44px;
+}
+.news-card .news-actions .text-button {
+  font-size: 12px;
+}
+.news-card h3 a {
+  display: block;
+}
+.news-card:focus-within {
+  border-color: var(--accent);
+}
+.received-list {
+  display: grid;
+  gap: 12px;
+}
+.received-alert {
+  padding: 16px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  min-width: 0;
+}
+.received-alert h3 {
+  font-size: 15px;
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
+.received-alert p {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.received-alert time {
+  font-size: 11px;
+  color: var(--muted);
+}
+.received-alert a {
+  min-height: 44px;
+}
+.history-empty {
+  padding: 18px;
+  background: var(--soft);
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.history-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  font-size: 13px;
+}
+.history-tools button {
+  min-height: 44px;
+}
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
 .sr-only {
   position: absolute;
   width: 1px;

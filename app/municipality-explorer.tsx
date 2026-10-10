@@ -7,6 +7,8 @@ import { candidateName, formatVotes, formatPercent } from '@/lib/presentation';
 import { DataFreshness } from './components/data-freshness';
 import { Source } from './components/source-link';
 import { rememberedCity, type RememberedCity } from '@/lib/remembered-city';
+import { ShareButton } from './components/share-button';
+import { resultLink } from '@/lib/sharing';
 
 export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
   const [uf, setUf] = useState(states.some((s) => s[1] === initialUf) ? initialUf : 'SP');
@@ -28,10 +30,27 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
   const [ready, setReady] = useState(false);
   const [storageStatus, setStorageStatus] = useState<'saved' | 'unavailable' | ''>('');
   const restore = useRef<RememberedCity | null>(null);
+  const shared = useRef<URLSearchParams | null>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const request = useRef<AbortController | null>(null);
   const resultHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const linked = rememberedCity(
+      JSON.stringify({
+        version: 1,
+        uf: params.get('uf'),
+        code: params.get('municipality'),
+        name: 'Consulta compartilhada',
+      }),
+    );
+    if (linked) {
+      shared.current = params;
+      restore.current = linked;
+      setUf(linked.uf);
+      setReady(true);
+      return;
+    }
     try {
       const saved = rememberedCity(localStorage.getItem('observatorio.municipality'));
       if (saved) {
@@ -77,7 +96,25 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
         if (!response.ok) throw Error(cityData.error || 'Não foi possível retomar seu município.');
         if (!controller.signal.aborted) {
           setCity(cityData);
-          setStorageStatus('saved');
+          setStorageStatus(shared.current ? '' : 'saved');
+          const link = shared.current;
+          if (link) {
+            shared.current = null;
+            const scope = new URLSearchParams({ uf, municipality: saved.code });
+            for (const key of ['place', 'zone', 'section']) {
+              const value = link.get(key);
+              if (value) scope.set(key, value);
+            }
+            if (scope.size > 2) {
+              const response = await fetch('/api/local-results?' + scope, {
+                signal: controller.signal,
+              });
+              const detailData = await response.json();
+              if (!response.ok)
+                throw Error(detailData.error || 'Não foi possível abrir este local.');
+              if (!controller.signal.aborted) setDetail(detailData);
+            }
+          }
         }
       })
       .catch((e: Error) => {
@@ -118,6 +155,10 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
       if (!r.ok) throw Error(d.error || 'Não foi possível consultar o local.');
       if (!controller.signal.aborted) {
         if (!place && !bySection) {
+          const page = new URL(location.href);
+          for (const key of ['municipality', 'place', 'zone', 'section'])
+            page.searchParams.delete(key);
+          history.replaceState({}, '', page);
           setDetail(null);
           setShowSectionPicker(false);
           setCity(d);
@@ -451,6 +492,20 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
           <h2 id="local-result-title" ref={resultHeading} tabIndex={-1}>
             {title}
           </h2>
+          <ShareButton
+            title={`${title} · votação presidencial de 2026 · 1º turno`}
+            label="Compartilhar resultado"
+            url={() =>
+              resultLink(location.origin, {
+                tab: 'municipality',
+                uf,
+                municipality: city?.municipality?.code,
+                place: selectedPlace?.id,
+                zone: detail?.selection?.zone,
+                section: selectedSection,
+              })
+            }
+          />
           {detail?.selection?.place && (
             <p className="fine">
               {detail.selection.place.address} · Zona {Number(detail.selection.place.zone)}

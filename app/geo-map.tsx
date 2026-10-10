@@ -71,9 +71,10 @@ export function Map({
   return (
     <div className="map-wrap">
       <p className="sr-only" id={descriptionId}>
-        Use Tab para percorrer os estados e Enter ou Espaço para selecionar. Os resultados também
-        estão disponíveis na tabela abaixo. As cores indicam o candidato na liderança; a ordem dos
-        votos pode mudar em resultados parciais.
+        Use Tab ou as setas para percorrer os estados e Enter ou Espaço para selecionar. Home e End
+        levam ao primeiro e ao último estado da região. Os resultados também estão disponíveis na
+        tabela abaixo. As cores indicam o candidato na liderança; a ordem dos votos pode mudar em
+        resultados parciais.
       </p>
       {error ? (
         <p>Mapa indisponível. Consulte a tabela por estado.</p>
@@ -91,6 +92,7 @@ export function Map({
             const s = states.find((s) => s[0] === f.properties.codarea);
             if (!s) return null;
             const d = data.find((d) => d.uf === s[1]);
+            const inRegion = region === 'Brasil' || s[3] === region;
             return (
               <path
                 key={s[1]}
@@ -101,15 +103,43 @@ export function Map({
                 opacity={region === 'Brasil' || s[3] === region ? 1 : 0.17}
                 className="state"
                 role="button"
-                tabIndex={0}
+                tabIndex={inRegion ? 0 : -1}
+                aria-hidden={!inRegion}
+                data-state={inRegion ? s[1] : undefined}
                 aria-pressed={selected === s[1]}
                 aria-label={`${s[2]}: ${d?.candidates[0]?.votes ? name(d.candidates[0].name) + ' ' + pct(d.candidates[0].percent) + ', ' + pct(d.counted) + ' das seções totalizadas' : 'sem votos disponíveis'}`}
                 onMouseEnter={() => setHover(s[1])}
                 onMouseLeave={() => setHover('')}
                 onFocus={() => setHover(s[1])}
                 onBlur={() => setHover('')}
-                onClick={() => onSelect(s[1])}
+                onClick={() => {
+                  if (inRegion) onSelect(s[1]);
+                }}
                 onKeyDown={(e) => {
+                  if (!inRegion) return;
+                  if (
+                    ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'].includes(
+                      e.key,
+                    )
+                  ) {
+                    e.preventDefault();
+                    const paths = Array.from(
+                      e.currentTarget.ownerSVGElement?.querySelectorAll<SVGPathElement>(
+                        '[data-state]',
+                      ) || [],
+                    );
+                    const index = paths.indexOf(e.currentTarget);
+                    const next =
+                      e.key === 'Home'
+                        ? 0
+                        : e.key === 'End'
+                          ? paths.length - 1
+                          : (index +
+                              (['ArrowRight', 'ArrowDown'].includes(e.key) ? 1 : -1) +
+                              paths.length) %
+                            paths.length;
+                    paths[next]?.focus();
+                  }
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     onSelect(s[1]);
@@ -170,7 +200,7 @@ export function Map({
               <tr>
                 <th scope="col">Estado</th>
                 <th scope="col">Na liderança</th>
-                <th scope="col">Votos válidos do candidato</th>
+                <th scope="col">Participação nos votos válidos</th>
                 <th scope="col">Seções totalizadas</th>
               </tr>
             </thead>

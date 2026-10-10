@@ -8,13 +8,20 @@ import { pushPayload } from '../lib/push';
 import { queueContentAlerts } from '../lib/content-alerts';
 import { articlePreview } from '../lib/article-preview';
 
-async function receiveNotification(payload: unknown, rejectImage = false) {
+async function receiveNotification(payload: unknown, rejectImage = false, history: any[] = []) {
   const calls: { title: string; options: Record<string, unknown> }[] = [];
   type PushInput = { data: { json: () => unknown }; waitUntil: (task: Promise<void>) => void };
   const handlers: Record<string, (event: PushInput) => void> = {};
   runInNewContext(readFileSync('public/sw.js', 'utf8'), {
     URL,
+    importScripts: () => {},
     self: {
+      notificationStore: {
+        list: async () => history,
+        put: async (item: any) => {
+          history.push(item);
+        },
+      },
       addEventListener: (name: string, handler: (event: PushInput) => void) => {
         handlers[name] = handler;
       },
@@ -62,6 +69,30 @@ test('push payload includes only approved preview assets and preserves notificat
     'data:image/png;base64,secret',
   ])
     assert.equal(pushPayload({ ...event, types: [...event.types], image }).image, undefined);
+});
+
+test('received push history records delivered summaries, suppresses repeats and keeps decisive alerts distinct', async () => {
+  const history: any[] = [];
+  const summary = {
+    id: 'summary:1',
+    title: '5 notícias sobre a eleição',
+    body: 'Fonte · Manchete',
+    types: ['coverage'],
+    url: '/?tab=social',
+  };
+  const first = await receiveNotification(summary, false, history);
+  assert.equal(history.length, 1);
+  assert.equal(history[0].title, summary.title);
+  assert.ok(history[0].receivedAt > 0);
+  assert.equal(first[0].options.tag, 'election-summary');
+  assert.equal((await receiveNotification(summary, false, history)).length, 0);
+  const winner = await receiveNotification(
+    { ...summary, id: 'winner:1', types: ['winner'] },
+    false,
+    history,
+  );
+  assert.equal(winner[0].options.tag, 'winner:1');
+  assert.equal(history.length, 2);
 });
 
 test('service worker shows the headline and photo and keeps navigation inside the app', async () => {

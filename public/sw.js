@@ -1,4 +1,5 @@
-const OFFLINE = 'observatorio-offline-v5';
+importScripts('/notification-store.js');
+const OFFLINE = 'observatorio-offline-v6';
 const OFFLINE_ASSETS = ['/offline.html', '/offline.css', '/offline.js', '/app-icon.svg'];
 self.addEventListener('install', (event) =>
   event.waitUntil(
@@ -47,6 +48,13 @@ self.addEventListener('push', (event) =>
         data = { message: 'Abra o Observatório para consultar a atualização.' };
       }
       if (!data || typeof data !== 'object' || Array.isArray(data)) data = {};
+      if (typeof data.id === 'string' && !data.id.startsWith('test:')) {
+        try {
+          if ((await self.notificationStore.list()).some((item) => item.id === data.id)) return;
+        } catch {
+          /* History availability must not block a real alert. */
+        }
+      }
       const labels = {
         winner: 'Resultado confirmado pelo TSE',
         mathematical: 'Vantagem numericamente irreversível',
@@ -89,7 +97,11 @@ self.addEventListener('push', (event) =>
         icon: asset(data.icon) || '/app-icon-192.png',
         image: asset(data.image),
         badge: '/app-icon-192.png',
-        tag: data.id || data.result?.id || 'election-update',
+        tag: ['winner', 'mathematical', 'lead'].includes(type)
+          ? data.id || 'election-decisive'
+          : typeof data.id === 'string' && data.id.startsWith('test:')
+            ? data.id
+            : 'election-summary',
         data: {
           url: typeof data.url === 'string' && data.url.startsWith('/?') ? data.url : '/?tab=live',
         },
@@ -105,6 +117,21 @@ self.addEventListener('push', (event) =>
           icon: '/app-icon-192.png',
         });
       }
+      try {
+        await self.notificationStore.put({
+          id: typeof data.id === 'string' ? data.id : 'received:' + Date.now(),
+          title: title.slice(0, 240),
+          body: String(options.body).slice(0, 500),
+          url: options.data.url,
+          types: Array.isArray(data.types) ? data.types.filter((t) => labels[t]) : [],
+          receivedAt: Date.now(),
+          test: typeof data.id === 'string' && data.id.startsWith('test:'),
+        });
+        const windows = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+        for (const client of windows) client.postMessage({ type: 'notification-history:updated' });
+      } catch {
+        /* Push remains usable when device storage is unavailable. */
+      }
       if (typeof data.id === 'string' && data.id.startsWith('test:')) {
         try {
           const sub = await self.registration.pushManager.getSubscription();
@@ -119,6 +146,25 @@ self.addEventListener('push', (event) =>
     })(),
   ),
 );
+self.addEventListener('message', (event) => {
+  if (
+    !['notification-history:list', 'notification-history:clear'].includes(event.data?.type) ||
+    !event.ports[0]
+  )
+    return;
+  event.waitUntil(
+    (async () => {
+      try {
+        if (event.data.type === 'notification-history:clear') await self.notificationStore.clear();
+        event.ports[0].postMessage({ items: await self.notificationStore.list() });
+      } catch {
+        event.ports[0].postMessage({
+          error: 'Não foi possível acessar o histórico neste aparelho.',
+        });
+      }
+    })(),
+  );
+});
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(

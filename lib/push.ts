@@ -175,7 +175,11 @@ export async function dispatchPush(db: Database, send = sendPush) {
               try {
                 const window = frequencyWindow(prefs),
                   priority = priorityAlert(event.types, prefs);
-                let message = event;
+                let message = {
+                  ...event,
+                  types: event.types.filter((t) => prefs[t]),
+                  urgent: priority,
+                };
                 let grouped: string[] = [];
                 if (window && !priority) {
                   const history = await db
@@ -206,6 +210,13 @@ export async function dispatchPush(db: Database, send = sendPush) {
                       const latest = JSON.parse(common[0].value) as PushEvent;
                       message = {
                         ...event,
+                        types: [
+                          ...new Set(
+                            common
+                              .flatMap((r) => (JSON.parse(r.value) as PushEvent).types)
+                              .filter((t) => prefs[t]),
+                          ),
+                        ],
                         title: `${common.length} atualizações da eleição`,
                         body: `${common.length} atualizações agrupadas. ${latest.title}. ${latest.body}`,
                         url: latest.url,

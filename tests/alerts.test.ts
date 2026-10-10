@@ -265,3 +265,64 @@ test('frequency groups common events, defers subsequent updates and never delays
     client.close();
   }
 });
+
+test('rapid summaries collapse a burst and defer another common update while preserving immediate confirmed results', async () => {
+  const client = createClient({ url: 'file::memory:' }),
+    db = createDatabase(client);
+  const endpoint = 'https://fcm.googleapis.com/fcm/send/burst';
+  const subscription = {
+    endpoint,
+    keys: {
+      p256dh: webpush.generateVAPIDKeys().publicKey,
+      auth: Buffer.alloc(16, 1).toString('base64url'),
+    },
+  };
+  try {
+    await db
+      .prepare('INSERT INTO subscriptions(endpoint,preferences,updated) VALUES(?,?,?)')
+      .bind(endpoint, JSON.stringify({ coverage: true, polls: true }), 0)
+      .run();
+    await db
+      .prepare('INSERT INTO subscription_keys(endpoint,value,created) VALUES(?,?,?)')
+      .bind(endpoint, JSON.stringify(subscription), 0)
+      .run();
+    for (let i = 0; i < 5; i++)
+      await queuePush(db, {
+        id: 'burst:' + i,
+        types: ['coverage'],
+        title: 'Notícia ' + i,
+        body: 'Fonte',
+        url: '/?tab=social',
+      });
+    const sent: any[] = [];
+    const sender = async (_db: any, _sub: any, event: any) => {
+      sent.push(event);
+      return {} as any;
+    };
+    await dispatchPush(db, sender);
+    assert.equal(sent.length, 1);
+    assert.match(sent[0].title, /5 atualizações/);
+    await queuePush(db, {
+      id: 'burst:next',
+      types: ['polls'],
+      title: 'Pesquisa',
+      body: 'Fonte',
+      url: '/?tab=polls',
+    });
+    await dispatchPush(db, sender);
+    assert.equal(sent.length, 1);
+    await queuePush(db, {
+      id: 'burst:winner',
+      types: ['winner'],
+      title: 'Resultado confirmado',
+      body: 'TSE',
+      url: '/?tab=live',
+      urgent: true,
+    });
+    await dispatchPush(db, sender);
+    assert.equal(sent.length, 2);
+    assert.equal(sent[1].id, 'burst:winner');
+  } finally {
+    client.close();
+  }
+});

@@ -75,6 +75,27 @@ test('poll views retain published denominators and never fabricate an unavailabl
   assert.equal(pollNumbers({ ...p, totalVotes: undefined }, 'total'), null);
   assert.equal(pollNumbers({ basis: 'total', flavio: 45, lula: 40 }, 'valid'), null);
 });
+test('Brazilian publisher previews accept their verified CDNs without opening arbitrary external fetching', () => {
+  for (const [article, image] of [
+    ['https://www.cnnbrasil.com.br/eleicoes/news', 'https://admin.cnnbrasil.com.br/photo.jpg'],
+    ['https://metropoles.com/news', 'https://images.metroimg.com/photo.jpg'],
+    ['https://agenciabrasil.ebc.com.br/news', 'https://imagens.ebc.com.br/photo.jpg'],
+    ['https://redetv.uol.com.br/news', 'https://images.redetv.uol.com.br/photo.jpg'],
+    ['https://gazetadopovo.com.br/news', 'https://media.gazetadopovo.com.br/photo.jpg'],
+    [
+      'https://diariodocentrodomundo.com.br/news',
+      'https://www.diariodocentrodomundo.com.br/photo.jpg',
+    ],
+    ['https://cartacapital.com.br/news', 'https://www.cartacapital.com.br/photo.jpg'],
+    ['https://brasildefato.com.br/news', 'https://www.brasildefato.com.br/photo.jpg'],
+  ]) {
+    assert.ok(articleUrl(article));
+    assert.equal(articleImage(`<meta property="og:image" content="${image}">`, article), image);
+  }
+  assert.equal(articleUrl('https://cubadebate.cu/noticias/news'), null);
+  assert.equal(articleUrl('https://metropoles.com.evil.test/private'), null);
+});
+
 test('transfer hypothesis conserves votes and treats excluded votes outside the final denominator', () => {
   const s = transferScenario(450, 400, 150, 60, 20);
   assert.equal(s.aVotes, 522);

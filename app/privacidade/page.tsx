@@ -28,6 +28,13 @@ export default function Privacy() {
           armazenamento local do navegador. O app não envia seu nome, preferência por candidato ou
           anotações ao banco central. Outro aparelho terá suas próprias escolhas.
         </p>
+        <p>
+          A última cidade consultada também fica neste navegador. O histórico de avisos recebidos é
+          guardado em IndexedDB neste aparelho, com até 50 entradas visíveis dos últimos 30 dias.
+          Você pode limpá-lo em Alertas. Ao compartilhar um resultado, o link inclui somente os
+          filtros da consulta, incluindo local ou seção se escolhidos, sem seu nome, candidato
+          preferido ou anotações.
+        </p>
       </section>
       <section>
         <h2>Quando você ativa notificações</h2>

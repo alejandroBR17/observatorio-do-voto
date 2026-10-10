@@ -15,6 +15,7 @@ import { Disclosure } from './disclosure';
 import { ThemeMenu } from './theme-menu';
 import { AnalysisPreference } from './reading';
 import type { AlertPreferences } from '@/lib/alerts';
+import { NotificationHistory } from './notification-history';
 import { states } from '@/lib/elections';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
 type Prefs = AlertPreferences;
@@ -258,7 +259,11 @@ export function Alerts({
       'Pesquisas e publicações dos institutos',
       'Novos resultados, análises dos institutos e reportagens sobre os levantamentos.',
     ],
-    ['coverage', 'Novas notícias', 'Um aviso por coleta com novos links da cobertura de imprensa.'],
+    [
+      'coverage',
+      'Novas notícias',
+      'Novos links reunidos em um único aviso, respeitando o intervalo escolhido.',
+    ],
   ];
   const [testing, setTesting] = useState(false),
     [testFeedback, setTestFeedback] = useState(''),
@@ -369,7 +374,7 @@ export function Alerts({
           <div className="frequency-options">
             {(
               [
-                ['immediate', 'Assim que houver novidades'],
+                ['immediate', 'Resumo rápido · no máximo a cada 15 minutos'],
                 ['hourly', 'No máximo uma vez por hora'],
                 ['daily', 'No máximo uma vez por dia'],
               ] as const
@@ -422,6 +427,7 @@ export function Alerts({
           </p>
         </div>
       </div>
+      <NotificationHistory />
       <Disclosure
         title="Como os alertas são calculados"
         summary="Fonte oficial, limites de vitória e privacidade"
