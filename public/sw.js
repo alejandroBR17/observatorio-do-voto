@@ -1,14 +1,37 @@
-const OFFLINE = 'observatorio-offline-v3';
+const OFFLINE = 'observatorio-offline-v4';
+const OFFLINE_ASSETS = ['/offline.html', '/offline.css', '/offline.js', '/app-icon.svg'];
 self.addEventListener('install', (event) =>
   event.waitUntil(
     caches
       .open(OFFLINE)
-      .then((c) => c.addAll(['/offline.html', '/app-icon.svg']))
+      .then((c) => c.addAll(OFFLINE_ASSETS))
       .then(() => self.skipWaiting()),
   ),
 );
-self.addEventListener('activate', (event) => event.waitUntil(clients.claim()));
+self.addEventListener('activate', (event) =>
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys
+          .filter((key) => key.startsWith('observatorio-offline-') && key !== OFFLINE)
+          .map((key) => caches.delete(key)),
+      );
+      await clients.claim();
+    })(),
+  ),
+);
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  if (url.origin === self.location.origin && OFFLINE_ASSETS.includes(url.pathname)) {
+    event.respondWith(
+      caches
+        .open(OFFLINE)
+        .then(async (cache) => (await cache.match(url.pathname)) || fetch(event.request)),
+    );
+    return;
+  }
   if (event.request.mode === 'navigate')
     event.respondWith(fetch(event.request).catch(() => caches.match('/offline.html')));
 });
@@ -98,5 +121,25 @@ self.addEventListener('push', (event) =>
 );
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  event.waitUntil(clients.openWindow(event.notification.data?.url || '/'));
+  event.waitUntil(
+    (async () => {
+      const path = event.notification.data?.url;
+      const url = new URL(
+        typeof path === 'string' && path.startsWith('/?') ? path : '/',
+        self.location.origin,
+      ).href;
+      const windows = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+      const existing =
+        windows.find((client) => client.url === url) ||
+        windows.find((client) => new URL(client.url).origin === self.location.origin);
+      if (existing) {
+        try {
+          await existing.navigate(url);
+          await existing.focus();
+          return;
+        } catch {}
+      }
+      await clients.openWindow(url);
+    })(),
+  );
 });

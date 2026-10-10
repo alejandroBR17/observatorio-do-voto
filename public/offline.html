@@ -1,38 +1,41 @@
 <!doctype html>
 <html lang="pt-BR">
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta
-    name="theme-color"
-    content="#123c36"
-  /><title>Observatório · Sem conexão</title
-  ><style>
-    body {
-      background: #f7f8f4;
-      color: #123c36;
-      font-family: system-ui;
-      margin: 10vh auto;
-      padding: 24px;
-      max-width: 480px;
-      line-height: 1.7;
-    }
-    img {
-      width: 64px;
-    }
-    h1 {
-      font-size: 30px;
-    }
-    button {
-      padding: 12px 24px;
-      border: 0;
-      background: #123c36;
-      color: white;
-      border-radius: 10px;
-      cursor: pointer;
-    }</style
-  ><img src="/app-icon.svg" alt="" />
-  <h1>O país continua votando.<br />Vamos reconectar.</h1>
-  <p>
-    Você está sem conexão. A apuração e as pesquisas precisam da fonte atualizada para serem
-    exibidas com segurança.
-  </p>
-  <button onclick="location.reload()">Tentar novamente</button>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#14283d" />
+    <title>Seu espaço offline · Observatório do Voto</title>
+    <link rel="stylesheet" href="/offline.css" />
+    <script src="/offline.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="/app-icon.svg" alt="" width="60" height="60" /><span>OBSERVATÓRIO DO VOTO</span>
+        <h1>Seu espaço, mesmo sem conexão.</h1>
+        <p>
+          O que você guardou neste ambiente continua disponível. A apuração e as pesquisas atuais
+          precisam de internet.
+        </p>
+        <button id="reconnect" type="button">Voltar ao app</button>
+        <p id="connection" role="status"></p>
+      </header>
+      <section aria-labelledby="result-title">
+        <h2 id="result-title">Resultado guardado</h2>
+        <p id="result-empty">
+          Abra “Meu app” pelo ícone do Observatório e guarde um resultado final para consultar aqui.
+        </p>
+        <div id="saved-result" hidden></div>
+      </section>
+      <section aria-labelledby="notes-title">
+        <h2 id="notes-title">Seu caderno</h2>
+        <p id="notes-empty">Não há anotações salvas neste ambiente do aparelho.</p>
+        <div id="notes"></div>
+        <p class="fine">
+          Aqui você pode ler suas anotações. Para editar, volte ao caderno quando tiver conexão.
+          Limpar os dados deste app também remove o conteúdo local.
+        </p>
+      </section>
+    </main>
+  </body>
 </html>

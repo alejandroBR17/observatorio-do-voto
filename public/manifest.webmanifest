@@ -3,11 +3,35 @@
   "name": "Observatório do Voto",
   "short_name": "Observatório",
   "lang": "pt-BR",
+  "description": "Dados oficiais, pesquisas e seu acompanhamento das eleições presidenciais.",
+  "categories": ["news", "education"],
+  "orientation": "any",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f4f2ec",
   "theme_color": "#14283d",
+  "launch_handler": { "client_mode": "focus-existing" },
+  "shortcuts": [
+    {
+      "name": "Apuração ao vivo",
+      "short_name": "Apuração",
+      "url": "/?tab=live",
+      "icons": [{ "src": "/app-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Meu município",
+      "short_name": "Município",
+      "url": "/?tab=municipality",
+      "icons": [{ "src": "/app-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Meu caderno",
+      "short_name": "Caderno",
+      "url": "/?tab=watch",
+      "icons": [{ "src": "/app-icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
     {
       "src": "/app-icon-192.png",

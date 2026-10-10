@@ -103,6 +103,14 @@ Na apuração, o servidor valida o arquivo do TSE e usa cache compartilhado com 
 
 O workflow de monitoramento consulta as APIs públicas para que a coleta não dependa de visitantes. A agenda e os provedores externos podem atrasar; não existe garantia de atualização ou entrega instantânea.
 
+### Experiência PWA
+
+`app/pwa.tsx` detecta execução standalone (incluindo `navigator.standalone` no iOS), retém `beforeinstallprompt` somente até o uso e distingue instalação aceita de abertura pelo ícone. Sem prompt nativo, mostra instruções por plataforma. Não detecta com certeza um app instalado quando a mesma origem é aberta em uma aba comum.
+
+O modo instalado inclui navegação fixa, atalhos no manifest e Wake Lock opcional na noite da apuração; o lock é liberado ao fechar a tela e retomado quando ela volta a ficar visível, sujeito ao sistema. O service worker guarda apenas os arquivos da área offline, limpa versões antigas de seu próprio cache e não armazena APIs de apuração/pesquisas. Ao tocar em um alerta, tenta reutilizar uma janela da mesma origem antes de abrir outra.
+
+`observatorio.offline-result` contém uma cópia explícita de resultado nacional finalizado, validada por `lib/pwa.ts`. A área offline (`public/offline.*`) lê essa cópia e o caderno local com `textContent`, sem rede, edição ou interpretação de HTML de anotações. Dados e instalação podem ser removidos pelo aparelho; armazenamento separado entre navegador e app não é sincronizado. Os recursos offline precisam que o service worker tenha instalado seu pequeno conjunto de arquivos enquanto havia conexão.
+
 ### Persistência e privacidade
 
 As tabelas `cache`, `subscriptions`, `subscription_keys`, `push_events` e `push_deliveries` armazenam dados públicos, configuração VAPID e o necessário para entrega de alertas. A fila registra evento/aparelho para evitar duplicação e retomar falhas transitórias.

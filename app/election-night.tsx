@@ -8,6 +8,7 @@ import { Map } from './geo-map';
 import { DataFreshness } from './components/data-freshness';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
 import { Source } from './components/source-link';
+import { ScreenAwakeButton } from './pwa';
 
 function CandidatePortrait({ candidate }: { candidate: Candidate }) {
   const [failed, setFailed] = useState(false);
@@ -133,6 +134,7 @@ export function ElectionNight({
           </h2>
         </div>
         <div className="night-controls">
+          <ScreenAwakeButton />
           <button
             className="button secondary"
             onClick={() => void toggleFullscreen()}

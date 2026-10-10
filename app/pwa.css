@@ -1,0 +1,161 @@
+.header-app {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 11px;
+}
+.pwa-panels {
+  display: grid;
+  gap: 20px;
+  max-width: 1100px;
+}
+.pwa-hero {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  background: var(--soft);
+}
+.pwa-hero img {
+  border-radius: 18px;
+  flex-shrink: 0;
+}
+.pwa-hero h2 {
+  margin: 10px 0;
+  font-size: clamp(22px, 3vw, 34px);
+}
+.pwa-hero p,
+.pwa-features p,
+.pwa-guide li {
+  line-height: 1.7;
+  font-size: 14px;
+}
+.pwa-hero .button {
+  margin-top: 10px;
+}
+.pwa-hero .subtle-tag {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+}
+.pwa-guide ol {
+  padding-left: 22px;
+}
+.pwa-guide li {
+  padding-left: 8px;
+  margin: 12px 0;
+}
+.pwa-features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.pwa-features .panel {
+  min-width: 0;
+}
+.pwa-features h3 {
+  font-size: 19px;
+  margin: 14px 0 10px;
+}
+.pwa-features svg {
+  color: var(--accent);
+}
+.pwa-features .button {
+  white-space: normal;
+}
+.pwa-features .text-button {
+  display: block;
+  margin-top: 15px;
+}
+.installed-app #page-content {
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
+}
+.installed-app .topbar {
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+.installed-app .back-to-top {
+  bottom: calc(90px + env(safe-area-inset-bottom));
+}
+.installed-app .toast {
+  bottom: calc(145px + env(safe-area-inset-bottom));
+}
+.app-dock {
+  position: fixed;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 44;
+  display: flex;
+  gap: 7px;
+  padding: 7px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: 0 6px 28px #07142622;
+}
+.app-dock button {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 9px 20px;
+  border-radius: 13px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.app-dock button[aria-current='page'] {
+  background: var(--soft);
+  color: var(--ink);
+}
+.awake-control {
+  position: relative;
+}
+.awake-control > span {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  padding: 10px;
+  width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 12px;
+}
+@media (max-width: 760px) {
+  .pwa-features {
+    grid-template-columns: 1fr;
+  }
+  .pwa-hero {
+    align-items: start;
+    flex-direction: column;
+  }
+  .header-app {
+    padding: 7px;
+  }
+  .header-app span {
+    font-size: 11px;
+    max-width: 62px;
+    line-height: 1.3;
+  }
+  .night-controls {
+    flex-wrap: wrap;
+    justify-content: end;
+  }
+  .night-header:has(.awake-control) {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 600px) {
+  .topbar:has(.header-app) .header-brand > span {
+    display: none;
+  }
+  .topbar:has(.header-app) .header-brand img {
+    display: block;
+    width: 30px;
+    height: 30px;
+  }
+  .header-app {
+    min-height: 44px;
+  }
+}

@@ -34,7 +34,9 @@ Para receber alertas, use o botão das boas-vindas ou visite Alertas e permita o
 
 Em Alertas, escolha receber atualizações comuns assim que houver novidades, no máximo uma vez por hora ou no máximo uma vez por dia. Avisos comuns são agrupados; resultado, vantagem irreversível e mudança de liderança continuam imediatos quando selecionados, sujeitos à consulta e entrega do serviço.
 
-Você também pode instalar o app pelo menu do navegador ou pela opção **Adicionar à tela inicial**. Ele continua acessível pelo endereço da hospedagem.
+Use **Instalar app** na barra superior quando o navegador disponibilizar a instalação. Nos demais casos, **Como instalar** abre as instruções do seu aparelho em **Meu app**. Ao abrir pelo ícone, o app oferece atalhos fixos para Panorama, Apuração e Caderno; alguns sistemas também permitem atalhos ao pressionar o ícone.
+
+Em **Meu app**, guarde um resultado nacional finalizado para ler sem conexão. A área offline também mostra as anotações já salvas neste ambiente, sem atualização de pesquisas ou apuração ao vivo. Para editar o caderno, volte ao app conectado. Na tela especial da apuração, aparelhos compatíveis podem manter a tela acesa mediante sua escolha. Esses recursos continuam gratuitos e variam conforme o navegador e o sistema.
 
 ## Seus dados e preferências
 

@@ -25,6 +25,7 @@ import {
   PanelLeft,
   MapPin,
   Expand,
+  Smartphone,
 } from 'lucide-react';
 import { normalize, states, Result } from '@/lib/elections';
 import { candidates, bioSource, years } from '@/lib/content';
@@ -48,6 +49,7 @@ import { DataFreshness } from './components/data-freshness';
 import { MunicipalityExplorer } from './municipality-explorer';
 import { ElectionNight } from './election-night';
 import { electionNightAvailable } from '@/lib/election-night';
+import { AppDock, InstallAction, PwaPanel, PwaProvider, usePwa } from './pwa';
 import {
   formatVotes as fmt,
   formatPercent as pct,
@@ -67,15 +69,19 @@ const nav = [
   ['watch', 'Meu acompanhamento', Heart],
   ['profile', 'Meu perfil', UserRound],
   ['alerts', 'Alertas', Bell],
+  ['app', 'Meu app', Smartphone],
 ] as const;
 export default function Dashboard() {
   return (
-    <ReadingProvider>
-      <DashboardContent />
-    </ReadingProvider>
+    <PwaProvider>
+      <ReadingProvider>
+        <DashboardContent />
+      </ReadingProvider>
+    </PwaProvider>
   );
 }
 function DashboardContent() {
+  const { installed } = usePwa();
   const { setReading } = useReading();
   const [welcome, setWelcome] = useState(false),
     [pushKey, setPushKey] = useState(''),
@@ -753,7 +759,7 @@ function DashboardContent() {
     </div>
   );
   return (
-    <div className="app-shell">
+    <div className={'app-shell' + (installed ? ' installed-app' : '')}>
       {drawerPresent && (
         <>
           <button
@@ -852,6 +858,7 @@ function DashboardContent() {
             </a>
           </div>
           <div className="top-actions">
+            <InstallAction onOpen={() => go('app')} />
             <ThemeMenu
               value={theme}
               onChange={(next) => {
@@ -922,7 +929,9 @@ function DashboardContent() {
                                   ? 'Seu nome e suas preferências, em um espaço pessoal.'
                                   : tab === 'alerts'
                                     ? 'Escolha os eventos que quer receber.'
-                                    : 'Conheça as trajetórias dos dois candidatos à Presidência.'}
+                                    : tab === 'app'
+                                      ? 'Instale, prepare seus atalhos e leve o Observatório com você.'
+                                      : 'Conheça as trajetórias dos dois candidatos à Presidência.'}
                 </p>
               </div>
             </div>
@@ -1050,6 +1059,7 @@ function DashboardContent() {
               </div>
             )}
 
+            {tab === 'app' && <PwaPanel result={national} onAlerts={() => go('alerts')} />}
             {tab === 'profile' && (
               <Profile
                 nickname={nickname}
@@ -1084,7 +1094,7 @@ function DashboardContent() {
                 onTest={pushTest}
               />
             )}
-            {['profile', 'alerts'].includes(tab) ? null : busy ? (
+            {['profile', 'alerts', 'app'].includes(tab) ? null : busy ? (
               <div className="loading large">
                 <RefreshCw size={20} />
                 Carregando dados oficiais…
@@ -1930,6 +1940,7 @@ function DashboardContent() {
           serviceMessage={pushMessage}
         />
       )}
+      {!welcome && !mobile && !night && <AppDock tab={tab} onGo={go} />}
       {showTop && (
         <button
           className="back-to-top"
