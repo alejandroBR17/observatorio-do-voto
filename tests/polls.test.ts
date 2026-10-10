@@ -32,7 +32,7 @@ test('poll discovery works without a database, deduplicates concurrent queries a
     } as Database;
     const fallback = await polls(broken);
     assert.equal(fallback.cacheStorage, 'temporary');
-    assert.equal(fallback.polls.length, 4);
+    assert.equal(fallback.polls.length, 5);
     assert.equal(requests, 8);
     assert.ok(first.publications.some((p: { institute: string }) => p.institute === 'Ipespe'));
   } finally {
