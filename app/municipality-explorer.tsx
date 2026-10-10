@@ -18,6 +18,7 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
   const [zone, setZone] = useState('');
   const [section, setSection] = useState('');
   const [sectionQuery, setSectionQuery] = useState('');
+  const [showSectionPicker, setShowSectionPicker] = useState(false);
   const [showPlaces, setShowPlaces] = useState(false);
   const [showCandidates, setShowCandidates] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -33,6 +34,7 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
     setQuery('');
     setError('');
     setBusy(false);
+    setShowSectionPicker(false);
     request.current?.abort();
     fetch(`/api/local-results?uf=${uf}`, { signal: controller.signal })
       .then(async (r) => {
@@ -59,10 +61,10 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
+    const keepPosition = !!place && place.id === detail?.selection?.place?.id;
     setBusy(true);
     setError('');
-    setDetail(null);
-    setShowCandidates(false);
+    if (!keepPosition) setShowCandidates(false);
     const params = new URLSearchParams({ uf, municipality: code });
     if (place) params.set('place', place.id);
     if (bySection) {
@@ -76,6 +78,8 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
       if (!r.ok) throw Error(d.error || 'Não foi possível consultar o local.');
       if (!controller.signal.aborted) {
         if (!place && !bySection) {
+          setDetail(null);
+          setShowSectionPicker(false);
           setCity(d);
           setLocalQuery('');
           setShowPlaces(false);
@@ -83,11 +87,15 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
           setSection('');
         } else {
           setDetail(d);
-          if (place && !bySection) setSectionQuery('');
+          if (place && !bySection) {
+            setSectionQuery('');
+            setShowSectionPicker(false);
+          }
         }
-        requestAnimationFrame(() =>
-          resultHeading.current?.focus({ preventScroll: !place && !bySection }),
-        );
+        if (!keepPosition)
+          requestAnimationFrame(() =>
+            resultHeading.current?.focus({ preventScroll: !place && !bySection }),
+          );
       }
     } catch (e) {
       if (!controller.signal.aborted)
@@ -205,7 +213,7 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
           </button>
         </div>
       )}
-      {busy && (
+      {busy && !tally && (
         <p className="loading" role="status">
           Consultando os votos…
         </p>
@@ -333,8 +341,12 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
           )}
         </section>
       )}
-      {!busy && !error && tally && (
-        <section className="panel local-tally" aria-labelledby="local-result-title">
+      {!error && tally && (
+        <section
+          className="panel local-tally"
+          aria-labelledby="local-result-title"
+          aria-busy={busy}
+        >
           {detail && (
             <button className="text-button" onClick={() => setDetail(null)}>
               <ArrowLeft size={15} aria-hidden="true" />
@@ -366,53 +378,80 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
                     local
                   </p>
                 </div>
+              </div>
+              <div
+                className="local-scope-buttons"
+                role="group"
+                aria-label="Votos do colégio ou de uma seção"
+              >
                 <button
                   className="button secondary"
-                  aria-pressed={!selectedSection}
-                  onClick={() => void load(city!.municipality!.code, selectedPlace)}
+                  disabled={busy}
+                  aria-pressed={!selectedSection && !showSectionPicker}
+                  onClick={() => {
+                    setShowSectionPicker(false);
+                    if (selectedSection) void load(city!.municipality!.code, selectedPlace);
+                  }}
                 >
                   Colégio inteiro
                 </button>
+                <button
+                  className="button secondary"
+                  disabled={busy}
+                  aria-expanded={showSectionPicker}
+                  aria-controls="local-section-chooser"
+                  aria-pressed={showSectionPicker || !!selectedSection}
+                  onClick={() => setShowSectionPicker(!showSectionPicker)}
+                >
+                  Escolher seção
+                </button>
               </div>
-              <label className="local-search-label">
-                Procurar seção neste colégio
-                <input
-                  type="search"
-                  inputMode="numeric"
-                  value={sectionQuery}
-                  maxLength={4}
-                  placeholder="Digite o número da sua seção"
-                  aria-controls="local-section-options"
-                  onChange={(e) => setSectionQuery(e.target.value.replace(/\D/g, ''))}
-                />
-              </label>
-              <div className="section-buttons" id="local-section-options">
-                {matchingSections.map((s) => (
-                  <button
-                    key={s}
-                    className="button secondary"
-                    aria-pressed={selectedSection === s}
-                    onClick={() =>
-                      void load(city!.municipality!.code, selectedPlace, true, {
-                        zone: selectedPlace.zone,
-                        section: s,
-                      })
-                    }
-                  >
-                    Seção {Number(s)}
-                  </button>
-                ))}
-              </div>
-              {!matchingSections.length && (
-                <p className="fine" role="status">
-                  Essa seção não está neste colégio. Confira o número ou procure pela zona e seção
-                  no município.
-                </p>
+              {showSectionPicker && (
+                <div id="local-section-chooser">
+                  <label className="local-search-label">
+                    Procurar seção neste colégio
+                    <input
+                      type="search"
+                      inputMode="numeric"
+                      value={sectionQuery}
+                      maxLength={4}
+                      placeholder="Digite o número da sua seção"
+                      aria-controls="local-section-options"
+                      onChange={(e) => setSectionQuery(e.target.value.replace(/\D/g, ''))}
+                    />
+                  </label>
+                  <div className="section-buttons" id="local-section-options">
+                    {matchingSections.map((s) => (
+                      <button
+                        key={s}
+                        className="button secondary"
+                        disabled={busy}
+                        aria-pressed={selectedSection === s}
+                        onClick={() =>
+                          void load(city!.municipality!.code, selectedPlace, true, {
+                            zone: selectedPlace.zone,
+                            section: s,
+                          })
+                        }
+                      >
+                        Seção {Number(s)}
+                      </button>
+                    ))}
+                  </div>
+                  {!matchingSections.length && (
+                    <p className="fine" role="status">
+                      Essa seção não está neste colégio. Confira o número ou procure pela zona e
+                      seção no município.
+                    </p>
+                  )}
+                </div>
               )}
-              <p className="fine">
-                {selectedSection
-                  ? `Mostrando somente a seção ${Number(selectedSection)}.`
-                  : 'Mostrando os votos de todas as seções do colégio.'}
+              <p className="fine local-scope-status" role="status">
+                {busy
+                  ? 'Atualizando os votos…'
+                  : selectedSection
+                    ? `Mostrando somente a seção ${Number(selectedSection)}.`
+                    : 'Mostrando os votos de todas as seções do colégio.'}
               </p>
             </div>
           )}

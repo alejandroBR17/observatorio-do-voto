@@ -157,6 +157,7 @@ export function Map({
       </div>
       <details className="inline-details map-table">
         <summary>Consultar estados sem usar o mapa</summary>
+        <p className="map-table-hint">Deslize a tabela para os lados para ver todas as colunas.</p>
         <div
           className="table-scroll"
           tabIndex={0}
