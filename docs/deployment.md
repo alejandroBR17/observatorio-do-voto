@@ -30,7 +30,17 @@ Nunca use `file:` na Vercel: o disco de funções não é um banco persistente c
 
 O workflow [monitor.yml](../.github/workflows/monitor.yml) consulta `/api/live`, `/api/polls` e `/api/media` em intervalos previstos de cinco minutos. Para outra hospedagem, atualize `SITE` nesse workflow. A agenda do GitHub pode atrasar; confira Actions e as regras de suspensão de workflows sem atividade.
 
-Como alternativa, um monitor externo pode chamar `/api/monitor` com `Authorization: Bearer CRON_SECRET`. Configurar o segredo não cria uma agenda. Não envie segredos pela URL.
+Use um agendador externo como agenda principal quando os intervalos do GitHub estiverem irregulares. O [cron-job.org](https://cron-job.org/en/faq/) oferece agendamento gratuito; não é instalado nem ativado pelo código. Configure:
+
+1. Um segredo aleatório longo em `CRON_SECRET` na Vercel, ambiente Production, e faça redeploy.
+2. Uma tarefa GET para `https://observatorio-voto.vercel.app/api/monitor`, a cada cinco minutos, com o cabeçalho `Authorization: Bearer SEU_SEGREDO`. Nunca coloque o segredo na URL ou no repositório.
+3. Timeout de 30 segundos (limite gratuito observado no painel), histórico de execuções e alerta de falha no painel do agendador. Verifique duas execuções consecutivas; salvar a agenda não comprova funcionamento. Se houver timeout recorrente, investigue os tempos das fontes e da fila; não conte a chamada como bem-sucedida nem contrate um plano automaticamente.
+
+A rota consulta apuração, pesquisas e imprensa em paralelo e processa a fila push depois das consultas, mesmo que uma fonte falhe. HTTP 200 indica consulta saudável; HTTP 503 e `status: degraded` sinalizam coleta ou entrega indisponível. `sources` identifica o componente; `gapSeconds` registra o intervalo real entre chamadas desta rota. O último relatório fica no banco em `monitor:last`. O GitHub continua como alternativa e não altera esse intervalo.
+
+Cinco minutos são a meta da agenda, não garantia de entrega. Durante a apuração, valide a possibilidade de uma frequência maior no agendador e as cotas de Vercel/Turso; o site aberto já consulta a apuração com frequência maior. Não utilize um processo no computador local como monitor de produção.
+
+Notícias e publicações são descobertas automaticamente nas fontes cadastradas. Os gráficos de pesquisas têm atualização automática apenas pelo adaptador conservador do PoderData; outros institutos exigem conferência do relatório, registro, amostra, período e base de cálculo antes da inclusão em `pollSnapshots`. Nem toda pesquisa tem uma API estruturada. Mudanças nos feeds, novos institutos e bloqueios das fontes ainda precisam de revisão periódica. Uma data de consulta recente não comprova cobertura completa nem uma pesquisa recém-publicada.
 
 As chaves VAPID são geradas e persistidas no banco. Preserve o banco para manter a identidade das inscrições. Trocar domínio ou identidade VAPID exige nova inscrição. Não remova chaves como uma rotina de limpeza.
 

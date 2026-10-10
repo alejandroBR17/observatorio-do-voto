@@ -174,7 +174,7 @@ O teste recebe `{ endpoint }` e retorna um identificador quando o provedor aceit
 
 ### Monitor
 
-`/api/monitor` exige `Authorization: Bearer CRON_SECRET`. Sem configuração, retorna indisponibilidade; sem autorização válida, rejeita a chamada. O workflow do repositório usa as consultas públicas e não precisa desse segredo. Consulte o [guia de publicação](deployment.md) para separar os ambientes.
+`/api/monitor` exige `Authorization: Bearer CRON_SECRET`. Sem configuração, retorna indisponibilidade; sem autorização válida, rejeita a chamada. `lib/monitor.ts` consulta live/polls/media independentemente, processa a fila push e persiste o relatório operacional e o intervalo real em `monitor:last`. Erros de provedores não expõem detalhes internos; respostas incompletas, stale ou cache temporário não contam como coleta saudável. O workflow do repositório usa as consultas públicas e não precisa desse segredo. Consulte o [guia de publicação](deployment.md) para ativar uma agenda externa e separar os ambientes.
 
 ## Verificação
 

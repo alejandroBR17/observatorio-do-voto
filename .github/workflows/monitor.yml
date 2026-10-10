@@ -17,7 +17,27 @@ jobs:
         env:
           SITE: https://observatorio-voto.vercel.app
         run: |
-          for endpoint in live polls media; do
-            curl --fail --silent --show-error --max-time 65 --retry 2 --retry-delay 3 "$SITE/api/$endpoint" > "$endpoint.json"
-            node -e 'const fs=require("fs"); const d=JSON.parse(fs.readFileSync(process.argv[1])); if(!d.status || ["unavailable","stale"].includes(d.status))process.exit(1); console.log(process.argv[1],d.status,d.checkedAt);' "$endpoint.json"
-          done
+          node --input-type=module <<'JS'
+          import { appendFileSync } from 'node:fs';
+          const sources = await Promise.all(['live', 'polls', 'media'].map(async (endpoint) => {
+            try {
+              const response = await fetch(`${process.env.SITE}/api/${endpoint}`, {
+                signal: AbortSignal.timeout(55000),
+              });
+              const data = await response.json();
+              const accepted = endpoint === 'live' ? ['waiting', 'live'] : endpoint === 'polls' ? ['ready'] : ['live'];
+              const age = Date.now() - Date.parse(data.checkedAt || '');
+              return {
+                endpoint, status: data.status || 'unavailable', checkedAt: data.checkedAt || null,
+                ok: response.ok && accepted.includes(data.status) && !data.stale && data.cacheStorage !== 'temporary' && age >= -300000 && age < 600000,
+              };
+            } catch {
+              return { endpoint, status: 'unavailable', checkedAt: null, ok: false };
+            }
+          }));
+          console.log(JSON.stringify(sources, null, 2));
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            `Consulta: ${new Date().toISOString()}\n\n| Fonte | Estado | Consultada em | Saudável |\n| --- | --- | --- | --- |\n` +
+            sources.map(s => `| ${s.endpoint} | ${s.status} | ${s.checkedAt || '—'} | ${s.ok ? 'Sim' : 'Não'} |`).join('\n') + '\n');
+          if (sources.some(source => !source.ok)) process.exitCode = 1;
+          JS

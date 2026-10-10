@@ -120,6 +120,16 @@ export type Publication = {
 // report and its methodology have been checked. Never infer totals from a headline.
 const verifiedPublications: Publication[] = [
   {
+    institute: 'Vox Brasil',
+    title: 'Pesquisa Vox Brasil: Lula tem 44,2% e Flávio Bolsonaro, 42,7%, no 2º turno',
+    url: 'https://exame.com/brasil/pesquisa-vox-brasil-lula-tem-442-e-flavio-bolsonaro-427-no-2o-turno/',
+    publishedAt: '2026-10-09T05:58:00-03:00',
+    source:
+      'https://exame.com/brasil/pesquisa-vox-brasil-lula-tem-442-e-flavio-bolsonaro-427-no-2o-turno/',
+    kind: 'publication',
+    publisher: 'Exame',
+  },
+  {
     institute: 'Ipespe',
     title: 'Ipespe: Flávio soma 52,7% dos votos válidos e Lula registra 47,3% no 2º turno',
     url: 'https://www.itatiaia.com.br/politica/eleicoes/pesquisas/ipespe-flavio-soma-527-dos-votos-validos-e-lula-registra-473-no-2o-turno/',
@@ -234,6 +244,9 @@ export function parseRss(
     const title = plainText(get('title')),
       url = safeUrl(get('link'), source.domain),
       publishedAt = date(plainText(get('pubDate')));
+    const nationalTracking =
+      source.name === 'Ipespe' &&
+      /IPESPE.*ABRAPEL.*2[ºo°] Turno.*Tracking da Campanha/i.test(title);
     if (
       !url ||
       !publishedAt ||
@@ -241,10 +254,14 @@ export function parseRss(
       !/datafolha|poderdata|quaest|atlasintel|ipespe|verit[aá]|vox brasil|cnt\s*[/–-]?\s*mda|real time|realtime/i.test(
         title,
       ) ||
-      !/lula|fl[aá]vio|presiden/i.test(title)
+      (!/lula|fl[aá]vio|presiden/i.test(title) && !nationalTracking)
     )
       continue;
-    if (source.name === 'Ipespe' && !/presiden|lula.*fl[aá]vio|fl[aá]vio.*lula/i.test(title))
+    if (
+      source.name === 'Ipespe' &&
+      !nationalTracking &&
+      !/presiden|lula.*fl[aá]vio|fl[aá]vio.*lula/i.test(title)
+    )
       continue;
     out.push({
       institute: institute(title, source.name),
@@ -449,8 +466,7 @@ async function collectPolls(db?: Database) {
           polls: pollSnapshots,
           publications: verifiedPublications,
           sources: [],
-          notice:
-            'Consultando as fontes públicas. Resultados conferidos em 08 e 09/10; a data de publicação aparece em cada pesquisa.',
+          notice: 'Consultando as fontes públicas. A data de publicação aparece em cada pesquisa.',
           registrationSource: 'https://pesqele-divulgacao.tse.jus.br/',
         };
   const checkedAt = new Date().toISOString();
