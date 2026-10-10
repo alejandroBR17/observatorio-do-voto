@@ -27,6 +27,26 @@ export type PollSnapshot = {
 };
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-00933/2026',
+    institute: 'Ipespe/ABRAPEL',
+    publishedAt: '2026-10-10T11:24:33-03:00',
+    fieldwork: '6 a 8/10/2026 · entrevistas telefônicas (CATI IPESPE)',
+    sample: 1500,
+    margin: 2.6,
+    confidence: 95.45,
+    registration: 'BR-00933/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 52.7,
+    lula: 47.3,
+    source:
+      'https://ipespe.org.br/wp-content/uploads/2026/10/TCK-CAMPANHA-01_-IPESPE-ABRAPEL_2T_-6-a-8-OUT-2026_vf.pdf',
+    mode: 'snapshot',
+    totalVotes: { flavio: 49, lula: 44, blankNull: 5, undecided: 3 },
+    note: 'Conferido no relatório original de 10/10: intenção estimulada e votos válidos na página 5; metodologia na página 33. Os totais publicados somam 101% por arredondamento, conforme o instituto; foram preservados sem recalcular os percentuais.',
+  },
+  {
     id: 'BR-03663/2026',
     institute: 'AtlasIntel/Bloomberg',
     publishedAt: '2026-10-09T07:30:00-03:00',
@@ -394,7 +414,7 @@ export function polls(db?: Database): Promise<any> {
   return pending;
 }
 async function collectPolls(db?: Database) {
-  const key = 'polls:publications:v4';
+  const key = 'polls:publications:v5';
   const stored = db
     ? await db
         .prepare('SELECT value, updated FROM cache WHERE key=?')
@@ -416,7 +436,7 @@ async function collectPolls(db?: Database) {
         .prepare(
           'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?',
         )
-        .bind('lease:polls:v4', '', Date.now(), Date.now() - 30000)
+        .bind('lease:polls:v5', '', Date.now(), Date.now() - 30000)
         .run()
     : { meta: { changes: 1 } };
   if (!lease.meta.changes)
@@ -557,7 +577,7 @@ async function collectPolls(db?: Database) {
       return metadata;
     }),
     notice:
-      'Fontes consultadas a cada 5 minutos com o app em uso. A data da consulta não é a data de uma nova pesquisa. Os gráficos mostram levantamentos com números e metodologia conferidos. Publicações mais recentes, incluindo Ipespe de 10/10, podem aparecer antes de seus percentuais entrarem nos gráficos. Números sem conferência permanecem como links para a fonte. Não há previsão de vencedor nem média automática.',
+      'Fontes consultadas a cada 5 minutos com o app em uso. A data da consulta não é a data de uma nova pesquisa. Os gráficos mostram levantamentos com números e metodologia conferidos. Publicações mais recentes podem aparecer antes de seus percentuais entrarem nos gráficos. Números sem conferência permanecem como links para a fonte. Não há previsão de vencedor nem média automática.',
     registrationSource: 'https://pesqele-divulgacao.tse.jus.br/',
   };
   temporaryCache = { value: JSON.stringify(payload), updated: Date.now() };

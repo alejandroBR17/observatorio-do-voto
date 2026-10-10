@@ -20,19 +20,8 @@ export function usePresence(open: boolean, duration = 260) {
   }, [open, duration]);
   return open || mounted;
 }
-let active: ViewTransition | undefined;
-let revision = 0;
 export function transitionPage(update: () => void) {
-  const current = ++revision;
-  active?.skipTransition();
-  if (reducedMotion() || typeof document.startViewTransition !== 'function') {
-    update();
-    return;
-  }
-  active = document.startViewTransition(() => {
-    if (current === revision) flushSync(update);
-  });
-  // A superseded transition is expected when someone navigates quickly.
-  void active.ready.catch(() => {});
-  void active.finished.catch(() => {});
+  // Commit one page at a time. Its keyed entrance animates only the new content;
+  // fixed navigation stays live instead of being captured in document snapshots.
+  flushSync(update);
 }

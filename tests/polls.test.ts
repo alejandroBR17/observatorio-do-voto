@@ -20,7 +20,7 @@ test('poll discovery works without a database, deduplicates concurrent queries a
     assert.equal(first, concurrent);
     assert.equal(first.status, 'ready');
     assert.equal(first.cacheStorage, 'temporary');
-    assert.equal(first.polls[0].registration, 'BR-03663/2026');
+    assert.equal(first.polls[0].registration, 'BR-00933/2026');
     assert.match(first.sources.find((s: any) => s.name === 'AtlasIntel').url, /exclusive-polls/);
     const cached = await polls();
     assert.equal(cached.cached, true);
@@ -32,7 +32,7 @@ test('poll discovery works without a database, deduplicates concurrent queries a
     } as Database;
     const fallback = await polls(broken);
     assert.equal(fallback.cacheStorage, 'temporary');
-    assert.equal(fallback.polls.length, 3);
+    assert.equal(fallback.polls.length, 4);
     assert.equal(requests, 6);
     assert.ok(first.publications.some((p: { institute: string }) => p.institute === 'Ipespe'));
   } finally {

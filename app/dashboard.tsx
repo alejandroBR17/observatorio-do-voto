@@ -148,10 +148,6 @@ function DashboardContent() {
     [hydrated, setHydrated] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const drawerPresent = usePresence(mobile, 240);
-  useEffect(() => {
-    document.documentElement.dataset.motion =
-      typeof document.startViewTransition === 'function' ? 'native' : 'fallback';
-  }, []);
   const [livePoints, setLivePoints] = useState<ProgressionPoint[]>([]),
     [liveStates, setLiveStates] = useState<Result[]>([]);
   const [night, setNight] = useState<'preview' | 'live' | null>(null);

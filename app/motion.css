@@ -9,21 +9,15 @@ html {
   scroll-behavior: auto;
 }
 .page-view {
-  view-transition-name: page-view;
-  animation: page-enter 260ms var(--motion-ease) both;
+  animation: page-fade 180ms ease-out;
 }
-:root[data-motion='native'] .page-view {
-  animation: none;
-}
-::view-transition-group(page-view) {
-  animation-duration: 260ms;
-  animation-timing-function: var(--motion-ease);
-}
-::view-transition-old(page-view) {
-  animation: page-leave 140ms ease-in both;
-}
-::view-transition-new(page-view) {
-  animation: page-enter 260ms var(--motion-ease) both;
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes page-enter {
   from {
@@ -33,12 +27,6 @@ html {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-@keyframes page-leave {
-  to {
-    opacity: 0;
-    transform: translateY(-5px);
   }
 }
 .sidebar[data-state='open'] {

@@ -61,7 +61,7 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 3);
+assert.equal(pollSnapshots.length, 4);
 for (const p of pollSnapshots) {
   assert.equal(p.flavio + p.lula, 100);
   assert.equal(p.turn, 2);
@@ -81,6 +81,19 @@ const u = pollSnapshots.find((p) => p.institute === 'PoderData/Aya').source;
 const now = Date.parse('2026-10-08T23:59:00-03:00');
 assert.equal(parsePoderDataArticle(html(article), u, now).flavio, 53);
 const atlasSnapshot = pollSnapshots.find((p) => p.institute === 'AtlasIntel/Bloomberg');
+const ipespeSnapshot = pollSnapshots.find((p) => p.institute === 'Ipespe/ABRAPEL');
+assert.equal(ipespeSnapshot.registration, 'BR-00933/2026');
+assert.equal(ipespeSnapshot.flavio, 52.7);
+assert.equal(ipespeSnapshot.lula, 47.3);
+assert.equal(ipespeSnapshot.sample, 1500);
+assert.equal(ipespeSnapshot.confidence, 95.45);
+assert.equal(
+  ipespeSnapshot.totalVotes.flavio +
+    ipespeSnapshot.totalVotes.lula +
+    ipespeSnapshot.totalVotes.blankNull +
+    ipespeSnapshot.totalVotes.undecided,
+  101,
+);
 assert.equal(atlasSnapshot.registration, 'BR-03663/2026');
 assert.equal(atlasSnapshot.totalVotes.other, 3.2);
 assert.equal(atlasSnapshot.totalVotes.blankNull, undefined);
