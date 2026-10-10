@@ -1,4 +1,4 @@
-const OFFLINE = 'observatorio-offline-v2';
+const OFFLINE = 'observatorio-offline-v3';
 self.addEventListener('install', (event) =>
   event.waitUntil(
     caches
@@ -23,28 +23,66 @@ self.addEventListener('push', (event) =>
       } catch {
         data = { message: 'Abra o Observatório para consultar a atualização.' };
       }
+      if (!data || typeof data !== 'object' || Array.isArray(data)) data = {};
       const labels = {
         winner: 'Resultado confirmado pelo TSE',
         mathematical: 'Vantagem numericamente irreversível',
         lead: 'Mudança na liderança',
         margin: 'Mudança na vantagem',
         progress: 'Atualização da apuração',
+        polls: 'Publicação sobre pesquisas',
+        coverage: 'Noticiário eleitoral',
       };
-      await self.registration.showNotification(
-        data.title || labels[data.event] || 'Observatório • Eleições',
-        {
-          body:
-            data.body ||
-            data.victory?.message ||
-            data.message ||
-            'Novos dados oficiais disponíveis.',
-          icon: '/app-icon-192.png',
-          badge: '/app-icon-192.png',
-          tag: data.id || data.result?.id || 'election-update',
-          data: { url: data.url?.startsWith('/?') ? data.url : '/?tab=live' },
+      const type =
+        data.event || (Array.isArray(data.types) ? data.types.find((t) => labels[t]) : null);
+      const suppliedTitle = typeof data.title === 'string' ? data.title.trim() : '';
+      const title =
+        suppliedTitle && !/^nova\s+notifica[cç][aã]o$/i.test(suppliedTitle)
+          ? suppliedTitle
+          : labels[type] || 'Atualização eleitoral';
+      const asset = (value) => {
+        if (typeof value !== 'string') return undefined;
+        if (
+          [
+            '/assets/lula.jpeg',
+            '/assets/flavio.jpeg',
+            '/og-image.png',
+            '/app-icon-192.png',
+          ].includes(value)
+        )
+          return value;
+        try {
+          const u = new URL(value);
+          return u.protocol === 'https:' && !u.username && !u.password && !u.port
+            ? u.href
+            : undefined;
+        } catch {
+          return undefined;
+        }
+      };
+      const options = {
+        body:
+          data.body || data.victory?.message || data.message || 'Novos dados oficiais disponíveis.',
+        icon: asset(data.icon) || '/app-icon-192.png',
+        image: asset(data.image),
+        badge: '/app-icon-192.png',
+        tag: data.id || data.result?.id || 'election-update',
+        data: {
+          url: typeof data.url === 'string' && data.url.startsWith('/?') ? data.url : '/?tab=live',
         },
-      );
-      if (data.id?.startsWith('test:')) {
+      };
+      try {
+        await self.registration.showNotification(title, options);
+      } catch {
+        // Rich media must not suppress the alert on unsupported devices.
+        const textOptions = { ...options };
+        delete textOptions.image;
+        await self.registration.showNotification(title, {
+          ...textOptions,
+          icon: '/app-icon-192.png',
+        });
+      }
+      if (typeof data.id === 'string' && data.id.startsWith('test:')) {
         try {
           const sub = await self.registration.pushManager.getSubscription();
           if (sub)

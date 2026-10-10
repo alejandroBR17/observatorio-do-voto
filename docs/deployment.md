@@ -2,7 +2,7 @@
 
 Produção: [observatorio-voto.vercel.app](https://observatorio-voto.vercel.app/).
 
-Para executar localmente, consulte [CONTRIBUTING.md](CONTRIBUTING.md). A [arquitetura](docs/architecture.md) descreve os serviços; o [guia de verificação](docs/testing.md) contém os testes e a revisão manual.
+Para executar localmente, consulte o [guia de desenvolvimento](development.md). Ele também reúne a arquitetura, os contratos do servidor e as verificações antes de publicar.
 
 ## Configuração
 
@@ -28,7 +28,7 @@ Nunca use `file:` na Vercel: o disco de funções não é um banco persistente c
 
 ## Coleta e push com o app fechado
 
-O workflow [monitor.yml](.github/workflows/monitor.yml) consulta `/api/live`, `/api/polls` e `/api/media` em intervalos previstos de cinco minutos. Para outra hospedagem, atualize `SITE` nesse workflow. A agenda do GitHub pode atrasar; confira Actions e as regras de suspensão de workflows sem atividade.
+O workflow [monitor.yml](../.github/workflows/monitor.yml) consulta `/api/live`, `/api/polls` e `/api/media` em intervalos previstos de cinco minutos. Para outra hospedagem, atualize `SITE` nesse workflow. A agenda do GitHub pode atrasar; confira Actions e as regras de suspensão de workflows sem atividade.
 
 Como alternativa, um monitor externo pode chamar `/api/monitor` com `Authorization: Bearer CRON_SECRET`. Configurar o segredo não cria uma agenda. Não envie segredos pela URL.
 
@@ -36,7 +36,7 @@ As chaves VAPID são geradas e persistidas no banco. Preserve o banco para mante
 
 O despachante usa fila SQL, registro por evento/aparelho, até três tentativas para falhas transitórias e expiração em 24 horas. Uma consulta processa no máximo 100 entregas; as demais ficam para consultas seguintes. A aceitação pelo provedor não comprova leitura ou exibição pelo sistema.
 
-Push exige HTTPS, permissão e suporte da plataforma. No iPhone compatível, o app precisa estar instalado na tela inicial. O [guia de verificação](docs/testing.md) distingue testes automatizados da validação no aparelho.
+Push exige HTTPS, permissão e suporte da plataforma. No iPhone compatível, o app precisa estar instalado na tela inicial. O [guia de verificação](development.md#verificação) distingue testes automatizados da validação no aparelho.
 
 ## WebSocket
 
@@ -58,4 +58,4 @@ O projeto não cobra visitantes. Hospedagem e banco estão sujeitos aos termos e
 | Socket recusado               | Ambiente Vercel, Fluid Compute e fallback HTTP                       |
 | Preferências desapareceram    | Dados locais do navegador; não existe sincronização entre aparelhos  |
 
-O CI verifica o código; a integração GitHub/Vercel realiza o deploy. Revise os termos, a privacidade e as atribuições de [NOTICE.md](NOTICE.md) ao hospedar sua própria versão.
+O CI verifica o código; a integração GitHub/Vercel realiza o deploy. Revise os termos, a privacidade e as atribuições de [NOTICE.md](../NOTICE.md) ao hospedar sua própria versão.

@@ -50,6 +50,7 @@ export async function POST(req: Request) {
       title: 'Teste de notificação',
       body: 'Seu aparelho recebeu o teste do Observatório do Voto. Os avisos reais seguem as categorias que você escolheu.',
       url: '/?tab=alerts',
+      image: '/og-image.png',
     });
     return Response.json({ ok: true, id });
   } catch (e) {

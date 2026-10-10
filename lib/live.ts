@@ -2,6 +2,7 @@ import type { Database } from './database';
 import { normalize, victory } from './elections';
 import { resultAlertTypes, voteGap } from './alerts';
 import { queuePush, eventId } from './push';
+import { candidates } from './content';
 const BASE = 'https://resultados.tse.jus.br/oficial';
 export async function live(db: Database, uf = 'BR') {
   const key = `live:${uf}`;
@@ -114,12 +115,18 @@ export async function live(db: Database, uf = 'BR') {
                   `${c.name}: ${c.percent.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%`,
               )
               .join(' · ') + ` · ${current.counted.toLocaleString('pt-BR')}% apurado`;
+    const highlighted = current.candidates.find((c: any) => c.elected) || current.candidates[0];
+    const photo = types.some((t) => ['winner', 'mathematical', 'lead'].includes(t))
+      ? candidates.find((c) => c.number === highlighted?.number)?.photo
+      : undefined;
     await queuePush(db, {
       id: eventId('live', current.id),
       types,
       title,
       body,
       url: '/?tab=live',
+      image: photo || '/og-image.png',
+      icon: photo,
       urgent: types.some((t) => ['winner', 'mathematical', 'lead'].includes(t)),
     });
     await db

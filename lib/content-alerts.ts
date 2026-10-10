@@ -1,5 +1,6 @@
 import type { Database } from './database';
 import { queuePush, eventId } from './push';
+import { articlePreview } from './article-preview';
 export async function queueContentAlerts(
   db: Database,
   current: any,
@@ -21,6 +22,9 @@ export async function queueContentAlerts(
       Date.parse(p.publishedAt) <= Date.now() + 300000,
   );
   if (!fresh.length) return;
+  // Resolve one shared preview per batch, rather than one request per subscriber.
+  // A missing or blocked preview never prevents queuing the text alert.
+  const image = await articlePreview(fresh[0].url, db);
   await queuePush(db, {
     id: eventId(
       kind,
@@ -31,9 +35,17 @@ export async function queueContentAlerts(
     ),
     types: [kind],
     title:
-      kind === 'polls' ? 'Novas publicações sobre pesquisas' : 'Novas notícias sobre a eleição',
+      fresh.length === 1
+        ? fresh[0].title
+        : kind === 'polls'
+          ? `${fresh.length} publicações sobre pesquisas`
+          : `${fresh.length} notícias sobre a eleição`,
     body:
-      fresh.length === 1 ? fresh[0].title : `${fresh.length} publicações novas. ${fresh[0].title}`,
+      fresh.length === 1
+        ? `${fresh[0].source || 'Fonte pública'} · ${kind === 'polls' ? 'Publicação sobre pesquisas' : 'Noticiário eleitoral'}`
+        : fresh[0].title,
     url: kind === 'polls' ? '/?tab=polls' : '/?tab=social',
+    image: image || undefined,
+    icon: image || undefined,
   });
 }

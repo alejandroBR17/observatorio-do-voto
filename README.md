@@ -38,7 +38,7 @@ Seu candidato preferido, suas notas e outras preferências ficam neste navegador
 
 Anotações do caderno anterior são preservadas como uma entrada. É possível criar várias anotações, excluir e desfazer a última exclusão enquanto a tela estiver aberta. Os estados seguidos servem à comparação pessoal e aos atalhos; os alertas continuam nacionais. Veja o [Aviso de Privacidade](https://observatorio-voto.vercel.app/privacidade) para conhecer os dados usados nas notificações e na hospedagem.
 
-Cartões de notícias e publicações mostram a imagem disponibilizada pelo veículo quando ela pode ser carregada. Sem imagem acessível, uma composição por assunto mantém o cartão legível. As matérias completas continuam nos sites de origem.
+Cartões de notícias e publicações mostram a imagem disponibilizada pelo veículo quando ela pode ser carregada. Os alertas também podem incluir essa foto e a manchete; a aparência depende do navegador e do aparelho. Sem imagem acessível, o texto continua disponível. As matérias completas permanecem nos sites de origem.
 
 Os dados públicos são compartilhados entre os visitantes. O app não oferece edição de resultados oficiais, contas de editor ou salas de colaboração.
 
@@ -64,4 +64,4 @@ Notificações podem atrasar ou não chegar; consulte a tela de apuração para 
 
 Use a aba **Issues** deste repositório para relatar problemas ou sugerir melhorias. Descreva a tela, o comportamento esperado e seu navegador. Não publique preferências políticas pessoais, tokens ou outros dados privados no relato.
 
-Para executar ou contribuir com o código, consulte [CONTRIBUTING.md](CONTRIBUTING.md), a [arquitetura](docs/architecture.md) e o [guia de testes](docs/testing.md). A hospedagem está documentada em [DEPLOY.md](DEPLOY.md); as atribuições, em [NOTICE.md](NOTICE.md).
+Para executar ou contribuir com o código, consulte o [guia de desenvolvimento](docs/development.md). A hospedagem está documentada no [guia de publicação](docs/deployment.md); as atribuições, em [NOTICE.md](NOTICE.md).

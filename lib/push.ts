@@ -2,6 +2,7 @@ import type { Database } from './database';
 import webpush from 'web-push';
 import { createHash } from 'node:crypto';
 import { alertPreferences, frequencyWindow, priorityAlert, type AlertType } from './alerts';
+import { imageUrl } from './article-image';
 const b64 = (bytes: Uint8Array) =>
   btoa(String.fromCharCode(...bytes))
     .replace(/\+/g, '-')
@@ -76,8 +77,39 @@ export type PushEvent = {
   title: string;
   body: string;
   url: string;
+  image?: string;
+  icon?: string;
   urgent?: boolean;
 };
+function notificationAsset(value: string | undefined) {
+  if (!value || value.length > 1500) return undefined;
+  if (
+    ['/assets/lula.jpeg', '/assets/flavio.jpeg', '/og-image.png', '/app-icon-192.png'].includes(
+      value,
+    )
+  )
+    return value;
+  return imageUrl(value, 'https://observatorio-voto.vercel.app') || undefined;
+}
+
+export function pushPayload(event: PushEvent) {
+  const payload = {
+    id: event.id,
+    title: event.title.trim().slice(0, 240) || 'Atualização eleitoral',
+    body: event.body.slice(0, 500),
+    url: event.url,
+    types: event.types,
+    image: notificationAsset(event.image),
+    icon: notificationAsset(event.icon),
+  };
+  // Encrypted Web Push has a small payload budget. Preserve the text if
+  // unusually long image URLs would make the provider reject the alert.
+  if (Buffer.byteLength(JSON.stringify(payload), 'utf8') > 3500) {
+    payload.image = undefined;
+    payload.icon = undefined;
+  }
+  return payload;
+}
 export const eventId = (prefix: string, value: string) =>
   prefix + ':' + createHash('sha256').update(value).digest('hex');
 export async function queuePush(db: Database, event: PushEvent) {
@@ -93,23 +125,17 @@ export async function sendPush(
 ) {
   if (!validSubscription(subscription)) throw Error('Invalid subscription');
   const keys = await pushKeys(db);
-  return webpush.sendNotification(
-    subscription,
-    JSON.stringify({ id: event.id, title: event.title, body: event.body, url: event.url }),
-    {
-      vapidDetails: {
-        subject:
-          process.env.PUSH_SUBJECT ||
-          process.env.SITE_URL ||
-          'https://observatorio-voto.vercel.app',
-        publicKey: keys.public,
-        privateKey: keys.private.d,
-      },
-      TTL: 3600,
-      urgency: event.urgent ? 'high' : 'normal',
-      timeout: 10000,
+  return webpush.sendNotification(subscription, JSON.stringify(pushPayload(event)), {
+    vapidDetails: {
+      subject:
+        process.env.PUSH_SUBJECT || process.env.SITE_URL || 'https://observatorio-voto.vercel.app',
+      publicKey: keys.public,
+      privateKey: keys.private.d,
     },
-  );
+    TTL: 3600,
+    urgency: event.urgent ? 'high' : 'normal',
+    timeout: 10000,
+  });
 }
 export async function dispatchPush(db: Database, send = sendPush) {
   const now = Date.now(),
@@ -180,9 +206,11 @@ export async function dispatchPush(db: Database, send = sendPush) {
                       const latest = JSON.parse(common[0].value) as PushEvent;
                       message = {
                         ...event,
-                        title: 'Atualizações da eleição',
-                        body: `${common.length} atualizações agrupadas. ${latest.body}`,
+                        title: `${common.length} atualizações da eleição`,
+                        body: `${common.length} atualizações agrupadas. ${latest.title}. ${latest.body}`,
                         url: latest.url,
+                        image: latest.image,
+                        icon: latest.icon,
                         urgent: false,
                       };
                     }

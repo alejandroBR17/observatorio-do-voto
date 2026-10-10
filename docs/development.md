@@ -1,0 +1,181 @@
+# Guia de desenvolvimento
+
+Este guia reúne instalação local, organização, contratos do servidor e verificação. Para publicar, consulte [deployment.md](deployment.md).
+
+## Contribuir com o Observatório do Voto
+
+Correções de interface, acessibilidade, fontes e testes são bem-vindas. Antes de uma mudança grande, abra uma issue com o problema e uma proposta concreta.
+
+### Preparar o ambiente
+
+Use Node.js 24 e npm. Clone o repositório, execute `npm ci` e copie `.env.example` para `.env.local`. O exemplo usa SQLite local; não precisa de credenciais de produção.
+
+```sh
+npm run db:init
+npm run dev
+```
+
+Abra `http://localhost:3000`. Consulte a [arquitetura](#arquitetura) e o [guia de publicação](deployment.md) para o banco remoto e as notificações.
+
+### Enviar uma alteração
+
+1. Crie uma branch com um nome que descreva a mudança.
+2. Preserve o comportamento e a identidade visual nas refatorações. Inclua capturas de desktop e celular quando alterar a interface.
+3. Use tipos específicos nas fronteiras de dados. Respostas externas devem ser validadas antes de alimentar a interface ou os alertas.
+4. Execute `npm run format`, `npm run check` e `npm run build`.
+5. Abra um pull request explicando o problema, a solução e como verificou a mudança.
+
+### Dados eleitorais
+
+- Resultados oficiais precisam manter fonte, eleição, turno e data identificáveis. Nunca substitua uma falha de consulta por números inventados ou zeros.
+- Não deduza percentuais de pesquisas a partir de manchetes. Registre a metodologia, a base, a data de publicação e o link verificável.
+- Cenários pessoais não são previsões ou pesquisas. Não use a ordem de apuração como amostra aleatória para anunciar vitória.
+- Atualizações de arquivos em `public/data` precisam passar por `npm run test:data` e manter as atribuições de [NOTICE.md](../NOTICE.md).
+- Notas e preferências pessoais permanecem locais. Não introduza coleta de preferências políticas ou telemetria sem uma revisão explícita do produto e da privacidade.
+
+### Relatos e segurança
+
+Não coloque tokens, inscrições push, preferências políticas pessoais ou dados do banco em issues, capturas ou logs. Para vulnerabilidades, siga [SECURITY.md](../SECURITY.md).
+
+O repositório ainda não declara uma licença geral para o código. Consulte [NOTICE.md](../NOTICE.md) antes de redistribuir código ou recursos de terceiros.
+
+## Arquitetura
+
+O Observatório é uma aplicação Next.js App Router com React e TypeScript. A interface mantém preferências no navegador; funções Node.js consultam fontes públicas e persistem cache e inscrições push em libSQL/Turso.
+
+```mermaid
+flowchart LR
+  UI[Interface React] --> API[Rotas Next.js]
+  UI --> Local[LocalStorage: preferências e caderno]
+  UI --> Files[Arquivos históricos e mapa]
+  API --> Sources[TSE, institutos e imprensa]
+  API --> DB[(Turso / SQLite local)]
+  Monitor[GitHub Actions: monitor] --> API
+  DB --> Queue[Fila de notificações]
+  Queue --> Push[Provedor Web Push]
+  Push --> SW[Service worker do aparelho]
+```
+
+### Organização
+
+| Diretório / módulo                                      | Responsabilidade                                                        |
+| ------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `app/dashboard.tsx`                                     | Navegação, filtros e coordenação das telas                              |
+| `app/components/`                                       | Componentes de apresentação extraídos do painel                         |
+| `app/insights.tsx`, `app/user-space.tsx`                | Pesquisas, cobertura, acompanhamento, perfil e alertas                  |
+| `app/api/`                                              | Fronteiras HTTP: entrada, origem, status e respostas                    |
+| `lib/elections.ts`                                      | Normalização de dados oficiais e limite matemático de vitória           |
+| `lib/polls.ts`, `lib/media.ts`, `lib/article-image.ts`  | Adaptadores de fontes, cache e prévias permitidas                       |
+| `lib/database.ts`                                       | Interface SQL, configuração do libSQL e criação idempotente das tabelas |
+| `lib/live.ts`, `lib/alerts.ts`, `lib/content-alerts.ts` | Consulta oficial e identificação de eventos                             |
+| `lib/push.ts`                                           | VAPID, fila persistente, tentativas e controle de entregas              |
+| `lib/notebook.ts`, `lib/poll-view.ts`                   | Validação do caderno e regras de cenários e bases das pesquisas         |
+| `public/`                                               | Service worker, ícones, fontes, retratos e conjuntos de dados           |
+| `tests/`, `scripts/`                                    | Testes de comportamento, validação de dados e smoke test                |
+
+### Atualização dos dados
+
+Os endpoints e seus estados estão descritos em [Rotas do servidor](#rotas-do-servidor). O carregamento e o cache de prévias são compartilhados em `lib/article-preview.ts`.
+
+O histórico e os retratos eleitorais incluídos em `public/data` são arquivos versionados, não uma coleta contínua. Pesquisas combinam retratos conferidos e descoberta de publicações; nem todo instituto permite extrair números automaticamente. Cada cartão preserva a data da fonte, separada da data da consulta.
+
+Na apuração, o servidor valida o arquivo do TSE e usa cache compartilhado com uma concessão SQL temporária para reduzir consultas concorrentes. As chamadas HTTP são periódicas. Na Vercel, a tela ao vivo também pode abrir WebSocket pelo SDK experimental, com renovação da conexão e fallback HTTP. `next dev` não oferece esse upgrade.
+
+O workflow de monitoramento consulta as APIs públicas para que a coleta não dependa de visitantes. A agenda e os provedores externos podem atrasar; não existe garantia de atualização ou entrega instantânea.
+
+### Persistência e privacidade
+
+As tabelas `cache`, `subscriptions`, `subscription_keys`, `push_events` e `push_deliveries` armazenam dados públicos, configuração VAPID e o necessário para entrega de alertas. A fila registra evento/aparelho para evitar duplicação e retomar falhas transitórias.
+
+Nome local, candidato preferido, estados seguidos, anotações, tema e aceite dos termos ficam no navegador. Eles não são contas autenticadas nem sincronizados entre aparelhos. O aceite local não é uma prova centralizada vinculada a uma identidade.
+
+As rotas de escrita verificam origem e validam inscrições. Prévias de artigos usam domínios permitidos, limites de resposta e verificação de redirecionamentos. Segredos não devem usar o prefixo `NEXT_PUBLIC_`.
+
+### Limites atuais e evolução
+
+O painel e o explorador ainda concentram várias telas; novas alterações devem continuar extraindo componentes e contratos tipados por domínio. Alguns adaptadores legados ainda usam tipos amplos para respostas externas. A normalização eleitoral e os componentes extraídos têm lint mais rigoroso; isso não substitui a revisão das demais fronteiras.
+
+Não há login, permissão de editor, edição de resultados oficiais ou colaboração em notas. O projeto também não mede o engajamento individual de eleitores em redes sociais.
+
+## Rotas do servidor
+
+As rotas são usadas pelo próprio app; não constituem uma API pública com estabilidade contratual garantida. Executam no runtime Node.js. Consultas de dados retornam status e datas para que a interface diferencie espera, atualização e indisponibilidade.
+
+| Rota                       | Método            | Uso                                                                   |
+| -------------------------- | ----------------- | --------------------------------------------------------------------- |
+| `/api/live?uf=BR`          | GET               | Apuração nacional ou estadual; UF inválida retorna 400                |
+| `/api/polls`               | GET               | Pesquisas verificadas, publicações descobertas e estado de cada fonte |
+| `/api/media`               | GET               | Cobertura pública e notícias, com estado da coleta                    |
+| `/api/events`              | GET               | Último evento eleitoral persistido ou mensagem de ausência            |
+| `/api/article-image?url=…` | GET               | Prévia de imagem para URL permitida; entrada inválida retorna 400     |
+| `/api/push`                | GET               | Chave **pública** VAPID; banco indisponível retorna 503               |
+| `/api/push`                | POST              | Registra inscrição e categorias de alertas                            |
+| `/api/push`                | DELETE            | Remove inscrição e suas chaves pelo endpoint                          |
+| `/api/push/test`           | POST              | Envia teste ou consulta confirmação pelo service worker               |
+| `/api/push/receipt`        | POST              | Registra recebimento do teste pelo aparelho                           |
+| `/api/monitor`             | GET               | Consulta protegida para monitor externo                               |
+| `/api/socket`              | GET / upgrade     | Eventos de apuração por WebSocket na Vercel; em `next dev`, 426       |
+| `/api/rooms`               | GET, POST, DELETE | Compatibilidade com clientes antigos; recurso retirado, retorna 410   |
+
+### Apuração
+
+O payload pode indicar `waiting`, `loading`, `live` ou `unavailable`. Quando há resultado, `result` contém eleição, turno, UF, fonte, data, percentual de seções totalizadas, eleitorado, votos e candidatos. `victory.kind` distingue confirmação oficial, limite matemático e resultado parcial. Um cache anterior pode ser marcado como `stale`; ele não deve ser apresentado como consulta recente.
+
+O status HTTP e o estado do payload têm funções diferentes: uma resposta HTTP válida pode informar que a fonte está indisponível. Não considere somente `response.ok` para avaliar a atualidade dos dados.
+
+### Inscrições push
+
+O POST de `/api/push` recebe `{ endpoint, subscription, preferences }`; `subscription` é a serialização de `PushSubscription`. O endpoint precisa coincidir com o da inscrição e pertencer a um provedor permitido. Preferências são normalizadas pelas categorias implementadas em `lib/alerts.ts`.
+
+As operações de escrita verificam a origem; origem externa retorna 403 e inscrição inválida, 400. A chave privada VAPID não é retornada. Não registre endpoints ou material criptográfico em logs ou documentação de exemplos.
+
+O teste recebe `{ endpoint }` e retorna um identificador quando o provedor aceita o envio. Uma consulta com `{ endpoint, check: true, id }` verifica o recibo. Há intervalo mínimo de um minuto por inscrição; tentativas antecipadas retornam 429. Aceitação e recibo não comprovam que a pessoa leu o alerta.
+
+### Monitor
+
+`/api/monitor` exige `Authorization: Bearer CRON_SECRET`. Sem configuração, retorna indisponibilidade; sem autorização válida, rejeita a chamada. O workflow do repositório usa as consultas públicas e não precisa desse segredo. Consulte o [guia de publicação](deployment.md) para separar os ambientes.
+
+## Verificação
+
+### Imagens dos alertas
+
+Prévias de artigos são resolvidas em `lib/article-preview.ts`, compartilhando o cache da interface e dos alertas. Somente fontes e imagens permitidas são aceitas; sem prévia, o texto continua disponível. Notícias usam a manchete como título. Alertas decisivos podem usar o retrato do candidato relacionado ao evento, independentemente da preferência local do usuário.
+
+O payload push inclui título, texto, destino, categorias e URLs de imagem/ícone. O service worker tenta exibir a imagem e preserva o alerta textual se o navegador rejeitar o recurso. A apresentação final depende do navegador e do sistema operacional. Os testes executam o handler do service worker com payloads controlados; não comprovam a aparência ou a entrega em um aparelho real.
+
+### Comandos
+
+| Comando                | Verifica                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------- |
+| `npm run format:check` | Formatação de código e documentação; arquivos de dados e recursos gerados são excluídos |
+| `npm run lint`         | Erros estáticos, variáveis sem uso, regras e dependências de hooks                      |
+| `npm run typecheck`    | Tipagem TypeScript sem gerar arquivos                                                   |
+| `npm run test:data`    | Totais eleitorais, histórico, limites de vitória e leitura das pesquisas                |
+| `npm run test:unit`    | Regras de domínio, validação, persistência, concorrência e notificações                 |
+| `npm run check`        | Formatação, lint, tipos e todos os testes automatizados                                 |
+| `npm run build`        | Compilação de produção do Next.js                                                       |
+| `npm run test:smoke`   | HTTP, recursos PWA, metadados e entradas das APIs de uma instância em execução          |
+
+O CI executa `npm ci`, `npm run check` e `npm run build` em pushes e pull requests. Os testes não precisam de tokens de produção. Casos que consultam adaptadores usam respostas controladas; o smoke test consulta fontes reais e depende da disponibilidade externa.
+
+### Smoke test local
+
+Configure `.env.local` com o banco SQLite de desenvolvimento. Após o build, inicie a aplicação com `npm start`. Em outro terminal:
+
+```sh
+npm run test:smoke
+```
+
+Para outro endereço, use `npm run test:smoke -- http://localhost:3003` ou defina `TEST_URL` antes de executar. O teste consulta APIs e gera a chave VAPID no banco configurado, mas não registra um aparelho nem envia notificações.
+
+### Revisão manual antes de publicar
+
+- Navegação e filtros de eleição, turno, estado e região; retorno pelo histórico do navegador.
+- Layout no celular e desktop, expansão independente de cartões, teclado, foco e movimento reduzido.
+- Boas-vindas, termos, tema automático e persistência das preferências.
+- Criar, editar, excluir e desfazer anotações; conferir indicação de salvamento após recarregar.
+- Espera, indisponibilidade, dados parciais e dados finais na apuração, sem exibir uma eleição incorreta.
+- Alertas: permissão, inscrição, teste no aparelho e comportamento com a página fechada.
+- Na Vercel, conferir WebSocket e fallback HTTP, monitor agendado e banco separado nas prévias.
+
+Testes de servidor não comprovam entrega push pelo sistema operacional. Desktop, Android e iPhone precisam de verificação nos aparelhos e navegadores suportados; no iPhone, verificar a instalação na tela inicial.
