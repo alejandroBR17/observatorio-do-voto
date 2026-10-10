@@ -1,42 +1,265 @@
 /* Small, consistent movements connect an action with its result. */
-:root{--motion-quick:140ms;--motion-medium:260ms;--motion-ease:cubic-bezier(.22,.8,.25,1);view-transition-name:none}
-html{scroll-behavior:auto}
-.page-view{view-transition-name:page-view;animation:page-enter 260ms var(--motion-ease) both}
-:root[data-motion=native] .page-view{animation:none}
-::view-transition-group(page-view){animation-duration:260ms;animation-timing-function:var(--motion-ease)}
-::view-transition-old(page-view){animation:page-leave 140ms ease-in both}
-::view-transition-new(page-view){animation:page-enter 260ms var(--motion-ease) both}
-@keyframes page-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes page-leave{to{opacity:0;transform:translateY(-5px)}}
-.sidebar[data-state=open]{animation:drawer-enter 260ms var(--motion-ease) both}
-.sidebar[data-state=closing]{animation:drawer-leave 220ms ease-in both;pointer-events:none}
-.scrim[data-state=open]{animation:veil-enter 220ms ease-out both}
-.scrim[data-state=closing]{animation:veil-leave 220ms ease-in both;pointer-events:none}
-@keyframes drawer-enter{from{transform:translateX(-100%)}to{transform:translateX(0)}}
-@keyframes drawer-leave{to{transform:translateX(-100%)}}
-@keyframes veil-enter{from{opacity:0}to{opacity:1}}
-@keyframes veil-leave{to{opacity:0}}
-.motion-grid{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows 260ms var(--motion-ease),opacity 200ms ease}
-.motion-grid[data-open=true]{grid-template-rows:1fr;opacity:1}
-.motion-clip{min-height:0;overflow:hidden}
-.expand-extra{margin-top:14px}
-.disclosure-chevron{transition:transform 260ms var(--motion-ease);flex-shrink:0}
-[aria-expanded=true] .disclosure-chevron{transform:rotate(180deg)}
-.button,.icon-button,.menu-trigger,.header-alerts,.avatar,.nav-item,.destination-card,.expand-button,.collapse-bottom,.preference-options button,.state-chips button,.segmented button,.timeline button{transition:background-color 180ms ease,color 180ms ease,border-color 180ms ease,box-shadow 180ms ease,transform 140ms ease}
-.button:active:not(:disabled),.menu-trigger:active,.header-alerts:active,.avatar:active,.icon-button:active,.destination-card:active,.expand-button:active,.collapse-bottom:active,.preference-options button:active{transform:scale(.98)}
-@media(hover:hover) and (pointer:fine){.button:hover:not(:disabled),.destination-card:hover{transform:translateY(-2px);box-shadow:0 5px 16px #14283d10}.nav-item:hover>svg:last-child{transform:translateX(3px)}.news-card:hover{transform:translateY(-2px)}}
-.nav-item>svg:last-child{transition:transform 180ms ease}
-.news-card{transition:transform 180ms ease,background-color 180ms ease,border-color 180ms ease}
-.state{transition:fill 260ms ease,opacity 260ms ease,filter 180ms ease}
-.bar-track>div,.split-bar>div,.stack i{transition:width 350ms var(--motion-ease),background-color 200ms ease}
-body,.topbar,.panel,.stat,.election-banner,.disclosure-heading,.alert-option{transition:background-color 220ms ease,color 220ms ease,border-color 220ms ease}
-.theme-control svg{animation:icon-enter 220ms var(--motion-ease)}
-@keyframes icon-enter{from{opacity:.3;transform:rotate(-30deg) scale(.8)}to{opacity:1;transform:rotate(0) scale(1)}}
-.back-to-top{animation:page-enter 200ms var(--motion-ease) both;transition:background-color 180ms ease,transform 140ms ease}
-.toast{animation:toast-enter 240ms var(--motion-ease) both}
-@keyframes toast-enter{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
-.loading>svg{animation:loading-turn 1.2s linear infinite}
-@keyframes loading-turn{to{transform:rotate(360deg)}}
-.inline-details[open]>:not(summary){animation:page-enter 200ms ease both}
-@supports(interpolate-size:allow-keywords){.inline-details{interpolate-size:allow-keywords}.inline-details::details-content{block-size:0;overflow:hidden;transition:block-size 260ms var(--motion-ease),content-visibility 260ms allow-discrete}.inline-details[open]::details-content{block-size:auto}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}.sidebar[data-state=closing],.scrim[data-state=closing]{visibility:hidden}}
+:root {
+  --motion-quick: 140ms;
+  --motion-medium: 260ms;
+  --motion-ease: cubic-bezier(0.22, 0.8, 0.25, 1);
+  view-transition-name: none;
+}
+html {
+  scroll-behavior: auto;
+}
+.page-view {
+  view-transition-name: page-view;
+  animation: page-enter 260ms var(--motion-ease) both;
+}
+:root[data-motion='native'] .page-view {
+  animation: none;
+}
+::view-transition-group(page-view) {
+  animation-duration: 260ms;
+  animation-timing-function: var(--motion-ease);
+}
+::view-transition-old(page-view) {
+  animation: page-leave 140ms ease-in both;
+}
+::view-transition-new(page-view) {
+  animation: page-enter 260ms var(--motion-ease) both;
+}
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes page-leave {
+  to {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+.sidebar[data-state='open'] {
+  animation: drawer-enter 260ms var(--motion-ease) both;
+}
+.sidebar[data-state='closing'] {
+  animation: drawer-leave 220ms ease-in both;
+  pointer-events: none;
+}
+.scrim[data-state='open'] {
+  animation: veil-enter 220ms ease-out both;
+}
+.scrim[data-state='closing'] {
+  animation: veil-leave 220ms ease-in both;
+  pointer-events: none;
+}
+@keyframes drawer-enter {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes drawer-leave {
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes veil-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes veil-leave {
+  to {
+    opacity: 0;
+  }
+}
+.motion-grid {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 260ms var(--motion-ease),
+    opacity 200ms ease;
+}
+.motion-grid[data-open='true'] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.motion-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+.expand-extra {
+  margin-top: 14px;
+}
+.disclosure-chevron {
+  transition: transform 260ms var(--motion-ease);
+  flex-shrink: 0;
+}
+[aria-expanded='true'] .disclosure-chevron {
+  transform: rotate(180deg);
+}
+.button,
+.icon-button,
+.menu-trigger,
+.header-alerts,
+.avatar,
+.nav-item,
+.destination-card,
+.expand-button,
+.collapse-bottom,
+.preference-options button,
+.state-chips button,
+.segmented button,
+.timeline button {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 140ms ease;
+}
+.button:active:not(:disabled),
+.menu-trigger:active,
+.header-alerts:active,
+.avatar:active,
+.icon-button:active,
+.destination-card:active,
+.expand-button:active,
+.collapse-bottom:active,
+.preference-options button:active {
+  transform: scale(0.98);
+}
+@media (hover: hover) and (pointer: fine) {
+  .button:hover:not(:disabled),
+  .destination-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 16px #14283d10;
+  }
+  .nav-item:hover > svg:last-child {
+    transform: translateX(3px);
+  }
+  .news-card:hover {
+    transform: translateY(-2px);
+  }
+}
+.nav-item > svg:last-child {
+  transition: transform 180ms ease;
+}
+.news-card {
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+.state {
+  transition:
+    fill 260ms ease,
+    opacity 260ms ease,
+    filter 180ms ease;
+}
+.bar-track > div,
+.split-bar > div,
+.stack i {
+  transition:
+    width 350ms var(--motion-ease),
+    background-color 200ms ease;
+}
+body,
+.topbar,
+.panel,
+.stat,
+.election-banner,
+.disclosure-heading,
+.alert-option {
+  transition:
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease;
+}
+.theme-control svg {
+  animation: icon-enter 220ms var(--motion-ease);
+}
+@keyframes icon-enter {
+  from {
+    opacity: 0.3;
+    transform: rotate(-30deg) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}
+.back-to-top {
+  animation: page-enter 200ms var(--motion-ease) both;
+  transition:
+    background-color 180ms ease,
+    transform 140ms ease;
+}
+.toast {
+  animation: toast-enter 240ms var(--motion-ease) both;
+}
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.loading > svg {
+  animation: loading-turn 1.2s linear infinite;
+}
+@keyframes loading-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.inline-details[open] > :not(summary) {
+  animation: page-enter 200ms ease both;
+}
+@supports (interpolate-size: allow-keywords) {
+  .inline-details {
+    interpolate-size: allow-keywords;
+  }
+  .inline-details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size 260ms var(--motion-ease),
+      content-visibility 260ms allow-discrete;
+  }
+  .inline-details[open]::details-content {
+    block-size: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+  .sidebar[data-state='closing'],
+  .scrim[data-state='closing'] {
+    visibility: hidden;
+  }
+}

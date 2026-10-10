@@ -1,18 +1,330 @@
 'use client';
-import {useEffect,useRef,useState} from 'react';
-import {ArrowRight,Bell,Check,ShieldCheck,Globe2,SlidersHorizontal,ChevronLeft} from 'lucide-react';
-import {candidates} from '@/lib/content';
-import {useReading} from './reading';
-export type WelcomeChoices={nickname:string;favorite:string;details:boolean};
-export function Onboarding({nickname,favorite,onFinish,onEnable,notification,serviceReady,serviceMessage}:{nickname:string;favorite:string;onFinish:(choices:WelcomeChoices,alerts:boolean)=>boolean;onEnable:()=>Promise<{ok:boolean;message:string}>;notification:string;serviceReady:boolean;serviceMessage:string}){
- const dialog=useRef<HTMLDialogElement>(null),{reading}=useReading();
- const [step,setStep]=useState(0),[name,setName]=useState(nickname),[choice,setChoice]=useState(favorite),[details,setDetails]=useState(reading==='detailed'),[accepted,setAccepted]=useState(false);
- const [supported,setSupported]=useState(false),[activating,setActivating]=useState(false),[message,setMessage]=useState('');
- useEffect(()=>setSupported('Notification'in window&&'PushManager'in window&&'serviceWorker'in navigator),[]);
- useEffect(()=>{const modal=dialog.current,overflow=document.body.style.overflow;document.body.style.overflow='hidden';modal?.showModal();return()=>{modal?.close();document.body.style.overflow=overflow;};},[]);
- useEffect(()=>{dialog.current?.querySelector<HTMLElement>('#welcome-title')?.focus({preventScroll:true});dialog.current?.scrollTo({top:0});},[step]);
- async function activate(){setActivating(true);try{const result=await onEnable();setMessage(result.message);}finally{setActivating(false);}}
- function finish(alerts=false){if(!accepted){setMessage('Leia e aceite os Termos de Uso para continuar.');return;}if(!onFinish({nickname:name.trim().slice(0,40),favorite:choice,details},alerts))setMessage('Não foi possível salvar. Verifique o armazenamento deste navegador.');}
- const titles=['Seu próprio olhar.','Escolhas que fazem sentido.','Tudo pronto para acompanhar.'];
- return <dialog ref={dialog} className="welcome-dialog" aria-labelledby="welcome-title" onCancel={e=>{e.preventDefault();setStep(2);}}><div className="welcome-layout"><aside className="welcome-story"><div className="welcome-brand"><img src="/app-icon.svg" width="42" height="42" alt=""/><span>observatório<small>DO VOTO</small></span></div><div className="welcome-story-copy"><span className="eyebrow">O BRASIL, VOTO A VOTO.</span><h2>Um país inteiro.<br/>Milhões de escolhas.<br/><em>A sua perspectiva.</em></h2><div className="welcome-art" aria-hidden="true"><Globe2 size={125} strokeWidth={.7}/><i/><i/><i/></div><p>Resultados, pesquisas e história para entender cada capítulo da eleição.</p></div><ol className="welcome-steps">{['Boas-vindas','Personalização','Privacidade e alertas'].map((label,i)=><li key={label} className={step===i?'current':step>i?'done':''} aria-current={step===i?'step':undefined}><span>{step>i?<Check size={13}/>:i+1}</span>{label}</li>)}</ol></aside><div className="welcome-pane"><header className="welcome-step-heading"><span>SEU OBSERVATÓRIO</span><span>{step+1} / 3</span></header><div className="welcome-content" key={step}><h2 id="welcome-title" tabIndex={-1}>{titles[step]}</h2>{step===0?<><p>Antes de começar, vamos preparar um espaço de acompanhamento para você. Sem criar uma conta.</p><label className="form-label"><span>Como podemos chamar você? <small>Opcional</small></span><input autoComplete="nickname" placeholder="Nome ou apelido" maxLength={40} value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')setStep(1);}}/></label><div className="welcome-promise"><ShieldCheck size={24}/><div><strong>Seu espaço fica com você.</strong><p>Seu nome, suas preferências e suas notas ficam neste navegador.</p></div></div></>:step===1?<><p>Escolha quem acompanhar e quanto contexto prefere ver. Você pode editar tudo depois, no perfil.</p><div className="preference-options"><button aria-pressed={!choice} className={!choice?'chosen':''} onClick={()=>setChoice('')}><Globe2 size={20}/><span>Os dois candidatos<small>Visão completa da eleição</small></span>{!choice&&<Check size={16}/>}</button>{candidates.map(c=><button key={c.number} aria-pressed={choice===c.number} className={choice===c.number?'chosen':''} onClick={()=>setChoice(c.number)}><img src={c.photo} alt=""/><span>{c.name}<small>{c.party}</small></span>{choice===c.number&&<Check size={16}/>}</button>)}</div><label className="alert-option"><input type="checkbox" checked={details} onChange={e=>setDetails(e.target.checked)}/><span><strong>Mostrar mais contexto das pesquisas</strong><small>Metodologia e período das entrevistas abertos ao comparar.</small></span></label><p className="fine">Os resultados oficiais têm a mesma apresentação para todos.</p></>:<><p>Um projeto independente, com fontes identificadas. Notificações são opcionais e podem ser desligadas quando quiser.</p><div className="welcome-terms"><ShieldCheck size={22}/><div><strong>Transparência antes de começar</strong><p>Pesquisas são retratos do momento. Resultados parciais podem mudar. Seus dados pessoais de acompanhamento ficam neste aparelho.</p><div className="legal-links"><a href="/termos" target="_blank" rel="noreferrer">Termos de Uso ↗</a><a href="/privacidade" target="_blank" rel="noreferrer">Aviso de Privacidade ↗</a></div></div></div><label className="terms-check"><input type="checkbox" checked={accepted} onChange={e=>setAccepted(e.target.checked)}/><span>Li e aceito os <a href="/termos" target="_blank" rel="noreferrer">Termos de Uso</a>.</span></label><div className="welcome-notifications"><Bell size={23}/><div><strong>{notification==='Ativadas'?'Seus alertas estão ativados':'Receba os próximos acontecimentos'}</strong><p>Novas pesquisas agora. Os principais momentos da apuração depois.</p>{notification!=='Ativadas'&&<button className="button secondary" disabled={!accepted||!supported||!serviceReady||activating} onClick={activate}>{activating?'Ativando…':'Ativar notificações agora'}</button>}{!supported&&<p className="fine">No iPhone, adicione à Tela de Início e abra pelo ícone instalado para ativar.</p>}{serviceMessage&&<p className="fine">{serviceMessage}</p>}</div></div></>}</div><div className="welcome-actions">{step===0?<><button className="text-button" onClick={()=>setStep(2)}>Continuar sem personalizar</button><button className="button primary" onClick={()=>setStep(1)}>Personalizar<ArrowRight size={16}/></button></>:<><button className="text-button" onClick={()=>setStep(step-1)}><ChevronLeft size={14}/>Voltar</button><button className="button primary" disabled={step===2&&!accepted} onClick={()=>step===1?setStep(2):finish()}>{step===1?'Continuar':'Entrar no Observatório'}<ArrowRight size={16}/></button></>}</div>{message&&<p className="welcome-feedback" role="status">{message}</p>}{step===2&&<button className="welcome-alerts" disabled={!accepted} onClick={()=>finish(true)}><SlidersHorizontal size={15}/>Entrar e escolher categorias de alertas<ArrowRight size={14}/></button>}</div></div></dialog>;
+import { useEffect, useRef, useState } from 'react';
+import {
+  ArrowRight,
+  Bell,
+  Check,
+  ShieldCheck,
+  Globe2,
+  SlidersHorizontal,
+  ChevronLeft,
+} from 'lucide-react';
+import { candidates } from '@/lib/content';
+import { useReading } from './reading';
+export type WelcomeChoices = { nickname: string; favorite: string; details: boolean };
+export function Onboarding({
+  nickname,
+  favorite,
+  onFinish,
+  onEnable,
+  notification,
+  serviceReady,
+  serviceMessage,
+}: {
+  nickname: string;
+  favorite: string;
+  onFinish: (choices: WelcomeChoices, alerts: boolean) => boolean;
+  onEnable: () => Promise<{ ok: boolean; message: string }>;
+  notification: string;
+  serviceReady: boolean;
+  serviceMessage: string;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null),
+    { reading } = useReading();
+  const [step, setStep] = useState(0),
+    [name, setName] = useState(nickname),
+    [choice, setChoice] = useState(favorite),
+    [details, setDetails] = useState(reading === 'detailed'),
+    [accepted, setAccepted] = useState(false);
+  const [supported, setSupported] = useState(false),
+    [activating, setActivating] = useState(false),
+    [message, setMessage] = useState('');
+  useEffect(
+    () =>
+      setSupported(
+        'Notification' in window && 'PushManager' in window && 'serviceWorker' in navigator,
+      ),
+    [],
+  );
+  useEffect(() => {
+    const modal = dialog.current,
+      overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    modal?.showModal();
+    return () => {
+      modal?.close();
+      document.body.style.overflow = overflow;
+    };
+  }, []);
+  useEffect(() => {
+    dialog.current?.querySelector<HTMLElement>('#welcome-title')?.focus({ preventScroll: true });
+    dialog.current?.scrollTo({ top: 0 });
+  }, [step]);
+  async function activate() {
+    setActivating(true);
+    try {
+      const result = await onEnable();
+      setMessage(result.message);
+    } finally {
+      setActivating(false);
+    }
+  }
+  function finish(alerts = false) {
+    if (!accepted) {
+      setMessage('Leia e aceite os Termos de Uso para continuar.');
+      return;
+    }
+    if (!onFinish({ nickname: name.trim().slice(0, 40), favorite: choice, details }, alerts))
+      setMessage('Não foi possível salvar. Verifique o armazenamento deste navegador.');
+  }
+  const titles = [
+    'Seu próprio olhar.',
+    'Escolhas que fazem sentido.',
+    'Tudo pronto para acompanhar.',
+  ];
+  return (
+    <dialog
+      ref={dialog}
+      className="welcome-dialog"
+      aria-labelledby="welcome-title"
+      onCancel={(e) => {
+        e.preventDefault();
+        setStep(2);
+      }}
+    >
+      <div className="welcome-layout">
+        <aside className="welcome-story">
+          <div className="welcome-brand">
+            <img src="/app-icon.svg" width="42" height="42" alt="" />
+            <span>
+              observatório<small>DO VOTO</small>
+            </span>
+          </div>
+          <div className="welcome-story-copy">
+            <span className="eyebrow">O BRASIL, VOTO A VOTO.</span>
+            <h2>
+              Um país inteiro.
+              <br />
+              Milhões de escolhas.
+              <br />
+              <em>A sua perspectiva.</em>
+            </h2>
+            <div className="welcome-art" aria-hidden="true">
+              <Globe2 size={125} strokeWidth={0.7} />
+              <i />
+              <i />
+              <i />
+            </div>
+            <p>Resultados, pesquisas e história para entender cada capítulo da eleição.</p>
+          </div>
+          <ol className="welcome-steps">
+            {['Boas-vindas', 'Personalização', 'Privacidade e alertas'].map((label, i) => (
+              <li
+                key={label}
+                className={step === i ? 'current' : step > i ? 'done' : ''}
+                aria-current={step === i ? 'step' : undefined}
+              >
+                <span>{step > i ? <Check size={13} /> : i + 1}</span>
+                {label}
+              </li>
+            ))}
+          </ol>
+        </aside>
+        <div className="welcome-pane">
+          <header className="welcome-step-heading">
+            <span>SEU OBSERVATÓRIO</span>
+            <span>{step + 1} / 3</span>
+          </header>
+          <div className="welcome-content" key={step}>
+            <h2 id="welcome-title" tabIndex={-1}>
+              {titles[step]}
+            </h2>
+            {step === 0 ? (
+              <>
+                <p>
+                  Antes de começar, vamos preparar um espaço de acompanhamento para você. Sem criar
+                  uma conta.
+                </p>
+                <label className="form-label">
+                  <span>
+                    Como podemos chamar você? <small>Opcional</small>
+                  </span>
+                  <input
+                    autoComplete="nickname"
+                    placeholder="Nome ou apelido"
+                    maxLength={40}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') setStep(1);
+                    }}
+                  />
+                </label>
+                <div className="welcome-promise">
+                  <ShieldCheck size={24} />
+                  <div>
+                    <strong>Seu espaço fica com você.</strong>
+                    <p>Seu nome, suas preferências e suas notas ficam neste navegador.</p>
+                  </div>
+                </div>
+              </>
+            ) : step === 1 ? (
+              <>
+                <p>
+                  Escolha quem acompanhar e quanto contexto prefere ver. Você pode editar tudo
+                  depois, no perfil.
+                </p>
+                <div className="preference-options">
+                  <button
+                    aria-pressed={!choice}
+                    className={!choice ? 'chosen' : ''}
+                    onClick={() => setChoice('')}
+                  >
+                    <Globe2 size={20} />
+                    <span>
+                      Os dois candidatos<small>Visão completa da eleição</small>
+                    </span>
+                    {!choice && <Check size={16} />}
+                  </button>
+                  {candidates.map((c) => (
+                    <button
+                      key={c.number}
+                      aria-pressed={choice === c.number}
+                      className={choice === c.number ? 'chosen' : ''}
+                      onClick={() => setChoice(c.number)}
+                    >
+                      <img src={c.photo} alt="" />
+                      <span>
+                        {c.name}
+                        <small>{c.party}</small>
+                      </span>
+                      {choice === c.number && <Check size={16} />}
+                    </button>
+                  ))}
+                </div>
+                <label className="alert-option">
+                  <input
+                    type="checkbox"
+                    checked={details}
+                    onChange={(e) => setDetails(e.target.checked)}
+                  />
+                  <span>
+                    <strong>Mostrar mais contexto das pesquisas</strong>
+                    <small>Metodologia e período das entrevistas abertos ao comparar.</small>
+                  </span>
+                </label>
+                <p className="fine">Os resultados oficiais têm a mesma apresentação para todos.</p>
+              </>
+            ) : (
+              <>
+                <p>
+                  Um projeto independente, com fontes identificadas. Notificações são opcionais e
+                  podem ser desligadas quando quiser.
+                </p>
+                <div className="welcome-terms">
+                  <ShieldCheck size={22} />
+                  <div>
+                    <strong>Transparência antes de começar</strong>
+                    <p>
+                      Pesquisas são retratos do momento. Resultados parciais podem mudar. Seus dados
+                      pessoais de acompanhamento ficam neste aparelho.
+                    </p>
+                    <div className="legal-links">
+                      <a href="/termos" target="_blank" rel="noreferrer">
+                        Termos de Uso ↗
+                      </a>
+                      <a href="/privacidade" target="_blank" rel="noreferrer">
+                        Aviso de Privacidade ↗
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <label className="terms-check">
+                  <input
+                    type="checkbox"
+                    checked={accepted}
+                    onChange={(e) => setAccepted(e.target.checked)}
+                  />
+                  <span>
+                    Li e aceito os{' '}
+                    <a href="/termos" target="_blank" rel="noreferrer">
+                      Termos de Uso
+                    </a>
+                    .
+                  </span>
+                </label>
+                <div className="welcome-notifications">
+                  <Bell size={23} />
+                  <div>
+                    <strong>
+                      {notification === 'Ativadas'
+                        ? 'Seus alertas estão ativados'
+                        : 'Receba os próximos acontecimentos'}
+                    </strong>
+                    <p>Novas pesquisas agora. Os principais momentos da apuração depois.</p>
+                    {notification !== 'Ativadas' && (
+                      <button
+                        className="button secondary"
+                        disabled={!accepted || !supported || !serviceReady || activating}
+                        onClick={activate}
+                      >
+                        {activating ? 'Ativando…' : 'Ativar notificações agora'}
+                      </button>
+                    )}
+                    {!supported && (
+                      <p className="fine">
+                        No iPhone, adicione à Tela de Início e abra pelo ícone instalado para
+                        ativar.
+                      </p>
+                    )}
+                    {serviceMessage && <p className="fine">{serviceMessage}</p>}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          <div className="welcome-actions">
+            {step === 0 ? (
+              <>
+                <button className="text-button" onClick={() => setStep(2)}>
+                  Continuar sem personalizar
+                </button>
+                <button className="button primary" onClick={() => setStep(1)}>
+                  Personalizar
+                  <ArrowRight size={16} />
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="text-button" onClick={() => setStep(step - 1)}>
+                  <ChevronLeft size={14} />
+                  Voltar
+                </button>
+                <button
+                  className="button primary"
+                  disabled={step === 2 && !accepted}
+                  onClick={() => (step === 1 ? setStep(2) : finish())}
+                >
+                  {step === 1 ? 'Continuar' : 'Entrar no Observatório'}
+                  <ArrowRight size={16} />
+                </button>
+              </>
+            )}
+          </div>
+          {message && (
+            <p className="welcome-feedback" role="status">
+              {message}
+            </p>
+          )}
+          {step === 2 && (
+            <button className="welcome-alerts" disabled={!accepted} onClick={() => finish(true)}>
+              <SlidersHorizontal size={15} />
+              Entrar e escolher categorias de alertas
+              <ArrowRight size={14} />
+            </button>
+          )}
+        </div>
+      </div>
+    </dialog>
+  );
 }

@@ -1,2 +1,6 @@
-import {getDatabase} from './database';
-export const env={get DB(){return getDatabase();}};
+import { getDatabase } from './database';
+export const env = {
+  get DB() {
+    return getDatabase();
+  },
+};
