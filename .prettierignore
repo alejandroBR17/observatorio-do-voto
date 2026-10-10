@@ -6,6 +6,7 @@ coverage/
 package-lock.json
 next-env.d.ts
 public/data/
+data/local-results/
 public/assets/
 public/*.svg
 *.tsbuildinfo

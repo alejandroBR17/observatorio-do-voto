@@ -1,0 +1,459 @@
+/* The existing civic identity, extended for local discovery and election night. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.data-freshness {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 10px 0 16px;
+  width: fit-content;
+  max-width: 100%;
+}
+.data-freshness summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border-bottom: 1px dotted transparent;
+}
+.data-freshness summary:hover {
+  border-bottom-color: currentColor;
+}
+.data-freshness[open] {
+  padding: 12px;
+  background: var(--soft);
+  border-radius: 10px;
+}
+.data-freshness p {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+.data-freshness.is-stale {
+  color: var(--accent);
+}
+.municipality-entry {
+  margin-bottom: 20px;
+}
+.municipality-explorer {
+  display: grid;
+  gap: 20px;
+  max-width: 1000px;
+}
+.local-search-fields {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+  margin: 20px 0 12px;
+  flex-wrap: wrap;
+}
+.local-search-fields label {
+  flex: 1;
+  min-width: 180px;
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.local-search-fields label:first-child {
+  flex: 0.7;
+}
+.local-search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding-left: 12px;
+}
+.local-search-input input {
+  border: 0;
+  min-width: 0;
+  width: 100%;
+  background: transparent;
+}
+.local-search-input button {
+  padding: 10px;
+}
+.local-search-results {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.local-search-results button {
+  width: 100%;
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  text-align: left;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  transition:
+    background 160ms,
+    border-color 160ms;
+}
+.local-search-results button:hover,
+.local-search-results button[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+.local-search-results button span {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.local-search-results button small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.local-search-results svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--accent);
+}
+.local-method {
+  margin: 16px 0;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.local-method button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+.local-method button.active {
+  background: var(--nav);
+  color: var(--nav-text);
+}
+.local-search-label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.places-results {
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 3px;
+}
+.local-section-form > .fine {
+  margin: 12px 0;
+}
+.local-tally-stats {
+  display: flex;
+  gap: 42px;
+  margin: 25px 0;
+  flex-wrap: wrap;
+}
+.local-tally-stats strong {
+  display: block;
+  font-size: 32px;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+.local-tally-stats span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.local-candidate {
+  margin: 20px 0;
+}
+.local-candidate > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+.local-candidate span {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.local-vote-track {
+  height: 6px;
+  background: var(--soft);
+  border-radius: 5px;
+  margin-top: 9px;
+  overflow: hidden;
+}
+.local-vote-track i {
+  height: 100%;
+  display: block;
+  background: var(--green);
+  border-radius: inherit;
+}
+.local-privacy {
+  margin-top: 20px;
+}
+.section-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.map-legend,
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 12px 0;
+}
+.map-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.map-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.map-table {
+  width: 100%;
+  text-align: left;
+}
+.map-table .table-scroll {
+  max-height: 320px;
+}
+.map-table table caption,
+.line-chart ~ details table caption {
+  text-align: left;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 10px 0;
+}
+.brazil-map .state:focus-visible {
+  stroke: #e4b773;
+  stroke-width: 3.5;
+  outline: none;
+  opacity: 1;
+}
+.election-night {
+  --bg: #0d1724;
+  --surface: #152334;
+  --ink: #ebf1f7;
+  --muted: #a7b9ca;
+  --line: #2b3e51;
+  --soft: #203449;
+  --accent: #e4b773;
+  --green: #81c6d1;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-y: auto;
+  animation: night-enter 220ms ease-out;
+}
+.night-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 4vw;
+  border-bottom: 1px solid var(--line);
+}
+.night-header h2 {
+  margin: 5px 0 0;
+  font-size: clamp(18px, 2vw, 28px);
+}
+.night-controls {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.election-night .button.secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.night-content {
+  padding: 24px 4vw 50px;
+  max-width: 1800px;
+  margin: auto;
+}
+.night-preview-label {
+  padding: 15px 20px;
+  background: #e4b77318;
+  border: 1px solid #e4b77355;
+  border-radius: 12px;
+  margin-bottom: 25px;
+}
+.night-preview-label strong {
+  color: var(--accent);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+.night-preview-label p,
+.night-live-label {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 7px 0 0;
+}
+.night-live-label {
+  margin-bottom: 20px;
+}
+.night-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 36px;
+  align-items: start;
+}
+.night-scoreboard,
+.night-map,
+.night-progression {
+  padding: 26px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+.night-total {
+  color: var(--muted);
+  font-size: 14px;
+}
+.night-total strong {
+  display: block;
+  font-size: clamp(36px, 4vw, 64px);
+  color: var(--ink);
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+}
+.night-scoreboard progress {
+  width: 100%;
+  height: 7px;
+  accent-color: var(--accent);
+  margin: 8px 0 24px;
+}
+.night-candidate {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.night-candidate > span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.night-candidate > div {
+  flex: 1;
+  min-width: 0;
+}
+.night-candidate h4 {
+  margin: 0 0 6px;
+  font-size: clamp(16px, 1.7vw, 25px);
+  font-weight: 600;
+}
+.night-candidate small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.night-candidate > strong {
+  font-size: clamp(25px, 2.8vw, 42px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+}
+.night-map .map-wrap {
+  max-width: 540px;
+  margin: auto;
+}
+.night-map .brazil-map {
+  width: 100%;
+  max-height: 460px;
+}
+.night-progression {
+  margin-top: 25px;
+  max-width: 100%;
+}
+.night-verdict {
+  padding: 14px;
+  background: var(--soft);
+  border-radius: 10px;
+  line-height: 1.6;
+}
+.election-night .line-chart text {
+  fill: var(--muted);
+}
+:root[data-theme='dark'] .line-series-lula,
+.election-night .line-series-lula {
+  stroke: #e99786;
+}
+:root[data-theme='dark'] .line-series-bolsonaro,
+.election-night .line-series-bolsonaro {
+  stroke: #81c6d1;
+}
+@keyframes night-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 760px) {
+  .night-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .night-header {
+    padding: 16px;
+    align-items: start;
+  }
+  .night-content {
+    padding: 16px 14px 40px;
+  }
+  .night-scoreboard,
+  .night-map {
+    padding: 18px;
+    border-radius: 14px;
+  }
+  .night-controls .button {
+    padding: 9px;
+  }
+  .local-search-fields {
+    gap: 12px;
+  }
+  .local-search-fields label {
+    min-width: 100%;
+  }
+  .local-tally-stats {
+    gap: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .election-night {
+    animation: none;
+  }
+  .local-search-results button {
+    transition: none;
+  }
+}

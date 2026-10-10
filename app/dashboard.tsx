@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Activity,
   ArrowUpRight,
@@ -23,6 +23,8 @@ import {
   UserRound,
   ArrowUp,
   PanelLeft,
+  MapPin,
+  Expand,
 } from 'lucide-react';
 import { normalize, states, Result } from '@/lib/elections';
 import { candidates, bioSource, years } from '@/lib/content';
@@ -42,6 +44,10 @@ import { termsVersion } from '@/lib/terms';
 import { alertPreferences, defaultAlerts } from '@/lib/alerts';
 import { Source } from './components/source-link';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
+import { DataFreshness } from './components/data-freshness';
+import { MunicipalityExplorer } from './municipality-explorer';
+import { ElectionNight } from './election-night';
+import { electionNightAvailable } from '@/lib/election-night';
 import {
   formatVotes as fmt,
   formatPercent as pct,
@@ -54,6 +60,7 @@ const nav = [
   ['overview', 'Panorama', Globe2],
   ['live', 'Apuração ao vivo', Radio],
   ['history', 'Histórico eleitoral', BookOpen],
+  ['municipality', 'Seu município', MapPin],
   ['polls', 'Pesquisas e cenários', TrendingUp],
   ['candidates', 'Os candidatos', Vote],
   ['social', 'Cobertura e fontes', BarChart3],
@@ -141,6 +148,57 @@ function DashboardContent() {
   }, []);
   const [livePoints, setLivePoints] = useState<ProgressionPoint[]>([]),
     [liveStates, setLiveStates] = useState<Result[]>([]);
+  const [night, setNight] = useState<'preview' | 'live' | null>(null);
+  const [nightPoints, setNightPoints] = useState<ProgressionPoint[]>([]);
+  const [nightNational, setNightNational] = useState<{
+    result?: Result;
+    checkedAt?: string;
+    status?: string;
+    victory?: { message: string };
+  } | null>(null);
+  const closeNight = useCallback(() => setNight(null), []);
+  useEffect(() => {
+    if (night !== 'live') return;
+    setNightPoints([]);
+    const controller = new AbortController();
+    const refresh = async () => {
+      try {
+        const response = await fetch('/api/live?uf=BR', { signal: controller.signal });
+        if (!response.ok) throw Error('Fonte indisponível');
+        const payload = await response.json();
+        if (!controller.signal.aborted) {
+          setNightNational((old) => ({
+            ...payload,
+            result: payload.result || payload.lastGood || old?.result,
+          }));
+          const result: Result | undefined = payload.status === 'live' ? payload.result : undefined;
+          if (result?.turn === 2)
+            setNightPoints((previous) =>
+              previous.some((p) => p.id === result.id)
+                ? previous
+                : [
+                    ...previous,
+                    {
+                      id: result.id,
+                      counted: result.counted,
+                      lula: result.candidates.find((c) => c.number === '13')?.percent || 0,
+                      bolsonaro: result.candidates.find((c) => c.number === '22')?.percent || 0,
+                    },
+                  ].slice(-300),
+            );
+        }
+      } catch {
+        if (!controller.signal.aborted)
+          setNightNational((old) => ({ ...old, status: 'unavailable' }));
+      }
+    };
+    void refresh();
+    const timer = setInterval(refresh, 30000);
+    return () => {
+      controller.abort();
+      clearInterval(timer);
+    };
+  }, [night]);
   function notify(s: string) {
     setToast(s);
     setTimeout(() => setToast(''), 5000);
@@ -852,17 +910,19 @@ function DashboardContent() {
                       ? 'A evolução dos votos, direto da fonte oficial.'
                       : tab === 'history'
                         ? 'O país que votou ontem ajuda a entender o país de hoje.'
-                        : tab === 'polls'
-                          ? 'Pesquisas mostram um momento. Cenários exploram possibilidades.'
-                          : tab === 'watch'
-                            ? 'Sua seleção de estados, pesquisas e alertas. Tudo no seu aparelho.'
-                            : tab === 'social'
-                              ? 'Cobertura pública, atualização automática e fontes transparentes.'
-                              : tab === 'profile'
-                                ? 'Seu nome e suas preferências, em um espaço pessoal.'
-                                : tab === 'alerts'
-                                  ? 'Escolha os eventos que quer receber.'
-                                  : 'Conheça as trajetórias dos dois candidatos à Presidência.'}
+                        : tab === 'municipality'
+                          ? 'Da cidade à sua seção: descubra os votos perto de você.'
+                          : tab === 'polls'
+                            ? 'Pesquisas mostram um momento. Cenários exploram possibilidades.'
+                            : tab === 'watch'
+                              ? 'Sua seleção de estados, pesquisas e alertas. Tudo no seu aparelho.'
+                              : tab === 'social'
+                                ? 'Cobertura pública, atualização automática e fontes transparentes.'
+                                : tab === 'profile'
+                                  ? 'Seu nome e suas preferências, em um espaço pessoal.'
+                                  : tab === 'alerts'
+                                    ? 'Escolha os eventos que quer receber.'
+                                    : 'Conheça as trajetórias dos dois candidatos à Presidência.'}
                 </p>
               </div>
             </div>
@@ -1034,6 +1094,15 @@ function DashboardContent() {
                 {tab === 'overview' && selected && (
                   <>
                     <RecentUpdates onGo={go} />
+                    <DataFreshness archived generated={selected.generated} />
+                    <button
+                      className="text-button municipality-entry"
+                      onClick={() => go('municipality')}
+                    >
+                      <MapPin size={16} aria-hidden="true" />
+                      Explorar meu município e local de votação
+                      <ChevronRight size={15} aria-hidden="true" />
+                    </button>
                     <div className="stats-grid">
                       {[
                         {
@@ -1334,6 +1403,24 @@ function DashboardContent() {
                           Configurar alertas
                         </button>
                       )}
+                      {national && (
+                        <button
+                          className="button secondary"
+                          onClick={() => {
+                            setNightNational(null);
+                            setNight(
+                              electionNightAvailable(live.status, live.result?.turn)
+                                ? 'live'
+                                : 'preview',
+                            );
+                          }}
+                        >
+                          <Expand size={16} aria-hidden="true" />
+                          {electionNightAvailable(live.status, live.result?.turn)
+                            ? 'Abrir noite da apuração'
+                            : 'Ver prévia com o 1º turno'}
+                        </button>
+                      )}
                     </div>
                     <section className="panel live-stage">
                       <span className="live-orbit">
@@ -1388,6 +1475,12 @@ function DashboardContent() {
                       <small>
                         Atualizações a cada 30 segundos enquanto esta tela estiver aberta.
                       </small>
+                      <DataFreshness
+                        checkedAt={live.checkedAt}
+                        generated={live.result?.generated}
+                        stale={live.stale}
+                        unavailable={live.status === 'unavailable'}
+                      />
                     </section>
                     {live.result && (
                       <section className="panel">
@@ -1496,6 +1589,7 @@ function DashboardContent() {
                 )}
                 {tab === 'history' && (
                   <>
+                    {past && <DataFreshness archived generated={past.generated} />}
                     <div className="timeline">
                       {years.map((y) => (
                         <button
@@ -1675,6 +1769,7 @@ function DashboardContent() {
                     )}
                   </>
                 )}
+                {tab === 'municipality' && <MunicipalityExplorer initialUf={uf} />}
                 {tab === 'polls' && (
                   <>
                     <PollExplorer onNote={contextNote} />
@@ -1793,6 +1888,37 @@ function DashboardContent() {
           </footer>
         </main>
       </div>
+      {night === 'preview' && national && (
+        <ElectionNight
+          preview
+          result={national}
+          states={stateData}
+          points={[]}
+          onClose={closeNight}
+        />
+      )}
+      {night === 'live' && nightNational?.result && (
+        <ElectionNight
+          preview={false}
+          result={nightNational.result}
+          states={liveStates}
+          points={nightPoints}
+          checkedAt={nightNational.checkedAt}
+          unavailable={nightNational.status !== 'live'}
+          message={nightNational.victory?.message}
+          onClose={closeNight}
+        />
+      )}
+      {night === 'live' && !nightNational?.result && (
+        <div className="toast" role="status">
+          {nightNational?.status === 'unavailable'
+            ? 'Fonte indisponível. Tentaremos novamente.'
+            : 'Preparando a noite da apuração…'}
+          <button onClick={closeNight} aria-label="Cancelar abertura da noite da apuração">
+            <X size={16} />
+          </button>
+        </div>
+      )}
       {welcome && (
         <Onboarding
           nickname={nickname}

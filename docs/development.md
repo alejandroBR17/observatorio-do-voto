@@ -73,7 +73,25 @@ flowchart LR
 | `public/`                                               | Service worker, ícones, fontes, retratos e conjuntos de dados           |
 | `tests/`, `scripts/`                                    | Testes de comportamento, validação de dados e smoke test                |
 
-### Atualização dos dados
+### Municípios, locais e seções
+
+`/api/local-results` consulta o acervo presidencial do primeiro turno de 2026. `uf` é obrigatório. Sem município, retorna os nomes das cidades; `municipality` seleciona o município; `place` seleciona um local; `zone` e `section` selecionam um recorte eleitoral. Códigos são validados antes de qualquer acesso ao disco. O app não consulta títulos, identidades de eleitores ou votos individuais.
+
+O CSV nacional de votos por seção contém nome/endereço do local, zona e seção. Ele é importado explicitamente, nunca durante um build nem em uma requisição de usuário:
+
+```sh
+python scripts/import-local-results.py --zip caminho/votacao_secao_2026_BR.zip
+```
+
+Os índices em `data/local-results` são comprimidos por UF, totalizam cerca de 9 MB e são incluídos na função pela configuração `outputFileTracingIncludes`. O servidor mantém até três UFs na memória; clientes recebem somente a lista de cidades ou o município solicitado. O ZIP/CSV original permanece fora do Git. `manifest.json` registra origem, geração e importação. A fonte é o [Portal de Dados Abertos do TSE](https://dadosabertos.tse.jus.br/dataset/resultados-2026), com atribuição na interface.
+
+A importação separa candidatos válidos, brancos e nulos, incluindo votos de candidaturas canceladas na categoria de nulos conforme o EA20. A publicação é interrompida se os totais de qualquer UF divergirem. Os testes conferem cada candidato, brancos e nulos contra os 27 arquivos oficiais e rejeitam seções duplicadas. Zona faz parte da chave porque a numeração de seção pode se repetir em zonas diferentes.
+
+Este acervo é um retrato do turno indicado, não uma consulta em tempo real de locais/seções. Deve ser reimportado com o arquivo e regras apropriados para cada novo turno; locais e seções podem mudar. Não misture endereços do primeiro turno com votos de um turno posterior.
+
+`electionNightAvailable` libera o modo ao vivo somente a partir de 25/10/2026 às 17h de Brasília e com uma resposta oficial do segundo turno. Antes disso, a prévia usa o resultado final do primeiro turno, sem inventar uma progressão. A tela ampliada mantém foco, permite fechar com Escape e inclui alternativas textuais dos gráficos/mapas.
+
+### Fontes consultadas automaticamente
 
 Os endpoints e seus estados estão descritos em [Rotas do servidor](#rotas-do-servidor). O carregamento e o cache de prévias são compartilhados em `lib/article-preview.ts`.
 
@@ -103,21 +121,22 @@ Não há login, permissão de editor, edição de resultados oficiais ou colabor
 
 As rotas são usadas pelo próprio app; não constituem uma API pública com estabilidade contratual garantida. Executam no runtime Node.js. Consultas de dados retornam status e datas para que a interface diferencie espera, atualização e indisponibilidade.
 
-| Rota                       | Método            | Uso                                                                   |
-| -------------------------- | ----------------- | --------------------------------------------------------------------- |
-| `/api/live?uf=BR`          | GET               | Apuração nacional ou estadual; UF inválida retorna 400                |
-| `/api/polls`               | GET               | Pesquisas verificadas, publicações descobertas e estado de cada fonte |
-| `/api/media`               | GET               | Cobertura pública e notícias, com estado da coleta                    |
-| `/api/events`              | GET               | Último evento eleitoral persistido ou mensagem de ausência            |
-| `/api/article-image?url=…` | GET               | Prévia de imagem para URL permitida; entrada inválida retorna 400     |
-| `/api/push`                | GET               | Chave **pública** VAPID; banco indisponível retorna 503               |
-| `/api/push`                | POST              | Registra inscrição e categorias de alertas                            |
-| `/api/push`                | DELETE            | Remove inscrição e suas chaves pelo endpoint                          |
-| `/api/push/test`           | POST              | Envia teste ou consulta confirmação pelo service worker               |
-| `/api/push/receipt`        | POST              | Registra recebimento do teste pelo aparelho                           |
-| `/api/monitor`             | GET               | Consulta protegida para monitor externo                               |
-| `/api/socket`              | GET / upgrade     | Eventos de apuração por WebSocket na Vercel; em `next dev`, 426       |
-| `/api/rooms`               | GET, POST, DELETE | Compatibilidade com clientes antigos; recurso retirado, retorna 410   |
+| Rota                       | Método            | Uso                                                                                                         |
+| -------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------- |
+| `/api/live?uf=BR`          | GET               | Apuração nacional ou estadual; UF inválida retorna 400                                                      |
+| `/api/local-results?uf=SP` | GET               | Cidades, locais e seções do acervo oficial; filtros inválidos retornam 400 e recortes ausentes retornam 404 |
+| `/api/polls`               | GET               | Pesquisas verificadas, publicações descobertas e estado de cada fonte                                       |
+| `/api/media`               | GET               | Cobertura pública e notícias, com estado da coleta                                                          |
+| `/api/events`              | GET               | Último evento eleitoral persistido ou mensagem de ausência                                                  |
+| `/api/article-image?url=…` | GET               | Prévia de imagem para URL permitida; entrada inválida retorna 400                                           |
+| `/api/push`                | GET               | Chave **pública** VAPID; banco indisponível retorna 503                                                     |
+| `/api/push`                | POST              | Registra inscrição e categorias de alertas                                                                  |
+| `/api/push`                | DELETE            | Remove inscrição e suas chaves pelo endpoint                                                                |
+| `/api/push/test`           | POST              | Envia teste ou consulta confirmação pelo service worker                                                     |
+| `/api/push/receipt`        | POST              | Registra recebimento do teste pelo aparelho                                                                 |
+| `/api/monitor`             | GET               | Consulta protegida para monitor externo                                                                     |
+| `/api/socket`              | GET / upgrade     | Eventos de apuração por WebSocket na Vercel; em `next dev`, 426                                             |
+| `/api/rooms`               | GET, POST, DELETE | Compatibilidade com clientes antigos; recurso retirado, retorna 410                                         |
 
 ### Apuração
 

@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import {
   ArrowUpRight,
-  RefreshCw,
   Share2,
   Bell,
   MapPin,
@@ -18,6 +17,7 @@ import { candidates } from '@/lib/content';
 import { Disclosure, ExpandList } from './disclosure';
 import { useReading } from './reading';
 import { NewsVisual } from './news-visual';
+import { DataFreshness } from './components/data-freshness';
 import { Map } from './geo-map';
 import { Notebook } from './notebook';
 import { pollNumbers, type PollBasis } from '@/lib/poll-view';
@@ -276,12 +276,11 @@ export function PollOverview({ onExplore }: { onExplore: () => void }) {
           </p>
         </>
       )}
-      <div className="update-note">
-        <RefreshCw size={12} />
-        {data?.checkedAt
-          ? 'Fontes consultadas: ' + time(data.checkedAt)
-          : 'Atualização automática a cada 5 minutos'}
-      </div>
+      <DataFreshness
+        checkedAt={data?.checkedAt}
+        stale={data?.stale || data?.status === 'stale'}
+        unavailable={data?.status === 'unavailable'}
+      />
       <button className="text-button" onClick={onExplore}>
         Comparar pesquisas
         <ArrowUpRight size={15} />
@@ -318,14 +317,11 @@ export function PollExplorer({
           <h2>Intenções de voto.</h2>
           <p>Compare os institutos e o período das entrevistas.</p>
         </div>
-        <div className="update-note">
-          <RefreshCw size={15} />
-          <span>
-            Consulta a cada 5 min
-            <br />
-            {data?.checkedAt ? time(data.checkedAt) : 'Consultando fontes'}
-          </span>
-        </div>
+        <DataFreshness
+          checkedAt={data?.checkedAt}
+          stale={data?.stale || data?.status === 'stale'}
+          unavailable={data?.status === 'unavailable'}
+        />
       </section>
       {data?.stale || data?.status === 'stale' || data?.status === 'unavailable' ? (
         <div className="notice">
@@ -552,14 +548,11 @@ export function MediaExplorer() {
           <h2>O debate também acontece fora da urna.</h2>
           <p>Cobertura da imprensa por candidato, com links para as publicações originais.</p>
         </div>
-        <div className="update-note">
-          <RefreshCw size={15} />
-          <span>
-            Consulta do app
-            <br />
-            {data?.checkedAt ? time(data.checkedAt) : 'Consultando…'}
-          </span>
-        </div>
+        <DataFreshness
+          checkedAt={data?.checkedAt}
+          stale={data?.stale || data?.status === 'stale'}
+          unavailable={data?.status === 'unavailable'}
+        />
       </section>
       {data?.stats && (
         <div className="notice">

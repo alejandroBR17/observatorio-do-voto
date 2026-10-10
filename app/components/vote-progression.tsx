@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { formatPercent as pct } from '@/lib/presentation';
 export type ProgressionPoint = { id?: string; counted: number; lula: number; bolsonaro: number };
 export function Progression({
@@ -12,6 +12,7 @@ export function Progression({
   greenName?: string;
 }) {
   const [showAll, setShowAll] = useState(false);
+  const chartId = useId();
   const valid = points.filter((p) => [p.counted, p.lula, p.bolsonaro].every(Number.isFinite)),
     values = valid.flatMap((p) => [p.lula, p.bolsonaro]);
   const lower = values.length ? Math.max(0, Math.floor((Math.min(...values) - 2) / 5) * 5) : 40,
@@ -22,7 +23,19 @@ export function Progression({
       valid.map((p) => `${35 + p.counted * 6.1},${y(p[k])}`).join(' ');
   return (
     <>
-      <svg viewBox="0 0 680 230" role="img" aria-label={label} className="line-chart">
+      <svg
+        viewBox="0 0 680 230"
+        role="img"
+        aria-labelledby={`${chartId}-title`}
+        aria-describedby={`${chartId}-description`}
+        className="line-chart"
+      >
+        <title id={`${chartId}-title`}>{label}</title>
+        <desc id={`${chartId}-description`}>
+          {valid.length
+            ? `${valid.length} atualizações. No último registro: ${pct(valid.at(-1)!.counted)} das seções totalizadas, Lula ${pct(valid.at(-1)!.lula)} e ${greenName} ${pct(valid.at(-1)!.bolsonaro)}. A tabela abaixo contém todos os valores.`
+            : 'Ainda não há registros de apuração.'}
+        </desc>
         {Array.from({ length: 5 }, (_, i) => lower + (range * i) / 4).map((n) => (
           <g key={n}>
             <line x1="35" x2="645" y1={y(n)} y2={y(n)} stroke="var(--line)" strokeDasharray="3 5" />
@@ -31,14 +44,31 @@ export function Progression({
             </text>
           </g>
         ))}
-        <polyline points={line('lula')} fill="none" stroke="#c96856" strokeWidth="3" />
-        <polyline points={line('bolsonaro')} fill="none" stroke="#24796d" strokeWidth="3" />
+        <polyline
+          className="line-series-lula"
+          points={line('lula')}
+          fill="none"
+          stroke="#c96856"
+          strokeWidth="3"
+        />
+        <polyline
+          className="line-series-bolsonaro"
+          points={line('bolsonaro')}
+          fill="none"
+          stroke="#24796d"
+          strokeWidth="3"
+          strokeDasharray="8 4"
+        />
         {[0, 25, 50, 75, 100].map((n) => (
           <text key={n} x={35 + n * 6.1} y="215" textAnchor="middle">
             {n}% apurado
           </text>
         ))}
       </svg>
+      <div className="chart-legend">
+        <span>Linha contínua: Lula</span>
+        <span>Linha tracejada: {greenName}</span>
+      </div>
       <p className="fine">
         O gráfico mostra como a participação de cada candidato mudou durante a apuração. As linhas
         ligam os resultados divulgados.
@@ -56,11 +86,12 @@ export function Progression({
           aria-label="Valores da progressão de apuração"
         >
           <table>
+            <caption>{label}</caption>
             <thead>
               <tr>
-                <th>Seções totalizadas</th>
-                <th>Lula</th>
-                <th>{greenName}</th>
+                <th scope="col">Seções totalizadas</th>
+                <th scope="col">Lula</th>
+                <th scope="col">{greenName}</th>
               </tr>
             </thead>
             <tbody>

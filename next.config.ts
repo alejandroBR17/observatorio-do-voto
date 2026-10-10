@@ -1,8 +1,12 @@
 import type { NextConfig } from 'next';
 const config: NextConfig = {
   poweredByHeader: false,
+  agentRules: false,
   outputFileTracingRoot: process.cwd(),
   serverExternalPackages: ['@libsql/client'],
+  outputFileTracingIncludes: {
+    '/api/local-results': ['./data/local-results/*.json.gz'],
+  },
   async headers() {
     return [
       {

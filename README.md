@@ -10,11 +10,15 @@ Acompanhe as eleições presidenciais brasileiras em uma interface com mapas, gr
 
 - **Panorama:** visão geral da eleição e dos indicadores disponíveis.
 - **Histórico:** compare eleições anteriores, de 1989 a 2022, com filtros de ano, turno, estado e região.
+- **Seu município:** busque uma cidade e explore os votos presidenciais do primeiro turno de 2026 por escola, local de votação, zona ou seção. Os dados são coletivos e não revelam o voto de uma pessoa.
 - **Pesquisas:** consulte intenções de voto, datas, metodologia e fontes das pesquisas disponíveis.
 - **Apuração:** veja a contagem regressiva até 25/10 às 17h de Brasília e ative os alertas. Quando o TSE divulgar resultados, acompanhe os parciais com gráficos e atualização automática.
+
 - **Cobertura:** explore conteúdos públicos relacionados à eleição.
 - **Meu acompanhamento:** escolha estados no mapa ou pelo nome, compare seus resultados e use os atalhos para apuração e histórico. Escreva no caderno com salvamento automático; título, assunto e estado são opcionais.
 - **Perfil e alertas:** veja um resumo do seu espaço pessoal, escolha seu candidato preferido e ajuste notificações e tema.
+
+Na apuração, **Ver prévia com o 1º turno** apresenta a tela ampliada com resultados finais reais, claramente identificados. A noite da apuração ao vivo fica disponível após o início da divulgação do segundo turno. Mapas podem ser explorados pelo teclado ou pela tabela de estados; os gráficos de progressão também oferecem os valores em tabela.
 
 O menu pode ser aberto quando você precisar. Seções extensas têm controles para expandir e recolher informações. O tema acompanha o sistema do seu dispositivo por padrão; você pode escolher Claro ou Escuro no menu **Tema** da barra superior, e as transições respeitam a preferência de movimento reduzido do dispositivo.
 
