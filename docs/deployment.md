@@ -50,6 +50,14 @@ O projeto não cobra visitantes. Hospedagem e banco estão sujeitos aos termos e
 
 ## Diagnóstico
 
+### Estatísticas de acesso
+
+O componente `SiteAnalytics`, no layout raiz, integra `@vercel/analytics/next`. No projeto da Vercel, abra **Analytics → Enable** se a coleta ainda não estiver habilitada; a plataforma disponibiliza o script após o próximo deploy. O painel mostra visitantes e visualizações coletados a partir da ativação, sem recuperar acessos anteriores.
+
+A integração remove parâmetros e fragmentos das URLs e não envia preferências ou anotações locais. Não há eventos personalizados. Confira as [cotas do Web Analytics](https://vercel.com/docs/analytics/limits-and-pricing): o plano Hobby inclui uma franquia gratuita; outros planos podem cobrar por uso. O pacote não configura planos ou contrata adicionais.
+
+### Problemas comuns
+
 | Sintoma                       | Conferir                                                             |
 | ----------------------------- | -------------------------------------------------------------------- |
 | Push indisponível             | Par de variáveis do banco, acesso remoto e logs sem credenciais      |

@@ -91,6 +91,8 @@ Nome local, candidato preferido, estados seguidos, anotações, tema e aceite do
 
 As rotas de escrita verificam origem e validam inscrições. Prévias de artigos usam domínios permitidos, limites de resposta e verificação de redirecionamentos. Segredos não devem usar o prefixo `NEXT_PUBLIC_`.
 
+O layout inclui Vercel Web Analytics para métricas agregadas de acesso. `app/components/site-analytics.tsx` filtra eventos para visualizações e remove parâmetros e fragmentos da URL antes do envio. Não lê preferências, nome, candidato ou anotações do LocalStorage.
+
 ### Limites atuais e evolução
 
 O painel e o explorador ainda concentram várias telas; novas alterações devem continuar extraindo componentes e contratos tipados por domínio. Alguns adaptadores legados ainda usam tipos amplos para respostas externas. A normalização eleitoral e os componentes extraídos têm lint mais rigoroso; isso não substitui a revisão das demais fronteiras.

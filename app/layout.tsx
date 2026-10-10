@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SiteAnalytics } from './components/site-analytics';
 import './globals.css';
 import './redesign.css';
 import './motion.css';
@@ -77,7 +78,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <SiteAnalytics />
+      </body>
     </html>
   );
 }
