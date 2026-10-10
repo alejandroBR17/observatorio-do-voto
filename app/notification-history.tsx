@@ -128,15 +128,15 @@ export function NotificationHistory() {
           {confirmClear ? (
             <>
               <span>Apagar os avisos deste aparelho?</span>
-              <button className="text-button" disabled={busy} onClick={() => void refresh(true)}>
+              <button className="button danger" disabled={busy} onClick={() => void refresh(true)}>
                 Apagar histórico
               </button>
-              <button className="text-button" onClick={() => setConfirmClear(false)}>
+              <button className="button secondary" onClick={() => setConfirmClear(false)}>
                 Cancelar
               </button>
             </>
           ) : (
-            <button className="text-button" onClick={() => setConfirmClear(true)}>
+            <button className="text-button danger" onClick={() => setConfirmClear(true)}>
               <Trash2 size={14} aria-hidden="true" />
               Limpar histórico
             </button>

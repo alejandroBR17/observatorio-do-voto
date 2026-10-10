@@ -190,7 +190,7 @@ export function Notebook({
                     ? 'Editada em ' + new Date(active.updated).toLocaleString('pt-BR')
                     : 'Anotação recuperada do caderno anterior'}
                 </small>
-                <button className="text-button" onClick={remove}>
+                <button className="text-button danger" onClick={remove}>
                   <Trash2 size={14} />
                   Excluir anotação
                 </button>

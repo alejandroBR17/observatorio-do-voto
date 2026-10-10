@@ -25,6 +25,12 @@ Abra `http://localhost:3000`. Consulte a [arquitetura](#arquitetura) e o [guia d
 4. Execute `npm run format`, `npm run check` e `npm run build`.
 5. Abra um pull request explicando o problema, a solução e como verificou a mudança.
 
+### Ações na interface
+
+Os estilos compartilhados ficam em `app/actions.css`, após os estilos das telas. Use `.button.primary` para a ação principal (ativar alertas, salvar ou confirmar), `.button.secondary` para ações complementares e `.text-button` para navegação contextual ou ações discretas. Links no corpo de textos mantêm sua identificação própria; botões de ação não recebem sublinhado permanente. Exclusões usam `.danger` junto da classe da ação e mantêm confirmação ou possibilidade de desfazer.
+
+O componente `ShareButton` reúne compartilhar e copiar no mesmo controle, com áreas de toque de pelo menos 44 px e confirmação acessível. No celular, o rótulo visual fica curto, enquanto o nome acessível preserva o contexto do resultado. Não crie cópias desse controle nas telas. Navegação, filtros e cartões clicáveis mantêm estilos específicos para não parecerem ações de confirmação.
+
 ### Dados eleitorais
 
 - Resultados oficiais precisam manter fonte, eleição, turno e data identificáveis. Nunca substitua uma falha de consulta por números inventados ou zeros.

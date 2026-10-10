@@ -48,31 +48,46 @@ export function ShareButton({
   }
   return (
     <div className="share-control">
-      <button
-        className="text-button share-button"
-        onClick={() => void share()}
-        disabled={busy}
-        aria-label={`${label}: ${title}`}
-      >
-        {status === 'Link copiado.' ? (
-          <Check size={15} aria-hidden="true" />
-        ) : (
-          <Share2 size={15} aria-hidden="true" />
-        )}
-        {label}
-      </button>
-      {native && (
+      <div className="share-actions" role="group" aria-label={`Compartilhar: ${title}`}>
         <button
-          className="text-button copy-link-button"
-          title="Copiar link"
-          aria-label={`Copiar link: ${title}`}
-          onClick={() => void copy()}
+          type="button"
+          className="button secondary share-button"
+          onClick={() => void share()}
+          disabled={busy}
+          aria-label={`${label}: ${title}`}
         >
-          <Copy size={15} aria-hidden="true" />
+          {status === 'Link copiado.' ? (
+            <Check size={15} aria-hidden="true" />
+          ) : (
+            <Share2 size={15} aria-hidden="true" />
+          )}
+          <span className="share-label">{label}</span>
+          {label !== 'Compartilhar' && <span className="share-label-short">Compartilhar</span>}
         </button>
-      )}
-      <span className="share-feedback" role="status">
-        {status}
+        {native && (
+          <button
+            type="button"
+            className="button secondary copy-link-button"
+            disabled={busy}
+            title="Copiar link"
+            aria-label={`Copiar link: ${title}`}
+            onClick={() => void copy()}
+          >
+            {status === 'Link copiado.' ? (
+              <Check size={16} aria-hidden="true" />
+            ) : (
+              <Copy size={16} aria-hidden="true" />
+            )}
+          </button>
+        )}
+      </div>
+      <span className="share-feedback" role="status" aria-atomic="true">
+        {status && (
+          <>
+            {status === 'Link copiado.' && <Check size={14} aria-hidden="true" />}
+            {status}
+          </>
+        )}
       </span>
       {manual && (
         <input

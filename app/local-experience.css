@@ -1,40 +1,4 @@
 /* The existing civic identity, extended for local discovery and election night. */
-.share-control {
-  display: flex;
-  gap: 6px 12px;
-  flex-wrap: wrap;
-  align-items: center;
-  min-width: 0;
-}
-.share-control input {
-  width: 100%;
-  min-width: 0;
-}
-.share-button {
-  min-height: 44px;
-}
-.copy-link-button {
-  min-width: 44px;
-  min-height: 44px;
-  justify-content: center;
-}
-.share-feedback {
-  font-size: 12px;
-  color: var(--muted);
-}
-.news-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.news-actions > a {
-  min-height: 44px;
-}
-.news-card .news-actions .text-button {
-  font-size: 12px;
-}
 .news-card h3 a {
   display: block;
 }

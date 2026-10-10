@@ -951,7 +951,9 @@ function DashboardContent() {
             {error && (
               <div className="notice error">
                 {error}
-                <button onClick={() => location.reload()}>Tentar novamente</button>
+                <button className="button secondary" onClick={() => location.reload()}>
+                  Tentar novamente
+                </button>
               </div>
             )}
             {tab === 'overview' && (
