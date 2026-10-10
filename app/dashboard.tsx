@@ -969,7 +969,7 @@ function DashboardContent() {
                   <Clock size={12} />
                   {live.status === 'live' ? 'APURAÇÃO INICIADA' : 'AGUARDANDO VOTAÇÃO'}
                 </span>
-                <button onClick={() => go('live')}>
+                <button className="button secondary" onClick={() => go('live')}>
                   Acompanhar
                   <ArrowUpRight size={17} />
                 </button>
@@ -1621,6 +1621,7 @@ function DashboardContent() {
                       {years.map((y) => (
                         <button
                           className={year === y ? 'active' : ''}
+                          aria-pressed={year === y}
                           key={y}
                           onClick={() => {
                             setYear(y);

@@ -70,6 +70,7 @@ function worker() {
         'observatorio-offline-v4',
         'observatorio-offline-v5',
         'observatorio-offline-v6',
+        'observatorio-offline-v7',
         'another-app',
       ],
       delete: async (key: string) => {
@@ -129,7 +130,11 @@ test('service worker removes only its old caches and never caches live APIs', as
   ]);
   w.handlers.activate(w.base);
   await w.complete();
-  assert.deepEqual(w.deleted, ['observatorio-offline-v4', 'observatorio-offline-v5']);
+  assert.deepEqual(w.deleted, [
+    'observatorio-offline-v4',
+    'observatorio-offline-v5',
+    'observatorio-offline-v6',
+  ]);
   let intercepted = false;
   w.handlers.fetch({
     ...w.base,

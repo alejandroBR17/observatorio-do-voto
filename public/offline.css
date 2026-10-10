@@ -78,6 +78,22 @@ button {
   border-radius: 10px;
   font: inherit;
   cursor: pointer;
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.4;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
+}
+button:hover {
+  background: var(--muted);
+  color: var(--surface);
+}
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
 }
 button:focus-visible,
 a:focus-visible {

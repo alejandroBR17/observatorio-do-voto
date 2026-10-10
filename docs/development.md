@@ -31,6 +31,8 @@ Os estilos compartilhados ficam em `app/actions.css`, após os estilos das telas
 
 O componente `ShareButton` reúne compartilhar e copiar no mesmo controle, com áreas de toque de pelo menos 44 px e confirmação acessível. No celular, o rótulo visual fica curto, enquanto o nome acessível preserva o contexto do resultado. Não crie cópias desse controle nas telas. Navegação, filtros e cartões clicáveis mantêm estilos específicos para não parecerem ações de confirmação.
 
+Agrupe ações relacionadas em `.action-group`: elas ficam juntas e alinhadas, com espaço para a confirmação do compartilhamento. No acompanhamento, o resumo fica separado das ações; no celular, os dois controles ocupam linhas de mesma largura. Controles por ícone, seleção de ano/turno/base, cartões clicáveis, ações do caderno e atalhos do PWA compartilham altura mínima, foco e resposta ao toque, preservando suas funções. Use `aria-pressed` para seleções e um nome acessível para ações por ícone. Não aplique o estilo de botão principal a filtros ou cartões inteiros.
+
 ### Dados eleitorais
 
 - Resultados oficiais precisam manter fonte, eleição, turno e data identificáveis. Nunca substitua uma falha de consulta por números inventados ou zeros.

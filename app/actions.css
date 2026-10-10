@@ -1,4 +1,30 @@
 /* Shared action hierarchy; navigation, filters and whole-card triggers retain their layouts. */
+:root {
+  --control-height: 44px;
+  --control-radius: 10px;
+}
+/* Every button has a usable touch target, including context-styled controls. */
+button,
+[role='button'],
+.theme-item {
+  min-height: var(--control-height);
+  touch-action: manipulation;
+}
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+[role='button']:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.action-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
 .button {
   min-height: 44px;
   max-width: 100%;
@@ -150,7 +176,277 @@ a.text-button:hover {
 .local-tally > .share-control {
   margin-bottom: 16px;
 }
+/* Compact utility controls share a shape, without turning navigation into a primary CTA. */
+.icon-button,
+.follow-toggle,
+.local-search-input button,
+.toast button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--control-height);
+  height: var(--control-height);
+  min-width: var(--control-height);
+  padding: 10px;
+  border-radius: var(--control-radius);
+}
+.followed-card .icon-button {
+  width: var(--control-height);
+  height: var(--control-height);
+}
+.follow-toggle {
+  background: var(--surface);
+}
+.theme-button,
+.header-app,
+.menu-trigger,
+.header-alerts {
+  min-height: var(--control-height);
+  border-radius: var(--control-radius);
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+.header-app:hover:not(:disabled),
+.local-search-input button:hover,
+.toast button:hover {
+  background: var(--soft);
+}
+.avatar {
+  width: var(--control-height);
+  height: var(--control-height);
+  flex-shrink: 0;
+  border-radius: var(--control-radius);
+}
+/* Selection controls keep visible selected and hover states, including keyboard focus. */
+:is(.segmented, .basis-switch, .timeline, .state-chips) button {
+  min-width: var(--control-height);
+  border-radius: 8px;
+  line-height: 1.5;
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
+}
+:is(.segmented, .basis-switch, .timeline, .state-chips) button:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+:is(.segmented, .basis-switch, .timeline, .state-chips)
+  :is(button[aria-pressed='true'], button.selected, button.active, button.chosen) {
+  background: var(--ink);
+  color: var(--surface);
+}
+.state-name,
+.table-state {
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--ink);
+  text-align: start;
+}
+.state-name:hover,
+.table-state:hover,
+.state-name[aria-pressed='true'] {
+  background: var(--soft);
+  color: var(--green);
+}
+/* Clickable cards retain their content layout; only their interaction treatment is shared. */
+:is(
+    .profile-summary,
+    .pwa-launchers,
+    .preference-options,
+    .notebook-list,
+    .recent-list,
+    .local-search-results
+  )
+  button,
+.destination-card,
+.note-prompts button {
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+:is(
+    .profile-summary,
+    .pwa-launchers,
+    .preference-options,
+    .notebook-list,
+    .recent-list,
+    .local-search-results
+  )
+  button:hover:not(:disabled),
+.destination-card:hover,
+.note-prompts button:hover {
+  background: var(--soft);
+  border-color: var(--green);
+}
+.preference-options button.chosen,
+.notebook-list button.selected {
+  border-color: var(--green);
+}
+.note-prompts button {
+  font-size: 13px;
+  border-radius: var(--control-radius);
+}
+.recent-list button {
+  border: 1px solid var(--line);
+}
+.election-banner > .button {
+  padding: 10px 16px;
+  font-size: 13px;
+  gap: 8px;
+}
+.welcome-alerts {
+  min-height: var(--control-height);
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius);
+  background: var(--soft);
+  font-size: 13px;
+}
+.welcome-alerts:hover:not(:disabled) {
+  border-color: var(--green);
+}
+.disclosure-heading > span {
+  min-height: var(--control-height);
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--soft);
+}
+.expand-button:hover,
+.collapse-bottom:hover {
+  border-color: var(--green);
+}
+.followed-card .quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.quick-actions .text-button {
+  margin: 0;
+  justify-content: center;
+  background: var(--soft);
+}
+.watch-shortcuts {
+  justify-content: flex-start;
+  padding: 20px;
+  margin-top: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.watch-shortcuts > .watch-summary {
+  flex: 1 1 180px;
+}
+.watch-shortcuts > .action-group {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.watch-shortcuts .share-label {
+  display: inline;
+}
+.watch-shortcuts .share-label-short {
+  display: none;
+}
+.footer-links :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height);
+  padding: 8px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+.footer-links :is(a, button):hover {
+  background: var(--soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 @media (max-width: 640px) {
+  .election-banner {
+    flex-wrap: wrap;
+  }
+  .election-banner > .button {
+    width: 100%;
+    justify-content: center;
+  }
+  .welcome-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .welcome-actions :is(.button, .text-button) {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    font-size: 13px;
+  }
+  .watch-shortcuts {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .watch-shortcuts > .watch-summary {
+    flex: initial;
+    min-width: 0;
+  }
+  .watch-shortcuts > .action-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+  .action-group > .button,
+  .watch-shortcuts .share-control,
+  .watch-shortcuts .share-actions {
+    width: 100%;
+  }
+  .watch-shortcuts .share-button {
+    flex: 1;
+  }
+  .watch-shortcuts .share-button:has(.share-label-short) .share-label {
+    display: inline;
+  }
+  .local-scope-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .local-scope-buttons .button {
+    width: 100%;
+  }
+  .selected-state,
+  .note-editor-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .selected-state > .button {
+    width: 100%;
+    font-size: 13px;
+  }
+  .notebook .panel-head > .button {
+    width: 100%;
+  }
+  .profile-bottom-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .profile-bottom-actions > button {
+    grid-column: 1 / -1;
+  }
+  .profile-bottom-actions .text-button {
+    justify-content: center;
+    background: var(--soft);
+    text-align: center;
+  }
+  .night-header {
+    flex-wrap: wrap;
+  }
+  .night-controls {
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-start;
+  }
   .page-heading:has(> .share-control) {
     flex-direction: column;
     align-items: flex-start;
@@ -167,7 +463,9 @@ a.text-button:hover {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .text-button {
+  button,
+  .text-button,
+  .theme-item {
     transition: none;
   }
 }

@@ -1,5 +1,5 @@
 importScripts('/notification-store.js');
-const OFFLINE = 'observatorio-offline-v6';
+const OFFLINE = 'observatorio-offline-v7';
 const OFFLINE_ASSETS = ['/offline.html', '/offline.css', '/offline.js', '/app-icon.svg'];
 self.addEventListener('install', (event) =>
   event.waitUntil(

@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import {
   ArrowUpRight,
-  Share2,
   Bell,
   MapPin,
   Check,
@@ -839,26 +838,6 @@ export function Watchboard({
     setFollow((f) => (f.includes(code) ? f.filter((x) => x !== code) : [...f, code]));
     setFocus(code);
   }
-  async function share() {
-    const url = new URL(location.origin);
-    url.search = new URLSearchParams({
-      tab: 'overview',
-      uf,
-      region,
-      year: String(year),
-      turn: String(turn),
-    }).toString();
-    try {
-      if (navigator.share)
-        await navigator.share({ title: 'Observatório do Voto', url: url.toString() });
-      else {
-        await navigator.clipboard.writeText(url.toString());
-        setMessage('Link da visualização copiado.');
-      }
-    } catch {
-      setMessage('Compartilhamento não concluído.');
-    }
-  }
   const selected = states.find((s) => s[1] === focus),
     visible = states.filter(
       (s) =>
@@ -953,7 +932,11 @@ export function Watchboard({
             <div className="state-picker-list">
               {visible.map((s) => (
                 <div key={s[1]} className={focus === s[1] ? 'focused' : ''}>
-                  <button className="state-name" onClick={() => setFocus(s[1])}>
+                  <button
+                    className="state-name"
+                    aria-pressed={focus === s[1]}
+                    onClick={() => setFocus(s[1])}
+                  >
                     <span>{s[2]}</span>
                     <small>{s[3]}</small>
                   </button>
@@ -1060,20 +1043,33 @@ export function Watchboard({
         />
       )}
       <section className="watch-shortcuts">
-        <div>
+        <div className="watch-summary">
           <span className="eyebrow">SEU ACOMPANHAMENTO</span>
           <strong>
             {candidates.find((c) => c.number === favorite)?.name || 'Os dois candidatos'}
           </strong>
         </div>
-        <button className="button secondary" onClick={onAlerts}>
-          <Bell size={16} />
-          Escolher alertas
-        </button>
-        <button className="button secondary" onClick={share}>
-          <Share2 size={16} />
-          Compartilhar visualização
-        </button>
+        <div className="action-group" role="group" aria-label="Ações do acompanhamento">
+          <button className="button secondary" onClick={onAlerts}>
+            <Bell size={16} />
+            Escolher alertas
+          </button>
+          <ShareButton
+            label="Compartilhar visualização"
+            title="Observatório do Voto · visualização eleitoral"
+            url={() => {
+              const link = new URL(location.origin);
+              link.search = new URLSearchParams({
+                tab: 'overview',
+                uf,
+                region,
+                year: String(year),
+                turn: String(turn),
+              }).toString();
+              return link.toString();
+            }}
+          />
+        </div>
       </section>
       {message && (
         <div className="notice" role="status">
