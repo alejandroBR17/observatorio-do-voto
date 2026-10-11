@@ -250,15 +250,17 @@ function institute(title: string, fallback: string) {
           ? 'AtlasIntel'
           : /ipespe/i.test(title)
             ? 'Ipespe'
-            : /verit[aá]/i.test(title)
-              ? 'Veritá'
-              : /vox brasil/i.test(title)
-                ? 'Vox Brasil'
-                : /cnt\s*[/–-]?\s*mda/i.test(title)
-                  ? 'CNT/MDA'
-                  : /real time|realtime/i.test(title)
-                    ? 'Real Time Big Data'
-                    : fallback;
+            : /data\s*trends/i.test(title)
+              ? 'DataTrends'
+              : /verit[aá]/i.test(title)
+                ? 'Veritá'
+                : /vox brasil/i.test(title)
+                  ? 'Vox Brasil'
+                  : /cnt\s*[/–-]?\s*mda/i.test(title)
+                    ? 'CNT/MDA'
+                    : /real time|realtime/i.test(title)
+                      ? 'Real Time Big Data'
+                      : fallback;
 }
 export function parseRss(
   xml: string,
@@ -279,7 +281,7 @@ export function parseRss(
       !url ||
       !publishedAt ||
       !/^2026-/.test(publishedAt) ||
-      !/datafolha|poderdata|quaest|atlasintel|ipespe|verit[aá]|vox brasil|cnt\s*[/–-]?\s*mda|real time|realtime/i.test(
+      !/datafolha|poderdata|quaest|atlasintel|ipespe|data\s*trends|verit[aá]|vox brasil|cnt\s*[/–-]?\s*mda|real time|realtime/i.test(
         title,
       ) ||
       (!/lula|fl[aá]vio|presiden/i.test(title) && !nationalTracking)

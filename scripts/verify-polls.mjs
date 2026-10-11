@@ -45,6 +45,25 @@ assert.equal(reported.length, 1);
 assert.equal(reported[0].institute, 'Vox Brasil');
 assert.equal(reported[0].publisher, 'CNN Brasil');
 assert.equal(reported[0].flavio, undefined);
+for (const spelling of ['DataTrends', 'Data Trends']) {
+  const discovered = parseRss(
+    item(
+      `${spelling}: pesquisa de Lula e Flávio para presidente`,
+      'https://www.cnnbrasil.com.br/eleicoes/datatrends/',
+    ),
+    cnn,
+  );
+  assert.equal(discovered.length, 1);
+  assert.equal(discovered[0].institute, 'DataTrends');
+  assert.equal(discovered[0].flavio, undefined);
+}
+assert.equal(
+  parseRss(
+    item('DataTrends: pesquisa para governador', 'https://www.cnnbrasil.com.br/eleicoes/governo/'),
+    cnn,
+  ).length,
+  0,
+);
 assert.equal(
   parseRss(item('Datafolha: Lula &amp; Flávio na eleição', 'javascript:alert(1)'), src).length,
   0,

@@ -75,7 +75,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        <link rel="stylesheet" href="/assets/fonts.css" />
+        <link rel="stylesheet" href="/assets/fonts.css" precedence="fonts" />
         <script
           dangerouslySetInnerHTML={{
             __html:

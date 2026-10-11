@@ -18,6 +18,10 @@ for (const path of [
     const html = await response.text();
     assert.ok(html.includes('og-image.png'));
     assert.ok(html.includes('apple-touch-icon.png'));
+    assert.match(
+      html,
+      /<link\b(?=[^>]*href="\/assets\/fonts\.css")(?=[^>]*data-precedence="fonts")[^>]*>/,
+    );
   }
 }
 const invalid = await fetch(base + '/api/live?uf=INVALID');
