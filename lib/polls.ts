@@ -28,6 +28,26 @@ export type PollSnapshot = {
 };
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-03576/2026',
+    institute: 'DataTrends',
+    publishedAt: '2026-10-11T13:53:00-03:00',
+    fieldwork: '7 a 9/10/2026 · entrevistas telefônicas automatizadas (URA)',
+    sample: 2000,
+    margin: 2.19,
+    confidence: 95,
+    registration: 'BR-03576/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 53.1,
+    lula: 46.9,
+    source:
+      'https://static.poder360.com.br/uploads/2026/10/pesquisa-datatrends-nacional-11out2026.pdf',
+    mode: 'snapshot',
+    totalVotes: { flavio: 50, lula: 44, blankNull: 5, undecided: 1 },
+    note: 'Conferido no relatório original de 11/10: metodologia na página 2, intenção estimulada na página 12 e votos válidos na página 13. O resumo da página 4 diverge no percentual de indecisos; foram preservados os resultados do gráfico específico de intenção de voto. Horário conforme a publicação do Poder360.',
+  },
+  {
     id: 'BR-00933/2026',
     institute: 'Ipespe/ABRAPEL',
     publishedAt: '2026-10-10T11:24:33-03:00',
@@ -139,6 +159,16 @@ export type Publication = {
 // Newly located reporting stays in publications until the original numeric
 // report and its methodology have been checked. Never infer totals from a headline.
 const verifiedPublications: Publication[] = [
+  {
+    institute: 'DataTrends',
+    title: 'Flávio tem 53,1% e Lula tem 46,9% dos votos válidos, diz DataTrends',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-531-e-lula-tem-469-em-votos-validos-diz-datatrends/',
+    publishedAt: '2026-10-11T13:53:00-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-531-e-lula-tem-469-em-votos-validos-diz-datatrends/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
   {
     institute: 'Vox Brasil',
     title: 'Pesquisa Vox Brasil: Lula tem 44,2% e Flávio Bolsonaro, 42,7%, no 2º turno',

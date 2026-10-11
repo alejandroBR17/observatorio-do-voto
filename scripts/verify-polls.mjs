@@ -93,7 +93,7 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 5);
+assert.equal(pollSnapshots.length, 6);
 for (const p of pollSnapshots) {
   if (p.basis === 'valid') assert.equal(p.flavio + p.lula, 100);
   assert.equal(p.turn, 2);
@@ -115,6 +115,18 @@ assert.equal(parsePoderDataArticle(html(article), u, now).flavio, 53);
 const atlasSnapshot = pollSnapshots.find((p) => p.institute === 'AtlasIntel/Bloomberg');
 const ipespeSnapshot = pollSnapshots.find((p) => p.institute === 'Ipespe/ABRAPEL');
 const voxSnapshot = pollSnapshots.find((p) => p.institute === 'Vox Brasil');
+const dataTrendsSnapshot = pollSnapshots.find((p) => p.institute === 'DataTrends');
+assert.equal(dataTrendsSnapshot.registration, 'BR-03576/2026');
+assert.equal(dataTrendsSnapshot.flavio, 53.1);
+assert.equal(dataTrendsSnapshot.lula, 46.9);
+assert.equal(dataTrendsSnapshot.sample, 2000);
+assert.equal(dataTrendsSnapshot.margin, 2.19);
+assert.deepEqual(dataTrendsSnapshot.totalVotes, {
+  flavio: 50,
+  lula: 44,
+  blankNull: 5,
+  undecided: 1,
+});
 assert.equal(voxSnapshot.basis, 'total');
 assert.equal(voxSnapshot.registration, 'BR-09623/2026');
 assert.equal(voxSnapshot.flavio, 42.7);
