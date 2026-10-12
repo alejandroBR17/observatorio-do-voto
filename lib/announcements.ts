@@ -111,6 +111,7 @@ export async function dispatchRequestedAnnouncement(db: Database) {
       'Push storage diagnostics',
       JSON.stringify({
         scheme: url.split(':')[0],
+        host: new URL(url).hostname,
         source: process.env.TURSO_DATABASE_URL
           ? 'TURSO_DATABASE_URL'
           : 'STORAGE_TURSO_DATABASE_URL',
