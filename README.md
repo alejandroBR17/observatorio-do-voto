@@ -46,6 +46,12 @@ O app não oferece edição de resultados oficiais nem acesso ao engajamento ind
 
 ## Sugestões e contribuição
 
+Este é um projeto pessoal de Alejandro Cortes, desenvolvido com assistência de IA. Minha participação inclui a definição das funcionalidades, testes de uso e priorização de ajustes: navegação no celular, exploração do município, instalação do PWA e organização dos alertas. A implementação e a manutenção são acompanhadas por testes automatizados e verificações em produção; o uso de IA não substitui essas validações.
+
+As [decisões de produto e implementação](docs/development.md#decisões-e-evidências) explicam escolhas como a conferência das pesquisas, preferências locais e o monitoramento sem visitantes.
+
 Relate problemas ou sugestões em [Issues](https://github.com/alejandroBR17/observatorio-do-voto/issues), informando a tela, o comportamento esperado e o navegador. Não publique dados pessoais, tokens ou preferências políticas.
 
 Para trabalhar no código, consulte o [guia de desenvolvimento](docs/development.md). A hospedagem está no [guia de publicação](docs/deployment.md); atribuições e direitos de terceiros estão em [NOTICE.md](NOTICE.md), e relatos de vulnerabilidade seguem [SECURITY.md](SECURITY.md).
+
+O código original é disponibilizado sob a [licença MIT](LICENSE). Dados, fotografias, marcas e outros materiais de terceiros seguem as condições descritas nas atribuições.

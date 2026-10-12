@@ -45,7 +45,22 @@ Agrupe ações relacionadas em `.action-group`: elas ficam juntas e alinhadas, c
 
 Não coloque tokens, inscrições push, preferências políticas pessoais ou dados do banco em issues, capturas ou logs. Para vulnerabilidades, siga [SECURITY.md](../SECURITY.md).
 
-O repositório ainda não declara uma licença geral para o código. Consulte [NOTICE.md](../NOTICE.md) antes de redistribuir código ou recursos de terceiros.
+O código original é licenciado sob [MIT](../LICENSE). Consulte [NOTICE.md](../NOTICE.md) para as condições dos dados, imagens, fontes e demais recursos de terceiros.
+
+## Decisões e evidências
+
+Projeto pessoal de Alejandro Cortes, desenvolvido com assistência de IA e refinado a partir de testes de uso. A participação do responsável inclui definição do produto, priorização de funcionalidades e avaliação da experiência. A implementação assistida é verificada por testes, build e consultas na versão publicada; não é apresentada como trabalho inteiramente escrito sem assistência.
+
+| Escolha                                     | Motivo                                                               | Evidência e limite                                                                                          |
+| ------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Conferir pesquisas antes de incluir números | Datas previstas e manchetes não bastam para validar um levantamento. | `lib/polls/catalog.ts` mantém fontes e metodologia; nem todos os percentuais são coletados automaticamente. |
+| Manter preferências e notas no navegador    | Oferecer personalização sem criar perfis públicos.                   | `lib/notebook.ts` e `lib/remembered-city.ts`; não há sincronização dessas preferências entre aparelhos.     |
+| Usar monitor externo e fila persistente     | Consultar fontes e enviar alertas sem depender de uma aba aberta.    | `lib/monitor.ts` e `lib/push.ts`; frequência e entrega dependem das fontes, agenda e provedores.            |
+| Anunciar limite matemático de vitória       | Evitar tratar a ordem de apuração como amostra aleatória.            | `lib/elections.ts` e testes de vitória; resultado confirmado continua identificado pela fonte oficial.      |
+| Oferecer mapa e alternativa em tabela       | Permitir leitura e navegação sem depender apenas do mapa.            | Componentes de mapa e progressão; testes de servidor não comprovam toda a acessibilidade nos aparelhos.     |
+| Modularizar as telas e os contratos         | Facilitar manutenção após a evolução do produto.                     | `app/features` e `lib/polls/types.ts`; CI executa tipos, testes e build.                                    |
+
+As verificações automáticas cobrem casos específicos; não há declaração de cobertura de 100%, entrega push garantida ou probabilidade de vitória. O histórico de commits e o CI permitem acompanhar as alterações e seus resultados.
 
 ## Arquitetura
 

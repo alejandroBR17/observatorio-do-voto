@@ -12,4 +12,4 @@
 - Ícones de interface: Lucide (ISC). Os demais pacotes seguem suas próprias licenças disponíveis no npm.
 - Identidade visual e ícones do aplicativo: criados para este projeto.
 
-Este aviso não concede automaticamente licença de software livre ao código ou aos materiais de terceiros. O titular do projeto deve definir a licença do código conforme a distribuição pretendida.
+O código original e sua documentação são distribuídos sob a licença MIT, conforme [LICENSE](LICENSE). Dados públicos, textos, marcas, fotografias, fontes tipográficas e dependências de terceiros mantêm suas próprias condições de uso. A licença MIT do código não concede direitos sobre esses materiais nem substitui as atribuições acima.

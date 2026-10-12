@@ -13,6 +13,13 @@ updates:
       - dependency-name: '@types/node'
         update-types: [version-update:semver-major]
     groups:
+      # React and its renderer must be reviewed together.
+      react-runtime:
+        patterns:
+          - react
+          - react-dom
+          - '@types/react'
+          - '@types/react-dom'
       development:
         dependency-type: development
   - package-ecosystem: github-actions
