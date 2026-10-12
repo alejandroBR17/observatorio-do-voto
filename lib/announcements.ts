@@ -106,7 +106,7 @@ export async function dispatchRequestedAnnouncement(db: Database) {
   if (process.env.VERCEL_ENV !== 'production') return;
   return dispatchAnnouncement(db, {
     id: 'announcement:2026-10-12-daily-overview',
-    registeredBefore: Date.parse('2026-10-12T16:42:00Z'),
+    registeredBefore: Date.parse('2026-10-12T17:16:00Z'),
     expiresAt: Date.parse('2026-10-12T18:00:00Z'),
     types: [],
     title: 'Seu panorama eleitoral está atualizado',
