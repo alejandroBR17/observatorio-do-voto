@@ -43,6 +43,7 @@ test('announcement reaches existing opted-in devices once, excluding later insta
       return { statusCode: 201, body: '', headers: {} };
     };
     const report = await dispatchAnnouncement(db, notice, send);
+    assert.deepEqual(report?.audience, { registered: 3, withKeys: 3, eligible: 2 });
     await dispatchAnnouncement(db, notice, send);
     assert.deepEqual(sent, ['existing']);
     assert.deepEqual(report?.totals, [

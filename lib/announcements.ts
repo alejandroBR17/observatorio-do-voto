@@ -69,8 +69,15 @@ export async function dispatchAnnouncement(db: Database, notice: Announcement, s
       )
       .bind(notice.id)
       .all<{ status: string; count: number }>();
+    const audience = await db
+      .prepare(
+        'SELECT (SELECT count(*) FROM subscriptions) AS registered,count(*) AS withKeys,sum(CASE WHEN k.created<=? THEN 1 ELSE 0 END) AS eligible FROM subscriptions s JOIN subscription_keys k ON s.endpoint=k.endpoint',
+      )
+      .bind(notice.registeredBefore)
+      .first<{ registered: number; withKeys: number; eligible: number | null }>();
     const report = {
       id: notice.id,
+      audience,
       totals: totals.results,
       failures,
       checkedAt: new Date().toISOString(),
@@ -99,7 +106,7 @@ export async function dispatchRequestedAnnouncement(db: Database) {
   if (process.env.VERCEL_ENV !== 'production') return;
   return dispatchAnnouncement(db, {
     id: 'announcement:2026-10-12-daily-overview',
-    registeredBefore: Date.parse('2026-10-12T14:35:00Z'),
+    registeredBefore: Date.parse('2026-10-12T16:42:00Z'),
     expiresAt: Date.parse('2026-10-12T18:00:00Z'),
     types: [],
     title: 'Seu panorama eleitoral está atualizado',
