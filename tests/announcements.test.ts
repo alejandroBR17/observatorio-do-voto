@@ -3,7 +3,31 @@ import assert from 'node:assert/strict';
 import { createClient } from '@libsql/client';
 import { createDatabase } from '../lib/database';
 import { defaultAlerts } from '../lib/alerts';
-import { dispatchAnnouncement, type Announcement } from '../lib/announcements';
+import {
+  captureAnnouncementAudience,
+  dispatchAnnouncement,
+  type Announcement,
+} from '../lib/announcements';
+
+test('a repaired empty audience is captured once and later registrations remain excluded', async () => {
+  const client = createClient({ url: 'file::memory:' });
+  const db = createDatabase(client);
+  try {
+    assert.equal(await captureAnnouncementAudience(db, 'repaired', 100), 100);
+    assert.equal(
+      await db.prepare('SELECT updated FROM cache WHERE key=?').bind('audience:repaired').first(),
+      null,
+    );
+    await db.prepare('INSERT INTO subscriptions VALUES(?,?,?)').bind('first', '{}', 150).run();
+    await db.prepare('INSERT INTO subscription_keys VALUES(?,?,?)').bind('first', '{}', 150).run();
+    assert.equal(await captureAnnouncementAudience(db, 'repaired', 200), 200);
+    await db.prepare('INSERT INTO subscriptions VALUES(?,?,?)').bind('later', '{}', 250).run();
+    await db.prepare('INSERT INTO subscription_keys VALUES(?,?,?)').bind('later', '{}', 250).run();
+    assert.equal(await captureAnnouncementAudience(db, 'repaired', 300), 200);
+  } finally {
+    client.close();
+  }
+});
 
 test('announcement reaches existing opted-in devices once, excluding later installs and opt-outs', async () => {
   const client = createClient({ url: 'file::memory:' });

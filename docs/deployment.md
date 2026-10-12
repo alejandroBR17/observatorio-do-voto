@@ -14,6 +14,8 @@ Para executar localmente, consulte o [guia de desenvolvimento](development.md). 
 
 Variáveis novas exigem redeploy. As tabelas são criadas automaticamente na primeira operação; `npm run db:init` permite inicializá-las explicitamente. Use banco e inscrições separados em **Preview** e **Production**.
 
+Na conexão Turso/Vercel, habilite **Create database branch for deployment** somente para **Preview**. Produção deve usar o banco permanente: criar uma cópia a cada publicação perde as inscrições e gera novas chaves VAPID. Depois de corrigir essa opção, publique novamente e confira que a chave pública e os registros permanecem iguais após outro deploy. O cliente renova inscrições antigas ao reabrir o app, somente para aparelhos que já permitiram notificações.
+
 ## Variáveis de ambiente
 
 | Variável                                                  | Uso                                                               |

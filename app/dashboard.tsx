@@ -51,6 +51,7 @@ import { DataFreshness } from './components/data-freshness';
 import { MunicipalityExplorer } from './municipality-explorer';
 import { ShareButton } from './components/share-button';
 import { resultLink } from '@/lib/sharing';
+import { ensurePushSubscription } from '@/lib/push-subscription';
 import { ElectionNight } from './election-night';
 import { electionNightAvailable } from '@/lib/election-night';
 import { AppDock, InstallAction, PwaPanel, PwaProvider, usePwa } from './pwa';
@@ -418,7 +419,16 @@ function DashboardContent() {
     navigator.serviceWorker
       ?.register('/sw.js')
       .then(async (r) => {
-        const sub = await r?.pushManager?.getSubscription();
+        if (
+          typeof Notification === 'undefined' ||
+          Notification.permission !== 'granted' ||
+          !(await r.pushManager?.getSubscription())
+        )
+          return;
+        const keyResponse = await fetch('/api/push', { cache: 'no-store' });
+        const keyData = await keyResponse.json();
+        if (!keyResponse.ok || !keyData.publicKey) return;
+        const sub = await ensurePushSubscription(r, keyData.publicKey);
         if (!sub) return;
         let stored;
         try {
@@ -621,12 +631,13 @@ function DashboardContent() {
         throw new Error('Notificações não autorizadas. Verifique a permissão do navegador.');
       const reg = await navigator.serviceWorker.register('/sw.js');
       await navigator.serviceWorker.ready;
-      const raw = Uint8Array.from(atob(pushKey.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
-          c.charCodeAt(0),
-        ),
-        sub =
-          (await reg.pushManager.getSubscription()) ||
-          (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: raw }));
+      const keyResponse = await fetch('/api/push', { cache: 'no-store' });
+      const keyData = await keyResponse.json();
+      if (!keyResponse.ok || !keyData.publicKey)
+        throw Error('Não foi possível atualizar o serviço de notificações. Tente novamente.');
+      const sub = await ensurePushSubscription(reg, keyData.publicKey, true);
+      if (!sub) throw Error('Não foi possível registrar as notificações neste aparelho.');
+      setPushKey(keyData.publicKey);
       const res = await fetch('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

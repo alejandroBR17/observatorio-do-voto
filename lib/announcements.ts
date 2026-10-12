@@ -5,6 +5,31 @@ import { sendPush, type PushEvent } from './push';
 
 export type Announcement = PushEvent & { registeredBefore: number; expiresAt: number };
 
+export async function captureAnnouncementAudience(db: Database, id: string, now = Date.now()) {
+  const key = `audience:${id}`;
+  const previous = await db
+    .prepare('SELECT updated FROM cache WHERE key=?')
+    .bind(key)
+    .first<{ updated: number }>();
+  if (previous) return previous.updated;
+  const current = await db
+    .prepare(
+      'SELECT count(*) AS count FROM subscriptions s JOIN subscription_keys k ON s.endpoint=k.endpoint WHERE k.created<=?',
+    )
+    .bind(now)
+    .first<{ count: number }>();
+  // Do not freeze an empty audience while the owner repairs a missing opt-in.
+  if (!current?.count) return now;
+  await db
+    .prepare('INSERT OR IGNORE INTO cache(key,value,updated) VALUES(?,?,?)')
+    .bind(key, '', now)
+    .run();
+  return (await db
+    .prepare('SELECT updated FROM cache WHERE key=?')
+    .bind(key)
+    .first<{ updated: number }>())!.updated;
+}
+
 // Operational notices are invoked only by the authenticated monitor. They have a
 // fixed audience cutoff and expiry; they never masquerade as an election result.
 export async function dispatchAnnouncement(db: Database, notice: Announcement, send = sendPush) {
@@ -104,7 +129,13 @@ export async function dispatchAnnouncement(db: Database, notice: Announcement, s
 // One-off message explicitly requested by the owner on 12 October. Preview,
 // development, future installs and subsequent days must never trigger it.
 export async function dispatchRequestedAnnouncement(db: Database) {
-  if (process.env.VERCEL_ENV !== 'production') return;
+  const expiresAt = Date.parse('2026-10-13T02:59:59Z');
+  if (
+    process.env.VERCEL_ENV !== 'production' ||
+    Date.now() < Date.parse('2026-10-12T14:35:00Z') ||
+    Date.now() > expiresAt
+  )
+    return;
   if (Date.now() < Date.parse('2026-10-12T18:00:00Z')) {
     const { url } = databaseConfig();
     console.info(
@@ -123,8 +154,11 @@ export async function dispatchRequestedAnnouncement(db: Database) {
   }
   return dispatchAnnouncement(db, {
     id: 'announcement:2026-10-12-daily-overview',
-    registeredBefore: Date.parse('2026-10-12T17:16:00Z'),
-    expiresAt: Date.parse('2026-10-12T18:00:00Z'),
+    registeredBefore: await captureAnnouncementAudience(
+      db,
+      'announcement:2026-10-12-daily-overview',
+    ),
+    expiresAt,
     types: [],
     title: 'Seu panorama eleitoral está atualizado',
     body: 'Confira as notícias de 12/10, as pesquisas mais recentes e os resultados da sua cidade no Observatório do Voto.',
