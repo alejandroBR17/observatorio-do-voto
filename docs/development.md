@@ -58,7 +58,8 @@ flowchart LR
   UI --> Files[Arquivos históricos e mapa]
   API --> Sources[TSE, institutos e imprensa]
   API --> DB[(Turso / SQLite local)]
-  Monitor[GitHub Actions: monitor] --> API
+  Monitor[cron-job.org: consulta a cada 5 minutos] --> API
+  Fallback[GitHub Actions: monitor auxiliar] --> API
   DB --> Queue[Fila de notificações]
   Queue --> Push[Provedor Web Push]
   Push --> SW[Service worker do aparelho]
@@ -70,7 +71,7 @@ flowchart LR
 | ------------------------------------------------------- | ----------------------------------------------------------------------- |
 | `app/dashboard.tsx`                                     | Navegação, filtros e coordenação das telas                              |
 | `app/components/`                                       | Componentes de apresentação extraídos do painel                         |
-| `app/insights.tsx`, `app/user-space.tsx`                | Pesquisas, cobertura, acompanhamento, perfil e alertas                  |
+| `app/features/`, `app/user-space.tsx`                   | Telas de pesquisas, cobertura, acompanhamento, perfil e alertas         |
 | `app/api/`                                              | Fronteiras HTTP: entrada, origem, status e respostas                    |
 | `lib/elections.ts`                                      | Normalização de dados oficiais e limite matemático de vitória           |
 | `lib/polls.ts`, `lib/media.ts`, `lib/article-image.ts`  | Adaptadores de fontes, cache e prévias permitidas                       |
@@ -80,6 +81,17 @@ flowchart LR
 | `lib/notebook.ts`, `lib/poll-view.ts`                   | Validação do caderno e regras de cenários e bases das pesquisas         |
 | `public/`                                               | Service worker, ícones, fontes, retratos e conjuntos de dados           |
 | `tests/`, `scripts/`                                    | Testes de comportamento, validação de dados e smoke test                |
+
+### Separação de responsabilidades
+
+- `app/features/polls.tsx`, `coverage.tsx` e `watchboard.tsx` mantêm as telas por assunto. O painel importa cada tela diretamente, sem um arquivo que reúna todas as implementações.
+- `app/hooks/use-remote.ts` compartilha a consulta periódica, tentativas durante carregamento e preservação da última resposta em falhas. O hook recebe o contrato da API como parâmetro de tipo.
+- `lib/polls/types.ts` define os contratos das pesquisas e publicações para interface e servidor. `lib/media-types.ts` descreve a resposta pública da cobertura. Tipos não substituem a validação dos adaptadores externos.
+- `lib/polls/catalog.ts` reúne apenas levantamentos e publicações conferidos, com metodologia e fonte. A coleta, os parsers e o cache permanecem em `lib/polls.ts`.
+- `lib/presentation.ts` centraliza formatos de números e datas de Brasília. `Source` centraliza links externos, mantendo os tamanhos usados nas telas.
+- `app/shell.css` contém os estilos da identidade atual. A ordem de importação no layout faz parte da cascata e deve ser preservada.
+
+Ao adicionar uma pesquisa, confira o relatório original, preserve a base publicada e execute `npm run test:data`. Não transforme uma data prevista ou uma manchete em resultado numérico.
 
 ### Municípios, locais e seções
 

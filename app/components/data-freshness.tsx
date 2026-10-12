@@ -9,7 +9,7 @@ export function DataFreshness({
   stale = false,
   unavailable = false,
 }: {
-  checkedAt?: string;
+  checkedAt?: string | null;
   generated?: string;
   archived?: boolean;
   stale?: boolean;

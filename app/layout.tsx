@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SiteAnalytics } from './components/site-analytics';
 import './globals.css';
-import './redesign.css';
+import './shell.css';
 import './motion.css';
 import './onboarding.css';
 import './experience.css';

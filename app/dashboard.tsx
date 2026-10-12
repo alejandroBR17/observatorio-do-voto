@@ -29,7 +29,9 @@ import {
 } from 'lucide-react';
 import { normalize, states, Result } from '@/lib/elections';
 import { candidates, bioSource, years } from '@/lib/content';
-import { PollOverview, PollExplorer, MediaExplorer, Watchboard } from './insights';
+import { PollOverview, PollExplorer } from './features/polls';
+import { MediaExplorer } from './features/coverage';
+import { Watchboard } from './features/watchboard';
 import { Disclosure } from './disclosure';
 import { Profile, Alerts } from './user-space';
 import { usePresence, transitionPage, scrollBehavior } from './motion';
