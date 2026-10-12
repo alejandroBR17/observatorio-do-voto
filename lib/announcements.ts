@@ -1,4 +1,5 @@
-import type { Database } from './database';
+import { createHash } from 'node:crypto';
+import { databaseConfig, type Database } from './database';
 import { alertPreferences } from './alerts';
 import { sendPush, type PushEvent } from './push';
 
@@ -104,6 +105,21 @@ export async function dispatchAnnouncement(db: Database, notice: Announcement, s
 // development, future installs and subsequent days must never trigger it.
 export async function dispatchRequestedAnnouncement(db: Database) {
   if (process.env.VERCEL_ENV !== 'production') return;
+  if (Date.now() < Date.parse('2026-10-12T18:00:00Z')) {
+    const { url } = databaseConfig();
+    console.info(
+      'Push storage diagnostics',
+      JSON.stringify({
+        scheme: url.split(':')[0],
+        source: process.env.TURSO_DATABASE_URL
+          ? 'TURSO_DATABASE_URL'
+          : 'STORAGE_TURSO_DATABASE_URL',
+        identity: createHash('sha256').update(url).digest('hex'),
+        nodeEnvironment: process.env.NODE_ENV,
+        vercelRuntime: !!process.env.VERCEL,
+      }),
+    );
+  }
   return dispatchAnnouncement(db, {
     id: 'announcement:2026-10-12-daily-overview',
     registeredBefore: Date.parse('2026-10-12T17:16:00Z'),
