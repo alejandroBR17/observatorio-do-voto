@@ -81,7 +81,9 @@ export async function dispatchAnnouncement(db: Database, notice: Announcement, s
       )
       .bind(`report:${notice.id}`, JSON.stringify(report), Date.now())
       .run();
-    if (subscriptions.results.length) console.info('Push announcement', JSON.stringify(report));
+    // Expose only aggregate diagnostics during the bounded announcement window.
+    // This also makes a completed send auditable after short-lived logs expire.
+    console.info('Push announcement', JSON.stringify(report));
     return report;
   } finally {
     await db
