@@ -4,6 +4,7 @@ import { live } from './live';
 import { polls } from './polls';
 import { media } from './media';
 import { dispatchPush } from './push';
+import { dispatchRequestedAnnouncement } from './announcements';
 
 export function monitorAuthorized(actual: string | null, secret: string) {
   const wanted = `Bearer ${secret}`;
@@ -28,10 +29,18 @@ type Dependencies = {
   dispatchPush: (db: Database) => Promise<unknown>;
 };
 
+async function dispatchMonitoredPush(db: Database) {
+  try {
+    await dispatchRequestedAnnouncement(db);
+  } finally {
+    await dispatchPush(db);
+  }
+}
+
 // Collect independently: one failed source must not prevent the others or queue delivery.
 export async function runMonitor(
   db: Database,
-  dependencies: Dependencies = { live, polls, media, dispatchPush },
+  dependencies: Dependencies = { live, polls, media, dispatchPush: dispatchMonitoredPush },
 ) {
   const started = Date.now();
   const previous = await db
