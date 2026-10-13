@@ -236,6 +236,24 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.privacy-choice {
+  min-width: 0;
+  margin-block: 20px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.privacy-choice .terms-check {
+  margin: 0 0 10px;
+}
+.privacy-choice .fine {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.privacy-choice input:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 4px;
+}
 .welcome-actions {
   display: flex;
   justify-content: space-between;

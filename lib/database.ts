@@ -13,6 +13,7 @@ export const schema = [
   'CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL, updated INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS subscriptions (endpoint TEXT PRIMARY KEY NOT NULL, preferences TEXT NOT NULL, updated INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS subscription_keys (endpoint TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL, created INTEGER NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS subscription_consents (endpoint TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL, accepted INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS push_events (id TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL, created INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS push_deliveries (event_id TEXT NOT NULL, endpoint TEXT NOT NULL, status TEXT NOT NULL, updated INTEGER NOT NULL, attempts INTEGER NOT NULL, PRIMARY KEY(event_id,endpoint))',
 ];

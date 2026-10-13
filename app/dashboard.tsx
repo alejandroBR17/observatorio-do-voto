@@ -51,7 +51,9 @@ import { DataFreshness } from './components/data-freshness';
 import { MunicipalityExplorer } from './municipality-explorer';
 import { ShareButton } from './components/share-button';
 import { resultLink } from '@/lib/sharing';
-import { ensurePushSubscription } from '@/lib/push-subscription';
+import { ensurePushSubscription, disablePushSubscription } from '@/lib/push-subscription';
+import { pushAuthorization, privacyVersion } from '@/lib/privacy';
+import { readPrivacyChoice, savePrivacyChoice } from '@/lib/privacy-choices';
 import { ElectionNight } from './election-night';
 import { electionNightAvailable } from '@/lib/election-night';
 import { AppDock, InstallAction, PwaPanel, PwaProvider, usePwa } from './pwa';
@@ -89,6 +91,8 @@ function DashboardContent() {
   const { installed } = usePwa();
   const { setReading } = useReading();
   const [welcome, setWelcome] = useState(false),
+    [termsReviewOnly, setTermsReviewOnly] = useState(false),
+    [pushConsentAccepted, setPushConsentAccepted] = useState(false),
     [pushKey, setPushKey] = useState(''),
     [pushMessage, setPushMessage] = useState('Verificando serviço de notificações…');
   async function checkPush() {
@@ -263,13 +267,23 @@ function DashboardContent() {
     try {
       localStorage.setItem(
         'observatorio.terms',
-        JSON.stringify({ version: termsVersion, acceptedAt: new Date().toISOString() }),
+        JSON.stringify({
+          version: termsVersion,
+          noticeVersion: privacyVersion,
+          acceptedAt: new Date().toISOString(),
+        }),
       );
     } catch {
       notify('Não foi possível salvar a aceitação neste navegador.');
       return false;
     }
     if (!saveNickname(choices.nickname)) return false;
+    try {
+      savePrivacyChoice('analytics', choices.analytics);
+    } catch {
+      notify('Não foi possível salvar sua escolha de estatísticas neste navegador.');
+      return false;
+    }
     favoriteChange(choices.favorite);
     setReading(choices.details ? 'detailed' : 'essential');
     dismissWelcome();
@@ -395,7 +409,9 @@ function DashboardContent() {
     if (years.includes(Number(params.get('year')))) setYear(Number(params.get('year')));
     if (['1', '2'].includes(params.get('turn') || '')) setTurn(Number(params.get('turn')));
     setHydrated(true);
+    setPushConsentAccepted(!!readPrivacyChoice('push'));
     try {
+      setTermsReviewOnly(localStorage.getItem('observatorio.welcome') === '1');
       setWelcome(
         localStorage.getItem('observatorio.welcome') !== '1' ||
           JSON.parse(localStorage.getItem('observatorio.terms') || '{}').version !== termsVersion,
@@ -617,6 +633,10 @@ function DashboardContent() {
     others = Math.max(0, (national?.valid || 0) - (f?.votes || 0) - (l?.votes || 0));
   async function pushEnable() {
     try {
+      if (!pushConsentAccepted) {
+        if (tab !== 'alerts') go('alerts');
+        throw Error('Revise e marque a autorização de notificações em Alertas.');
+      }
       if (
         !('Notification' in window) ||
         !('serviceWorker' in navigator) ||
@@ -645,9 +665,15 @@ function DashboardContent() {
           endpoint: sub.endpoint,
           subscription: sub.toJSON(),
           preferences: prefs,
+          authorization: pushAuthorization,
         }),
       });
       if (!res.ok) throw new Error((await readJson(res)).error);
+      try {
+        savePrivacyChoice('push', true);
+      } catch {
+        notify('A autorização foi registrada no servidor, mas não pôde ser salva neste aparelho.');
+      }
       setNotification('Ativadas');
       save();
       notify('Notificações ativadas para as próximas atualizações.');
@@ -660,20 +686,26 @@ function DashboardContent() {
   }
   async function pushDisable() {
     try {
-      const reg = await navigator.serviceWorker.getRegistration('/sw.js'),
-        sub = await reg?.pushManager.getSubscription();
-      if (sub) {
-        await fetch('/api/push', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ endpoint: sub.endpoint }),
-        });
-        await sub.unsubscribe();
-      }
+      const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+      const result = reg
+        ? await disablePushSubscription(reg)
+        : { found: false, browserRemoved: true };
       setNotification('Desativadas');
-      notify('Notificações desativadas neste aparelho.');
-    } catch {
-      notify('Não foi possível desativar. Tente novamente.');
+      setPushConsentAccepted(false);
+      try {
+        savePrivacyChoice('push', false);
+      } catch {
+        /* Server removal already completed; local storage may be unavailable. */
+      }
+      notify(
+        !result.browserRemoved
+          ? 'Inscrição removida do servidor. Revogue também a permissão nas configurações do navegador.'
+          : result.found
+            ? 'Inscrição e registros associados removidos. Um aviso já em trânsito ainda pode chegar.'
+            : 'Este navegador não tem uma inscrição ativa.',
+      );
+    } catch (error) {
+      notify((error as Error).message || 'Não foi possível desativar. Tente novamente.');
     }
   }
   async function pushTest(): Promise<{ ok: boolean; message: string }> {
@@ -1099,6 +1131,7 @@ function DashboardContent() {
                 onWatch={() => go('watch')}
                 onCustomize={() => {
                   setMobile(false);
+                  setTermsReviewOnly(false);
                   setWelcome(true);
                 }}
                 notification={notification}
@@ -1113,6 +1146,8 @@ function DashboardContent() {
             {tab === 'alerts' && (
               <Alerts
                 notification={notification}
+                consentAccepted={pushConsentAccepted}
+                onConsent={setPushConsentAccepted}
                 prefs={prefs}
                 onPrefs={updateAlerts}
                 onEnable={pushEnable}
@@ -1963,6 +1998,9 @@ function DashboardContent() {
       {welcome && (
         <Onboarding
           nickname={nickname}
+          initialStep={termsReviewOnly ? 2 : 0}
+          consentAccepted={pushConsentAccepted}
+          onConsent={setPushConsentAccepted}
           favorite={favorite}
           onFinish={finishWelcome}
           onEnable={pushEnable}

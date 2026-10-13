@@ -2,6 +2,8 @@
 
 Este guia reúne instalação local, organização, contratos do servidor e verificação. Para publicar, consulte [deployment.md](deployment.md).
 
+Os controles de privacidade, retenção, atendimento e pendências de fornecedores e conteúdo estão na [revisão de privacidade](privacy-review.md). Mudanças em dados pessoais ou novas finalidades devem atualizar esse registro e os avisos públicos.
+
 ## Contribuir com o Observatório do Voto
 
 Correções de interface, acessibilidade, fontes e testes são bem-vindas. Antes de uma mudança grande, abra uma issue com o problema e uma proposta concreta.
@@ -156,7 +158,7 @@ Nome local, candidato preferido, estados seguidos, anotações, tema e aceite do
 
 As rotas de escrita verificam origem e validam inscrições. Prévias de artigos usam domínios permitidos, limites de resposta e verificação de redirecionamentos. Segredos não devem usar o prefixo `NEXT_PUBLIC_`.
 
-O layout inclui Vercel Web Analytics para métricas agregadas de acesso. `app/components/site-analytics.tsx` filtra eventos para visualizações e remove parâmetros e fragmentos da URL antes do envio. Não lê preferências, nome, candidato ou anotações do LocalStorage.
+O layout inclui Vercel Web Analytics para métricas agregadas de acesso, condicionado à autorização opcional versionada em `lib/privacy-choices.ts`. Sem autorização o componente não é montado. `app/components/site-analytics.tsx` confere a escolha também antes de enviar, filtra eventos para visualizações e remove parâmetros e fragmentos da URL. Não lê preferências, nome, candidato ou anotações do LocalStorage.
 
 ### Limites atuais e evolução
 

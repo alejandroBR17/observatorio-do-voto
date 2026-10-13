@@ -14,7 +14,7 @@ Para executar localmente, consulte o [guia de desenvolvimento](development.md). 
 
 Variáveis novas exigem redeploy. As tabelas são criadas automaticamente na primeira operação; `npm run db:init` permite inicializá-las explicitamente. Use banco e inscrições separados em **Preview** e **Production**.
 
-Na conexão Turso/Vercel, habilite **Create database branch for deployment** somente para **Preview**. Produção deve usar o banco permanente: criar uma cópia a cada publicação perde as inscrições e gera novas chaves VAPID. Depois de corrigir essa opção, publique novamente e confira que a chave pública e os registros permanecem iguais após outro deploy. O cliente renova inscrições antigas ao reabrir o app, somente para aparelhos que já permitiram notificações.
+O banco com inscrições reais está conectado somente a **Production**, sem **Create database branch for deployment**. Criar uma cópia a cada publicação perde as inscrições e gera novas chaves VAPID. Previews não devem clonar o banco de produção: use outro banco com registros de teste, ou mantenha os recursos de push indisponíveis no preview. Após mudanças na conexão, confira que a chave pública permanece igual no próximo deploy. Uma inscrição nova exige autorização explícita em Alertas; a sincronização técnica de uma inscrição existente não cria aceite retroativo.
 
 ## Variáveis de ambiente
 
@@ -66,7 +66,7 @@ O projeto não cobra visitantes. Hospedagem e banco estão sujeitos aos termos e
 
 O componente `SiteAnalytics`, no layout raiz, integra `@vercel/analytics/next`. No projeto da Vercel, abra **Analytics → Enable** se a coleta ainda não estiver habilitada; a plataforma disponibiliza o script após o próximo deploy. O painel mostra visitantes e visualizações coletados a partir da ativação, sem recuperar acessos anteriores.
 
-A integração remove parâmetros e fragmentos das URLs e não envia preferências ou anotações locais. Não há eventos personalizados. Confira as [cotas do Web Analytics](https://vercel.com/docs/analytics/limits-and-pricing): o plano Hobby inclui uma franquia gratuita; outros planos podem cobrar por uso. O pacote não configura planos ou contrata adicionais.
+A integração fica desligada até a autorização opcional nas boas-vindas ou no Perfil. A retirada interrompe novas visualizações, sem apagar automaticamente relatórios antigos. Remove parâmetros e fragmentos das URLs e não envia preferências ou anotações locais. Não há eventos personalizados. Confira as [cotas do Web Analytics](https://vercel.com/docs/analytics/limits-and-pricing): o plano Hobby inclui uma franquia gratuita; outros planos podem cobrar por uso. O pacote não configura planos ou contrata adicionais.
 
 ### Problemas comuns
 

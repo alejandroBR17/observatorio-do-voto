@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ensurePushSubscription } from '../lib/push-subscription';
+import { ensurePushSubscription, disablePushSubscription } from '../lib/push-subscription';
 
 function device(initial: Uint8Array | null, unsubscribeOk = true) {
   const actions: string[] = [];
   const subscription = (key: Uint8Array): PushSubscription =>
     ({
+      endpoint: 'https://fcm.googleapis.com/fcm/send/local-fixture',
       options: { applicationServerKey: key.buffer },
       unsubscribe: async () => {
         actions.push('unsubscribe');
@@ -39,6 +40,32 @@ test('existing subscription survives when its application key still matches', as
   const d = device(key(1));
   assert.equal(await ensurePushSubscription(d.registration, encoded(key(1))), d.existing);
   assert.deepEqual(d.actions, []);
+});
+
+test('failed server deletion never unsubscribes locally or reports success', async () => {
+  const d = device(key(1));
+  await assert.rejects(
+    disablePushSubscription(d.registration, async () => new Response('{}', { status: 503 })),
+    /servidor/,
+  );
+  assert.deepEqual(d.actions, []);
+});
+
+test('successful server deletion distinguishes a browser that could not unsubscribe', async () => {
+  const d = device(key(1), false);
+  const result = await disablePushSubscription(
+    d.registration,
+    async () => new Response('{}', { status: 200 }),
+  );
+  assert.deepEqual(result, { found: true, browserRemoved: false });
+  assert.deepEqual(d.actions, ['unsubscribe']);
+  const empty = device(null);
+  assert.deepEqual(
+    await disablePushSubscription(empty.registration, async () => {
+      throw Error('must not call server without an address');
+    }),
+    { found: false, browserRemoved: true },
+  );
 });
 test('a changed VAPID key renews an existing opt-in once across concurrent callers', async () => {
   const d = device(key(1));

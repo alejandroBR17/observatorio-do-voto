@@ -2,6 +2,8 @@ import { isSameOrigin } from '@/lib/request';
 import { env } from '@/lib/runtime';
 import { pushKeys, validEndpoint, validSubscription } from '@/lib/push';
 import { alertPreferences } from '@/lib/alerts';
+import { pushAuthorization, validPushAuthorization } from '@/lib/privacy';
+import { removePushRegistration } from '@/lib/push-storage';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -37,17 +39,60 @@ export async function POST(req: Request) {
   try {
     const db = env.DB;
     if (!db) return unavailable();
-    await db
+    const authorized = validPushAuthorization(body.authorization);
+    if (body.authorization !== undefined && !authorized)
+      return Response.json(
+        {
+          error: 'Revise a autorização de notificações antes de ativar.',
+          code: 'consent_required',
+        },
+        { status: 409 },
+      );
+    const existing = await db
+      .prepare('SELECT endpoint FROM subscription_keys WHERE endpoint=?')
+      .bind(body.endpoint)
+      .first();
+    if (!authorized && !existing)
+      return Response.json(
+        {
+          error: 'Revise a autorização em Alertas para registrar este aparelho.',
+          code: 'consent_required',
+        },
+        { status: 409 },
+      );
+    if (authorized) {
+      await db
+        .prepare(
+          'INSERT INTO subscription_consents(endpoint,value,accepted) VALUES(?,?,?) ON CONFLICT(endpoint) DO UPDATE SET value=excluded.value,accepted=excluded.accepted',
+        )
+        .bind(body.endpoint, JSON.stringify(pushAuthorization), Date.now())
+        .run();
+    }
+    const saved = await db
       .prepare(
-        'INSERT INTO subscriptions(endpoint,preferences,updated) VALUES(?,?,?) ON CONFLICT(endpoint) DO UPDATE SET preferences=excluded.preferences,updated=excluded.updated',
+        authorized
+          ? 'INSERT INTO subscriptions(endpoint,preferences,updated) VALUES(?,?,?) ON CONFLICT(endpoint) DO UPDATE SET preferences=excluded.preferences,updated=excluded.updated'
+          : 'UPDATE subscriptions SET preferences=?,updated=? WHERE endpoint=?',
       )
-      .bind(body.endpoint, JSON.stringify(alertPreferences(body.preferences)), Date.now())
+      .bind(
+        ...(authorized
+          ? [body.endpoint, JSON.stringify(alertPreferences(body.preferences)), Date.now()]
+          : [JSON.stringify(alertPreferences(body.preferences)), Date.now(), body.endpoint]),
+      )
       .run();
+    if (!saved.meta.changes)
+      return Response.json(
+        {
+          error: 'Esta inscrição foi removida. Revise a autorização para ativar novamente.',
+          code: 'consent_required',
+        },
+        { status: 409 },
+      );
     await db
       .prepare(
-        'INSERT INTO subscription_keys(endpoint,value,created) VALUES(?,?,?) ON CONFLICT(endpoint) DO UPDATE SET value=excluded.value',
+        'INSERT INTO subscription_keys(endpoint,value,created) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM subscriptions WHERE endpoint=?) ON CONFLICT(endpoint) DO UPDATE SET value=excluded.value',
       )
-      .bind(body.endpoint, JSON.stringify(body.subscription), Date.now())
+      .bind(body.endpoint, JSON.stringify(body.subscription), Date.now(), body.endpoint)
       .run();
     return Response.json({ ok: true });
   } catch {
@@ -62,8 +107,7 @@ export async function DELETE(req: Request) {
   try {
     const db = env.DB;
     if (!db) return unavailable();
-    await db.prepare('DELETE FROM subscriptions WHERE endpoint=?').bind(body.endpoint).run();
-    await db.prepare('DELETE FROM subscription_keys WHERE endpoint=?').bind(body.endpoint).run();
+    await removePushRegistration(db, body.endpoint);
     return Response.json({ ok: true });
   } catch {
     return unavailable();

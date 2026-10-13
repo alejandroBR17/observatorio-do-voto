@@ -16,6 +16,8 @@ import { ThemeMenu } from './theme-menu';
 import { AnalysisPreference } from './reading';
 import type { AlertPreferences } from '@/lib/alerts';
 import { NotificationHistory } from './notification-history';
+import { PrivacyControls } from './components/privacy-controls';
+import { PushConsent } from './components/privacy-consent';
 import { states } from '@/lib/elections';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
 type Prefs = AlertPreferences;
@@ -144,6 +146,10 @@ export function Profile({
             A escolha aparece no seu acompanhamento. Os resultados oficiais continuam iguais para
             todos.
           </p>
+          <p className="fine">
+            Escolha opcional: ao selecionar um candidato, você autoriza guardar esta preferência
+            política somente neste aparelho. Acompanhar os dois remove a escolha.
+          </p>
           <div className="preference-options">
             <button
               aria-pressed={!favorite}
@@ -177,6 +183,7 @@ export function Profile({
         </section>
       </div>
       <AnalysisPreference />
+      <PrivacyControls />
       {watch.states.length > 0 && (
         <section className="panel profile-following">
           <div className="panel-head">
@@ -224,6 +231,8 @@ export function Alerts({
   serviceMessage,
   onRetry,
   onTest,
+  consentAccepted,
+  onConsent,
 }: {
   notification: string;
   prefs: Prefs;
@@ -235,6 +244,8 @@ export function Alerts({
   serviceMessage: string;
   onRetry: () => void;
   onTest: () => Promise<{ ok: boolean; message: string }>;
+  consentAccepted: boolean;
+  onConsent: (accepted: boolean) => void;
 }) {
   const labels: [Exclude<keyof Prefs, 'frequency'>, string, string][] = [
     ['winner', 'Resultado confirmado', 'Quando o TSE informar o candidato eleito.'],
@@ -321,6 +332,16 @@ export function Alerts({
           )}
         </div>
       </section>
+      {!consentAccepted && (
+        <section className="panel" aria-label="Autorização das notificações">
+          <h2>Você decide como receber.</h2>
+          <PushConsent checked={consentAccepted} onChange={onConsent} />
+          <p className="fine">
+            Depois de autorizar, use Ativar notificações ou Atualizar inscrição acima. Aceitar os
+            Termos de Uso não ativa alertas.
+          </p>
+        </section>
+      )}
       <section className="push-test-panel panel">
         <div>
           <span className="eyebrow">CONFIRA A ENTREGA</span>

@@ -1,5 +1,23 @@
 const pending = new WeakMap<PushManager, Promise<PushSubscription | null>>();
 
+export async function disablePushSubscription(
+  registration: ServiceWorkerRegistration,
+  send: typeof fetch = fetch,
+) {
+  const subscription = await registration.pushManager.getSubscription();
+  if (!subscription) return { found: false, browserRemoved: true };
+  const response = await send('/api/push', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ endpoint: subscription.endpoint }),
+  });
+  if (!response.ok)
+    throw Error(
+      'Não foi possível remover a inscrição do servidor. Tente novamente com conexão ativa.',
+    );
+  return { found: true, browserRemoved: await subscription.unsubscribe() };
+}
+
 // Only renew an existing opt-in automatically. New opt-ins require the user's
 // explicit activation button; concurrent startup and button calls are serialized.
 export function ensurePushSubscription(

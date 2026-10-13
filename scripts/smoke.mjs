@@ -25,6 +25,20 @@ for (const path of [
   }
 }
 const invalid = await fetch(base + '/api/live?uf=INVALID');
+for (const path of ['/termos', '/privacidade']) {
+  const response = await fetch(base + path);
+  assert.equal(response.status, 200, path);
+  const html = await response.text();
+  assert.ok(html.includes('13 DE OUTUBRO DE 2026'), path);
+  assert.ok(html.includes('Alejandro Mateus Sobral Cortes'), path);
+  assert.ok(html.includes('mailto:ale.sobral.cortes@gmail.com'), path);
+  if (path === '/privacidade') {
+    assert.ok(html.includes('id="transferencias"'));
+    assert.ok(html.includes('id="estatisticas"'));
+  }
+}
+for (const path of ['/termos/versoes/2026-10-09', '/privacidade/versoes/2026-10-10'])
+  assert.equal((await fetch(base + path)).status, 200, path);
 assert.equal(invalid.status, 400);
 const live = await fetch(base + '/api/live');
 assert.equal(live.status, 200);

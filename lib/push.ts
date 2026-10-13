@@ -1,6 +1,7 @@
 import type { Database } from './database';
 import webpush from 'web-push';
-import { createHash } from 'node:crypto';
+import { cleanupPushRetention, removePushRegistration } from './push-storage';
+export { eventId } from './push-identifier';
 import { alertPreferences, frequencyWindow, priorityAlert, type AlertType } from './alerts';
 import { imageUrl } from './article-image';
 const b64 = (bytes: Uint8Array) =>
@@ -110,8 +111,6 @@ export function pushPayload(event: PushEvent) {
   }
   return payload;
 }
-export const eventId = (prefix: string, value: string) =>
-  prefix + ':' + createHash('sha256').update(value).digest('hex');
 export async function queuePush(db: Database, event: PushEvent) {
   await db
     .prepare('INSERT OR IGNORE INTO push_events(id,value,created) VALUES(?,?,?)')
@@ -138,6 +137,8 @@ export async function sendPush(
   });
 }
 export async function dispatchPush(db: Database, send = sendPush) {
+  // Run independently of the delivery lease and queue size, including quiet days.
+  await cleanupPushRetention(db);
   const now = Date.now(),
     lease = await db
       .prepare(
@@ -241,21 +242,14 @@ export async function dispatchPush(db: Database, send = sendPush) {
               } catch (e) {
                 const code = (e as { statusCode?: number }).statusCode;
                 if (code === 404 || code === 410) {
-                  await db
-                    .prepare('DELETE FROM subscriptions WHERE endpoint=?')
-                    .bind(sub.endpoint)
-                    .run();
-                  await db
-                    .prepare('DELETE FROM subscription_keys WHERE endpoint=?')
-                    .bind(sub.endpoint)
-                    .run();
+                  await removePushRegistration(db, sub.endpoint);
                   status = 'expired';
                 } else status = 'retry';
               }
             }
             await db
               .prepare(
-                'INSERT INTO push_deliveries(event_id,endpoint,status,updated,attempts) VALUES(?,?,?,?,?) ON CONFLICT(event_id,endpoint) DO UPDATE SET status=excluded.status,updated=excluded.updated,attempts=push_deliveries.attempts+excluded.attempts',
+                'INSERT INTO push_deliveries(event_id,endpoint,status,updated,attempts) SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM subscriptions WHERE endpoint=?) ON CONFLICT(event_id,endpoint) DO UPDATE SET status=excluded.status,updated=excluded.updated,attempts=push_deliveries.attempts+excluded.attempts',
               )
               .bind(
                 row.id,
@@ -263,19 +257,12 @@ export async function dispatchPush(db: Database, send = sendPush) {
                 status,
                 status === 'deferred' ? nextCheck : Date.now(),
                 ['retry', 'sent', 'expired'].includes(status) ? 1 : 0,
+                sub.endpoint,
               )
               .run();
           }),
         );
     }
-    await db
-      .prepare('DELETE FROM push_deliveries WHERE updated<?')
-      .bind(now - 172800000)
-      .run();
-    await db
-      .prepare('DELETE FROM push_events WHERE created<?')
-      .bind(now - 172800000)
-      .run();
   } finally {
     await db
       .prepare('UPDATE cache SET updated=0 WHERE key=? AND updated=?')

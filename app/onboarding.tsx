@@ -11,7 +11,14 @@ import {
 } from 'lucide-react';
 import { candidates } from '@/lib/content';
 import { useReading } from './reading';
-export type WelcomeChoices = { nickname: string; favorite: string; details: boolean };
+import { AnalyticsConsent, PushConsent } from './components/privacy-consent';
+import { readPrivacyChoice } from '@/lib/privacy-choices';
+export type WelcomeChoices = {
+  nickname: string;
+  favorite: string;
+  details: boolean;
+  analytics: boolean;
+};
 export function Onboarding({
   nickname,
   favorite,
@@ -20,6 +27,9 @@ export function Onboarding({
   notification,
   serviceReady,
   serviceMessage,
+  initialStep = 0,
+  consentAccepted,
+  onConsent,
 }: {
   nickname: string;
   favorite: string;
@@ -28,14 +38,19 @@ export function Onboarding({
   notification: string;
   serviceReady: boolean;
   serviceMessage: string;
+  initialStep?: number;
+  consentAccepted: boolean;
+  onConsent: (accepted: boolean) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null),
     { reading } = useReading();
-  const [step, setStep] = useState(0),
+  const [step, setStep] = useState(initialStep),
     [name, setName] = useState(nickname),
     [choice, setChoice] = useState(favorite),
     [details, setDetails] = useState(reading === 'detailed'),
     [accepted, setAccepted] = useState(false);
+  const [analytics, setAnalytics] = useState(false);
+  useEffect(() => setAnalytics(!!readPrivacyChoice('analytics')), []);
   const [supported, setSupported] = useState(false),
     [activating, setActivating] = useState(false),
     [message, setMessage] = useState('');
@@ -74,7 +89,12 @@ export function Onboarding({
       setMessage('Leia e aceite os Termos de Uso para continuar.');
       return;
     }
-    if (!onFinish({ nickname: name.trim().slice(0, 40), favorite: choice, details }, alerts))
+    if (
+      !onFinish(
+        { nickname: name.trim().slice(0, 40), favorite: choice, details, analytics },
+        alerts,
+      )
+    )
       setMessage('Não foi possível salvar. Verifique o armazenamento deste navegador.');
   }
   const titles = [
@@ -174,6 +194,10 @@ export function Onboarding({
                   Escolha quem acompanhar e quanto contexto prefere ver. Você pode editar tudo
                   depois, no perfil.
                 </p>
+                <p className="fine">
+                  Ao escolher um candidato, você autoriza guardar esta preferência política somente
+                  neste aparelho. A escolha é opcional e pode ser removida ao acompanhar os dois.
+                </p>
                 <div className="preference-options">
                   <button
                     aria-pressed={!choice}
@@ -263,9 +287,14 @@ export function Onboarding({
                     </strong>
                     <p>Novas pesquisas agora. Os principais momentos da apuração depois.</p>
                     {notification !== 'Ativadas' && (
+                      <PushConsent checked={consentAccepted} onChange={onConsent} />
+                    )}
+                    {notification !== 'Ativadas' && (
                       <button
                         className="button secondary"
-                        disabled={!accepted || !supported || !serviceReady || activating}
+                        disabled={
+                          !accepted || !consentAccepted || !supported || !serviceReady || activating
+                        }
                         onClick={activate}
                       >
                         {activating ? 'Ativando…' : 'Ativar notificações agora'}
@@ -280,6 +309,7 @@ export function Onboarding({
                     {serviceMessage && <p className="fine">{serviceMessage}</p>}
                   </div>
                 </div>
+                <AnalyticsConsent checked={analytics} onChange={setAnalytics} />
               </>
             )}
           </div>
