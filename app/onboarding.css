@@ -18,7 +18,7 @@
 .welcome-layout {
   display: grid;
   grid-template-columns: 0.85fr 1.15fr;
-  min-height: 610px;
+  min-height: 0;
 }
 .welcome-story {
   background: #14283d;
@@ -26,7 +26,8 @@
   padding: 35px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 24px;
   border-radius: 23px 0 0 23px;
 }
 .welcome-brand {
@@ -45,7 +46,7 @@
   margin-top: 3px;
 }
 .welcome-story-copy {
-  padding: 35px 0 24px;
+  padding: 0;
 }
 .welcome-story .eyebrow {
   color: #c9ae7f;
@@ -345,6 +346,7 @@
   }
   .welcome-story {
     padding: 20px 22px;
+    gap: 0;
     border-radius: 17px 17px 0 0;
   }
   .welcome-brand {
