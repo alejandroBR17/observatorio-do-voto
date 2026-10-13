@@ -1,11 +1,13 @@
 import { getDatabase } from '@/lib/database';
 import { isSameOrigin } from '@/lib/request';
 import { validEndpoint, eventId } from '@/lib/push';
+import { limitedJson } from '@/lib/json-request';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export async function POST(req: Request) {
   if (!isSameOrigin(req)) return Response.json({ error: 'Origem inválida' }, { status: 403 });
-  const body = await req.json().catch(() => null);
+  const body = await limitedJson(req);
+  if (body instanceof Response) return body;
   if (
     typeof body?.endpoint !== 'string' ||
     !validEndpoint(body.endpoint) ||

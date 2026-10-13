@@ -14,7 +14,7 @@ export function articleUrl(value: string) {
     return null;
   }
 }
-const imageHosts = [
+export const imageHosts = [
   ...articleHosts,
   'glbimg.com',
   'imguol.com.br',

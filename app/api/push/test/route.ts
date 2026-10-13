@@ -1,20 +1,26 @@
 import { randomUUID } from 'node:crypto';
 import { getDatabase } from '@/lib/database';
 import { isSameOrigin } from '@/lib/request';
-import { validEndpoint, eventId, sendPush } from '@/lib/push';
+import { validEndpoint, eventId, sendPush, pushKeys } from '@/lib/push';
+import { limitedJson } from '@/lib/json-request';
+import { limitPush } from '@/lib/push-rate-limit';
 import { pushTestFailure } from '@/lib/push-test-error';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 export async function POST(req: Request) {
   if (!isSameOrigin(req)) return Response.json({ error: 'Origem inválida' }, { status: 403 });
-  const body = await req.json().catch(() => null);
+  const body = await limitedJson(req);
+  if (body instanceof Response) return body;
   if (typeof body?.endpoint !== 'string' || !validEndpoint(body.endpoint))
     return Response.json({ error: 'Inscrição inválida' }, { status: 400 });
   let phase: 'storage' | 'delivery' = 'storage';
   try {
     const db = getDatabase();
     if (!db) throw Error();
+    const secret = process.env.CRON_SECRET || (await pushKeys(db)).private.d;
+    const blocked = await limitPush(db, req, body.check === true ? 'check' : 'test', secret);
+    if (blocked) return blocked;
     const row = await db
       .prepare('SELECT value FROM subscription_keys WHERE endpoint=?')
       .bind(body.endpoint)

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { privacyContact } from '@/lib/privacy';
+import { privacyContact, privacyVersion } from '@/lib/privacy';
 export const metadata = { title: 'Privacidade' };
 export default function Privacy() {
   return (
@@ -107,6 +107,15 @@ export default function Privacy() {
           solicitado, proteger sua disponibilidade e cumprir obrigações aplicáveis.
         </p>
         <p>
+          Para reduzir abuso de ativações e testes de notificações, o app utiliza o IP informado
+          pela hospedagem somente para gerar um identificador protegido com chave do servidor,
+          diferente a cada dia. Guarda contadores e horários, sem registrar o IP em texto ou
+          associá-los ao nome, candidato ou caderno. Esses registros são removidos após 24 horas
+          pela rotina de monitoramento; se houver interrupção, a limpeza aguarda a próxima execução
+          bem-sucedida. São controles necessários de segurança, separados das estatísticas
+          opcionais.
+        </p>
+        <p>
           Imagens de notícias podem ser carregadas diretamente dos veículos quando o cartão se
           aproxima da tela. Nesse caso, o fornecedor recebe uma requisição do navegador, incluindo
           informações técnicas, e aplicam-se também suas regras e as configurações do navegador. O
@@ -211,6 +220,7 @@ export default function Privacy() {
       <Link className="text-button" href="/termos">
         Ler os Termos de Uso →
       </Link>
+      <p className="fine">Identificador deste aviso: {privacyVersion}.</p>
     </main>
   );
 }

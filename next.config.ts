@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { contentSecurityPolicy } from './lib/csp';
 const config: NextConfig = {
   poweredByHeader: false,
   agentRules: false,
@@ -16,6 +17,19 @@ const config: NextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+      {
+        source: '/offline.html',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: contentSecurityPolicy(
+              null,
+              'https://observatorio-voto.vercel.app',
+              process.env.NODE_ENV === 'development',
+            ),
+          },
         ],
       },
       {

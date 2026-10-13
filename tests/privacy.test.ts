@@ -206,6 +206,28 @@ test('push routes require explicit new opt-in, preserve legacy records honestly 
     );
     assert.equal(await db.prepare('SELECT endpoint FROM subscriptions').first(), null);
     await removePushRegistration(db, subscription.endpoint);
+    assert.equal(
+      (await POST(request('POST', { ...body, authorization: pushAuthorization }))).status,
+      200,
+    );
+    const previousPreferences = await db.prepare('SELECT preferences FROM subscriptions').first();
+    await db.prepare("UPDATE cache SET value='120' WHERE key LIKE 'ratelimit:push:write:%'").run();
+    now += 1000;
+    const throttled = await POST(
+      request('POST', { ...body, preferences: { polls: false }, authorization: pushAuthorization }),
+    );
+    assert.equal(throttled.status, 429);
+    assert.ok(Number(throttled.headers.get('Retry-After')) > 0);
+    assert.deepEqual(
+      await db.prepare('SELECT preferences FROM subscriptions').first(),
+      previousPreferences,
+      'a blocked operation never updates the subscription',
+    );
+    assert.equal(
+      (await DELETE(request('DELETE', { endpoint: subscription.endpoint }))).status,
+      200,
+      'revocation remains available after rate limiting',
+    );
   } finally {
     Object.defineProperty(env, 'DB', original);
     client.close();

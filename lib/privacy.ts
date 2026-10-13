@@ -1,4 +1,4 @@
-export const privacyVersion = '2026-10-13';
+export const privacyVersion = '2026-10-13.2';
 export const pushConsentVersion = '2026-10-13-push';
 export const analyticsConsentVersion = '2026-10-13-analytics';
 export const privacyContact = {

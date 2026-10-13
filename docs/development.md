@@ -4,6 +4,18 @@ Este guia reúne instalação local, organização, contratos do servidor e veri
 
 Os controles de privacidade, retenção, atendimento e pendências de fornecedores e conteúdo estão na [revisão de privacidade](privacy-review.md). Mudanças em dados pessoais ou novas finalidades devem atualizar esse registro e os avisos públicos.
 
+### Proteção das notificações e do navegador
+
+`lib/push-rate-limit.ts` usa contadores atômicos no banco compartilhado, em janelas de 15 minutos. Por IP: 120 atualizações de inscrição, 30 novas inscrições, 30 solicitações de teste e 600 consultas de recibo. Novas inscrições têm também teto compartilhado de 300 por janela; testes, 200. O limite anterior de um teste por minuto por aparelho continua ativo. Esses limites protegem operações da API e não alteram a frequência escolhida para receber notícias. Cancelamentos não são bloqueados pelo limite de cadastro.
+
+Na Vercel, somente `x-vercel-forwarded-for` identifica o cliente; fora dela, o grupo local é usado. O IP não é gravado em texto: o identificador usa HMAC com segredo do servidor e muda diariamente. Reutiliza `CRON_SECRET`, ou o componente privado das chaves VAPID existentes no desenvolvimento, sem girar chaves ou criar uma credencial. Contadores expiram após 24 horas, removidos pelo monitor. Respostas 429 incluem `Retry-After`; falhas de armazenamento mantêm as operações protegidas indisponíveis. Redes compartilhadas dividem o limite e ataques distribuídos podem exigir proteção adicional na plataforma.
+
+`limitedJson` limita os corpos de inscrição, revogação, testes e recibos a 8 KiB, mesmo sem `Content-Length`. Excesso retorna 413. Não registra corpos, chaves ou endereços de inscrição.
+
+`proxy.ts` gera um nonce criptográfico novo para cada resposta HTML. O layout usa renderização dinâmica e o nonce tanto nos scripts do Next.js quanto no script de tema. HTML não é compartilhado pelo CDN; isso aumenta o processamento do servidor dentro das cotas do plano. Scripts de produção não permitem `unsafe-inline` ou `unsafe-eval`. Estilos inline permanecem permitidos para gráficos e controles; imagens ficam nos domínios aceitos pelo app, fontes e service worker no próprio site. O documento offline tem uma política própria para seus arquivos locais. A atualização do cache offline não apaga preferências ou anotações.
+
+Ao alterar scripts, domínios de imagem ou Analytics, testar o build de produção no navegador e conferir violações de CSP. Não testar limites enviando cadastros falsos ou cargas excessivas à produção: usar os testes com banco em memória. Não relaxar a CSP para esconder falhas de integração.
+
 ## Contribuir com o Observatório do Voto
 
 Correções de interface, acessibilidade, fontes e testes são bem-vindas. Antes de uma mudança grande, abra uma issue com o problema e uma proposta concreta.

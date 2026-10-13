@@ -237,7 +237,7 @@ export function Alerts({
   notification: string;
   prefs: Prefs;
   onPrefs: (next: Prefs) => void;
-  onEnable: () => void;
+  onEnable: () => Promise<{ ok: boolean; message: string }>;
   onDisable: () => void;
   onLive: () => void;
   serviceReady: boolean;
@@ -276,6 +276,16 @@ export function Alerts({
       'Novos links reunidos em um único aviso, respeitando o intervalo escolhido.',
     ],
   ];
+  const [activating, setActivating] = useState(false);
+  async function enable() {
+    if (activating) return;
+    setActivating(true);
+    try {
+      await onEnable();
+    } finally {
+      setActivating(false);
+    }
+  }
   const [testing, setTesting] = useState(false),
     [testFeedback, setTestFeedback] = useState(''),
     [testOk, setTestOk] = useState(false);
@@ -317,15 +327,20 @@ export function Alerts({
         <div className="alert-cta">
           <button
             className="button primary"
-            onClick={onEnable}
-            disabled={!supported || !serviceReady}
+            onClick={enable}
+            disabled={activating || !supported || !serviceReady}
+            aria-busy={activating}
           >
             <Bell size={16} />
-            {notification === 'Ativadas' ? 'Atualizar inscrição' : 'Ativar notificações'}
+            {activating
+              ? 'Aguarde…'
+              : notification === 'Ativadas'
+                ? 'Atualizar inscrição'
+                : 'Ativar notificações'}
           </button>
           {notification === 'Ativadas' && (
             <>
-              <button className="text-button" onClick={onDisable}>
+              <button className="text-button" onClick={onDisable} disabled={activating}>
                 Desativar neste aparelho
               </button>
             </>

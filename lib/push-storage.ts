@@ -1,5 +1,6 @@
 import type { Database } from './database';
 import { eventId } from './push-identifier';
+import { cleanupPushRateLimits } from './push-rate-limit';
 export const pushRetentionMs = 48 * 60 * 60 * 1000;
 
 export async function removePushRegistration(db: Database, endpoint: string) {
@@ -19,6 +20,7 @@ export async function removePushRegistration(db: Database, endpoint: string) {
 }
 
 export async function cleanupPushRetention(db: Database, now = Date.now()) {
+  await cleanupPushRateLimits(db, now);
   const before = now - pushRetentionMs;
   await db.prepare('DELETE FROM push_deliveries WHERE updated<?').bind(before).run();
   await db

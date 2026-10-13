@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { SiteAnalytics } from './components/site-analytics';
 import './globals.css';
 import './shell.css';
@@ -67,16 +68,18 @@ export const viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get('x-nonce') || undefined;
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <link rel="stylesheet" href="/assets/fonts.css" precedence="fonts" />
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html:
               "(()=>{let t='system';try{t=JSON.parse(localStorage.getItem('observatorio.preferences')||'{}').theme||'system'}catch{}document.documentElement.dataset.theme=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'})()",

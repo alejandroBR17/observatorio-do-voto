@@ -4,6 +4,8 @@ import { pushKeys, validEndpoint, validSubscription } from '@/lib/push';
 import { alertPreferences } from '@/lib/alerts';
 import { pushAuthorization, validPushAuthorization } from '@/lib/privacy';
 import { removePushRegistration } from '@/lib/push-storage';
+import { limitedJson } from '@/lib/json-request';
+import { limitPush } from '@/lib/push-rate-limit';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -26,9 +28,11 @@ export async function GET() {
 }
 export async function POST(req: Request) {
   if (!isSameOrigin(req)) return Response.json({ error: 'Origem inválida' }, { status: 403 });
-  const body = await req.json().catch(() => null);
+  const body = await limitedJson(req);
+  if (body instanceof Response) return body;
   if (
     !body ||
+    typeof body.endpoint !== 'string' ||
     !validSubscription(body.subscription) ||
     body.endpoint !== body.subscription.endpoint
   )
@@ -60,6 +64,11 @@ export async function POST(req: Request) {
         },
         { status: 409 },
       );
+    const secret = process.env.CRON_SECRET || (await pushKeys(db)).private.d;
+    const blocked =
+      (await limitPush(db, req, 'write', secret)) ||
+      (!existing ? await limitPush(db, req, 'signup', secret) : null);
+    if (blocked) return blocked;
     if (authorized) {
       await db
         .prepare(
@@ -101,7 +110,8 @@ export async function POST(req: Request) {
 }
 export async function DELETE(req: Request) {
   if (!isSameOrigin(req)) return Response.json({ error: 'Origem inválida' }, { status: 403 });
-  const body = await req.json().catch(() => null);
+  const body = await limitedJson(req);
+  if (body instanceof Response) return body;
   if (typeof body?.endpoint !== 'string' || !validEndpoint(body.endpoint))
     return Response.json({ error: 'Inscrição inválida.' }, { status: 400 });
   try {

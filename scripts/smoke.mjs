@@ -18,7 +18,20 @@ for (const path of [
   const response = await fetch(base + path);
   assert.equal(response.status, 200, path);
   if (path === '/') {
+    const csp = response.headers.get('content-security-policy') || '';
+    const nonce = csp.match(/'nonce-([^']+)'/)?.[1];
+    assert.ok(nonce, 'page requires a CSP nonce');
+    assert.ok(csp.includes("frame-ancestors 'none'"));
+    const scriptPolicy = csp
+      .split(';')
+      .find((directive) => directive.trim().startsWith('script-src'));
+    assert.ok(!scriptPolicy?.includes('unsafe-inline') && !scriptPolicy?.includes('unsafe-eval'));
     const html = await response.text();
+    for (const [script] of html.matchAll(/<script\b[^>]*>/g))
+      assert.ok(
+        script.includes(`nonce="${nonce}"`),
+        'framework and theme scripts use the current nonce',
+      );
     assert.ok(html.includes('og-image.png'));
     assert.ok(html.includes('apple-touch-icon.png'));
     assert.match(
@@ -27,6 +40,15 @@ for (const path of [
     );
   }
 }
+const secondPage = await fetch(base + '/');
+assert.notEqual(
+  secondPage.headers.get('content-security-policy'),
+  (await fetch(base + '/')).headers.get('content-security-policy'),
+  'each request uses a fresh nonce',
+);
+const offlineDocument = await fetch(base + '/offline.html');
+assert.equal(offlineDocument.status, 200);
+assert.ok(offlineDocument.headers.get('content-security-policy')?.includes("script-src 'self'"));
 const invalid = await fetch(base + '/api/live?uf=INVALID');
 for (const path of ['/termos', '/privacidade']) {
   const response = await fetch(base + path);
