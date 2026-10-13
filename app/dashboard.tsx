@@ -1956,6 +1956,7 @@ function DashboardContent() {
             <div className="footer-links">
               <a href="/termos">Termos de Uso</a>
               <a href="/privacidade">Privacidade</a>
+              <a href="/creditos">Créditos</a>
               <button onClick={() => go('social')}>
                 Fontes e metodologia
                 <ArrowUpRight size={12} />

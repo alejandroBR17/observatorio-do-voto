@@ -88,6 +88,9 @@ export default function Terms() {
           publicações e demais materiais de terceiros. Pedidos fundamentados de correção ou retirada
           podem ser enviados ao contato acima, com o link e a descrição do problema.
         </p>
+        <p>
+          <Link href="/creditos">Consultar os créditos das imagens e suas licenças.</Link>
+        </p>
       </section>
       <section>
         <h2>Disponibilidade e responsabilidade</h2>

@@ -209,6 +209,9 @@ export function MediaExplorer() {
               e Agência Brasil. Mantemos até 12 matérias por veículo, em ordem de publicação, sem
               reproduzir o texto integral.
             </p>
+            <Link iconSize={13} href="/creditos">
+              Créditos de imagens e licenças
+            </Link>
           </div>
         </div>
         <div className="source-health">

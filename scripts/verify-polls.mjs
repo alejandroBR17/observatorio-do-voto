@@ -99,19 +99,41 @@ for (const p of pollSnapshots) {
   assert.equal(p.turn, 2);
   assert.match(p.registration, /^BR-\d{5}\/2026$/);
   assert.equal(p.mode, 'snapshot');
+  assert.ok(p.contractor?.trim(), `${p.registration}: contractor required for disclosure`);
+  assert.ok(p.confidence > 0 && p.confidence <= 100, `${p.registration}: confidence required`);
 }
 const article = {
   '@type': 'NewsArticle',
   headline: 'Flávio tem 53% contra 47% de Lula no 2º turno, diz pesquisa PoderData/Aya',
   datePublished: '2026-10-08T07:30:00-03:00',
   articleBody:
-    'Pesquisa PoderData/Aya mostra Flávio Bolsonaro à frente no 2º turno à Presidência da República. No embate com Lula, o congressista tem 53% dos votos válidos, ante 47% do petista.\n\nO levantamento, realizado de 5 a 7 de outubro, ouviu eleitores. Foram 3.000 entrevistas nas 27 unidades da Federação. A margem de erro é de 1,8 ponto percentual. O intervalo de confiança é de 95%. BR-08134/2026.',
+    'Pesquisa PoderData/Aya mostra Flávio Bolsonaro à frente no 2º turno à Presidência da República. No embate com Lula, o congressista tem 53% dos votos válidos, ante 47% do petista.\n\nO levantamento, realizado de 5 a 7 de outubro, ouviu eleitores. Foram 3.000 entrevistas nas 27 unidades da Federação. A margem de erro é de 1,8 ponto percentual. O intervalo de confiança é de 95%. BR-08134/2026. A pesquisa foi realizada pelo PoderData, empresa do grupo Poder360 Jornalismo, com recursos próprios.',
 };
 const html = (a) =>
   `<script type="application/ld+json">${JSON.stringify({ '@graph': [a] })}</script>`;
 const u = pollSnapshots.find((p) => p.institute === 'PoderData/Aya').source;
 const now = Date.parse('2026-10-08T23:59:00-03:00');
 assert.equal(parsePoderDataArticle(html(article), u, now).flavio, 53);
+assert.match(parsePoderDataArticle(html(article), u, now).contractor, /recursos próprios/);
+for (const confidence of ['0%', '101%'])
+  assert.equal(
+    parsePoderDataArticle(
+      html({ ...article, articleBody: article.articleBody.replace('95%', confidence) }),
+      u,
+      now,
+    ),
+    null,
+  );
+for (const omitted of ['O intervalo de confiança é de 95%.', 'com recursos próprios.'])
+  assert.equal(
+    parsePoderDataArticle(
+      html({ ...article, articleBody: article.articleBody.replace(omitted, '') }),
+      u,
+      now,
+    ),
+    null,
+    'Incomplete disclosure remains a publication rather than a numeric poll',
+  );
 const atlasSnapshot = pollSnapshots.find((p) => p.institute === 'AtlasIntel/Bloomberg');
 const ipespeSnapshot = pollSnapshots.find((p) => p.institute === 'Ipespe/ABRAPEL');
 const voxSnapshot = pollSnapshots.find((p) => p.institute === 'Vox Brasil');

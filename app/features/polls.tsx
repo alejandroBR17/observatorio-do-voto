@@ -98,6 +98,13 @@ function PollCard({
         </span>
       </div>
       <p className="fine">Entrevistas: {poll.fieldwork || 'período não informado'}</p>
+      <p className="fine">
+        Contratante: {poll.contractor || 'Ainda não confirmado na fonte original'}.
+      </p>
+      <p className="fine">
+        Confiança: {poll.confidence != null ? poll.confidence + '%' : 'Não informada'} · Registro:{' '}
+        {poll.registration || 'Não identificado'}.
+      </p>
       <details className="inline-details" key={reading} open={reading === 'detailed'}>
         <summary>Detalhes da pesquisa</summary>
         <p className="fine">
@@ -129,23 +136,24 @@ function PollCard({
             )}
           </p>
         )}
-        <p className="fine">
-          Registro: {poll.registration || 'Não identificado'}. Nível de confiança:{' '}
-          {poll.confidence != null ? poll.confidence + '%' : 'Não informado'}.{' '}
-          {numbers && (
-            <>
-              Diferença entre os candidatos:{' '}
-              {Math.abs(poll.flavio - poll.lula).toLocaleString('pt-BR', {
-                maximumFractionDigits: 1,
-              })}{' '}
-              pontos percentuais.
-            </>
-          )}
-        </p>
+        {numbers && (
+          <p className="fine">
+            Diferença entre os candidatos:{' '}
+            {Math.abs(poll.flavio - poll.lula).toLocaleString('pt-BR', {
+              maximumFractionDigits: 1,
+            })}{' '}
+            pontos percentuais.
+          </p>
+        )}
         {poll.mode === 'snapshot' && poll.note && <p className="fine">{poll.note}</p>}
         <Link iconSize={13} href={poll.source}>
           Publicação e metodologia
         </Link>
+        {poll.metadataSource && poll.metadataSource !== poll.source && (
+          <Link iconSize={13} href={poll.metadataSource}>
+            {poll.registryCheckedAt ? 'Registro consultado no TSE' : 'Fonte da ficha da pesquisa'}
+          </Link>
+        )}
       </details>
       {onNote && (
         <button
@@ -326,6 +334,7 @@ export function PollExplorer({
                   <th>Amostra</th>
                   <th>Confiança</th>
                   <th>Registro</th>
+                  <th>Contratante</th>
                   <th>Origem</th>
                 </tr>
               </thead>
@@ -355,6 +364,7 @@ export function PollExplorer({
                     <td>{p.sample?.toLocaleString('pt-BR') || 'Não informada'}</td>
                     <td>{p.confidence != null ? p.confidence + '%' : 'Não informado'}</td>
                     <td>{p.registration || 'Não identificado'}</td>
+                    <td>{p.contractor || 'Não confirmado'}</td>
                     <td>
                       <Link iconSize={13} href={p.source}>
                         Consultar

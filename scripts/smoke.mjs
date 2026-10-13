@@ -11,6 +11,9 @@ for (const path of [
   '/og-image.png',
   '/sw.js',
   '/data/brazil.json',
+  '/assets/flavio.jpeg',
+  '/assets/lula.jpeg',
+  '/assets/licenses/candidate-portraits.json',
 ]) {
   const response = await fetch(base + path);
   assert.equal(response.status, 200, path);
@@ -39,6 +42,12 @@ for (const path of ['/termos', '/privacidade']) {
 }
 for (const path of ['/termos/versoes/2026-10-09', '/privacidade/versoes/2026-10-10'])
   assert.equal((await fetch(base + path)).status, 200, path);
+const credits = await fetch(base + '/creditos');
+assert.equal(credits.status, 200);
+const creditsHtml = await credits.text();
+assert.ok(creditsHtml.includes('Carlos Moura'));
+assert.ok(creditsHtml.includes('Ricardo Stuckert'));
+assert.ok(creditsHtml.includes('CC BY-SA 4.0'));
 assert.equal(invalid.status, 400);
 const live = await fetch(base + '/api/live');
 assert.equal(live.status, 200);

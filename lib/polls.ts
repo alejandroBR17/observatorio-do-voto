@@ -268,13 +268,25 @@ export function parsePoderDataArticle(
         registrations.length !== 1 ||
         !sample ||
         !margin ||
+        !confidence ||
+        !/A pesquisa foi realizada pelo PoderData, empresa do grupo Poder360 Jornalismo, com recursos pr[oó]prios\./i.test(
+          body,
+        ) ||
         !fieldwork ||
         !/27 unidades da Federa[cç][aã]o/.test(body)
       )
         continue;
       const sampleN = Number(sample[1].replace(/\./g, '')),
         marginN = Number(margin[1].replace(',', '.'));
-      if (sampleN < 100 || sampleN > 1000000 || marginN <= 0 || marginN > 10) continue;
+      if (
+        sampleN < 100 ||
+        sampleN > 1000000 ||
+        marginN <= 0 ||
+        marginN > 10 ||
+        Number(confidence[1]) <= 0 ||
+        Number(confidence[1]) > 100
+      )
+        continue;
       return {
         id: registrations[0],
         institute: 'PoderData/Aya',
@@ -282,7 +294,8 @@ export function parsePoderDataArticle(
         fieldwork: `${fieldwork[1]} a ${fieldwork[2]} de ${fieldwork[3]} de 2026`,
         sample: sampleN,
         margin: marginN,
-        confidence: confidence ? Number(confidence[1]) : null,
+        confidence: Number(confidence[1]),
+        contractor: 'PoderData — recursos próprios; Aya é parceira de divulgação',
         registration: registrations[0],
         scope: 'Brasil',
         turn: 2,
@@ -312,7 +325,7 @@ export function polls(db?: Database): Promise<any> {
   return pending;
 }
 async function collectPolls(db?: Database) {
-  const key = 'polls:publications:v5';
+  const key = 'polls:publications:v6';
   const stored = db
     ? await db
         .prepare('SELECT value, updated FROM cache WHERE key=?')
@@ -334,7 +347,7 @@ async function collectPolls(db?: Database) {
         .prepare(
           'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?',
         )
-        .bind('lease:polls:v5', '', Date.now(), Date.now() - 30000)
+        .bind('lease:polls:v6', '', Date.now(), Date.now() - 30000)
         .run()
     : { meta: { changes: 1 } };
   if (!lease.meta.changes)
@@ -456,7 +469,7 @@ async function collectPolls(db?: Database) {
     ...new Map(
       [
         ...pollSnapshots,
-        ...priorPolls.filter((p) => p.mode === 'automatic'),
+        ...priorPolls.filter((p) => p.mode === 'automatic' && p.contractor && p.confidence != null),
         ...extracted.filter((p): p is PollSnapshot => !!p),
       ].map((p) => [p.id, p]),
     ).values(),

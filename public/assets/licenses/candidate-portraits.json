@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-10-13",
+  "portraits": [
+    {
+      "file": "flavio.jpeg",
+      "author": "Carlos Moura / Agência Senado",
+      "source": "https://www.flickr.com/photos/agenciasenado/55503128699/",
+      "downloadPage": "https://commons.wikimedia.org/wiki/File:Fl%C3%A1vio_Bolsonaro_01.09.26.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "modifications": "Recorte disponibilizado no Commons; miniatura de 500 pixels gerada pela plataforma. A interface pode ajustar o enquadramento. A imagem e suas adaptações permanecem CC BY-SA 4.0.",
+      "sha256": "18472d01530e3c2210231c68614127896f2d0b9ced5844290d3006c44e2b7de7"
+    },
+    {
+      "file": "lula.jpeg",
+      "author": "Ricardo Stuckert / Presidência da República — Palácio do Planalto",
+      "source": "https://www.flickr.com/photos/palaciodoplanalto/52715235994/",
+      "downloadPage": "https://commons.wikimedia.org/wiki/File:Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_(estreita).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "modifications": "Recorte de Yacàwotçã disponibilizado no Commons; miniatura de 500 pixels gerada pela plataforma. A interface pode ajustar o enquadramento.",
+      "sha256": "6db556ae288ef068e7c6b924ebaa7fc8f5b9917fdb02036ea86a89644f0c6ce8"
+    }
+  ]
+}

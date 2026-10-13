@@ -7,6 +7,9 @@ export type PollSnapshot = {
   margin: number;
   confidence: number | null;
   registration: string;
+  contractor?: string;
+  metadataSource?: string;
+  registryCheckedAt?: string;
   scope: string;
   turn: number;
   basis: 'valid' | 'total';
