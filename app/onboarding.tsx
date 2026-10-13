@@ -242,18 +242,46 @@ export function Onboarding({
             ) : step === 2 ? (
               <>
                 <p>Escolha quanto detalhe quer ver ao comparar as pesquisas.</p>
-                <label className="alert-option">
-                  <input
-                    type="checkbox"
-                    checked={details}
-                    onChange={(e) => setDetails(e.target.checked)}
-                  />
-                  <span>
-                    <strong>Mostrar mais contexto das pesquisas</strong>
-                    <small>Metodologia e período das entrevistas abertos ao comparar.</small>
-                  </span>
-                </label>
-                <p className="fine">Os resultados oficiais têm a mesma apresentação para todos.</p>
+                <fieldset className="welcome-reading">
+                  <legend className="sr-only">Como apresentar as pesquisas</legend>
+                  {[
+                    {
+                      value: false,
+                      title: 'Direto ao ponto',
+                      description:
+                        'Os principais números primeiro, com detalhes disponíveis quando quiser.',
+                      items: ['Intenção de voto', 'Margem de erro'],
+                    },
+                    {
+                      value: true,
+                      title: 'Mais contexto',
+                      description:
+                        'Veja também como e quando a pesquisa foi feita, com os detalhes já abertos.',
+                      items: ['Período', 'Amostra', 'Metodologia'],
+                    },
+                  ].map((option) => (
+                    <label className="welcome-reading-option" key={option.title}>
+                      <input
+                        type="radio"
+                        name="welcome-reading"
+                        checked={details === option.value}
+                        onChange={() => setDetails(option.value)}
+                      />
+                      <span className="welcome-reading-copy">
+                        <strong>{option.title}</strong>
+                        <span>{option.description}</span>
+                        <span className="welcome-reading-preview" aria-hidden="true">
+                          {option.items.map((item) => (
+                            <span key={item}>{item}</span>
+                          ))}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
+                <p className="fine">
+                  Você pode mudar depois no Perfil. Os resultados oficiais são iguais para todos.
+                </p>
               </>
             ) : step === welcomeTermsStep ? (
               <>
