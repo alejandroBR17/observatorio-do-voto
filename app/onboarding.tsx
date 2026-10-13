@@ -19,6 +19,15 @@ export type WelcomeChoices = {
   details: boolean;
   analytics: boolean;
 };
+export const welcomeTermsStep = 3;
+const welcomeSteps = [
+  { label: 'Boas-vindas', title: 'Seu próprio olhar.' },
+  { label: 'Quem acompanhar', title: 'Qual perspectiva você prefere?' },
+  { label: 'Seu jeito de ler', title: 'Quanto contexto faz sentido?' },
+  { label: 'Termos', title: 'Transparência antes de começar.' },
+  { label: 'Notificações', title: 'Avisos no seu ritmo.' },
+  { label: 'Estatísticas', title: 'Tudo pronto para acompanhar.' },
+];
 export function Onboarding({
   nickname,
   favorite,
@@ -72,14 +81,17 @@ export function Onboarding({
     };
   }, []);
   useEffect(() => {
+    setMessage('');
     dialog.current?.querySelector<HTMLElement>('#welcome-title')?.focus({ preventScroll: true });
     dialog.current?.scrollTo({ top: 0 });
   }, [step]);
   async function activate() {
+    if (activating || !accepted || !consentAccepted) return;
     setActivating(true);
     try {
       const result = await onEnable();
       setMessage(result.message);
+      if (result.ok) setStep(5);
     } finally {
       setActivating(false);
     }
@@ -97,11 +109,6 @@ export function Onboarding({
     )
       setMessage('Não foi possível salvar. Verifique o armazenamento deste navegador.');
   }
-  const titles = [
-    'Seu próprio olhar.',
-    'Escolhas que fazem sentido.',
-    'Tudo pronto para acompanhar.',
-  ];
   return (
     <dialog
       ref={dialog}
@@ -109,7 +116,7 @@ export function Onboarding({
       aria-labelledby="welcome-title"
       onCancel={(e) => {
         e.preventDefault();
-        setStep(2);
+        setStep(welcomeTermsStep);
       }}
     >
       <div className="welcome-layout">
@@ -137,15 +144,18 @@ export function Onboarding({
             </div>
             <p>Resultados, pesquisas e história para entender cada capítulo da eleição.</p>
           </div>
-          <ol className="welcome-steps">
-            {['Boas-vindas', 'Personalização', 'Privacidade e alertas'].map((label, i) => (
+          <ol className="welcome-steps" aria-label="Etapas das boas-vindas">
+            {welcomeSteps.map(({ label }, i) => (
               <li
                 key={label}
                 className={step === i ? 'current' : step > i ? 'done' : ''}
                 aria-current={step === i ? 'step' : undefined}
+                aria-label={`${i + 1}. ${label}`}
               >
-                <span>{step > i ? <Check size={13} /> : i + 1}</span>
-                {label}
+                <span className="welcome-step-number" aria-hidden="true">
+                  {step > i ? <Check size={13} /> : i + 1}
+                </span>
+                <span className="welcome-step-label">{label}</span>
               </li>
             ))}
           </ol>
@@ -153,11 +163,13 @@ export function Onboarding({
         <div className="welcome-pane">
           <header className="welcome-step-heading">
             <span>SEU OBSERVATÓRIO</span>
-            <span>{step + 1} / 3</span>
+            <span>
+              {step + 1} / {welcomeSteps.length} · {welcomeSteps[step].label}
+            </span>
           </header>
           <div className="welcome-content" key={step}>
             <h2 id="welcome-title" tabIndex={-1}>
-              {titles[step]}
+              {welcomeSteps[step].title}
             </h2>
             {step === 0 ? (
               <>
@@ -191,7 +203,7 @@ export function Onboarding({
             ) : step === 1 ? (
               <>
                 <p>
-                  Escolha quem acompanhar e quanto contexto prefere ver. Você pode editar tudo
+                  Acompanhe os dois candidatos ou dê destaque ao seu preferido. Você pode mudar
                   depois, no perfil.
                 </p>
                 <p className="fine">
@@ -226,6 +238,10 @@ export function Onboarding({
                     </button>
                   ))}
                 </div>
+              </>
+            ) : step === 2 ? (
+              <>
+                <p>Escolha quanto detalhe quer ver ao comparar as pesquisas.</p>
                 <label className="alert-option">
                   <input
                     type="checkbox"
@@ -239,16 +255,16 @@ export function Onboarding({
                 </label>
                 <p className="fine">Os resultados oficiais têm a mesma apresentação para todos.</p>
               </>
-            ) : (
+            ) : step === welcomeTermsStep ? (
               <>
                 <p>
-                  Um projeto independente, com fontes identificadas. Notificações são opcionais e
-                  podem ser desligadas quando quiser.
+                  Um projeto independente, com fontes identificadas. Leia os documentos antes de
+                  seguir.
                 </p>
                 <div className="welcome-terms">
                   <ShieldCheck size={22} />
                   <div>
-                    <strong>Transparência antes de começar</strong>
+                    <strong>Informação com responsabilidade</strong>
                     <p>
                       Pesquisas são retratos do momento. Resultados parciais podem mudar. Seus dados
                       pessoais de acompanhamento ficam neste aparelho.
@@ -277,28 +293,25 @@ export function Onboarding({
                     .
                   </span>
                 </label>
+              </>
+            ) : step === 4 ? (
+              <>
+                <p>
+                  Novas pesquisas e os principais momentos da apuração, mesmo com o app fechado.
+                </p>
                 <div className="welcome-notifications">
                   <Bell size={23} />
                   <div>
                     <strong>
                       {notification === 'Ativadas'
                         ? 'Seus alertas estão ativados'
-                        : 'Receba os próximos acontecimentos'}
+                        : 'Você escolhe o que receber'}
                     </strong>
-                    <p>Novas pesquisas agora. Os principais momentos da apuração depois.</p>
-                    {notification !== 'Ativadas' && (
-                      <PushConsent checked={consentAccepted} onChange={onConsent} />
+                    {notification === 'Ativadas' && (
+                      <p>Categorias e frequência podem ser ajustadas em Alertas.</p>
                     )}
                     {notification !== 'Ativadas' && (
-                      <button
-                        className="button secondary"
-                        disabled={
-                          !accepted || !consentAccepted || !supported || !serviceReady || activating
-                        }
-                        onClick={activate}
-                      >
-                        {activating ? 'Ativando…' : 'Ativar notificações agora'}
-                      </button>
+                      <PushConsent checked={consentAccepted} onChange={onConsent} />
                     )}
                     {!supported && (
                       <p className="fine">
@@ -309,6 +322,13 @@ export function Onboarding({
                     {serviceMessage && <p className="fine">{serviceMessage}</p>}
                   </div>
                 </div>
+              </>
+            ) : (
+              <>
+                <p>
+                  Se quiser, ajude a melhorar o app com estatísticas de acesso. A escolha é
+                  opcional.
+                </p>
                 <AnalyticsConsent checked={analytics} onChange={setAnalytics} />
               </>
             )}
@@ -316,7 +336,7 @@ export function Onboarding({
           <div className="welcome-actions">
             {step === 0 ? (
               <>
-                <button className="text-button" onClick={() => setStep(2)}>
+                <button className="text-button" onClick={() => setStep(welcomeTermsStep)}>
                   Continuar sem personalizar
                 </button>
                 <button className="button primary" onClick={() => setStep(1)}>
@@ -326,16 +346,42 @@ export function Onboarding({
               </>
             ) : (
               <>
-                <button className="text-button" onClick={() => setStep(step - 1)}>
+                <button
+                  className="text-button"
+                  disabled={activating}
+                  onClick={() => setStep(step - 1)}
+                >
                   <ChevronLeft size={14} />
                   Voltar
                 </button>
+                {step === 4 && notification !== 'Ativadas' && (
+                  <button className="text-button" disabled={activating} onClick={() => setStep(5)}>
+                    Agora não
+                  </button>
+                )}
                 <button
                   className="button primary"
-                  disabled={step === 2 && !accepted}
-                  onClick={() => (step === 1 ? setStep(2) : finish())}
+                  disabled={
+                    activating ||
+                    (step >= welcomeTermsStep && !accepted) ||
+                    (step === 4 &&
+                      notification !== 'Ativadas' &&
+                      (!accepted || !consentAccepted || !supported || !serviceReady))
+                  }
+                  aria-busy={activating}
+                  onClick={() => {
+                    if (step === 5) finish();
+                    else if (step === 4 && notification !== 'Ativadas') void activate();
+                    else setStep(step + 1);
+                  }}
                 >
-                  {step === 1 ? 'Continuar' : 'Entrar no Observatório'}
+                  {activating
+                    ? 'Ativando…'
+                    : step === 5
+                      ? 'Entrar no Observatório'
+                      : step === 4 && notification !== 'Ativadas'
+                        ? 'Ativar e continuar'
+                        : 'Continuar'}
                   <ArrowRight size={16} />
                 </button>
               </>
@@ -346,7 +392,7 @@ export function Onboarding({
               {message}
             </p>
           )}
-          {step === 2 && (
+          {step === 5 && (
             <button className="welcome-alerts" disabled={!accepted} onClick={() => finish(true)}>
               <SlidersHorizontal size={15} />
               Entrar e escolher categorias de alertas

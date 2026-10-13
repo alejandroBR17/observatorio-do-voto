@@ -17,17 +17,15 @@ export function PushConsent({
         />
         <span>{pushConsentText}</span>
       </label>
-      <p className="fine">
-        {pushTransferText}{' '}
-        <a
-          className="text-button"
-          href="/privacidade#transferencias"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Como meus dados são usados
-        </a>
-      </p>
+      <p className="fine">{pushTransferText}</p>
+      <a
+        className="text-button privacy-info-link"
+        href="/privacidade#transferencias"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Como meus dados são usados
+      </a>
     </div>
   );
 }
@@ -51,16 +49,16 @@ export function AnalyticsConsent({
       <p className="fine">
         A Vercel pode processar dados técnicos da visita fora do Brasil. Os relatórios mostram
         visitas, navegador, dispositivo e localização aproximada; suas escolhas políticas, anotações
-        e filtros da consulta não são enviados. Você pode mudar esta autorização no Perfil.{' '}
-        <a
-          className="text-button"
-          href="/privacidade#estatisticas"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Saiba mais
-        </a>
+        e filtros da consulta não são enviados. Você pode mudar esta autorização no Perfil.
       </p>
+      <a
+        className="text-button privacy-info-link"
+        href="/privacidade#estatisticas"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Saiba mais
+      </a>
     </div>
   );
 }

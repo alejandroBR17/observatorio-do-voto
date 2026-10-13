@@ -36,7 +36,7 @@ import { Disclosure } from './disclosure';
 import { Profile, Alerts } from './user-space';
 import { usePresence, transitionPage, scrollBehavior } from './motion';
 import { ReadingProvider, useReading } from './reading';
-import { Onboarding, type WelcomeChoices } from './onboarding';
+import { Onboarding, welcomeTermsStep, type WelcomeChoices } from './onboarding';
 import { Map } from './geo-map';
 import { LiveCountdown } from './live-countdown';
 import { ThemeMenu } from './theme-menu';
@@ -1999,7 +1999,7 @@ function DashboardContent() {
       {welcome && (
         <Onboarding
           nickname={nickname}
-          initialStep={termsReviewOnly ? 2 : 0}
+          initialStep={termsReviewOnly ? welcomeTermsStep : 0}
           consentAccepted={pushConsentAccepted}
           onConsent={setPushConsentAccepted}
           favorite={favorite}
