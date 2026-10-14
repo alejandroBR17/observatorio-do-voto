@@ -1,5 +1,9 @@
 import Link from 'next/link';
-export const metadata = { title: 'Termos de Uso' };
+export const metadata = {
+  title: 'Termos de Uso — versão anterior',
+  alternates: { canonical: '/termos/versoes/2026-10-09' },
+  robots: { index: false, follow: true },
+};
 export default function Terms() {
   return (
     <main className="legal-page">

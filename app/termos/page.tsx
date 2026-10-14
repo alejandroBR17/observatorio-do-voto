@@ -1,6 +1,13 @@
 import Link from 'next/link';
 import { privacyContact } from '@/lib/privacy';
-export const metadata = { title: 'Termos de Uso' };
+import { sharingMetadata } from '@/lib/site-metadata';
+const description =
+  'Condições de uso do Observatório do Voto, fontes eleitorais e responsabilidades do projeto independente.';
+export const metadata = {
+  title: 'Termos de Uso',
+  description,
+  ...sharingMetadata('Termos de Uso | Observatório do Voto', description, '/termos'),
+};
 export default function Terms() {
   return (
     <main className="legal-page">

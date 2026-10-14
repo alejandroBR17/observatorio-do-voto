@@ -1,6 +1,13 @@
 import Link from 'next/link';
+import { sharingMetadata } from '@/lib/site-metadata';
 
-export const metadata = { title: 'Créditos e licenças' };
+const description =
+  'Créditos, fontes e licenças das imagens, dados eleitorais, mapas e componentes do Observatório do Voto.';
+export const metadata = {
+  title: 'Créditos e licenças',
+  description,
+  ...sharingMetadata('Créditos e licenças | Observatório do Voto', description, '/creditos'),
+};
 
 export default function Credits() {
   return (

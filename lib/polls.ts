@@ -32,6 +32,18 @@ const sources = [
     domain: 'poder360.com.br',
   },
   {
+    name: 'Poder360 · pesquisas',
+    url: 'https://www.poder360.com.br/category/poder-pesquisas/feed/',
+    format: 'rss',
+    domain: 'poder360.com.br',
+  },
+  {
+    name: 'Nexus',
+    url: 'https://www.nexus.fsb.com.br/feed/',
+    format: 'rss',
+    domain: 'nexus.fsb.com.br',
+  },
+  {
     name: 'Quaest',
     url: 'https://quaest.com.br/wp-json/wp/v2/relatorios?search=presidente&per_page=10',
     format: 'wp',
@@ -106,7 +118,13 @@ function institute(title: string, fallback: string) {
                     ? 'CNT/MDA'
                     : /real time|realtime/i.test(title)
                       ? 'Real Time Big Data'
-                      : fallback;
+                      : /\bgerp\b/i.test(title)
+                        ? 'Gerp'
+                        : /\bfutura\b/i.test(title)
+                          ? 'Futura/100 Cidades'
+                          : /\bnexus\b/i.test(title)
+                            ? 'BTG/Nexus'
+                            : fallback;
 }
 export function parseRss(
   xml: string,
@@ -127,10 +145,10 @@ export function parseRss(
       !url ||
       !publishedAt ||
       !/^2026-/.test(publishedAt) ||
-      !/datafolha|poderdata|quaest|atlasintel|ipespe|data\s*trends|verit[aá]|vox brasil|cnt\s*[/–-]?\s*mda|real time|realtime/i.test(
+      !/datafolha|poderdata|quaest|atlasintel|ipespe|data\s*trends|verit[aá]|vox brasil|cnt\s*[/–-]?\s*mda|real time|realtime|\bgerp\b|\bfutura\b|\bnexus\b/i.test(
         title,
       ) ||
-      (!/lula|fl[aá]vio|presiden/i.test(title) && !nationalTracking)
+      (!/presiden|lula.*fl[aá]vio|fl[aá]vio.*lula/i.test(title) && !nationalTracking)
     )
       continue;
     if (
@@ -149,9 +167,11 @@ export function parseRss(
       publisher:
         source.name === 'G1 · pesquisas'
           ? 'G1'
-          : ['CNN Brasil', 'Metrópoles'].includes(source.name)
-            ? source.name
-            : undefined,
+          : source.name === 'Poder360 · pesquisas'
+            ? 'Poder360'
+            : ['CNN Brasil', 'Metrópoles', 'Nexus'].includes(source.name)
+              ? source.name
+              : undefined,
     });
   }
   return out.slice(0, 20);
@@ -205,6 +225,22 @@ export function parseAtlas(
 }
 // Deliberately narrow adapter: primary PoderData article JSON-LD, explicit valid-vote
 // pair in its opening paragraph, methodology and BR registration are all required.
+function poderDataHeadline(title: string) {
+  const direct = title.match(
+    /^Fl[aá]vio(?: Bolsonaro)? tem (\d+(?:[,.]\d+)?)% contra (\d+(?:[,.]\d+)?)% de Lula no 2[ºo°] turno, diz (?:pesquisa )?PoderData/i,
+  );
+  if (direct)
+    return {
+      flavio: Number(direct[1].replace(',', '.')),
+      lula: Number(direct[2].replace(',', '.')),
+    };
+  const reverse = title.match(
+    /^Lula reage e vai a (\d+(?:[,.]\d+)?)% contra (\d+(?:[,.]\d+)?)% de Fl[aá]vio(?: Bolsonaro)?, diz PoderData\/Aya$/i,
+  );
+  return reverse
+    ? { flavio: Number(reverse[2].replace(',', '.')), lula: Number(reverse[1].replace(',', '.')) }
+    : null;
+}
 export function parsePoderDataArticle(
   html: string,
   url: string,
@@ -230,33 +266,39 @@ export function parsePoderDataArticle(
         publishedAt = date(a.datePublished),
         body = plainText(a.articleBody),
         intro = plainText(a.articleBody.split(/\r?\n\s*\r?\n/)[0]);
-      const pair = title.match(
-        /^Fl[aá]vio(?: Bolsonaro)? tem (\d+(?:[,.]\d+)?)% contra (\d+(?:[,.]\d+)?)% de Lula no 2[ºo°] turno, diz (?:pesquisa )?PoderData/i,
-      );
+      const pair = poderDataHeadline(title);
       if (
         !pair ||
         !publishedAt ||
         !publishedAt.startsWith('2026-') ||
         Date.parse(publishedAt) > now + 300000 ||
-        !/Presid[eê]ncia da Rep[uú]blica/i.test(intro) ||
+        !/Presid[eê]ncia da Rep[uú]blica|presidente/i.test(intro) ||
         !/Fl[aá]vio Bolsonaro/.test(intro) ||
         !/Lula/.test(intro) ||
         !/2[ºo°] turno/.test(intro) ||
         /votos totais|rejei[cç][aã]o|expectativa de vit[oó]ria/i.test(intro)
       )
         continue;
-      const flavio = Number(pair[1].replace(',', '.')),
-        lula = Number(pair[2].replace(',', '.'));
+      const { flavio, lula } = pair;
       if (Math.abs(flavio + lula - 100) > 0.11 || flavio < 0 || lula < 0) continue;
-      const bodyPair = intro.match(
+      const directBody = intro.match(
         /(?:congressista|senador|Fl[aá]vio(?: Bolsonaro)?) tem (\d+(?:[,.]\d+)?)% dos votos v[aá]lidos, (?:ante|contra) (\d+(?:[,.]\d+)?)% (?:do petista|de Lula)/i,
       );
-      if (
-        !bodyPair ||
-        Number(bodyPair[1].replace(',', '.')) !== flavio ||
-        Number(bodyPair[2].replace(',', '.')) !== lula
-      )
-        continue;
+      const reverseBody = intro.match(
+        /(?:petista|Lula) tem (\d+(?:[,.]\d+)?)% dos votos v[aá]lidos,? (?:ante|contra) (\d+(?:[,.]\d+)?)% do senador Fl[aá]vio Bolsonaro/i,
+      );
+      const bodyPair = directBody
+        ? {
+            flavio: Number(directBody[1].replace(',', '.')),
+            lula: Number(directBody[2].replace(',', '.')),
+          }
+        : reverseBody
+          ? {
+              flavio: Number(reverseBody[2].replace(',', '.')),
+              lula: Number(reverseBody[1].replace(',', '.')),
+            }
+          : null;
+      if (!bodyPair || bodyPair.flavio !== flavio || bodyPair.lula !== lula) continue;
       const registrations = [...new Set(body.match(/BR-\d{5}\/2026/g) || [])],
         sample = body.match(/Foram ([\d.]+) entrevistas/i),
         margin = body.match(/margem de erro [ée] de (\d+(?:[,.]\d+)?) ponto/i),
@@ -325,7 +367,7 @@ export function polls(db?: Database): Promise<any> {
   return pending;
 }
 async function collectPolls(db?: Database) {
-  const key = 'polls:publications:v6';
+  const key = 'polls:publications:v7';
   const stored = db
     ? await db
         .prepare('SELECT value, updated FROM cache WHERE key=?')
@@ -335,10 +377,14 @@ async function collectPolls(db?: Database) {
   const previous =
     stored ||
     (db
-      ? await db
+      ? (await db
+          .prepare('SELECT value, updated FROM cache WHERE key=?')
+          .bind('polls:publications:v6')
+          .first<{ value: string; updated: number }>()) ||
+        (await db
           .prepare('SELECT value, updated FROM cache WHERE key=?')
           .bind('polls:publications:v3')
-          .first<{ value: string; updated: number }>()
+          .first<{ value: string; updated: number }>())
       : null);
   if (stored && Date.now() - stored.updated < 300000)
     return { ...JSON.parse(stored.value), cached: true, cacheStorage: db ? 'shared' : 'temporary' };
@@ -347,7 +393,7 @@ async function collectPolls(db?: Database) {
         .prepare(
           'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?',
         )
-        .bind('lease:polls:v6', '', Date.now(), Date.now() - 30000)
+        .bind('lease:polls:v7', '', Date.now(), Date.now() - 30000)
         .run()
     : { meta: { changes: 1 } };
   if (!lease.meta.changes)
@@ -438,16 +484,16 @@ async function collectPolls(db?: Database) {
     )
     .map((p: Publication) => ({ ...p, stale: true }));
   const publications = [...new Map([...current, ...fallback].map((p) => [p.url, p])).values()]
-    .sort((a: any, b: any) => (b.publishedAt || '').localeCompare(a.publishedAt || ''))
+    .sort((a, b) => Date.parse(b.publishedAt || '') - Date.parse(a.publishedAt || ''))
     .slice(0, 40);
   const priorPolls: PollSnapshot[] = previous ? JSON.parse(previous.value).polls || [] : [];
-  const known = new Set(priorPolls.filter((p) => p.mode === 'automatic').map((p) => p.source));
+  const known = new Set([...pollSnapshots, ...priorPolls].map((p) => p.source));
   const eligible = publications
     .filter(
       (p) =>
         p.institute === 'PoderData/Aya' &&
         !known.has(p.url) &&
-        /^Fl[aá]vio.*tem.*contra.*de Lula no 2[ºo°] turno, diz/i.test(p.title) &&
+        !!poderDataHeadline(p.title) &&
         p.publishedAt &&
         Date.parse(p.publishedAt) <= Date.now() + 300000,
     )
@@ -473,7 +519,7 @@ async function collectPolls(db?: Database) {
         ...extracted.filter((p): p is PollSnapshot => !!p),
       ].map((p) => [p.id, p]),
     ).values(),
-  ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  ].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
   const payload = {
     status: results.some((s) => s.status === 'ok') ? 'ready' : 'unavailable',
     checkedAt,

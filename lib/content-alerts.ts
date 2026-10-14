@@ -42,7 +42,7 @@ export async function queueContentAlerts(
           : `${fresh.length} notícias sobre a eleição`,
     body:
       fresh.length === 1
-        ? `${fresh[0].source || 'Fonte pública'} · ${kind === 'polls' ? 'Publicação sobre pesquisas' : 'Noticiário eleitoral'}`
+        ? `${(kind === 'polls' ? fresh[0].publisher || fresh[0].institute : fresh[0].source) || 'Fonte pública'} · ${kind === 'polls' ? 'Publicação sobre pesquisas' : 'Noticiário eleitoral'}`
         : fresh[0].title,
     url: kind === 'polls' ? '/?tab=polls' : '/?tab=social',
     image: image || undefined,

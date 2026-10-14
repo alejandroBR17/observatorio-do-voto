@@ -37,6 +37,26 @@ const cnn = {
   domain: 'cnnbrasil.com.br',
   url: 'https://www.cnnbrasil.com.br/feed/',
 };
+for (const [name, title] of [
+  ['Gerp', 'Gerp: Flávio tem 55% e Lula 45% no 2º turno'],
+  ['Futura/100 Cidades', 'Futura: Flávio e Lula no segundo turno presidencial'],
+  ['BTG/Nexus', 'Pesquisa BTG/Nexus de intenção de votos para presidente do Brasil'],
+]) {
+  const [publication] = parseRss(
+    item(title, 'https://www.cnnbrasil.com.br/eleicoes/pesquisa/'),
+    cnn,
+  );
+  assert.equal(publication.institute, name);
+  assert.equal(publication.flavio, undefined, 'Discovery alone never publishes percentages');
+}
+for (const title of [
+  'Quaest: Allyson tem 45% no segundo turno no RN; Cadu de Lula, 42%',
+  'Quaest no RN, 2º turno: Allyson, 45%; Cadu de Lula, 42%',
+])
+  assert.equal(
+    parseRss(item(title, 'https://www.cnnbrasil.com.br/eleicoes/governador/'), cnn).length,
+    0,
+  );
 const reported = parseRss(
   item('Vox Brasil: Lula e Flávio no segundo turno', 'https://www.cnnbrasil.com.br/eleicoes/vox/'),
   cnn,
@@ -93,7 +113,8 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 6);
+assert.equal(pollSnapshots.length, 10);
+assert.equal(new Set(pollSnapshots.map((p) => p.registration)).size, pollSnapshots.length);
 for (const p of pollSnapshots) {
   if (p.basis === 'valid') assert.equal(p.flavio + p.lula, 100);
   assert.equal(p.turn, 2);
@@ -111,8 +132,31 @@ const article = {
 };
 const html = (a) =>
   `<script type="application/ld+json">${JSON.stringify({ '@graph': [a] })}</script>`;
-const u = pollSnapshots.find((p) => p.institute === 'PoderData/Aya').source;
+const u = pollSnapshots.find((p) => p.registration === 'BR-08134/2026').source;
 const now = Date.parse('2026-10-08T23:59:00-03:00');
+const reversed = {
+  ...article,
+  headline: 'Lula reage e vai a 49% contra 51% de Flávio, diz PoderData/Aya',
+  datePublished: '2026-10-13T07:15:43-03:00',
+  articleBody:
+    'O presidente Lula e Flávio Bolsonaro disputam o 2º turno. O petista tem 49% dos votos válidos ante 51% do senador Flávio Bolsonaro.\n\n' +
+    article.articleBody
+      .split('\n\n')[1]
+      .replace('5 a 7', '10 a 12')
+      .replace('BR-08134/2026', 'BR-01209/2026'),
+};
+const today = Date.parse('2026-10-13T23:00:00-03:00');
+const reversedPoll = parsePoderDataArticle(html(reversed), u, today);
+assert.equal(reversedPoll.flavio, 51);
+assert.equal(reversedPoll.lula, 49);
+assert.equal(reversedPoll.registration, 'BR-01209/2026');
+for (const body of [
+  reversed.articleBody.replace('49% dos votos válidos', '48% dos votos válidos'),
+  reversed.articleBody.replace('votos válidos', 'votos totais'),
+  reversed.articleBody.replace('2º turno', '1º turno'),
+  reversed.articleBody.replace('27 unidades da Federação', 'Amazonas'),
+])
+  assert.equal(parsePoderDataArticle(html({ ...reversed, articleBody: body }), u, today), null);
 assert.equal(parsePoderDataArticle(html(article), u, now).flavio, 53);
 assert.match(parsePoderDataArticle(html(article), u, now).contractor, /recursos próprios/);
 for (const confidence of ['0%', '101%'])

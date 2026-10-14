@@ -1,5 +1,9 @@
 import Link from 'next/link';
-export const metadata = { title: 'Privacidade' };
+export const metadata = {
+  title: 'Privacidade — versão anterior',
+  alternates: { canonical: '/privacidade/versoes/2026-10-10' },
+  robots: { index: false, follow: true },
+};
 export default function Privacy() {
   return (
     <main className="legal-page">

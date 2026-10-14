@@ -1,6 +1,15 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { SiteAnalytics } from './components/site-analytics';
+import {
+  siteOrigin,
+  siteName,
+  siteTitle,
+  siteDescription,
+  siteIndexable,
+  sharingMetadata,
+  websiteStructuredData,
+} from '@/lib/site-metadata';
 import './globals.css';
 import './shell.css';
 import './motion.css';
@@ -12,22 +21,20 @@ import './pwa.css';
 import './actions.css';
 import './recent-updates.css';
 
-const origin =
-  process.env.SITE_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? 'https://' + process.env.VERCEL_PROJECT_PRODUCTION_URL
-    : process.env.VERCEL_URL
-      ? 'https://' + process.env.VERCEL_URL
-      : 'https://observatorio-voto.vercel.app');
 export const metadata: Metadata = {
-  metadataBase: new URL(origin),
+  metadataBase: new URL(siteOrigin),
   title: {
-    default: 'Observatório do Voto • Eleições presidenciais',
+    default: siteTitle,
     template: '%s | Observatório do Voto',
   },
-  description:
-    'O Brasil, voto a voto. Dados oficiais, história, pesquisas e acompanhamento eleitoral.',
-  applicationName: 'Observatório do Voto',
+  description: siteDescription,
+  applicationName: siteName,
+  category: 'politics',
+  robots: {
+    index: siteIndexable,
+    follow: true,
+    googleBot: { index: siteIndexable, follow: true, 'max-image-preview': 'large' },
+  },
   manifest: '/manifest.webmanifest',
   icons: {
     icon: [
@@ -36,26 +43,7 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
-  openGraph: {
-    type: 'website',
-    locale: 'pt_BR',
-    siteName: 'Observatório do Voto',
-    title: 'Observatório do Voto',
-    description: 'O Brasil, voto a voto. Dados oficiais, pesquisas e história eleitoral.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Observatório do Voto — O Brasil, voto a voto.',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Observatório do Voto',
-    images: ['/og-image.png'],
-  },
+  ...sharingMetadata(siteTitle, siteDescription),
   appleWebApp: { capable: true, title: 'Observatório', statusBarStyle: 'default' },
 };
 export const viewport = {
@@ -77,6 +65,13 @@ export default async function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
+        <script
+          type="application/ld+json"
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteStructuredData).replace(/</g, '\\u003c'),
+          }}
+        />
         <link rel="stylesheet" href="/assets/fonts.css" precedence="fonts" />
         <script
           nonce={nonce}

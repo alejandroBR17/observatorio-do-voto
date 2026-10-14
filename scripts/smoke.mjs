@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 const base = process.env.TEST_URL || process.argv[2] || 'http://localhost:3000';
+let canonical;
 for (const path of [
   '/',
   '/manifest.webmanifest',
@@ -34,12 +35,38 @@ for (const path of [
       );
     assert.ok(html.includes('og-image.png'));
     assert.ok(html.includes('apple-touch-icon.png'));
+    canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+    assert.ok(canonical, 'homepage has a canonical URL');
+    const publicUrl = new URL(canonical);
+    assert.equal(publicUrl.search, '', 'view filters do not become canonical URLs');
+    assert.equal(publicUrl.pathname, '/');
+    assert.ok(html.includes(`property="og:url" content="${canonical}"`));
+    assert.ok(html.includes('name="twitter:description"'));
+    assert.ok(
+      html.includes(`property="og:image" content="${new URL('/og-image.png', canonical).href}"`),
+    );
+    assert.ok(html.includes('property="og:image:type" content="image/png"'));
+    assert.ok(html.includes('property="og:image:alt"'));
+    assert.ok(html.includes('application/ld+json'));
     assert.match(
       html,
       /<link\b(?=[^>]*href="\/assets\/fonts\.css")(?=[^>]*data-precedence="fonts")[^>]*>/,
     );
   }
 }
+const filterPage = await (await fetch(base + '/?tab=polls&uf=SP&region=Sudeste')).text();
+assert.ok(filterPage.includes(`<link rel="canonical" href="${canonical}"`));
+const robots = await fetch(base + '/robots.txt');
+assert.equal(robots.status, 200);
+const robotsText = await robots.text();
+assert.ok(robotsText.includes('Disallow: /api/'));
+assert.ok(robotsText.includes(`Sitemap: ${new URL('/sitemap.xml', canonical).href}`));
+const sitemap = await fetch(base + '/sitemap.xml');
+assert.equal(sitemap.status, 200);
+const sitemapText = await sitemap.text();
+assert.ok(!sitemapText.includes('/api/') && !sitemapText.includes('?tab='));
+for (const path of ['/', '/termos', '/privacidade', '/creditos'])
+  assert.ok(sitemapText.includes(`<loc>${new URL(path, canonical).href}</loc>`));
 const secondPage = await fetch(base + '/');
 assert.notEqual(
   secondPage.headers.get('content-security-policy'),
@@ -54,6 +81,7 @@ for (const path of ['/termos', '/privacidade']) {
   const response = await fetch(base + path);
   assert.equal(response.status, 200, path);
   const html = await response.text();
+  assert.ok(html.includes(`<link rel="canonical" href="${new URL(path, canonical).href}"`));
   assert.ok(html.includes('13 DE OUTUBRO DE 2026'), path);
   assert.ok(html.includes('Alejandro Mateus Sobral Cortes'), path);
   assert.ok(html.includes('mailto:ale.sobral.cortes@gmail.com'), path);

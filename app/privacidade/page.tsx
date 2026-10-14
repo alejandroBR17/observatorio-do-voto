@@ -1,6 +1,13 @@
 import Link from 'next/link';
 import { privacyContact, privacyVersion } from '@/lib/privacy';
-export const metadata = { title: 'Privacidade' };
+import { sharingMetadata } from '@/lib/site-metadata';
+const description =
+  'Saiba como o Observatório do Voto trata dados locais, notificações e estatísticas opcionais, e como exercer suas escolhas.';
+export const metadata = {
+  title: 'Privacidade',
+  description,
+  ...sharingMetadata('Privacidade | Observatório do Voto', description, '/privacidade'),
+};
 export default function Privacy() {
   return (
     <main className="legal-page">

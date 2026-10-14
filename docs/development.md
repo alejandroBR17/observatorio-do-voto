@@ -18,6 +18,14 @@ Ao alterar scripts, domínios de imagem ou Analytics, testar o build de produç�
 
 ## Contribuir com o Observatório do Voto
 
+### Fontes e indexação
+
+Os relatórios nacionais de 13/10/2026 de PoderData/Aya, Gerp, BTG/Nexus e Futura/100 Cidades foram conferidos antes de entrar no catálogo. O relatório da Nexus está disponível também no [PDF da 17ª rodada](https://static.poder360.com.br/uploads/2026/10/BTG-Nexus-Eleicoes-2026-Rodada-17-13.out_.2026.pdf). O Datafolha disponibilizou em 13/10 o relatório da rodada de 8/10; a data original do levantamento foi preservada. Valores arredondados e categorias agrupadas seguem a fonte, sem reconstruir percentuais ausentes.
+
+Publicações usam os feeds públicos, inclusive Nexus e Poder Pesquisas. Notícias continuam a coleta automática; descoberta de links não significa validação de números. O adaptador PoderData exige acordo entre manchete, primeiro parágrafo e metodologia. Ordenação considera o instante da publicação, respeitando diferenças entre UTC e Brasília.
+
+`lib/site-metadata.ts` centraliza endereço público, canonical, Open Graph e Twitter. `SITE_URL` permite usar um domínio próprio; sem ele usamos o domínio de produção da Vercel, nunca o endereço temporário de um deploy. Prévias têm `noindex` e não publicam sitemap de conteúdo. As consultas com filtros mantêm canonical da página inicial; páginas legais têm seus próprios endereços, e versões anteriores não são indexáveis. `robots.txt`, `sitemap.xml` e os metadados são verificados no smoke de produção. A imagem social é um arquivo da identidade do projeto, sem resultados eleitorais ou preferências pessoais.
+
 Correções de interface, acessibilidade, fontes e testes são bem-vindas. Antes de uma mudança grande, abra uma issue com o problema e uma proposta concreta.
 
 ### Preparar o ambiente

@@ -23,6 +23,7 @@ export type PollSnapshot = {
     blankNull?: number;
     undecided?: number;
     other?: number;
+    otherLabel?: string;
   };
   note?: string;
 };

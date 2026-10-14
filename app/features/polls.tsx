@@ -118,8 +118,12 @@ function PollCard({
           <p className="fine">
             {poll.totalVotes.other != null ? (
               <>
-                Brancos, nulos e indecisos (grupo divulgado pela fonte):{' '}
-                {percent(poll.totalVotes.other)}.
+                {poll.totalVotes.otherLabel ||
+                  'Brancos, nulos e indecisos (grupo divulgado pela fonte)'}
+                : {percent(poll.totalVotes.other)}.
+                {poll.totalVotes.undecided != null && (
+                  <> Indecisos: {percent(poll.totalVotes.undecided)}.</>
+                )}
               </>
             ) : (
               <>
