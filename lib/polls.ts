@@ -124,7 +124,11 @@ function institute(title: string, fallback: string) {
                           ? 'Futura/100 Cidades'
                           : /\bnexus\b/i.test(title)
                             ? 'BTG/Nexus'
-                            : fallback;
+                            : /\bpalver\b/i.test(title)
+                              ? 'Palver'
+                              : /\bindexa\b/i.test(title)
+                                ? 'Indexa/Broadcast'
+                                : fallback;
 }
 export function parseRss(
   xml: string,
@@ -145,7 +149,7 @@ export function parseRss(
       !url ||
       !publishedAt ||
       !/^2026-/.test(publishedAt) ||
-      !/datafolha|poderdata|quaest|atlasintel|ipespe|data\s*trends|verit[aá]|vox brasil|cnt\s*[/–-]?\s*mda|real time|realtime|\bgerp\b|\bfutura\b|\bnexus\b/i.test(
+      !/datafolha|poderdata|quaest|atlasintel|ipespe|data\s*trends|verit[aá]|vox brasil|cnt\s*[/–-]?\s*mda|real time|realtime|\bgerp\b|\bfutura\b|\bnexus\b|\bpalver\b|\bindexa\b/i.test(
         title,
       ) ||
       (!/presiden|lula.*fl[aá]vio|fl[aá]vio.*lula/i.test(title) && !nationalTracking)
@@ -367,7 +371,7 @@ export function polls(db?: Database): Promise<any> {
   return pending;
 }
 async function collectPolls(db?: Database) {
-  const key = 'polls:publications:v7';
+  const key = 'polls:publications:v8';
   const stored = db
     ? await db
         .prepare('SELECT value, updated FROM cache WHERE key=?')
@@ -379,7 +383,7 @@ async function collectPolls(db?: Database) {
     (db
       ? (await db
           .prepare('SELECT value, updated FROM cache WHERE key=?')
-          .bind('polls:publications:v6')
+          .bind('polls:publications:v7')
           .first<{ value: string; updated: number }>()) ||
         (await db
           .prepare('SELECT value, updated FROM cache WHERE key=?')
@@ -393,7 +397,7 @@ async function collectPolls(db?: Database) {
         .prepare(
           'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?',
         )
-        .bind('lease:polls:v7', '', Date.now(), Date.now() - 30000)
+        .bind('lease:polls:v8', '', Date.now(), Date.now() - 30000)
         .run()
     : { meta: { changes: 1 } };
   if (!lease.meta.changes)

@@ -41,6 +41,8 @@ for (const [name, title] of [
   ['Gerp', 'Gerp: Flávio tem 55% e Lula 45% no 2º turno'],
   ['Futura/100 Cidades', 'Futura: Flávio e Lula no segundo turno presidencial'],
   ['BTG/Nexus', 'Pesquisa BTG/Nexus de intenção de votos para presidente do Brasil'],
+  ['Palver', 'Palver: Flávio tem 50% e Lula 49% no segundo turno'],
+  ['Indexa/Broadcast', 'Indexa/Broadcast: Flávio tem 51% e Lula 49% no segundo turno'],
 ]) {
   const [publication] = parseRss(
     item(title, 'https://www.cnnbrasil.com.br/eleicoes/pesquisa/'),
@@ -113,7 +115,7 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 10);
+assert.equal(pollSnapshots.length, 15);
 assert.equal(new Set(pollSnapshots.map((p) => p.registration)).size, pollSnapshots.length);
 for (const p of pollSnapshots) {
   if (p.basis === 'valid') assert.equal(p.flavio + p.lula, 100);
