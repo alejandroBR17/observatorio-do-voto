@@ -2,6 +2,80 @@ import type { PollSnapshot, Publication } from './types';
 
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-05187/2026',
+    institute: 'Gerp',
+    publishedAt: '2026-10-16T18:00:31-03:00',
+    fieldwork: '14, 15 e 16/10/2026 · entrevistas telefônicas (GerpCati)',
+    sample: 2400,
+    margin: 2,
+    confidence: 95.55,
+    registration: 'BR-05187/2026',
+    contractor: 'Gerp Mercadologia — recursos próprios',
+    metadataSource:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-52-e-lula-48-dos-votos-validos-no-2o-turno-diz-gerp/',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 52,
+    lula: 48,
+    source: 'https://static.poder360.com.br/uploads/2026/10/PesquisaGerp-presidente-16out2026.pdf',
+    mode: 'snapshot',
+    totalVotes: { flavio: 50, lula: 45, other: 2, otherLabel: 'Nenhum deles', undecided: 3 },
+    note: 'Relatório original conferido em 16/10: metodologia e contratação na página 7, intenção estimulada na página 14 e votos válidos na página 21. Preservados os 95,55% de confiança e as categorias do relatório, que divergem do resumo jornalístico. Horário conforme o Poder360.',
+  },
+  {
+    id: 'BR-03764/2026',
+    institute: 'Futura/100 Cidades',
+    publishedAt: '2026-10-16T14:53:12-03:00',
+    fieldwork: '14 e 15/10/2026 · entrevistas telefônicas assistidas por computador (CATI)',
+    sample: 2000,
+    margin: 2.2,
+    confidence: 95,
+    registration: 'BR-03764/2026',
+    contractor: 'Futura Inteligência; realização: 100 Cidades',
+    metadataSource:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-508-contra-492-de-lula-no-2o-turno-diz-futura/',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 50.8,
+    lula: 49.2,
+    source:
+      'https://static.poder360.com.br/uploads/2026/10/Relatorio_BR_Out_2_V2_ComTexto_Final.pdf',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 49,
+      lula: 47.5,
+      other: 1.5,
+      otherLabel: 'Ninguém, branco ou nulo',
+      undecided: 2.1,
+    },
+    note: 'Relatório original conferido em 16/10: ficha técnica na página 4, estimulada na página 10 e votos válidos na página 12. A ficha técnica e a reportagem informam campo em 14 e 15/10; a capa diverge ao mencionar 13 a 15/10. Os totais somam 100,1% por arredondamento e não foram ajustados. Contratação e horário conforme o Poder360.',
+  },
+  {
+    id: 'BR-00652/2026',
+    institute: 'CNT/MDA',
+    publishedAt: '2026-10-16T12:20:09-03:00',
+    fieldwork: '13 a 15/10/2026 · entrevistas presenciais domiciliares e em pontos de fluxo',
+    sample: 2014,
+    margin: 2.2,
+    confidence: 95,
+    registration: 'BR-00652/2026',
+    contractor: 'Confederação Nacional do Transporte (CNT)',
+    metadataSource:
+      'https://www.poder360.com.br/poder-eleicoes-2026/cnt-mda-confirma-poderdata-aya-e-da-flavio-com-505-e-lula-com-495/',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 50.5,
+    lula: 49.5,
+    source:
+      'https://static.poder360.com.br/uploads/2026/10/Relatorio-Pesquisa-CNT-de-Opiniao-R172-OUTUBRO26.pdf',
+    mode: 'snapshot',
+    totalVotes: { flavio: 46.8, lula: 45.9, blankNull: 4.9, undecided: 2.4 },
+    note: '172ª rodada: relatório original conferido em 16/10, com metodologia na página 2, intenção estimulada na página 6 e votos válidos na página 8. Foram ouvidos eleitores de 140 municípios; resultados ponderados pelo perfil socioeconômico e voto declarado no primeiro turno. Contratante e horário conforme a divulgação do Poder360.',
+  },
+  {
     id: 'BR-04258/2026',
     institute: 'PoderData/Aya',
     publishedAt: '2026-10-16T07:15:13-03:00',
@@ -28,14 +102,14 @@ export const pollSnapshots: PollSnapshot[] = [
     id: 'BR-00466/2026',
     institute: 'Datafolha',
     publishedAt: '2026-10-15T18:32:10-03:00',
-    fieldwork: '13 e 14/10/2026 · entrevistas presenciais',
+    fieldwork: '13 e 14/10/2026 · entrevistas presenciais em pontos de fluxo populacional',
     sample: 2520,
     margin: 2,
     confidence: 95,
     registration: 'BR-00466/2026',
     contractor: 'Folha de S.Paulo',
     metadataSource:
-      'https://g1.globo.com/politica/eleicoes/2026/pesquisa-eleitoral/noticia/2026/10/15/datafolha-presidente-segundo-turno-15-outubro.ghtml',
+      'https://media.folha.uol.com.br/datafolha/2026/10/16/2sq1uhzy7x0w7caugz-gotqrxffgtdsqnx7qkfqfhs0.pdf',
     scope: 'Brasil',
     turn: 2,
     basis: 'valid',
@@ -51,7 +125,7 @@ export const pollSnapshots: PollSnapshot[] = [
       otherLabel: 'Em branco, nulo ou nenhum',
       undecided: 2,
     },
-    note: 'Resultados e ficha técnica conferidos nas publicações da Folha e do G1 em 16/10. Foram ouvidos eleitores de 153 municípios. A coleta efetiva foi em 13 e 14/10, conforme a divulgação corrigida, e não até 15/10. Votos válidos preservados como publicados, sem recálculo.',
+    note: 'Resultados conferidos nas publicações da Folha e do G1; metodologia e contratante na página 2 do relatório original disponibilizado pelo Datafolha em 16/10. Foram ouvidos eleitores de 153 municípios. A coleta efetiva foi em 13 e 14/10, e não até 15/10. O relatório de 16/10 corresponde à mesma rodada divulgada em 15/10, cuja data foi preservada. Votos válidos sem recálculo.',
   },
   {
     id: 'BR-04629/2026',
@@ -381,6 +455,46 @@ export const pollSnapshots: PollSnapshot[] = [
 // Newly located reporting stays in publications until the original numeric
 // report and its methodology have been checked. Never infer totals from a headline.
 export const verifiedPublications: Publication[] = [
+  {
+    institute: 'Gerp',
+    title: 'Gerp: Flávio tem 52% dos votos válidos e Lula, 48%',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-52-e-lula-48-dos-votos-validos-no-2o-turno-diz-gerp/',
+    publishedAt: '2026-10-16T18:00:31-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-52-e-lula-48-dos-votos-validos-no-2o-turno-diz-gerp/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
+  {
+    institute: 'Futura/100 Cidades',
+    title: 'Futura: Flávio tem 50,8% dos votos válidos e Lula, 49,2%',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-508-contra-492-de-lula-no-2o-turno-diz-futura/',
+    publishedAt: '2026-10-16T14:53:12-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-508-contra-492-de-lula-no-2o-turno-diz-futura/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
+  {
+    institute: 'CNT/MDA',
+    title: 'CNT/MDA: Flávio tem 50,5% dos votos válidos e Lula, 49,5%',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/cnt-mda-confirma-poderdata-aya-e-da-flavio-com-505-e-lula-com-495/',
+    publishedAt: '2026-10-16T12:20:09-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/cnt-mda-confirma-poderdata-aya-e-da-flavio-com-505-e-lula-com-495/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
+  {
+    institute: 'Datafolha',
+    title: 'Datafolha disponibiliza relatório da rodada divulgada em 15 de outubro',
+    url: 'https://datafolha.folha.uol.com.br/eleicoes/2026/10/flavio-bolsonaro-pl-tem-47-e-tem-empate-tecnico-com-lula-pt-que-aparece-com-45.shtml',
+    publishedAt: '2026-10-16T12:05:00-03:00',
+    source:
+      'https://datafolha.folha.uol.com.br/eleicoes/2026/10/flavio-bolsonaro-pl-tem-47-e-tem-empate-tecnico-com-lula-pt-que-aparece-com-45.shtml',
+    kind: 'publication',
+    publisher: 'Datafolha',
+  },
   {
     institute: 'PoderData/Aya',
     title: 'PoderData/Aya: Lula e Flávio têm 50% dos votos válidos cada um',

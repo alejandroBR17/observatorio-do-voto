@@ -43,6 +43,7 @@ for (const [name, title] of [
   ['BTG/Nexus', 'Pesquisa BTG/Nexus de intenção de votos para presidente do Brasil'],
   ['Palver', 'Palver: Flávio tem 50% e Lula 49% no segundo turno'],
   ['Indexa/Broadcast', 'Indexa/Broadcast: Flávio tem 51% e Lula 49% no segundo turno'],
+  ['CNT/MDA', 'CNT/MDA confirma PoderData/Aya e dá Flávio com 50,5% e Lula com 49,5%'],
 ]) {
   const [publication] = parseRss(
     item(title, 'https://www.cnnbrasil.com.br/eleicoes/pesquisa/'),
@@ -115,7 +116,7 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 15);
+assert.equal(pollSnapshots.length, 18);
 assert.equal(new Set(pollSnapshots.map((p) => p.registration)).size, pollSnapshots.length);
 for (const p of pollSnapshots) {
   if (p.basis === 'valid') assert.equal(p.flavio + p.lula, 100);

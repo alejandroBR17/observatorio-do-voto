@@ -98,6 +98,8 @@ function date(value: unknown) {
   return Number.isFinite(n) ? new Date(n).toISOString() : null;
 }
 function institute(title: string, fallback: string) {
+  // A comparison with another institute does not change who produced the poll.
+  if (/^CNT\s*\/\s*MDA\b/i.test(title)) return 'CNT/MDA';
   return /datafolha/i.test(title)
     ? 'Datafolha'
     : /poderdata/i.test(title)
@@ -371,7 +373,7 @@ export function polls(db?: Database): Promise<any> {
   return pending;
 }
 async function collectPolls(db?: Database) {
-  const key = 'polls:publications:v8';
+  const key = 'polls:publications:v9';
   const stored = db
     ? await db
         .prepare('SELECT value, updated FROM cache WHERE key=?')
@@ -383,7 +385,7 @@ async function collectPolls(db?: Database) {
     (db
       ? (await db
           .prepare('SELECT value, updated FROM cache WHERE key=?')
-          .bind('polls:publications:v7')
+          .bind('polls:publications:v8')
           .first<{ value: string; updated: number }>()) ||
         (await db
           .prepare('SELECT value, updated FROM cache WHERE key=?')
@@ -397,7 +399,7 @@ async function collectPolls(db?: Database) {
         .prepare(
           'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?',
         )
-        .bind('lease:polls:v8', '', Date.now(), Date.now() - 30000)
+        .bind('lease:polls:v9', '', Date.now(), Date.now() - 30000)
         .run()
     : { meta: { changes: 1 } };
   if (!lease.meta.changes)
