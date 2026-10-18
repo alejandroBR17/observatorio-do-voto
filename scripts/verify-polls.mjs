@@ -116,7 +116,7 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 18);
+assert.equal(pollSnapshots.length, 20);
 assert.equal(new Set(pollSnapshots.map((p) => p.registration)).size, pollSnapshots.length);
 for (const p of pollSnapshots) {
   if (p.basis === 'valid') assert.equal(p.flavio + p.lula, 100);
@@ -182,7 +182,7 @@ for (const omitted of ['O intervalo de confiança é de 95%.', 'com recursos pr�
     'Incomplete disclosure remains a publication rather than a numeric poll',
   );
 const atlasSnapshot = pollSnapshots.find((p) => p.institute === 'AtlasIntel/Bloomberg');
-const ipespeSnapshot = pollSnapshots.find((p) => p.institute === 'Ipespe/ABRAPEL');
+const ipespeSnapshot = pollSnapshots.find((p) => p.registration === 'BR-00933/2026');
 const voxSnapshot = pollSnapshots.find((p) => p.institute === 'Vox Brasil');
 const dataTrendsSnapshot = pollSnapshots.find((p) => p.institute === 'DataTrends');
 assert.equal(dataTrendsSnapshot.registration, 'BR-03576/2026');

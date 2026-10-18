@@ -2,6 +2,52 @@ import type { PollSnapshot, Publication } from './types';
 
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-01107/2026',
+    institute: 'Veritá',
+    publishedAt: '2026-10-17T12:27:00-03:00',
+    fieldwork: '12 a 16/10/2026 · unidade automatizada de respostas com reconhecimento de voz',
+    sample: 15554,
+    margin: 1,
+    confidence: 95,
+    registration: 'BR-01107/2026',
+    contractor: 'Instituto Veritá Ltda. — iniciativa própria',
+    metadataSource:
+      'https://www.cnnbrasil.com.br/eleicoes/verita-flavio-tem-511-dos-votos-validos-no-2o-turno-lula-489/',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 51.1,
+    lula: 48.9,
+    source:
+      'https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2026/10/Relatorio-Brasil-Outubro-2026.pdf',
+    mode: 'snapshot',
+    totalVotes: { flavio: 49.7, lula: 47.7, blankNull: 1.5, undecided: 1.1 },
+    note: 'Relatório original conferido em 17/10: registro e contratante na página 2, metodologia na página 3 e intenção estimulada na página 9 do arquivo (identificada como 13 no rodapé). Preservados os percentuais publicados nas colunas de totais e válidos, sem recálculo. Horário conforme a divulgação da CNN Brasil.',
+  },
+  {
+    id: 'BR-00223/2026',
+    institute: 'Ipespe/ABRAPEL',
+    publishedAt: '2026-10-17T11:05:49-03:00',
+    fieldwork: '13 a 15/10/2026 · entrevistas telefônicas (CATI IPESPE)',
+    sample: 1500,
+    margin: 2.6,
+    confidence: 95.45,
+    registration: 'BR-00223/2026',
+    contractor: 'Ipespe — recursos próprios',
+    metadataSource:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-512-contra-488-de-lula-diz-ipespe-abrapel/',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 51.2,
+    lula: 48.8,
+    source:
+      'https://ipespe.org.br/wp-content/uploads/2026/10/TRK-CAMPANHA-02_-IPESPE-ABRAPEL_2T_-13-a-15-OUT-2026.pdf',
+    mode: 'snapshot',
+    totalVotes: { flavio: 48, lula: 46, blankNull: 3, undecided: 3 },
+    note: 'Segunda rodada do tracking: relatório original conferido em 17/10, com estimulada e votos válidos na página 5 e metodologia na página 37. Votos válidos publicados pelo instituto, sem conversão dos totais arredondados. Contratação com recursos próprios conforme o Poder360; horário da publicação original conforme o feed do Ipespe.',
+  },
+  {
     id: 'BR-05187/2026',
     institute: 'Gerp',
     publishedAt: '2026-10-16T18:00:31-03:00',
@@ -455,6 +501,26 @@ export const pollSnapshots: PollSnapshot[] = [
 // Newly located reporting stays in publications until the original numeric
 // report and its methodology have been checked. Never infer totals from a headline.
 export const verifiedPublications: Publication[] = [
+  {
+    institute: 'Veritá',
+    title: 'Veritá: Flávio tem 51,1% dos votos válidos e Lula, 48,9%',
+    url: 'https://www.cnnbrasil.com.br/eleicoes/verita-flavio-tem-511-dos-votos-validos-no-2o-turno-lula-489/',
+    publishedAt: '2026-10-17T12:27:00-03:00',
+    source:
+      'https://www.cnnbrasil.com.br/eleicoes/verita-flavio-tem-511-dos-votos-validos-no-2o-turno-lula-489/',
+    kind: 'publication',
+    publisher: 'CNN Brasil',
+  },
+  {
+    institute: 'Ipespe',
+    title: 'Ipespe/Abrapel publica a segunda rodada do tracking presidencial',
+    url: 'https://ipespe.org.br/pesquisa-ipespe-abrapel-2o-turno-tracking-da-campanha-weekly-tracking-rodada-02-13-a-15-de-outubro-de-2026/',
+    publishedAt: '2026-10-17T11:05:49-03:00',
+    source:
+      'https://ipespe.org.br/pesquisa-ipespe-abrapel-2o-turno-tracking-da-campanha-weekly-tracking-rodada-02-13-a-15-de-outubro-de-2026/',
+    kind: 'publication',
+    publisher: 'Ipespe',
+  },
   {
     institute: 'Gerp',
     title: 'Gerp: Flávio tem 52% dos votos válidos e Lula, 48%',
