@@ -2,6 +2,35 @@ import type { PollSnapshot, Publication } from './types';
 
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-04332/2026',
+    institute: 'Vox Brasil',
+    publishedAt: '2026-10-18T00:01:00-03:00',
+    fieldwork: '15 a 17/10/2026 · entrevistas presenciais em domicílios',
+    sample: 2100,
+    margin: 2.15,
+    confidence: 95,
+    registration: 'BR-04332/2026',
+    contractor: 'Instituto Vox Brasil Opinião e Pesquisas — recursos próprios',
+    metadataSource:
+      'https://www.poder360.com.br/poder-eleicoes-2026/lula-tem-51-contra-49-de-flavio-em-votos-validos-diz-vox/',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 49,
+    lula: 51,
+    source:
+      'https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2026/10/RELATORIO-VOX-BRASIL-NACIONAL-10-2-TURNO-18-10-2026.pdf',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 44.6,
+      lula: 46.4,
+      other: 5,
+      otherLabel: 'Nenhum, branco ou nulo',
+      undecided: 3.9,
+    },
+    note: 'Relatório original conferido em 18/10: ficha técnica, contratação e metodologia na página 2; pergunta estimulada com totais e válidos na página 13. Percentuais transcritos sem recálculo; os totais somam 99,9% por arredondamento. Horário conforme o Poder360. Registro conforme o relatório, sem consulta direta ao TSE. A coleta terminou antes do debate da Band de 18/10.',
+  },
+  {
     id: 'BR-01107/2026',
     institute: 'Veritá',
     publishedAt: '2026-10-17T12:27:00-03:00',
@@ -501,6 +530,16 @@ export const pollSnapshots: PollSnapshot[] = [
 // Newly located reporting stays in publications until the original numeric
 // report and its methodology have been checked. Never infer totals from a headline.
 export const verifiedPublications: Publication[] = [
+  {
+    institute: 'Vox Brasil',
+    title: 'Vox Brasil: Lula tem 51% dos votos válidos e Flávio, 49%',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/lula-tem-51-contra-49-de-flavio-em-votos-validos-diz-vox/',
+    publishedAt: '2026-10-18T00:01:00-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/lula-tem-51-contra-49-de-flavio-em-votos-validos-diz-vox/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
   {
     institute: 'Veritá',
     title: 'Veritá: Flávio tem 51,1% dos votos válidos e Lula, 48,9%',

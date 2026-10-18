@@ -116,7 +116,7 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 20);
+assert.equal(pollSnapshots.length, 21);
 assert.equal(new Set(pollSnapshots.map((p) => p.registration)).size, pollSnapshots.length);
 for (const p of pollSnapshots) {
   if (p.basis === 'valid') assert.equal(p.flavio + p.lula, 100);
@@ -183,7 +183,7 @@ for (const omitted of ['O intervalo de confiança é de 95%.', 'com recursos pr�
   );
 const atlasSnapshot = pollSnapshots.find((p) => p.institute === 'AtlasIntel/Bloomberg');
 const ipespeSnapshot = pollSnapshots.find((p) => p.registration === 'BR-00933/2026');
-const voxSnapshot = pollSnapshots.find((p) => p.institute === 'Vox Brasil');
+const voxSnapshot = pollSnapshots.find((p) => p.registration === 'BR-09623/2026');
 const dataTrendsSnapshot = pollSnapshots.find((p) => p.institute === 'DataTrends');
 assert.equal(dataTrendsSnapshot.registration, 'BR-03576/2026');
 assert.equal(dataTrendsSnapshot.flavio, 53.1);
@@ -320,3 +320,14 @@ if (process.argv.includes('--live')) {
     'AtlasIntel official Exclusive Polls HTTP200; national presidential publication discovery verified.',
   );
 }
+
+const voxOctober18 = pollSnapshots.find((p) => p.registration === 'BR-04332/2026');
+assert.equal(voxOctober18.basis, 'valid');
+assert.equal(voxOctober18.flavio, 49);
+assert.equal(voxOctober18.lula, 51);
+assert.equal(voxOctober18.totalVotes.flavio, 44.6);
+assert.equal(voxOctober18.totalVotes.lula, 46.4);
+assert.equal(voxOctober18.totalVotes.other, 5);
+assert.equal(voxOctober18.totalVotes.undecided, 3.9);
+assert.equal(voxOctober18.registryCheckedAt, undefined);
+assert.ok(voxOctober18.source.endsWith('RELATORIO-VOX-BRASIL-NACIONAL-10-2-TURNO-18-10-2026.pdf'));
