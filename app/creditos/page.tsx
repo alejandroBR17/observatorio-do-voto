@@ -1,3 +1,4 @@
+import { historicalPortraits } from '@/lib/candidate-identity';
 import Link from 'next/link';
 import { sharingMetadata } from '@/lib/site-metadata';
 
@@ -97,6 +98,34 @@ export default function Credits() {
           pela plataforma. A interface pode ajustar o enquadramento para o cartão. O uso mantém
           autoria, fonte e licença identificadas.
         </p>
+      </section>
+      <section id="retratos-historicos">
+        <h2>Retratos dos candidatos do acervo</h2>
+        <p>
+          Fotos usadas para identificação, sem representar apoio ao projeto ou necessariamente o ano
+          da eleição exibida. Miniaturas redimensionadas e enquadradas na interface; mantêm as
+          licenças de origem e, quando aplicável, a mesma licença nas adaptações.
+        </p>
+        <ul>
+          {historicalPortraits.map((person) => (
+            <li key={person.name}>
+              <strong>{person.name}</strong> —{' '}
+              {person.author || 'Autoria não identificada na fonte'}.{' '}
+              <a href={person.source} target="_blank" rel="noreferrer">
+                Arquivo, autoria e condições de uso
+              </a>{' '}
+              ·{' '}
+              {person.licenseUrl ? (
+                <a href={person.licenseUrl} target="_blank" rel="noreferrer">
+                  {person.license}
+                </a>
+              ) : (
+                person.license
+              )}
+              .
+            </li>
+          ))}
+        </ul>
       </section>
       <section>
         <h2>Notícias, mapas e dados</h2>

@@ -43,6 +43,8 @@ import { ThemeMenu } from './theme-menu';
 import { TransferScenario } from './transfer-scenario';
 import { RecentUpdates } from './recent-updates';
 import { ObservatoryRoom } from './observatory-room';
+import { CandidatePortrait } from './components/candidate-portrait';
+import { electionPalette } from '@/lib/election-palette';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
 import { termsVersion } from '@/lib/terms';
 import { alertPreferences, defaultAlerts } from '@/lib/alerts';
@@ -246,9 +248,12 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
     transitionPage(() => {
       setTab(next);
       window.scrollTo({ top: 0, behavior: 'instant' });
-      requestAnimationFrame(() =>
-        document.querySelector<HTMLElement>('[data-page-title]')?.focus({ preventScroll: true }),
-      );
+      requestAnimationFrame(() => {
+        const heading =
+          document.querySelector<HTMLElement>('.or-room [data-page-title]') ||
+          document.querySelector<HTMLElement>('[data-page-title]');
+        heading?.focus({ preventScroll: true });
+      });
     });
   };
   function saveNickname(value: string) {
@@ -622,6 +627,9 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
     historical = hist.filter((d) => d.turn === turn),
     past = historical.find((d) => d.uf === uf) || historical.find((d) => d.uf === 'BR'),
     stateData = all.filter((d) => states.some((s) => s[1] === d.uf));
+  const historyPalette = electionPalette(
+    historical.find((result) => result.uf === 'BR')?.candidates || [],
+  );
   const filtered = states.filter(
     (s) =>
       (region === 'Brasil' || s[3] === region) &&
@@ -1019,6 +1027,12 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 </button>
               </div>
             )}
+            {tab === 'history' && year === 1994 && uf === 'BR' && (
+              <div className="notice">
+                O total de 1994 nesta base soma os votos no país; os votos no exterior não estão
+                incluídos.
+              </div>
+            )}
             {tab === 'overview' && reviewOnly && (
               <ObservatoryRoom
                 results={all}
@@ -1029,6 +1043,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 }}
                 onGo={go}
                 liveStatus={live.status}
+                live={live}
               />
             )}
             {tab === 'overview' && !reviewOnly && selected && (
@@ -1768,10 +1783,18 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                                 <div key={c.number}>
                                   <div>
                                     <span className="ranking">{i + 1}</span>
+                                    <CandidatePortrait name={c.name} />
                                     <strong>{name(c.name)}</strong>
                                     <span className="subtle-tag">{c.party}</span>
                                   </div>
-                                  <strong style={{ color: color(c.number) }}>
+                                  <strong
+                                    style={{
+                                      color:
+                                        historyPalette.find(
+                                          (candidate) => candidate.number === c.number,
+                                        )?.color || '#87999b',
+                                    }}
+                                  >
                                     {pct(c.percent)}
                                   </strong>
                                   <small>{fmt(c.votes)} votos</small>
@@ -1779,7 +1802,10 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                                     <div
                                       style={{
                                         width: c.percent + '%',
-                                        background: color(c.number),
+                                        background:
+                                          historyPalette.find(
+                                            (candidate) => candidate.number === c.number,
+                                          )?.color || '#87999b',
                                       }}
                                     />
                                   </div>

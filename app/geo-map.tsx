@@ -1,17 +1,11 @@
 'use client';
 import { useEffect, useId, useState } from 'react';
 import { MapPin } from 'lucide-react';
+import { candidateName as name } from '@/lib/presentation';
+import { electionPalette, type CandidateLegend } from '@/lib/election-palette';
 import { states, type Result } from '@/lib/elections';
 const color = (n: string) =>
   n === '13' ? '#c96856' : n === '22' || n === '17' ? '#24796d' : '#87999b';
-const name = (n: string) =>
-  n === 'FLAVIO BOLSONARO'
-    ? 'Flávio Bolsonaro'
-    : n === 'LULA'
-      ? 'Lula'
-      : n === 'JAIR BOLSONARO'
-        ? 'Jair Bolsonaro'
-        : n;
 const pct = (n: number) => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + '%';
 type Geometry =
   | { type: 'Polygon'; coordinates: number[][][] }
@@ -23,12 +17,14 @@ export function Map({
   selected,
   onSelect,
   focusCandidate,
+  candidateLegend,
 }: {
   data: Result[];
   region: string;
   selected: string;
   onSelect: (s: string) => void;
   focusCandidate?: string;
+  candidateLegend?: CandidateLegend[];
 }) {
   const [geo, setGeo] = useState<Geo>();
   const descriptionId = useId();
@@ -70,6 +66,27 @@ export function Map({
   const greenCandidate = data
     .flatMap((d) => d.candidates)
     .find((c) => c.number === '22' || c.number === '17');
+  const national = data.find((result) => result.uf === 'BR');
+  const legend =
+    candidateLegend ||
+    (national
+      ? electionPalette(national.candidates)
+      : [
+          ...(greenCandidate
+            ? [{ number: greenCandidate.number, name: name(greenCandidate.name), color: '#24796d' }]
+            : []),
+          ...(() => {
+            const candidate = data
+              .flatMap((result) => result.candidates)
+              .find((c) => c.number === '13');
+            return candidate
+              ? [{ number: '13', name: name(candidate.name), color: '#c96856' }]
+              : [];
+          })(),
+        ]);
+  const candidateFill = (number: string) =>
+    legend.find((candidate) => candidate.number === number)?.color ||
+    (candidateLegend || national ? '#87999b' : color(number));
   return (
     <div className="map-wrap">
       <p className="sr-only" id={descriptionId}>
@@ -99,7 +116,7 @@ export function Map({
               <path
                 key={s[1]}
                 d={path(f.geometry)}
-                fill={d?.candidates[0]?.votes ? color(d.candidates[0].number) : '#c2cecb'}
+                fill={d?.candidates[0]?.votes ? candidateFill(d.candidates[0].number) : '#c2cecb'}
                 stroke={selected === s[1] ? 'var(--ink)' : 'var(--surface)'}
                 strokeWidth={selected === s[1] ? 2.5 : 1.4}
                 opacity={
@@ -178,16 +195,12 @@ export function Map({
         Clique em um estado para explorar
       </span>
       <div className="map-legend" aria-label="Legenda do mapa">
-        <span>
-          <i style={{ background: '#c96856' }} aria-hidden="true" />
-          Lula
-        </span>
-        {greenCandidate && (
-          <span>
-            <i style={{ background: '#24796d' }} aria-hidden="true" />
-            {name(greenCandidate.name)}
+        {legend.map((candidate) => (
+          <span key={candidate.number}>
+            <i style={{ background: candidate.color }} aria-hidden="true" />
+            {candidate.name}
           </span>
-        )}
+        ))}
         <span>
           <i style={{ background: '#87999b' }} aria-hidden="true" />
           Outros candidatos

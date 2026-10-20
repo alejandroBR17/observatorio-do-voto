@@ -13,9 +13,9 @@ import {
   Radio,
 } from 'lucide-react';
 import { states, type Result } from '@/lib/elections';
-import { candidates } from '@/lib/content';
+import { candidates, years } from '@/lib/content';
+import { CandidatePortrait } from './components/candidate-portrait';
 import {
-  candidateColor,
   candidateName,
   formatCompactPercent as pct,
   formatDate,
@@ -29,6 +29,9 @@ import { DataFreshness } from './components/data-freshness';
 import { Disclosure } from './disclosure';
 import { NewsVisual } from './news-visual';
 import type { MediaResponse } from '@/lib/media-types';
+import { VisitHighlights } from './visit-highlights';
+import type { ImportantLive } from '@/lib/important-updates';
+import { electionPalette } from '@/lib/election-palette';
 
 export function ObservatoryRoom({
   results,
@@ -36,14 +39,17 @@ export function ObservatoryRoom({
   onState,
   onGo,
   liveStatus,
+  live,
 }: {
   results: Result[];
   uf: string;
   onState: (uf: string) => void;
   onGo: (tab: string) => void;
   liveStatus: string;
+  live: ImportantLive;
 }) {
   const [year, setYear] = useState(2026);
+  const [turn, setTurn] = useState(1);
   const [archive, setArchive] = useState<Result[]>([]);
   const [archiveState, setArchiveState] = useState<'ready' | 'loading' | 'error'>('ready');
   const [focus, setFocus] = useState('');
@@ -61,7 +67,8 @@ export function ObservatoryRoom({
         return response.json();
       })
       .then((data: Result[]) => {
-        setArchive(data.filter((r) => r.turn === 1));
+        if (controller.signal.aborted) return;
+        setArchive(data);
         setArchiveState('ready');
       })
       .catch(() => {
@@ -69,11 +76,19 @@ export function ObservatoryRoom({
       });
     return () => controller.abort();
   }, [year]);
-  const data = year === 2026 ? results : archive.filter((r) => r.year === year);
+  const data = year === 2026 ? results : archive.filter((r) => r.year === year && r.turn === turn);
   const current = data.find((r) => r.uf === uf);
   const national = data.find((r) => r.uf === 'BR');
-  const selection = uf === 'BR' ? 'Brasil' : states.find((s) => s[1] === uf)?.[2] || uf;
-  const pair = current?.candidates.slice(0, 2) || [];
+  const palette = electionPalette(national?.candidates || []);
+  const resultColor = (number: string) =>
+    palette.find((candidate) => candidate.number === number)?.color || '#87999b';
+  const selection =
+    uf === 'BR'
+      ? year === 1994
+        ? 'Brasil · votos no país'
+        : 'Brasil'
+      : states.find((s) => s[1] === uf)?.[2] || uf;
+  const pair = current?.candidates.filter((c) => c.votes > 0).slice(0, 2) || [];
   const orderedPolls = [...(polling?.polls || [])]
     .filter((p) => pollNumbers(p, 'valid'))
     .sort((a, b) => a.publishedAt.localeCompare(b.publishedAt));
@@ -96,9 +111,9 @@ export function ObservatoryRoom({
             <span className="or-beacon" /> ELEIÇÕES PRESIDENCIAIS · 2026
           </span>
           <h1 tabIndex={-1} data-page-title>
-            A eleição, <span>em perspectiva.</span>
+            Acompanhe a disputa <span>pela Presidência.</span>
           </h1>
-          <p>Observe o território. Percorra as mudanças. Entenda o momento.</p>
+          <p>Veja os resultados por estado, compare pesquisas e explore eleições anteriores.</p>
         </div>
         <div className="or-phase">
           <Radio size={17} />
@@ -126,31 +141,62 @@ export function ObservatoryRoom({
           <i aria-hidden="true" /> Âmbar: ações e seleção
         </span>
       </nav>
+      <VisitHighlights polls={polling} live={live} onGo={onGo} />
       <div className="or-primary">
         <section className="or-atlas" id="territorio">
           <div className="or-section-head">
             <div>
               <span className="or-overline">01 / O VOTO NO TERRITÓRIO</span>
-              <h2>Um país. Muitos cenários.</h2>
+              <h2>Como o Brasil votou</h2>
             </div>
             <span className="or-source">
               <Check size={12} /> Resultado oficial
             </span>
           </div>
           <div className="or-atlas-toolbar">
-            <div className="or-years" role="group" aria-label="Ano do resultado de primeiro turno">
-              {[2018, 2022, 2026].map((value) => (
+            <label className="or-year-picker">
+              Ano
+              <select
+                aria-label="Ano da eleição"
+                value={year}
+                onChange={(event) => {
+                  const next = Number(event.target.value);
+                  setYear(next);
+                  setFocus('');
+                  if ([1994, 1998, 2026].includes(next)) setTurn(1);
+                }}
+              >
+                {[2026, ...[...years].reverse()].map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="or-years" role="group" aria-label="Turno da eleição">
+              <button
+                aria-pressed={turn === 1}
+                onClick={() => {
+                  setTurn(1);
+                  setFocus('');
+                }}
+              >
+                1º turno
+              </button>
+              {![1994, 1998].includes(year) && (
                 <button
-                  key={value}
-                  aria-pressed={year === value}
+                  aria-pressed={year !== 2026 && turn === 2}
                   onClick={() => {
-                    setYear(value);
-                    setFocus('');
+                    if (year === 2026) onGo('live');
+                    else {
+                      setTurn(2);
+                      setFocus('');
+                    }
                   }}
                 >
-                  {value}
+                  {year === 2026 ? '2º turno · acompanhar' : '2º turno'}
                 </button>
-              ))}
+              )}
             </div>
             <label className="or-state-select">
               <MapPin size={14} />
@@ -168,9 +214,14 @@ export function ObservatoryRoom({
               </select>
             </label>
           </div>
+          {[1994, 1998].includes(year) && (
+            <p className="or-single-turn">Esta eleição foi decidida no primeiro turno.</p>
+          )}
           <div className="or-atlas-body">
             <div className="or-map-stage">
-              <span className="or-map-coordinate">BR / {year} / 1º TURNO</span>
+              <span className="or-map-coordinate">
+                BR / {year} / {turn}º TURNO
+              </span>
               {!available ? (
                 <div className="or-map-status" role="status">
                   {year === 2026
@@ -186,6 +237,7 @@ export function ObservatoryRoom({
                   selected={uf}
                   onSelect={onState}
                   focusCandidate={focus}
+                  candidateLegend={palette}
                 />
               )}
             </div>
@@ -193,31 +245,27 @@ export function ObservatoryRoom({
               <div className="or-scope">
                 <span className="or-overline">SEU RECORTE</span>
                 <h3>{selection}</h3>
-                <span>{year} · primeiro turno</span>
+                <span>
+                  {year} · {turn}º turno
+                </span>
               </div>
               <div
                 className="or-contenders"
-                key={`${year}-${uf}`}
+                key={`${year}-${turn}-${uf}`}
                 aria-live="polite"
                 aria-atomic="true"
               >
                 {pair.map((c) => {
-                  const person =
-                    year === 2026 ? candidates.find((p) => p.number === c.number) : undefined;
                   return (
                     <button
                       key={c.number}
                       className="or-contender"
                       aria-pressed={focus === c.number}
                       onClick={() => setFocus(focus === c.number ? '' : c.number)}
-                      style={{ '--contender': candidateColor(c.number) } as React.CSSProperties}
+                      style={{ '--contender': resultColor(c.number) } as React.CSSProperties}
                     >
                       <div className="or-person">
-                        {person ? (
-                          <img src={person.photo} alt="" width="36" height="40" />
-                        ) : (
-                          <span className="or-party">{c.party}</span>
-                        )}
+                        <CandidatePortrait name={c.name} />
                         <div>
                           <strong>{candidateName(c.name)}</strong>
                           <small>
@@ -271,8 +319,10 @@ export function ObservatoryRoom({
           </div>
           <div className="or-atlas-foot">
             <span>
-              <Layers size={13} /> Primeiro turno · votos válidos ·{' '}
-              {current ? pct(current.counted) : '—'} das seções
+              <Layers size={13} /> {turn}º turno · votos válidos ·{' '}
+              {year === 2026
+                ? `${current ? pct(current.counted) : '—'} das seções`
+                : 'acervo do TSE'}
             </span>
             {current && (
               <a href={current.source} target="_blank" rel="noreferrer">
@@ -280,6 +330,29 @@ export function ObservatoryRoom({
               </a>
             )}
           </div>
+          {year === 1994 && uf === 'BR' && (
+            <p className="or-coverage-note">
+              O total de 1994 nesta base soma os votos no país; os votos no exterior não estão
+              incluídos.
+            </p>
+          )}
+          <details className="or-archive-sources">
+            <summary>Fontes dos resultados e retratos</summary>
+            <p>
+              Resultados consolidados pelo TSE por município e zona eleitoral. Os retratos
+              identificam os candidatos e podem ter sido feitos em outro ano.
+            </p>
+            {year === 1998 && (
+              <p>
+                1998 usa o campo de votos nominais válidos do arquivo gerado pelo TSE em 20/09/2023.
+                Esses totais diferem ligeiramente de boletins históricos: preservamos os números
+                desta base sem misturar versões.
+              </p>
+            )}
+            <a href="/creditos#retratos-historicos" target="_blank" rel="noreferrer">
+              Autoria e licenças das fotos <ArrowUpRight size={14} />
+            </a>
+          </details>
         </section>
         <aside className="or-moment">
           <div className="or-section-head">
