@@ -43,6 +43,7 @@ import { ThemeMenu } from './theme-menu';
 import { TransferScenario } from './transfer-scenario';
 import { RecentUpdates } from './recent-updates';
 import { ObservatoryRoom } from './observatory-room';
+import { CandidateObservatory } from './candidate-observatory';
 import { CandidatePortrait } from './components/candidate-portrait';
 import { electionPalette } from '@/lib/election-palette';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
@@ -991,9 +992,11 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 <h1 tabIndex={-1} data-page-title>
                   {reviewOnly && tab === 'polls'
                     ? 'O pulso da disputa.'
-                    : tab === 'overview'
-                      ? 'O país em perspectiva.'
-                      : nav.find((n) => n[0] === tab)?.[1]}
+                    : reviewOnly && tab === 'candidates'
+                      ? 'Quem disputa a Presidência.'
+                      : tab === 'overview'
+                        ? 'O país em perspectiva.'
+                        : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
@@ -1966,7 +1969,22 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                     </Disclosure>
                   </>
                 )}
-                {tab === 'candidates' && (
+                {tab === 'candidates' && reviewOnly && (
+                  <CandidateObservatory
+                    result={national}
+                    favorite={favorite}
+                    onGo={go}
+                    onFavorite={(number) => {
+                      const next = favorite === number ? '' : number;
+                      setFavorite(next);
+                      save(next);
+                      notify(
+                        next ? 'Preferência salva apenas neste aparelho.' : 'Preferência removida.',
+                      );
+                    }}
+                  />
+                )}
+                {tab === 'candidates' && !reviewOnly && (
                   <>
                     <div className="candidate-profiles">
                       {candidates.map((c) => (

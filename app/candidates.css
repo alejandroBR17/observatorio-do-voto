@@ -1,0 +1,381 @@
+/* Candidate profiles use the same data colors and amber actions as the panorama. */
+.control-room:has(.or-candidates) .preview-note {
+  display: none;
+}
+.or-candidates {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.or-candidate-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.or-candidate-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.or-candidate-nav a > span {
+  color: var(--or-amber);
+  font-variant-numeric: tabular-nums;
+}
+.or-candidate-nav a > svg {
+  color: var(--or-amber);
+}
+.or-candidate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+.or-candidate-card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  overflow: hidden;
+  scroll-margin-top: 100px;
+}
+.or-candidate-identity {
+  padding: 26px;
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  position: relative;
+  background: radial-gradient(ellipse at 0 0, var(--or-glow), transparent 70%);
+  border-bottom: 1px solid var(--line);
+}
+.or-candidate-identity > img {
+  width: 112px;
+  height: 136px;
+  border-radius: 14px;
+  object-fit: cover;
+  object-position: center 15%;
+}
+.or-candidate-identity h2 {
+  font-size: clamp(26px, 2.8vw, 38px);
+  margin: 12px 0 8px;
+  line-height: 1.1;
+  letter-spacing: -1px;
+}
+.or-candidate-identity .or-overline {
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding-right: 40px;
+}
+.or-candidate-identity p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+.or-ballot {
+  position: absolute;
+  right: 20px;
+  top: 18px;
+  display: grid;
+  text-align: center;
+  color: var(--muted);
+}
+.or-ballot strong {
+  font-size: 28px;
+  line-height: 1;
+  color: var(--person-color);
+}
+.or-ballot span {
+  font-size: 9px;
+  letter-spacing: 1px;
+  margin-top: 5px;
+}
+.or-candidate-body {
+  padding: 24px 26px;
+}
+.or-candidate-bio {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+.or-candidate-vice {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--soft);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 20px;
+}
+.or-candidate-vice > svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.or-candidate-vice span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.or-candidate-vice strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+}
+.or-candidate-result {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.or-candidate-result > div {
+  display: grid;
+  gap: 7px;
+}
+.or-candidate-result strong {
+  font-size: 42px;
+  font-weight: 600;
+  color: var(--person-color);
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+.or-candidate-result > div > span:last-child {
+  color: var(--muted);
+  font-size: 14px;
+}
+.or-candidates .source {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--soft);
+  color: var(--or-amber);
+  text-decoration: none;
+  font-size: 13px;
+  min-height: 42px;
+  margin-top: 14px;
+  max-width: 100%;
+}
+.or-candidate-history {
+  margin-top: 22px;
+}
+.or-candidate-history summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  list-style: none;
+  cursor: pointer;
+}
+.or-candidate-history summary::-webkit-details-marker {
+  display: none;
+}
+.or-candidate-history summary > span {
+  color: var(--or-amber);
+  font-size: 22px;
+  line-height: 1;
+  transition: transform 180ms ease;
+}
+.or-candidate-history[open] summary > span {
+  transform: rotate(45deg);
+}
+.or-candidate-history ol {
+  margin: 20px 0 0 7px;
+  padding-left: 20px;
+  list-style: none;
+  border-left: 1px solid var(--line);
+}
+.or-candidate-history li {
+  position: relative;
+  padding-bottom: 22px;
+}
+.or-candidate-history li::before {
+  content: '';
+  position: absolute;
+  left: -25px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  background: var(--person-color);
+  border-radius: 50%;
+}
+.or-candidate-history li:last-child {
+  padding-bottom: 0;
+}
+.or-candidate-history li > strong {
+  font-size: 14px;
+  color: var(--ink);
+}
+.or-candidate-history li > p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 6px 0 0;
+}
+.or-candidate-favorite {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--or-amber);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px;
+  margin-top: 16px;
+}
+.or-candidate-favorite[aria-pressed='true'] {
+  border-color: var(--or-amber);
+  background: var(--soft);
+}
+.or-candidate-privacy {
+  display: flex;
+  gap: 10px;
+  align-items: start;
+  color: var(--muted);
+}
+.or-candidate-privacy svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.or-candidate-privacy p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.or-candidate-next {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+.or-candidate-next h2 {
+  font-size: 26px;
+  letter-spacing: -0.7px;
+  margin: 12px 0;
+}
+.or-candidate-next p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
+}
+.or-candidate-next > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.or-candidate-next button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  min-height: 46px;
+  font-size: 14px;
+  color: var(--or-amber);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+@media (max-width: 950px) {
+  .or-candidate-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .or-candidates,
+  .or-candidate-grid {
+    gap: 16px;
+  }
+  .or-candidate-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .or-candidate-nav a {
+    font-size: 12px;
+    padding: 10px;
+    gap: 6px;
+  }
+  .or-candidate-nav a > svg {
+    display: none;
+  }
+  .or-candidate-identity {
+    padding: 20px 16px;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 14px;
+  }
+  .or-candidate-identity > img {
+    width: 80px;
+    height: 104px;
+    border-radius: 10px;
+  }
+  .or-candidate-identity h2 {
+    font-size: 25px;
+    margin: 24px 0 8px;
+  }
+  .or-candidate-identity .or-overline {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    display: block;
+    padding-right: 30px;
+  }
+  .or-candidate-identity p {
+    font-size: 12px;
+  }
+  .or-ballot {
+    right: 14px;
+    top: 14px;
+  }
+  .or-ballot strong {
+    font-size: 24px;
+  }
+  .or-ballot span {
+    font-size: 8px;
+  }
+  .or-candidate-body {
+    padding: 20px 16px;
+  }
+  .or-candidate-bio {
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  .or-candidate-next > div:last-child {
+    width: 100%;
+    display: grid;
+  }
+  .or-candidate-next button {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .or-candidate-history summary > span {
+    transition: none;
+  }
+}
