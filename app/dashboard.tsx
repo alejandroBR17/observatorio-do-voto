@@ -42,6 +42,7 @@ import { LiveCountdown } from './live-countdown';
 import { ThemeMenu } from './theme-menu';
 import { TransferScenario } from './transfer-scenario';
 import { RecentUpdates } from './recent-updates';
+import { ObservatoryRoom } from './observatory-room';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
 import { termsVersion } from '@/lib/terms';
 import { alertPreferences, defaultAlerts } from '@/lib/alerts';
@@ -883,7 +884,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
           </aside>
         </>
       )}
-      <div className="main-shell" inert={mobile}>
+      <div className={`main-shell${reviewOnly ? ' control-room' : ''}`} inert={mobile}>
         <header className="topbar">
           <div className="top-brand">
             <button
@@ -1017,7 +1018,16 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 </button>
               </div>
             )}
-            {tab === 'overview' && selected && (
+            {tab === 'overview' && reviewOnly && (
+              <ObservatoryRoom
+                results={all}
+                uf={uf}
+                onState={setUf}
+                onGo={go}
+                liveStatus={live.status}
+              />
+            )}
+            {tab === 'overview' && !reviewOnly && selected && (
               <section
                 className="panorama-candidates"
                 aria-label="Candidatos ao segundo turno e resultado do primeiro turno"
@@ -1039,7 +1049,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 })}
               </section>
             )}
-            {tab === 'overview' && (
+            {tab === 'overview' && !reviewOnly && (
               <div className="election-banner">
                 <div className="banner-icon">
                   <Vote size={23} />
@@ -1058,7 +1068,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 </button>
               </div>
             )}
-            {(tab === 'overview' || tab === 'history') && (
+            {((tab === 'overview' && !reviewOnly) || tab === 'history') && (
               <div className="active-filters">
                 <span>{tab === 'history' ? `${year} · ${turn}º turno` : '2026 · 1º turno'}</span>
                 <span>{uf !== 'BR' ? states.find((s) => s[1] === uf)?.[2] : region}</span>
@@ -1080,7 +1090,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 )}
               </div>
             )}
-            {(tab === 'overview' || tab === 'history') && (
+            {((tab === 'overview' && !reviewOnly) || tab === 'history') && (
               <div className="filters">
                 <div className="segmented">
                   {tab === 'overview' ? (
@@ -1197,14 +1207,15 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 onTest={pushTest}
               />
             )}
-            {['profile', 'alerts', 'app'].includes(tab) ? null : busy ? (
+            {['profile', 'alerts', 'app'].includes(tab) ||
+            (reviewOnly && tab === 'overview') ? null : busy ? (
               <div className="loading large">
                 <RefreshCw size={20} />
                 Carregando dados oficiais…
               </div>
             ) : (
               <>
-                {tab === 'overview' && selected && (
+                {tab === 'overview' && !reviewOnly && selected && (
                   <>
                     <DataFreshness archived generated={selected.generated} />
                     <RecentUpdates onGo={go} />

@@ -22,11 +22,13 @@ export function Map({
   region,
   selected,
   onSelect,
+  focusCandidate,
 }: {
   data: Result[];
   region: string;
   selected: string;
   onSelect: (s: string) => void;
+  focusCandidate?: string;
 }) {
   const [geo, setGeo] = useState<Geo>();
   const descriptionId = useId();
@@ -100,7 +102,13 @@ export function Map({
                 fill={d?.candidates[0]?.votes ? color(d.candidates[0].number) : '#c2cecb'}
                 stroke={selected === s[1] ? 'var(--ink)' : 'var(--surface)'}
                 strokeWidth={selected === s[1] ? 2.5 : 1.4}
-                opacity={region === 'Brasil' || s[3] === region ? 1 : 0.17}
+                opacity={
+                  !inRegion
+                    ? 0.17
+                    : focusCandidate && d?.candidates[0]?.number !== focusCandidate
+                      ? 0.2
+                      : 1
+                }
                 className="state"
                 role="button"
                 tabIndex={inRegion ? 0 : -1}
