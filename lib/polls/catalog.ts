@@ -2,6 +2,120 @@ import type { PollSnapshot, Publication } from './types';
 
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-06715/2026',
+    institute: 'Futura/100 Cidades',
+    publishedAt: '2026-10-19T11:49:23-03:00',
+    fieldwork: '16 a 17/10/2026 · entrevistas telefônicas assistidas por computador (CATI)',
+    sample: 2000,
+    margin: 2.2,
+    confidence: 95,
+    contractor: 'Futura Consultoria e Assessoria — conforme divulgação do Poder360',
+    metadataSource:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-504-dos-votos-validos-contra-496-de-lula-diz-pesquisa/',
+    flavio: 50.4,
+    lula: 49.6,
+    source:
+      'https://static.poder360.com.br/uploads/2026/10/pesquisa-futura-eleicao-presidencial-19out2026.pdf',
+    totalVotes: {
+      flavio: 48.3,
+      lula: 47.5,
+      other: 2.4,
+      otherLabel: 'Ninguém, branco ou nulo',
+      undecided: 1.9,
+    },
+    note: 'Relatório original conferido em 19/10: metodologia na página 4, intenção estimulada na página 10 e votos válidos na página 12. A página 5 informa mudança na ponderação por escolaridade: de dados do TSE para PNAD Contínua/IBGE, o que exige cautela na comparação entre rodadas. Preservados os percentuais publicados, inclusive a soma de 100,1% nos totais por arredondamento. Contratante e horário conforme o Poder360; registro conforme o relatório, sem consulta direta ao TSE.',
+    registration: 'BR-06715/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    mode: 'snapshot',
+  },
+  {
+    id: 'BR-02418/2026',
+    institute: 'AtlasIntel/Bloomberg',
+    publishedAt: '2026-10-19T07:42:24-03:00',
+    fieldwork: '13 a 18/10/2026 · recrutamento digital aleatório (Atlas RDR)',
+    sample: 4998,
+    margin: 1,
+    confidence: 95,
+    contractor: 'AtlasIntel — recursos próprios',
+    metadataSource:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-511-dos-votos-validos-contra-489-de-lula-diz-atlasintel/',
+    flavio: 51.1,
+    lula: 48.9,
+    source:
+      'https://static.poder360.com.br/uploads/2026/10/Pesquisa-presidencial-AtlasIntel-Bloomberg-19out2026.pdf',
+    totalVotes: {
+      flavio: 49.8,
+      lula: 47.6,
+      other: 2.6,
+      otherLabel: 'Branco, nulo ou não sei',
+    },
+    note: 'Relatório original conferido em 19/10: metodologia na página 4, ficha técnica na página 5, intenção estimulada na página 7 e votos válidos na página 8. Amostra efetiva de 4.998 respondentes. Preservada a categoria conjunta branco/nulo/não sei, sem separar respostas nem recalcular válidos. Contratação com recursos próprios e horário conforme o Poder360; registro conforme o relatório, sem consulta direta ao TSE.',
+    registration: 'BR-02418/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    mode: 'snapshot',
+  },
+  {
+    id: 'BR-02586/2026',
+    institute: 'PoderData/Aya',
+    publishedAt: '2026-10-19T07:00:44-03:00',
+    fieldwork: '16 a 18/10/2026 · entrevistas telefônicas automatizadas (URA)',
+    sample: 3000,
+    margin: 1.8,
+    confidence: 95,
+    contractor: 'PoderData — recursos próprios; Aya é parceira de divulgação',
+    metadataSource:
+      'https://www.poder360.com.br/poderdata/flavio-reage-e-vai-a-52-contra-48-de-lula-diz-poderdata-aya/',
+    flavio: 52,
+    lula: 48,
+    source:
+      'https://static.poder360.com.br/uploads/2026/10/Relatorio-PoderData-Eleitoral-18out26.pdf',
+    totalVotes: {
+      flavio: 49,
+      lula: 46,
+      blankNull: 4,
+      undecided: 2,
+    },
+    note: 'Relatório original conferido em 19/10: ficha técnica na página 2, totais na página 7 e votos válidos na página 11. Foram 3.000 entrevistas em 695 municípios das 27 UFs. Preservados os percentuais divulgados, sem recalcular válidos a partir dos totais arredondados, que somam 101%. A ficha técnica qualifica a margem como estimativa aproximada para a cobertura telefônica. Contratação e horário conforme a divulgação original; registro conforme o relatório, sem consulta direta ao TSE.',
+    registration: 'BR-02586/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    mode: 'snapshot',
+  },
+  {
+    id: 'BR-04499/2026',
+    institute: 'BTG/Nexus',
+    publishedAt: '2026-10-19T06:33:30-03:00',
+    fieldwork: '16 a 18/10/2026 · entrevistas telefônicas assistidas por computador (CATI)',
+    sample: 2002,
+    margin: 2,
+    confidence: 95,
+    contractor: 'Banco BTG Pactual S.A.',
+    metadataSource:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-503-contra-497-de-lula-dos-votos-validos-diz-btg-nexus/',
+    flavio: 50.3,
+    lula: 49.7,
+    source:
+      'https://static.poder360.com.br/uploads/2026/10/Pesquisa-presidencial-BTG-Nexus-19out2026.pdf',
+    totalVotes: {
+      flavio: 46.5,
+      lula: 45.9,
+      other: 4.7,
+      otherLabel: 'Nenhum, branco ou nulo',
+      undecided: 2.9,
+    },
+    note: '18ª rodada: relatório original conferido em 19/10, com metodologia na página 4, estimulada na página 22 e votos válidos na página 24. A Nexus passa a publicar uma casa decimal e apresenta séries históricas com essa precisão; os cartões anteriores preservam os números originalmente divulgados. Percentuais transcritos sem recálculo. Contratante e horário conforme o Poder360; registro conforme o relatório, sem consulta direta ao TSE.',
+    registration: 'BR-04499/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    mode: 'snapshot',
+  },
+  {
     id: 'BR-04332/2026',
     institute: 'Vox Brasil',
     publishedAt: '2026-10-18T00:01:00-03:00',
@@ -530,6 +644,57 @@ export const pollSnapshots: PollSnapshot[] = [
 // Newly located reporting stays in publications until the original numeric
 // report and its methodology have been checked. Never infer totals from a headline.
 export const verifiedPublications: Publication[] = [
+  {
+    institute: 'DataTrends',
+    title: 'DataTrends divulga nova rodada nacional de segundo turno',
+    url: 'https://robsonpiresxerife.com/pesquisa-datatrends-flavio-bolsonaro-tem-515-dos-votos-validos-contra-485-de-lula/',
+    publishedAt: '2026-10-19T00:00:00-03:00',
+    dateOnly: true,
+    source:
+      'https://robsonpiresxerife.com/pesquisa-datatrends-flavio-bolsonaro-tem-515-dos-votos-validos-contra-485-de-lula/',
+    kind: 'publication',
+    publisher: 'Blog do Robson Pires',
+  },
+  {
+    institute: 'Futura/100 Cidades',
+    title: 'Futura: Flávio tem 50,4% dos votos válidos e Lula, 49,6%',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-504-dos-votos-validos-contra-496-de-lula-diz-pesquisa/',
+    publishedAt: '2026-10-19T11:49:23-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-504-dos-votos-validos-contra-496-de-lula-diz-pesquisa/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
+  {
+    institute: 'AtlasIntel/Bloomberg',
+    title: 'AtlasIntel: Flávio tem 51,1% dos votos válidos e Lula, 48,9%',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-511-dos-votos-validos-contra-489-de-lula-diz-atlasintel/',
+    publishedAt: '2026-10-19T07:42:24-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-511-dos-votos-validos-contra-489-de-lula-diz-atlasintel/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
+  {
+    institute: 'PoderData/Aya',
+    title: 'PoderData/Aya: Flávio tem 52% dos votos válidos e Lula, 48%',
+    url: 'https://www.poder360.com.br/poderdata/flavio-reage-e-vai-a-52-contra-48-de-lula-diz-poderdata-aya/',
+    publishedAt: '2026-10-19T07:00:44-03:00',
+    source:
+      'https://www.poder360.com.br/poderdata/flavio-reage-e-vai-a-52-contra-48-de-lula-diz-poderdata-aya/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
+  {
+    institute: 'BTG/Nexus',
+    title: 'BTG/Nexus: Flávio tem 50,3% dos votos válidos e Lula, 49,7%',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-503-contra-497-de-lula-dos-votos-validos-diz-btg-nexus/',
+    publishedAt: '2026-10-19T06:33:30-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-503-contra-497-de-lula-dos-votos-validos-diz-btg-nexus/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
   {
     institute: 'Vox Brasil',
     title: 'Vox Brasil: Lula tem 51% dos votos válidos e Flávio, 49%',

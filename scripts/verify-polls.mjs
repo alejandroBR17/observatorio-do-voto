@@ -116,7 +116,7 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 21);
+assert.equal(pollSnapshots.length, 25);
 assert.equal(new Set(pollSnapshots.map((p) => p.registration)).size, pollSnapshots.length);
 for (const p of pollSnapshots) {
   if (p.basis === 'valid') assert.equal(p.flavio + p.lula, 100);
@@ -181,7 +181,7 @@ for (const omitted of ['O intervalo de confiança é de 95%.', 'com recursos pr�
     null,
     'Incomplete disclosure remains a publication rather than a numeric poll',
   );
-const atlasSnapshot = pollSnapshots.find((p) => p.institute === 'AtlasIntel/Bloomberg');
+const atlasSnapshot = pollSnapshots.find((p) => p.registration === 'BR-03663/2026');
 const ipespeSnapshot = pollSnapshots.find((p) => p.registration === 'BR-00933/2026');
 const voxSnapshot = pollSnapshots.find((p) => p.registration === 'BR-09623/2026');
 const dataTrendsSnapshot = pollSnapshots.find((p) => p.institute === 'DataTrends');
@@ -331,3 +331,49 @@ assert.equal(voxOctober18.totalVotes.other, 5);
 assert.equal(voxOctober18.totalVotes.undecided, 3.9);
 assert.equal(voxOctober18.registryCheckedAt, undefined);
 assert.ok(voxOctober18.source.endsWith('RELATORIO-VOX-BRASIL-NACIONAL-10-2-TURNO-18-10-2026.pdf'));
+
+for (const [registration, flavio, lula, sample, totals] of [
+  [
+    'BR-06715/2026',
+    50.4,
+    49.6,
+    2000,
+    { flavio: 48.3, lula: 47.5, other: 2.4, otherLabel: 'Ninguém, branco ou nulo', undecided: 1.9 },
+  ],
+  [
+    'BR-02418/2026',
+    51.1,
+    48.9,
+    4998,
+    { flavio: 49.8, lula: 47.6, other: 2.6, otherLabel: 'Branco, nulo ou não sei' },
+  ],
+  ['BR-02586/2026', 52, 48, 3000, { flavio: 49, lula: 46, blankNull: 4, undecided: 2 }],
+  [
+    'BR-04499/2026',
+    50.3,
+    49.7,
+    2002,
+    { flavio: 46.5, lula: 45.9, other: 4.7, otherLabel: 'Nenhum, branco ou nulo', undecided: 2.9 },
+  ],
+]) {
+  const poll = pollSnapshots.find((p) => p.registration === registration);
+  assert.equal(poll.basis, 'valid');
+  assert.equal(poll.flavio, flavio);
+  assert.equal(poll.lula, lula);
+  assert.equal(poll.sample, sample);
+  assert.deepEqual(poll.totalVotes, totals);
+  assert.equal(poll.registryCheckedAt, undefined);
+  assert.ok(poll.source.endsWith('.pdf'));
+}
+assert.match(
+  pollSnapshots.find((p) => p.registration === 'BR-06715/2026').note,
+  /mudança na ponderação/,
+);
+assert.match(
+  pollSnapshots.find((p) => p.registration === 'BR-04499/2026').note,
+  /uma casa decimal/,
+);
+assert.ok(
+  !pollSnapshots.some((p) => p.registration === 'BR-04454/2026'),
+  'DataTrends stays a publication pending the original report',
+);

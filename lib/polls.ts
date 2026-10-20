@@ -373,7 +373,7 @@ export function polls(db?: Database): Promise<any> {
   return pending;
 }
 async function collectPolls(db?: Database) {
-  const key = 'polls:publications:v11';
+  const key = 'polls:publications:v12';
   const stored = db
     ? await db
         .prepare('SELECT value, updated FROM cache WHERE key=?')
@@ -385,7 +385,7 @@ async function collectPolls(db?: Database) {
     (db
       ? (await db
           .prepare('SELECT value, updated FROM cache WHERE key=?')
-          .bind('polls:publications:v10')
+          .bind('polls:publications:v11')
           .first<{ value: string; updated: number }>()) ||
         (await db
           .prepare('SELECT value, updated FROM cache WHERE key=?')
@@ -399,7 +399,7 @@ async function collectPolls(db?: Database) {
         .prepare(
           'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?',
         )
-        .bind('lease:polls:v11', '', Date.now(), Date.now() - 30000)
+        .bind('lease:polls:v12', '', Date.now(), Date.now() - 30000)
         .run()
     : { meta: { changes: 1 } };
   if (!lease.meta.changes)
