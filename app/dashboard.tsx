@@ -1005,7 +1005,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
               )}
             </div>
             {reviewOnly && (
-              <div className="notice">
+              <div className="preview-note">
                 Prévia para revisão · o site em produção permanece inalterado.
               </div>
             )}
@@ -1016,6 +1016,28 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                   Tentar novamente
                 </button>
               </div>
+            )}
+            {tab === 'overview' && selected && (
+              <section
+                className="panorama-candidates"
+                aria-label="Candidatos ao segundo turno e resultado do primeiro turno"
+              >
+                {['22', '13'].map((number) => {
+                  const result = selected.candidates.find((c) => c.number === number);
+                  const candidate = candidates.find((c) => c.number === number);
+                  return result && candidate ? (
+                    <article className="panorama-candidate" key={number}>
+                      <img src={candidate.photo} alt={name(result.name)} width="72" height="88" />
+                      <div>
+                        <span className="eyebrow">NO 2º TURNO · {result.party}</span>
+                        <h2>{name(result.name)}</h2>
+                        <strong style={{ color: color(number) }}>{pct(result.percent)}</strong>
+                        <small>{fmt(result.votes)} votos · 1º turno</small>
+                      </div>
+                    </article>
+                  ) : null;
+                })}
+              </section>
             )}
             {tab === 'overview' && (
               <div className="election-banner">
@@ -1185,33 +1207,6 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 {tab === 'overview' && selected && (
                   <>
                     <DataFreshness archived generated={selected.generated} />
-                    <section
-                      className="panorama-candidates"
-                      aria-label="Candidatos ao segundo turno e resultado do primeiro turno"
-                    >
-                      {['22', '13'].map((number) => {
-                        const result = selected.candidates.find((c) => c.number === number);
-                        const candidate = candidates.find((c) => c.number === number);
-                        return result && candidate ? (
-                          <article className="panorama-candidate" key={number}>
-                            <img
-                              src={candidate.photo}
-                              alt={name(result.name)}
-                              width="72"
-                              height="88"
-                            />
-                            <div>
-                              <span className="eyebrow">NO 2º TURNO · {result.party}</span>
-                              <h2>{name(result.name)}</h2>
-                              <strong style={{ color: color(number) }}>
-                                {pct(result.percent)}
-                              </strong>
-                              <small>{fmt(result.votes)} votos · 1º turno</small>
-                            </div>
-                          </article>
-                        ) : null;
-                      })}
-                    </section>
                     <RecentUpdates onGo={go} />
                     <button
                       className="text-button municipality-entry"
