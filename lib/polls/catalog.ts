@@ -2,6 +2,95 @@ import type { PollSnapshot, Publication } from './types';
 
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-07896/2026',
+    institute: 'Instituto França',
+    publishedAt: '2026-10-20T11:10:01-03:00',
+    fieldwork: '16 a 20/10/2026 · entrevistas telefônicas assistidas por computador (CATI)',
+    sample: 3000,
+    margin: 1.8,
+    confidence: 95,
+    contractor:
+      'Instituto França de Pesquisas Ltda. — contratante e pagante no TSE (pesquisa própria)',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-20T23:51:43.255Z',
+    registration: 'BR-07896/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 50.81,
+    lula: 49.19,
+    source:
+      'https://static.poder360.com.br/uploads/2026/10/Pesquisa_Presidente_2T_Brasil_Out2026_Instituto_Franca.pdf',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 40.95,
+      lula: 39.65,
+      other: 10.56,
+      otherLabel: 'Branco, nulo ou nenhum',
+      undecided: 8.84,
+    },
+    note: 'Relatório original conferido em 20/10: ficha técnica na página 2, plano amostral e ponderação nas páginas 3–4, tabela nacional na página 6. Preservada a precisão da tabela: 50,81% e 49,19% nos válidos; o gráfico e o resumo arredondam para 50,8% e 49,2%. Coleta efetiva de 16 a 20/10. Cadastro nacional, amostra, coleta, contratante e pagante conferidos nos arquivos oficiais do TSE gerados em 20/10, por volta de 05h46; campo de origem dos recursos não preenchido. Divulgação e horário conforme o Poder360. Nenhum percentual foi recalculado.',
+  },
+  {
+    id: 'BR-02952/2026',
+    institute: 'Real Time Big Data',
+    publishedAt: '2026-10-20T07:00:54-03:00',
+    fieldwork:
+      '15 a 19/10/2026 · telefone com entrevistadores humanos; contato inicial também por mensagens virtuais',
+    sample: 2000,
+    margin: 2,
+    confidence: 95,
+    contractor: 'Real Time Mídia Ltda. — contratante e pagante no TSE (pesquisa própria)',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-20T23:51:43.255Z',
+    registration: 'BR-02952/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 52,
+    lula: 48,
+    source:
+      'https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2026/10/Presidencial-BR-02952-2026-Out26.pdf',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 48,
+      lula: 45,
+      blankNull: 5,
+      undecided: 2,
+    },
+    note: 'Relatório original conferido em 20/10: registro e divulgação na capa, metodologia na página 2, estimulada na página 8 e votos válidos na página 16. Percentuais transcritos sem recálculo. Cadastro nacional, amostra, coleta, contratante e pagante conferidos nos arquivos oficiais do TSE gerados em 20/10, por volta de 05h46; campo de origem dos recursos não preenchido. Horário de divulgação conforme a CNN Brasil.',
+  },
+  {
+    id: 'BR-00820/2026',
+    institute: 'Alfa Inteligência',
+    publishedAt: '2026-10-20T07:00:26-03:00',
+    fieldwork: '15 a 19/10/2026 · entrevistas pessoais nas cinco regiões',
+    sample: 2700,
+    margin: 1.9,
+    confidence: 95,
+    contractor:
+      'Alfa Inteligência e Serviços de Software e Opinião S/A — contratante e pagante no TSE (pesquisa própria)',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-20T23:51:43.255Z',
+    registration: 'BR-00820/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 51.5,
+    lula: 48.5,
+    source:
+      'https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2026/10/1291026_NACIONAL_2700E_15a1910.pdf',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 48.8,
+      lula: 45.9,
+      other: 3.5,
+      otherLabel: 'Nenhum deles, branco ou nulo',
+      undecided: 1.8,
+    },
+    note: 'Relatório original conferido em 20/10: metodologia e cotas na página 5, resumo com votos válidos na página 7 e intenção estimulada na página 13. Preservados os valores publicados, sem recalcular os válidos a partir dos totais. Cadastro nacional, amostra, coleta, contratante e pagante conferidos nos arquivos oficiais do TSE gerados em 20/10, por volta de 05h46; campo de origem dos recursos não preenchido. Horário de divulgação conforme a CNN Brasil.',
+  },
+  {
     id: 'BR-06715/2026',
     institute: 'Futura/100 Cidades',
     publishedAt: '2026-10-19T11:49:23-03:00',
@@ -644,6 +733,46 @@ export const pollSnapshots: PollSnapshot[] = [
 // Newly located reporting stays in publications until the original numeric
 // report and its methodology have been checked. Never infer totals from a headline.
 export const verifiedPublications: Publication[] = [
+  {
+    institute: 'Instituto França',
+    title: 'Instituto França divulga pesquisa nacional de segundo turno',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-508-contra-492-de-lula-em-votos-validos-diz-pesquisa/',
+    publishedAt: '2026-10-20T11:10:01-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-508-contra-492-de-lula-em-votos-validos-diz-pesquisa/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
+  {
+    institute: 'Gerp',
+    title: 'Gerp divulga novo tracking presidencial de segundo turno',
+    url: 'https://timesbrasil.com.br/eleicoes-2026/bolsonaro-lula-2-gerp-segundo-turno-votos-validos/',
+    publishedAt: '2026-10-20T08:28:03-03:00',
+    source:
+      'https://timesbrasil.com.br/eleicoes-2026/bolsonaro-lula-2-gerp-segundo-turno-votos-validos/',
+    kind: 'publication',
+    publisher: 'Times Brasil | CNBC',
+  },
+  {
+    institute: 'Real Time Big Data',
+    title: 'Real Time Big Data divulga pesquisa nacional de segundo turno',
+    url: 'https://www.cnnbrasil.com.br/eleicoes/real-time-big-data-flavio-tem-52-dos-votos-validos-lula-48/',
+    publishedAt: '2026-10-20T07:00:54-03:00',
+    source:
+      'https://www.cnnbrasil.com.br/eleicoes/real-time-big-data-flavio-tem-52-dos-votos-validos-lula-48/',
+    kind: 'publication',
+    publisher: 'CNN Brasil',
+  },
+  {
+    institute: 'Alfa Inteligência',
+    title: 'Alfa Inteligência divulga pesquisa nacional de segundo turno',
+    url: 'https://www.cnnbrasil.com.br/eleicoes/alfa-flavio-tem-515-dos-votos-validos-no-2o-turno-lula-485/',
+    publishedAt: '2026-10-20T07:00:26-03:00',
+    source:
+      'https://www.cnnbrasil.com.br/eleicoes/alfa-flavio-tem-515-dos-votos-validos-no-2o-turno-lula-485/',
+    kind: 'publication',
+    publisher: 'CNN Brasil',
+  },
   {
     institute: 'DataTrends',
     title: 'DataTrends divulga nova rodada nacional de segundo turno',
