@@ -31,8 +31,8 @@ export function MediaExplorer() {
     <>
       <section className="panel discovery-head">
         <div>
-          <span className="eyebrow">INFORMAÇÃO PÚBLICA · SEM PERFILAR ELEITORES</span>
-          <h2>O debate também acontece fora da urna.</h2>
+          <span className="eyebrow">CONTEXTO / O DEBATE PÚBLICO</span>
+          <h2>O que está em discussão.</h2>
           <p>Cobertura da imprensa por candidato, com links para as publicações originais.</p>
         </div>
         <DataFreshness

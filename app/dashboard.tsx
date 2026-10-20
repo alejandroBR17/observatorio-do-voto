@@ -42,6 +42,7 @@ import { LiveCountdown } from './live-countdown';
 import { ThemeMenu } from './theme-menu';
 import { TransferScenario } from './transfer-scenario';
 import { RecentUpdates } from './recent-updates';
+import { ObservationDesk } from './observation-desk';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
 import { termsVersion } from '@/lib/terms';
 import { alertPreferences, defaultAlerts } from '@/lib/alerts';
@@ -73,11 +74,19 @@ const nav = [
   ['polls', 'Pesquisas e cenários', TrendingUp],
   ['candidates', 'Os candidatos', Vote],
   ['social', 'Cobertura e fontes', BarChart3],
-  ['watch', 'Meu acompanhamento', Heart],
+  ['watch', 'Meu observatório', Heart],
   ['profile', 'Meu perfil', UserRound],
   ['alerts', 'Alertas', Bell],
   ['app', 'Meu app', Smartphone],
 ] as const;
+const sectionKickers: Record<string, string> = {
+  overview: 'OBSERVATÓRIO DO VOTO / PANORAMA',
+  history: 'ACERVO / ELEIÇÕES PRESIDENCIAIS',
+  municipality: 'TERRITÓRIO / OBSERVAÇÃO LOCAL',
+  polls: 'SINAIS / PESQUISAS E CENÁRIOS',
+  social: 'CONTEXTO / COBERTURA E FONTES',
+  watch: 'SEU RECORTE / ACOMPANHAMENTO',
+};
 export default function Dashboard() {
   return (
     <PwaProvider>
@@ -947,15 +956,15 @@ function DashboardContent() {
               )}
             <div className="page-heading">
               <div>
-                <div className="eyebrow">INFORMAÇÃO PARA ENTENDER O PAÍS</div>
+                <div className="eyebrow">{sectionKickers[tab] || 'OBSERVATÓRIO DO VOTO'}</div>
                 <h1 tabIndex={-1} data-page-title>
                   {tab === 'overview'
-                    ? 'O Brasil, voto a voto.'
+                    ? 'O país em perspectiva.'
                     : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
-                    ? 'Acompanhe o presente, explore o passado e entenda as tendências.'
+                    ? 'Resultados, pesquisas e contexto para observar a eleição de perto.'
                     : tab === 'live'
                       ? 'A evolução dos votos, direto da fonte oficial.'
                       : tab === 'history'
@@ -965,7 +974,7 @@ function DashboardContent() {
                           : tab === 'polls'
                             ? 'Pesquisas mostram um momento. Cenários exploram possibilidades.'
                             : tab === 'watch'
-                              ? 'Sua seleção de estados, pesquisas e alertas. Tudo no seu aparelho.'
+                              ? 'Seus lugares, suas perguntas e seus registros. Um recorte pessoal da eleição.'
                               : tab === 'social'
                                 ? 'Cobertura pública, atualização automática e fontes transparentes.'
                                 : tab === 'profile'
@@ -1001,25 +1010,7 @@ function DashboardContent() {
                 </button>
               </div>
             )}
-            {tab === 'overview' && (
-              <div className="election-banner">
-                <div className="banner-icon">
-                  <Vote size={23} />
-                </div>
-                <div>
-                  <strong>O próximo capítulo é em 25 de outubro.</strong>
-                  <span>2º turno presidencial · domingo · votação das 8h às 17h (Brasília)</span>
-                </div>
-                <span className="pill">
-                  <Clock size={12} />
-                  {live.status === 'live' ? 'APURAÇÃO INICIADA' : 'AGUARDANDO VOTAÇÃO'}
-                </span>
-                <button className="button secondary" onClick={() => go('live')}>
-                  Acompanhar
-                  <ArrowUpRight size={17} />
-                </button>
-              </div>
-            )}
+            {tab === 'overview' && <ObservationDesk liveStatus={live.status} onGo={go} />}
             {(tab === 'overview' || tab === 'history') && (
               <div className="active-filters">
                 <span>{tab === 'history' ? `${year} · ${turn}º turno` : '2026 · 1º turno'}</span>
@@ -1159,7 +1150,14 @@ function DashboardContent() {
                 onTest={pushTest}
               />
             )}
-            {tab === 'overview' && <RecentUpdates onGo={go} />}
+            {tab === 'overview' && (
+              <>
+                <RecentUpdates onGo={go} />
+                <div className="observatory-chapter">
+                  <span>O TERRITÓRIO / RESULTADOS DO 1º TURNO</span>
+                </div>
+              </>
+            )}
             {['profile', 'alerts', 'app'].includes(tab) ? null : busy ? (
               <div className="loading large">
                 <RefreshCw size={20} />
@@ -1951,7 +1949,7 @@ function DashboardContent() {
             <div>
               <Activity size={14} />
               <strong>observatório</strong>
-              <span>Informação para um voto consciente.</span>
+              <span>Observar o voto. Entender o país.</span>
             </div>
             <div className="footer-links">
               <a href="/termos">Termos de Uso</a>

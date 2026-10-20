@@ -26,7 +26,7 @@ export function sharingMetadata(title: string, description: string, path = '/'):
     url: new URL('/og-image.png', siteOrigin).href,
     width: 1200,
     height: 630,
-    alt: 'Observatório do Voto — O Brasil, voto a voto. Pesquisas, resultados e história eleitoral.',
+    alt: 'Observatório do Voto — Olhe além do placar. O território, a história e o contexto da eleição.',
     type: 'image/png',
   };
   return {

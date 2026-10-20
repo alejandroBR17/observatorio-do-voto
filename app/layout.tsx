@@ -20,6 +20,7 @@ import './local-experience.css';
 import './pwa.css';
 import './actions.css';
 import './recent-updates.css';
+import './observatory.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),

@@ -84,9 +84,9 @@ export function RecentUpdates({ onGo }: { onGo: (destination: string) => void })
       <div className="panel-head">
         <div>
           <span className="eyebrow">
-            {returning ? 'DESDE SUA ÚLTIMA VISITA' : 'AS ÚLTIMAS ATUALIZAÇÕES'}
+            {returning ? 'DESDE SUA ÚLTIMA VISITA' : 'NO RADAR / ÚLTIMAS PUBLICAÇÕES'}
           </span>
-          <h2 id={titleId}>Novidades por aqui.</h2>
+          <h2 id={titleId}>O que entrou no radar.</h2>
         </div>
         <Newspaper size={22} />
       </div>

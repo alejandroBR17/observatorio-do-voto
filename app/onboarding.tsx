@@ -128,13 +128,13 @@ export function Onboarding({
             </span>
           </div>
           <div className="welcome-story-copy">
-            <span className="eyebrow">O BRASIL, VOTO A VOTO.</span>
+            <span className="eyebrow">OBSERVAR O VOTO. ENTENDER O PAÍS.</span>
             <h2>
-              Um país inteiro.
+              O território.
               <br />
-              Milhões de escolhas.
+              A história.
               <br />
-              <em>A sua perspectiva.</em>
+              <em>O seu olhar.</em>
             </h2>
             <div className="welcome-art" aria-hidden="true">
               <Globe2 size={125} strokeWidth={0.7} />
@@ -142,7 +142,9 @@ export function Onboarding({
               <i />
               <i />
             </div>
-            <p>Resultados, pesquisas e história para entender cada capítulo da eleição.</p>
+            <p>
+              Aproxime o olhar. Conecte lugares, pesquisas e história com as fontes sempre à vista.
+            </p>
           </div>
           <ol className="welcome-steps" aria-label="Etapas das boas-vindas">
             {welcomeSteps.map(({ label }, i) => (

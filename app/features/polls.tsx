@@ -183,7 +183,7 @@ export function PollOverview({ onExplore }: { onExplore: () => void }) {
   const p = data?.polls?.find((p: PollSnapshot) => p.basis === 'valid');
   return (
     <section className="panel poll-panel">
-      <span className="eyebrow">PAINEL DE PESQUISAS</span>
+      <span className="eyebrow">SINAIS / ÚLTIMO LEVANTAMENTO</span>
       {p ? (
         <PollCard poll={p} compact />
       ) : (
@@ -233,8 +233,8 @@ export function PollExplorer({
     <>
       <section className="panel discovery-head">
         <div>
-          <span className="eyebrow">VÁRIOS INSTITUTOS · UMA VISÃO MAIS AMPLA</span>
-          <h2>Intenções de voto.</h2>
+          <span className="eyebrow">SINAIS / DIFERENTES INSTITUTOS</span>
+          <h2>O retrato de cada pesquisa.</h2>
           <p>Compare os institutos e o período das entrevistas.</p>
         </div>
         <DataFreshness
