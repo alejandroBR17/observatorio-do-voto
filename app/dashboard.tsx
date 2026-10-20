@@ -170,6 +170,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
   const drawerPresent = usePresence(mobile, 240);
   const [livePoints, setLivePoints] = useState<ProgressionPoint[]>([]),
     [liveStates, setLiveStates] = useState<Result[]>([]);
+  const [overviewNational, setOverviewNational] = useState<Result>();
   const [night, setNight] = useState<'preview' | 'live' | null>(null);
   const [nightPoints, setNightPoints] = useState<ProgressionPoint[]>([]);
   const [nightNational, setNightNational] = useState<{
@@ -601,27 +602,45 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
   }, [live, uf]);
   useEffect(() => setLivePoints([]), [uf]);
   useEffect(() => {
-    if (tab !== 'live' || live.status !== 'live') return;
+    if ((tab !== 'live' && !(reviewOnly && tab === 'overview')) || live.status !== 'live') return;
     let canceled = false;
+    let refreshing = false;
+    const controller = new AbortController();
     const refresh = async () => {
+      if (refreshing || canceled) return;
+      refreshing = true;
       const result = [];
-      for (const s of states) {
+      for (const stateUf of [...(reviewOnly ? ['BR'] : []), ...states.map((state) => state[1])]) {
+        if (canceled) break;
         try {
-          const d: any = await (await fetch(`/api/live?uf=${s[1]}`)).json();
-          if (d.result) result.push(d.result);
+          const d: any = await (
+            await fetch(`/api/live?uf=${stateUf}`, { signal: controller.signal })
+          ).json();
+          if (
+            d.status === 'live' &&
+            d.result?.year === 2026 &&
+            d.result.turn === 2 &&
+            d.result.uf === stateUf
+          )
+            result.push(d.result);
         } catch {
           // One unavailable state must not prevent loading the other states.
         }
       }
-      if (!canceled) setLiveStates(result);
+      if (!canceled) {
+        setLiveStates(result.filter((row) => row.uf !== 'BR'));
+        setOverviewNational(result.find((row) => row.uf === 'BR'));
+      }
+      refreshing = false;
     };
     refresh();
     const t = setInterval(refresh, 60000);
     return () => {
       canceled = true;
+      controller.abort();
       clearInterval(t);
     };
-  }, [tab, live.status]);
+  }, [tab, live.status, reviewOnly]);
   const national = all.find((d) => d.uf === 'BR'),
     selected = all.find((d) => d.uf === uf) || national,
     historical = hist.filter((d) => d.turn === turn),
@@ -970,9 +989,11 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
               <div>
                 <div className="eyebrow">{sectionKickers[tab] || 'OBSERVATÓRIO DO VOTO'}</div>
                 <h1 tabIndex={-1} data-page-title>
-                  {tab === 'overview'
-                    ? 'O país em perspectiva.'
-                    : nav.find((n) => n[0] === tab)?.[1]}
+                  {reviewOnly && tab === 'polls'
+                    ? 'O pulso da disputa.'
+                    : tab === 'overview'
+                      ? 'O país em perspectiva.'
+                      : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
@@ -1044,6 +1065,15 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 onGo={go}
                 liveStatus={live.status}
                 live={live}
+                liveResults={
+                  live.status === 'live'
+                    ? [
+                        ...liveStates.filter((r) => r.uf !== live.result?.uf),
+                        ...(overviewNational && live.result?.uf !== 'BR' ? [overviewNational] : []),
+                        ...(live.status === 'live' && live.result ? [live.result] : []),
+                      ]
+                    : []
+                }
               />
             )}
             {tab === 'overview' && !reviewOnly && selected && (
@@ -1927,7 +1957,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 {tab === 'municipality' && <MunicipalityExplorer initialUf={uf} />}
                 {tab === 'polls' && (
                   <>
-                    <PollExplorer onNote={contextNote} />
+                    <PollExplorer onNote={contextNote} observatory={reviewOnly} />
                     <Disclosure
                       title="Simular transferência de votos"
                       summary="Distribua os votos dos demais candidatos e veja uma hipótese de segundo turno."

@@ -32,6 +32,7 @@ import type { MediaResponse } from '@/lib/media-types';
 import { VisitHighlights } from './visit-highlights';
 import type { ImportantLive } from '@/lib/important-updates';
 import { electionPalette } from '@/lib/election-palette';
+import { overviewResults } from '@/lib/overview-results';
 
 export function ObservatoryRoom({
   results,
@@ -40,6 +41,7 @@ export function ObservatoryRoom({
   onGo,
   liveStatus,
   live,
+  liveResults,
 }: {
   results: Result[];
   uf: string;
@@ -47,6 +49,7 @@ export function ObservatoryRoom({
   onGo: (tab: string) => void;
   liveStatus: string;
   live: ImportantLive;
+  liveResults: Result[];
 }) {
   const [year, setYear] = useState(2026);
   const [turn, setTurn] = useState(1);
@@ -76,7 +79,9 @@ export function ObservatoryRoom({
       });
     return () => controller.abort();
   }, [year]);
-  const data = year === 2026 ? results : archive.filter((r) => r.year === year && r.turn === turn);
+  const secondTurn = year === 2026 && turn === 2;
+  const data = overviewResults(year, turn, results, liveResults, archive);
+  const waiting = secondTurn && !data.some((r) => r.uf === uf);
   const current = data.find((r) => r.uf === uf);
   const national = data.find((r) => r.uf === 'BR');
   const palette = electionPalette(national?.candidates || []);
@@ -101,8 +106,7 @@ export function ObservatoryRoom({
   const leadingStates = leading.filter((r) => r.uf !== 'DF').length;
   const leadsFederalDistrict = leading.some((r) => r.uf === 'DF');
   const gap = pair.length === 2 ? pair[0].percent - pair[1].percent : null;
-  const available =
-    year === 2026 ? results.length > 0 : archiveState === 'ready' && data.length > 0;
+  const available = year === 2026 ? data.length > 0 : archiveState === 'ready' && data.length > 0;
   return (
     <div className="or-room">
       <div className="or-masthead">
@@ -147,10 +151,11 @@ export function ObservatoryRoom({
           <div className="or-section-head">
             <div>
               <span className="or-overline">01 / O VOTO NO TERRITÓRIO</span>
-              <h2>Como o Brasil votou</h2>
+              <h2>{secondTurn ? 'O segundo turno pelo Brasil' : 'Como o Brasil votou'}</h2>
             </div>
             <span className="or-source">
-              <Check size={12} /> Resultado oficial
+              {waiting ? <Radio size={12} /> : <Check size={12} />}{' '}
+              {waiting ? 'Aguardando o TSE' : secondTurn ? 'Apuração oficial' : 'Resultado oficial'}
             </span>
           </div>
           <div className="or-atlas-toolbar">
@@ -185,16 +190,13 @@ export function ObservatoryRoom({
               </button>
               {![1994, 1998].includes(year) && (
                 <button
-                  aria-pressed={year !== 2026 && turn === 2}
+                  aria-pressed={turn === 2}
                   onClick={() => {
-                    if (year === 2026) onGo('live');
-                    else {
-                      setTurn(2);
-                      setFocus('');
-                    }
+                    setTurn(2);
+                    setFocus('');
                   }}
                 >
-                  {year === 2026 ? '2º turno · acompanhar' : '2º turno'}
+                  2º turno
                 </button>
               )}
             </div>
@@ -218,17 +220,19 @@ export function ObservatoryRoom({
             <p className="or-single-turn">Esta eleição foi decidida no primeiro turno.</p>
           )}
           <div className="or-atlas-body">
-            <div className="or-map-stage">
+            <div className={`or-map-stage${waiting && !available ? ' or-map-waiting' : ''}`}>
               <span className="or-map-coordinate">
                 BR / {year} / {turn}º TURNO
               </span>
-              {!available ? (
+              {!available && !waiting ? (
                 <div className="or-map-status" role="status">
-                  {year === 2026
-                    ? 'Carregando o resultado oficial…'
-                    : archiveState !== 'error'
-                      ? 'Abrindo o acervo eleitoral…'
-                      : 'Não foi possível abrir este ano. Selecione outro período.'}
+                  {waiting
+                    ? 'O mapa será preenchido à medida que o TSE divulgar os votos do segundo turno.'
+                    : year === 2026
+                      ? 'Carregando o resultado oficial…'
+                      : archiveState !== 'error'
+                        ? 'Abrindo o acervo eleitoral…'
+                        : 'Não foi possível abrir este ano. Selecione outro período.'}
                 </div>
               ) : (
                 <Map
@@ -239,6 +243,12 @@ export function ObservatoryRoom({
                   focusCandidate={focus}
                   candidateLegend={palette}
                 />
+              )}
+              {waiting && (
+                <p className="or-poll-caution" role="status">
+                  Mapa em espera: selecione um estado para preparar seu recorte. As cores aparecerão
+                  com os primeiros votos oficiais.
+                </p>
               )}
             </div>
             <div className="or-inspector">
@@ -255,6 +265,31 @@ export function ObservatoryRoom({
                 aria-live="polite"
                 aria-atomic="true"
               >
+                {waiting && (
+                  <div className="or-second-wait">
+                    <span className="or-overline">25 OUT · A PARTIR DAS 17H · BRASÍLIA</span>
+                    <h3>O segundo turno, neste painel.</h3>
+                    <p>
+                      Os votos de {selection === 'Brasil' ? 'todo o Brasil' : selection} aparecerão
+                      aqui quando forem divulgados. Até lá, nenhum percentual é antecipado.
+                    </p>
+                    <div className="or-wait-pair">
+                      {candidates.map((candidate) => (
+                        <div key={candidate.number}>
+                          <CandidatePortrait name={candidate.name} />
+                          <strong>{candidate.name}</strong>
+                          <small>{candidate.party} · aguardando votos</small>
+                        </div>
+                      ))}
+                    </div>
+                    <button className="or-link" onClick={() => onGo('alerts')}>
+                      Escolher alertas <ArrowRight size={15} />
+                    </button>
+                    <button className="or-link" onClick={() => onGo('live')}>
+                      Abrir acompanhamento completo <ArrowUpRight size={15} />
+                    </button>
+                  </div>
+                )}
                 {pair.map((c) => {
                   return (
                     <button
@@ -321,7 +356,9 @@ export function ObservatoryRoom({
             <span>
               <Layers size={13} /> {turn}º turno · votos válidos ·{' '}
               {year === 2026
-                ? `${current ? pct(current.counted) : '—'} das seções`
+                ? waiting
+                  ? 'aguardando divulgação oficial'
+                  : `${current ? pct(current.counted) : '—'} das seções`
                 : 'acervo do TSE'}
             </span>
             {current && (

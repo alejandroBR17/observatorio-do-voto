@@ -210,8 +210,10 @@ export function PollOverview({ onExplore }: { onExplore: () => void }) {
 }
 export function PollExplorer({
   onNote,
+  observatory = false,
 }: {
   onNote?: (note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>) => void;
+  observatory?: boolean;
 }) {
   const { data, loading } = useRemote<PollResponse>('/api/polls', 300000),
     [institute, setInstitute] = useState('Todos'),
@@ -230,12 +232,21 @@ export function PollExplorer({
     (p) => institute === 'Todos' || instituteFamily(p.institute) === institute,
   );
   return (
-    <>
+    <div
+      className={observatory ? 'or-poll-explorer' : undefined}
+      style={observatory ? undefined : { display: 'contents' }}
+    >
       <section className="panel discovery-head">
         <div>
-          <span className="eyebrow">SINAIS / DIFERENTES INSTITUTOS</span>
-          <h2>O retrato de cada pesquisa.</h2>
-          <p>Compare os institutos e o período das entrevistas.</p>
+          <span className="eyebrow">
+            {observatory ? '01 / OBSERVAR E COMPARAR' : 'SINAIS / DIFERENTES INSTITUTOS'}
+          </span>
+          {!observatory && (
+            <>
+              <h2>O retrato de cada pesquisa.</h2>
+              <p>Compare os institutos e o período das entrevistas.</p>
+            </>
+          )}
         </div>
         <DataFreshness
           checkedAt={data?.checkedAt}
@@ -304,13 +315,14 @@ export function PollExplorer({
           </button>
         )}
       </div>
+      {observatory && !loading && <PollTimeline key={institute} polls={filtered} basis={basis} />}
       {loading ? (
         <div className="loading">Consultando institutos…</div>
       ) : (
         <ExpandList
           key={`${institute}:${basis}`}
           items={filtered}
-          initial={4}
+          initial={observatory ? 2 : 4}
           className="poll-grid"
           moreLabel="Ver mais pesquisas"
           lessLabel="Ver menos pesquisas"
@@ -463,6 +475,97 @@ export function PollExplorer({
           Verificar registro no PesqEle · TSE
         </Link>
       </Disclosure>
-    </>
+    </div>
+  );
+}
+
+function PollTimeline({ polls, basis }: { polls: PollSnapshot[]; basis: PollBasis }) {
+  const [selectedId, setSelectedId] = useState('');
+  const ordered = [...polls].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  const selected = ordered.find((poll) => poll.id === selectedId) || ordered[0];
+  if (!selected) return null;
+  const numbers = pollNumbers(selected, basis);
+  return (
+    <section className="or-poll-observation" aria-label="Explorar pesquisas no tempo">
+      <div className="or-section-head">
+        <div>
+          <span className="or-overline">PERCORRA AS DIVULGAÇÕES</span>
+          <h2>O que cada levantamento mostra</h2>
+        </div>
+        <span className="or-source">2º turno · Nacional</span>
+      </div>
+      <div className="or-research-timeline" role="group" aria-label="Escolher divulgação">
+        {ordered.map((poll) => (
+          <button
+            key={poll.id}
+            aria-pressed={selected.id === poll.id}
+            onClick={() => setSelectedId(poll.id)}
+          >
+            <span>{date(poll.publishedAt)}</span>
+            <strong>{poll.institute}</strong>
+          </button>
+        ))}
+      </div>
+      <div className="or-poll-reading" aria-live="polite" aria-atomic="true">
+        <div className="or-poll-selected">
+          <span className="or-overline">LEVANTAMENTO SELECIONADO</span>
+          <h3>{selected.institute}</h3>
+          <p>
+            Divulgado em {date(selected.publishedAt)} · Entrevistas:{' '}
+            {selected.fieldwork || 'período não informado'}
+          </p>
+        </div>
+        {numbers ? (
+          <div className="or-poll-bars">
+            {candidates.map((candidate) => {
+              const value = candidate.number === '22' ? numbers.flavio : numbers.lula;
+              return (
+                <div
+                  key={candidate.number}
+                  style={
+                    {
+                      '--poll-color':
+                        candidate.number === '22' ? 'var(--data-flavio)' : 'var(--data-lula)',
+                    } as React.CSSProperties
+                  }
+                >
+                  <span>
+                    {candidate.name}
+                    <strong>{percent(value)}</strong>
+                  </span>
+                  <div className="or-poll-track">
+                    <i style={{ width: `${value}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="notice">
+            Esta base não foi publicada neste levantamento. Selecione a outra visualização para
+            consultar os números disponíveis.
+          </p>
+        )}
+        <div className="or-poll-facts">
+          <span>
+            <strong>
+              {selected.margin != null
+                ? `±${selected.margin.toLocaleString('pt-BR')} p.p.`
+                : 'Não informada'}
+            </strong>
+            Margem de erro
+          </span>
+          <span>
+            <strong>{selected.sample?.toLocaleString('pt-BR') || 'Não informada'}</strong>
+            Entrevistas
+          </span>
+          <Link href={selected.source}>Consultar a origem</Link>
+        </div>
+      </div>
+      <p className="or-poll-caution">
+        Pesquisas podem ter métodos e períodos de coleta diferentes. Compare também a metodologia;
+        os números não são uma previsão do resultado.
+      </p>
+    </section>
   );
 }
