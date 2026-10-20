@@ -11,7 +11,6 @@ import {
   Layers,
   MapPin,
   Radio,
-  RotateCcw,
 } from 'lucide-react';
 import { states, type Result } from '@/lib/elections';
 import { candidates } from '@/lib/content';
@@ -28,14 +27,8 @@ import { Map } from './geo-map';
 import { useRemote } from './hooks/use-remote';
 import { DataFreshness } from './components/data-freshness';
 import { Disclosure } from './disclosure';
-
-type News = {
-  title: string;
-  url: string;
-  source?: string;
-  publisher?: string;
-  publishedAt?: string;
-};
+import { NewsVisual } from './news-visual';
+import type { MediaResponse } from '@/lib/media-types';
 
 export function ObservatoryRoom({
   results,
@@ -56,10 +49,7 @@ export function ObservatoryRoom({
   const [focus, setFocus] = useState('');
   const [pollId, setPollId] = useState('');
   const { data: polling, loading: pollsLoading } = useRemote<PollResponse>('/api/polls', 300000);
-  const { data: media, loading: newsLoading } = useRemote<{ articles: News[] }>(
-    '/api/media',
-    300000,
-  );
+  const { data: media, loading: newsLoading } = useRemote<MediaResponse>('/api/media', 300000);
   useEffect(() => {
     if (year === 2026) return;
     const controller = new AbortController();
@@ -90,9 +80,11 @@ export function ObservatoryRoom({
   const latest = orderedPolls.at(-1);
   const poll = orderedPolls.find((p) => p.id === pollId) || latest;
   const numbers = poll && pollNumbers(poll, 'valid');
-  const leadingStates = data.filter(
+  const leading = data.filter(
     (r) => states.some((s) => s[1] === r.uf) && (!focus || r.candidates[0]?.number === focus),
-  ).length;
+  );
+  const leadingStates = leading.filter((r) => r.uf !== 'DF').length;
+  const leadsFederalDistrict = leading.some((r) => r.uf === 'DF');
   const gap = pair.length === 2 ? pair[0].percent - pair[1].percent : null;
   const available =
     year === 2026 ? results.length > 0 : archiveState === 'ready' && data.length > 0;
@@ -130,7 +122,9 @@ export function ObservatoryRoom({
         <a href="#contexto">
           Em contexto <ChevronRight size={13} />
         </a>
-        <span>PRÉVIA DE IDENTIDADE</span>
+        <span className="or-interface-key">
+          <i aria-hidden="true" /> Âmbar: ações e seleção
+        </span>
       </nav>
       <div className="or-primary">
         <section className="or-atlas" id="territorio">
@@ -201,11 +195,6 @@ export function ObservatoryRoom({
                 <h3>{selection}</h3>
                 <span>{year} · primeiro turno</span>
               </div>
-              {uf !== 'BR' && (
-                <button className="or-reset" onClick={() => onState('BR')}>
-                  <RotateCcw size={12} /> Voltar ao Brasil
-                </button>
-              )}
               <div
                 className="or-contenders"
                 key={`${year}-${uf}`}
@@ -233,7 +222,7 @@ export function ObservatoryRoom({
                           <strong>{candidateName(c.name)}</strong>
                           <small>
                             {c.party} ·{' '}
-                            {focus === c.number ? 'Destaque no mapa' : 'Toque para destacar'}
+                            {focus === c.number ? 'Destaque no mapa' : 'Destacar no mapa'}
                           </small>
                         </div>
                         <Crosshair size={14} />
@@ -260,8 +249,12 @@ export function ObservatoryRoom({
                             current.candidates.find((c) => c.number === focus)?.name || '',
                           )}
                         </strong>{' '}
-                        recebeu mais votos em <strong>{leadingStates} unidades da federação</strong>{' '}
-                        do país neste turno. Toque novamente para retirar o destaque.
+                        recebeu mais votos em{' '}
+                        <strong>
+                          {leadingStates} estados
+                          {leadsFederalDistrict ? ' e no Distrito Federal' : ''}
+                        </strong>{' '}
+                        neste turno. Toque novamente para retirar o destaque.
                       </>
                     ) : gap !== null ? (
                       <>
@@ -292,7 +285,7 @@ export function ObservatoryRoom({
           <div className="or-section-head">
             <div>
               <span className="or-overline">AGORA NO OBSERVATÓRIO</span>
-              <h2>A próxima decisão.</h2>
+              <h2>O próximo acontecimento.</h2>
             </div>
             <CalendarDays size={19} />
           </div>
@@ -362,7 +355,7 @@ export function ObservatoryRoom({
           <div className="or-section-head">
             <div>
               <span className="or-overline">02 / O PULSO DAS PESQUISAS</span>
-              <h2>Retratos de um momento.</h2>
+              <h2>Como estão as pesquisas.</h2>
             </div>
             <button className="or-link" onClick={() => onGo('polls')}>
               Comparar <ArrowUpRight size={15} />
@@ -415,8 +408,8 @@ export function ObservatoryRoom({
                 ))}
               </div>
               <p className="or-caption">
-                Toque nos pontos para percorrer as divulgações. Institutos e amostras diferentes;
-                estes retratos não formam uma projeção.
+                Escolha uma data para ver a pesquisa publicada. Os institutos e as amostras são
+                diferentes; estes números não são uma previsão do resultado.
               </p>
               <Disclosure
                 title="Como ler este levantamento"
@@ -450,26 +443,46 @@ export function ObservatoryRoom({
             <div>
               <span className="or-overline">03 / EM CONTEXTO</span>
               <h2>O que está em discussão.</h2>
+              <p className="or-context-intro">
+                Noticiário nacional, com veículo, data e acesso à origem.
+              </p>
             </div>
             <button className="or-link" onClick={() => onGo('social')}>
-              Cobertura <ArrowUpRight size={15} />
+              Ver cobertura <ArrowUpRight size={15} />
             </button>
           </div>
-          <div className="or-news">
-            {media?.articles?.slice(0, 3).map((article, index) => (
-              <a href={article.url} target="_blank" rel="noreferrer" key={article.url}>
-                <span className="or-news-index">0{index + 1}</span>
-                <div>
-                  <span className="or-overline">
-                    {article.publisher || article.source || 'IMPRENSA'}
-                    {article.publishedAt ? ` · ${formatDate(article.publishedAt)}` : ''}
-                  </span>
-                  <h3>{article.title}</h3>
-                </div>
-                <ArrowUpRight size={16} />
-              </a>
-            )) || (
-              <p className="or-empty">
+          <div className="or-context-stories">
+            {media?.articles?.length ? (
+              media.articles.slice(0, 3).map((article, index) => (
+                <a
+                  className={index === 0 ? 'or-story or-story-lead' : 'or-story'}
+                  href={article.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  key={article.url}
+                >
+                  <NewsVisual
+                    url={article.url}
+                    title={article.title}
+                    source={article.source}
+                    preview={article.image}
+                  />
+                  <div className="or-story-copy">
+                    <span className="or-story-meta">
+                      {article.source} · {formatDate(article.publishedAt)}
+                    </span>
+                    <h3>{article.title}</h3>
+                    {index === 0 && (
+                      <span className="or-story-action">
+                        Ler na origem <ArrowUpRight size={15} />
+                      </span>
+                    )}
+                  </div>
+                  {index > 0 && <ArrowUpRight size={17} aria-hidden="true" />}
+                </a>
+              ))
+            ) : (
+              <p className="or-empty" role="status">
                 {newsLoading
                   ? 'Consultando a cobertura…'
                   : 'Cobertura temporariamente indisponível.'}

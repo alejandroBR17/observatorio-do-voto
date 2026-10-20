@@ -235,6 +235,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
   }
   const go = (next: string) => {
     setMobile(false);
+    if (reviewOnly && next === 'overview') setRegion('Brasil');
     if (next === tab) {
       window.scrollTo({ top: 0, behavior: scrollBehavior() });
       return;
@@ -414,7 +415,8 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
     const params = new URLSearchParams(location.search);
     if (nav.some((n) => n[0] === params.get('tab'))) setTab(params.get('tab')!);
     if (states.some((s) => s[1] === params.get('uf'))) setUf(params.get('uf')!);
-    if (regions.includes(params.get('region') || '')) setRegion(params.get('region')!);
+    if (reviewOnly && (!params.get('tab') || params.get('tab') === 'overview')) setRegion('Brasil');
+    else if (regions.includes(params.get('region') || '')) setRegion(params.get('region')!);
     if (years.includes(Number(params.get('year')))) setYear(Number(params.get('year')));
     if (['1', '2'].includes(params.get('turn') || '')) setTurn(Number(params.get('turn')));
     setHydrated(true);
@@ -934,29 +936,28 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
             </button>
           </div>
         </header>
+        {['overview', 'history', 'live'].includes(tab) && (region !== 'Brasil' || uf !== 'BR') && (
+          <div className={`scope-notice${reviewOnly ? ' or-scope-bar' : ''}`} role="status">
+            <Globe2 size={17} />
+            <span>
+              <small>Mapa e resultados</small>
+              <strong>{uf !== 'BR' ? states.find((s) => s[1] === uf)?.[2] : region}</strong>
+            </span>
+            <button
+              className="button secondary"
+              onClick={() => {
+                setRegion('Brasil');
+                setUf('BR');
+                notify('Visualização nacional restaurada.');
+              }}
+            >
+              Voltar ao Brasil
+              <X size={14} />
+            </button>
+          </div>
+        )}
         <main id="page-content">
           <div className="page-view" key={tab}>
-            {['overview', 'history', 'live'].includes(tab) &&
-              (region !== 'Brasil' || uf !== 'BR') && (
-                <div className="scope-notice" role="status">
-                  <Globe2 size={17} />
-                  <span>
-                    Visualizando{' '}
-                    <strong>{uf !== 'BR' ? states.find((s) => s[1] === uf)?.[2] : region}</strong>
-                  </span>
-                  <button
-                    className="button secondary"
-                    onClick={() => {
-                      setRegion('Brasil');
-                      setUf('BR');
-                      notify('Visualização nacional restaurada.');
-                    }}
-                  >
-                    Ver Brasil inteiro
-                    <X size={14} />
-                  </button>
-                </div>
-              )}
             <div className="page-heading">
               <div>
                 <div className="eyebrow">{sectionKickers[tab] || 'OBSERVATÓRIO DO VOTO'}</div>
@@ -1022,7 +1023,10 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
               <ObservatoryRoom
                 results={all}
                 uf={uf}
-                onState={setUf}
+                onState={(next) => {
+                  setRegion('Brasil');
+                  setUf(next);
+                }}
                 onGo={go}
                 liveStatus={live.status}
               />

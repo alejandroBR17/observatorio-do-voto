@@ -6,7 +6,10 @@
   --muted: #647074;
   --line: #d9ddd7;
   --soft: #e9ece6;
-  --green: #376c64;
+  --green: #94621b;
+  --data-flavio: #24796d;
+  --data-lula: #c96856;
+  --data-other: #87999b;
   --nav: #1b2529;
   --accent: #94621b;
   --or-amber: #94621b;
@@ -20,7 +23,7 @@
   --muted: #a0abaa;
   --line: #2b353b;
   --soft: #1c272d;
-  --green: #8bc8b4;
+  --green: #e6bb73;
   --nav: #10171c;
   --nav-text: #b8c0bd;
   --accent: #e6bb73;
@@ -45,7 +48,7 @@
 }
 .control-room .header-brand small {
   letter-spacing: 4px;
-  font-size: 9px;
+  font-size: 12px;
 }
 .control-room .header-brand img {
   width: 31px;
@@ -74,7 +77,6 @@
   display: none;
 }
 .control-room:has(.or-room) .page-heading,
-.control-room:has(.or-room) .scope-notice,
 .control-room:has(.or-room) .preview-note {
   display: none;
 }
@@ -117,7 +119,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 1.5px;
   color: var(--muted);
@@ -159,7 +161,7 @@
 }
 .or-phase span {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 6px;
 }
@@ -183,7 +185,7 @@
 }
 .or-quicknav > span {
   margin-left: auto;
-  font-size: 8px;
+  font-size: 12px;
   color: var(--muted);
   letter-spacing: 1.4px;
 }
@@ -212,8 +214,8 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--green);
-  font-size: 10px;
+  color: var(--muted);
+  font-size: 12px;
   white-space: nowrap;
 }
 .or-atlas-toolbar {
@@ -268,7 +270,7 @@
   background-size: 35px 35px;
 }
 .or-map-coordinate {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 2px;
   color: var(--muted);
   position: absolute;
@@ -295,11 +297,11 @@
   filter: brightness(1.25);
 }
 .or-room .map-hint {
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 8px;
 }
 .or-room .map-legend {
-  font-size: 9px;
+  font-size: 12px;
   gap: 8px;
   margin-top: 13px;
   flex-wrap: wrap;
@@ -310,10 +312,10 @@
 }
 .or-room .map-table {
   margin-top: 15px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .or-room .map-table summary {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .or-room .map-table .table-scroll {
@@ -340,17 +342,8 @@
   margin: 4px 0;
 }
 .or-scope > span:last-child {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
-}
-.or-reset {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 0;
-  font-size: 11px;
-  color: var(--or-amber);
-  margin: -10px 0 12px;
 }
 .or-contenders {
   display: grid;
@@ -388,7 +381,7 @@
 }
 .or-person small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 3px;
 }
@@ -401,7 +394,7 @@
   width: 30px;
   height: 30px;
   border: 1px solid var(--line);
-  font-size: 9px;
+  font-size: 12px;
   border-radius: 50%;
 }
 .or-vote-number {
@@ -419,7 +412,7 @@
   font-variant-numeric: tabular-nums;
 }
 .or-vote-number > span {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
 }
 .or-vote-track {
@@ -442,12 +435,12 @@
   padding-top: 18px;
 }
 .or-reading .or-overline {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 1px;
 }
 .or-reading p {
   margin: 8px 0 0;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .or-reading strong {
@@ -461,7 +454,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .or-atlas-foot > span,
@@ -496,7 +489,7 @@
 .or-date > strong span {
   display: block;
   letter-spacing: 5px;
-  font-size: 10px;
+  font-size: 12px;
   text-align: center;
   margin-top: 8px;
 }
@@ -505,7 +498,7 @@
 }
 .or-date small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 7px;
 }
@@ -519,14 +512,14 @@
   gap: 9px;
   padding: 8px 0;
   text-align: left;
-  font-size: 11px;
+  font-size: 12px;
 }
 .or-finalists strong {
   font-weight: 550;
   flex: 1;
 }
 .or-finalists > button > span:not(.or-candidate-dot) {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .or-candidate-dot {
@@ -535,7 +528,7 @@
   border-radius: 50%;
 }
 .or-caption {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   line-height: 1.8;
   margin: 14px 0;
@@ -547,7 +540,7 @@
   width: 100%;
   gap: 10px;
   min-height: 42px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   padding: 10px 13px;
   border: 1px solid var(--line);
@@ -578,7 +571,7 @@
 }
 .or-local p {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   max-width: 245px;
 }
 .or-link {
@@ -587,7 +580,7 @@
   gap: 8px;
   padding: 5px 0;
   color: var(--or-amber);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 .or-link:hover {
@@ -604,7 +597,7 @@
 .or-participation span {
   display: block;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 .or-participation strong {
   display: block;
@@ -635,12 +628,12 @@
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-  font-size: 11px;
+  font-size: 12px;
   margin: 8px 0 24px;
 }
 .or-poll-meta > span {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 .or-poll-numbers {
   display: flex;
@@ -650,7 +643,7 @@
 }
 .or-poll-numbers > div > span {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .or-poll-numbers strong {
@@ -661,7 +654,7 @@
   margin-top: 7px;
 }
 .or-poll-numbers > span {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 2px;
   text-align: center;
   color: var(--muted);
@@ -723,7 +716,7 @@
   box-shadow: 0 0 0 7px var(--or-glow);
 }
 .or-poll-timeline small {
-  font-size: 8px;
+  font-size: 12px;
 }
 .or-room .disclosure {
   background: transparent;
@@ -735,44 +728,11 @@
   margin: 0;
 }
 .or-room .disclosure p {
-  font-size: 11px;
+  font-size: 12px;
 }
 .or-room .data-freshness {
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 12px;
-}
-.or-news > a {
-  display: flex;
-  gap: 15px;
-  padding: 20px 0;
-  border-bottom: 1px solid var(--line);
-}
-.or-news > a:first-child {
-  padding-top: 8px;
-}
-.or-news-index {
-  color: var(--or-amber);
-  font-size: 11px;
-  padding-top: 3px;
-}
-.or-news > a > div {
-  min-width: 0;
-  flex: 1;
-}
-.or-news h3 {
-  font-size: 14px;
-  line-height: 1.6;
-  margin: 7px 0 0;
-  letter-spacing: -0.15px;
-  font-weight: 550;
-}
-.or-news > a > svg {
-  color: var(--muted);
-  flex-shrink: 0;
-  margin-top: 3px;
-}
-.or-news > a:hover h3 {
-  color: var(--or-amber);
 }
 .or-evidence {
   display: flex;
@@ -786,7 +746,7 @@
   margin-top: 3px;
 }
 .or-evidence p {
-  font-size: 10px;
+  font-size: 12px;
   margin: 0;
 }
 .or-evidence strong {
@@ -812,7 +772,7 @@
 }
 .or-bottom > span {
   color: var(--muted);
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 2px;
 }
 @media (min-width: 1150px) {
@@ -900,7 +860,7 @@
     letter-spacing: -1.5px;
   }
   .or-masthead p {
-    font-size: 11px;
+    font-size: 12px;
     max-width: 300px;
   }
   .or-phase {
@@ -912,11 +872,11 @@
     width: 15px;
   }
   .or-phase strong {
-    font-size: 11px;
+    font-size: 12px;
   }
   .or-phase span {
     max-width: none;
-    font-size: 10px;
+    font-size: 12px;
     margin-top: 3px;
   }
   .or-quicknav {
@@ -925,7 +885,7 @@
     margin-bottom: 18px;
   }
   .or-quicknav a {
-    font-size: 9px;
+    font-size: 12px;
     gap: 3px;
   }
   .or-quicknav > span {
@@ -944,21 +904,21 @@
     font-size: 20px;
   }
   .or-overline {
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 1px;
   }
   .or-source {
-    font-size: 8px;
+    font-size: 12px;
   }
   .or-atlas-toolbar {
     margin: 0 18px;
   }
   .or-years button {
-    font-size: 10px;
+    font-size: 12px;
     padding: 8px;
   }
   .or-state-select select {
-    font-size: 10px;
+    font-size: 12px;
     max-width: 135px;
   }
   .or-map-stage {
@@ -974,10 +934,10 @@
     gap: 7px;
   }
   .or-person strong {
-    font-size: 10px;
+    font-size: 12px;
   }
   .or-person small {
-    font-size: 8px;
+    font-size: 12px;
   }
   .or-person img {
     width: 25px;
@@ -990,7 +950,7 @@
     font-size: 28px;
   }
   .or-vote-number > span {
-    font-size: 8px;
+    font-size: 12px;
   }
   .or-atlas-foot {
     padding: 14px 18px;
@@ -998,12 +958,12 @@
   }
   .or-atlas-foot > span {
     max-width: 190px;
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.7;
   }
   .or-atlas-foot a {
     white-space: nowrap;
-    font-size: 9px;
+    font-size: 12px;
   }
   .or-moment {
     border: 1px solid var(--line);
@@ -1027,7 +987,7 @@
     padding: 6px 2px;
   }
   .or-poll-timeline small {
-    font-size: 7px;
+    font-size: 12px;
   }
   .or-bottom {
     align-items: flex-start;
@@ -1083,7 +1043,6 @@
     stroke 180ms ease,
     filter 180ms ease;
 }
-.or-room .or-news > a,
 .or-room .or-action {
   transition:
     color 160ms ease,
@@ -1124,7 +1083,7 @@
     letter-spacing: -0.6px;
   }
   .control-room .header-brand small {
-    font-size: 6px;
+    font-size: 12px;
     letter-spacing: 3px;
     margin-top: 2px;
   }
@@ -1213,9 +1172,480 @@
     font-size: 25px;
   }
   .panorama-candidate .eyebrow {
-    font-size: 8px;
+    font-size: 12px;
   }
   .panorama-candidate small {
     line-height: 1.6;
+  }
+}
+/* Interface colour signals an action or selection; candidate colours belong to data only. */
+.or-interface-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0 !important;
+  text-transform: none;
+}
+.or-interface-key i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--or-amber);
+}
+.control-room .button.primary {
+  background: var(--or-amber);
+  color: var(--bg);
+  border-color: var(--or-amber);
+}
+.control-room .button.primary:hover {
+  background: var(--ink);
+  color: var(--surface);
+}
+.control-room .panel {
+  border-radius: 16px;
+  border-color: var(--line);
+  box-shadow: none;
+}
+.control-room :is(.fine, .panel > p, .notice, .disclosure-body, .profile-hero p) {
+  line-height: 1.75;
+}
+.control-room :is(.eyebrow, .subtle-tag, .privacy-label, .notebook-save, .profile-summary span) {
+  font-size: 12px;
+  line-height: 1.65;
+}
+.control-room :is(.text-button, .button, .expand-button, .collapse-bottom) {
+  font-size: 14px;
+}
+.control-room :is(.segmented, .basis-switch, .timeline) button[aria-pressed='true'],
+.control-room :is(.segmented, .basis-switch, .timeline) button.selected {
+  background: var(--or-amber);
+  color: var(--bg);
+  border-color: var(--or-amber);
+}
+.control-room .or-scope-bar {
+  position: sticky;
+  top: 76px;
+  z-index: 35;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: 0 6px 14px #0000000b;
+  padding: 12px max(40px, calc((100vw - 1400px) / 2));
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.or-scope-bar > svg {
+  color: var(--or-amber);
+  flex-shrink: 0;
+}
+.or-scope-bar > span {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+}
+.or-scope-bar small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.or-scope-bar .button {
+  flex-shrink: 0;
+  border-color: var(--or-amber);
+  color: var(--or-amber);
+}
+.control-room:has(.or-scope-bar) :is(.or-atlas, .or-pulse, .or-context) {
+  scroll-margin-top: 180px;
+}
+.or-context {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 0 24px 22px;
+}
+.or-context > .or-section-head {
+  align-items: flex-start;
+  gap: 18px;
+}
+.or-context-intro {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 10px 0 0;
+}
+.or-context .or-link {
+  white-space: nowrap;
+}
+.or-context-stories {
+  display: grid;
+  gap: 16px;
+}
+.or-story {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.or-story > .news-visual {
+  width: 96px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  min-height: 0;
+}
+.or-story > .news-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.or-story > .news-visual:not(.has-image) :is(span, small) {
+  display: none;
+}
+.or-story > .news-visual:not(.has-image) > svg {
+  width: 28px;
+  height: 28px;
+}
+.or-story-copy {
+  min-width: 0;
+  flex: 1;
+}
+.or-story-meta {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.or-story h3 {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 6px 0 0;
+  letter-spacing: -0.15px;
+  font-weight: 600;
+}
+.or-story > svg {
+  flex-shrink: 0;
+  color: var(--or-amber);
+}
+.or-story:hover h3 {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.or-story-lead {
+  display: block;
+  border: 0;
+  padding: 0 0 5px;
+}
+.or-story-lead > .news-visual {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/8;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+.or-story-lead > .news-visual:not(.has-image) :is(span, small) {
+  display: block;
+}
+.or-story-lead > .news-visual:not(.has-image) > svg {
+  width: 42px;
+  height: 42px;
+}
+.or-story-lead h3 {
+  font-size: 21px;
+  line-height: 1.45;
+  margin-top: 8px;
+}
+.or-story-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--or-amber);
+  font-size: 13px;
+  margin-top: 13px;
+  min-height: 28px;
+}
+.or-room .or-source {
+  color: var(--muted);
+}
+.or-person strong {
+  font-size: 14px;
+}
+.or-caption,
+.or-reading p,
+.or-evidence p {
+  font-size: 14px;
+}
+.or-masthead p {
+  font-size: 15px;
+}
+.or-room .data-freshness {
+  font-size: 13px;
+}
+.or-room .disclosure-panel h2 {
+  font-size: 15px;
+}
+.or-room .disclosure-panel p {
+  font-size: 14px;
+}
+@media (max-width: 700px) {
+  .control-room .header-brand small {
+    font-size: 8px;
+    letter-spacing: 2.2px;
+  }
+  .control-room .or-scope-bar {
+    top: 65px;
+    padding: 10px 16px;
+    gap: 9px;
+  }
+  .or-scope-bar > svg {
+    display: none;
+  }
+  .or-scope-bar > span {
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .or-scope-bar .button {
+    font-size: 13px;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .or-scope-bar small {
+    font-size: 12px;
+  }
+  .control-room
+    :is(
+      .page-heading p,
+      .panel > p,
+      .fine,
+      .notice,
+      .disclosure-body p,
+      .privacy-label,
+      .notebook-privacy
+    ) {
+    font-size: 14px;
+  }
+  .control-room :is(input, select, textarea) {
+    font-size: 16px;
+    max-width: 100%;
+  }
+  .control-room :is(th, td) {
+    font-size: 14px;
+  }
+  .control-room .page-heading h1 {
+    font-size: 32px;
+  }
+  .control-room .page-heading .eyebrow {
+    font-size: 11px;
+  }
+  .control-room .panel-head h2 {
+    font-size: 22px;
+  }
+  .or-room .or-overline {
+    font-size: 11px;
+    letter-spacing: 0.8px;
+  }
+  .or-room h2 {
+    font-size: 23px;
+  }
+  .or-room .or-caption,
+  .or-room .or-reading p,
+  .or-room .or-evidence p {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .or-masthead p {
+    font-size: 15px;
+    max-width: none;
+  }
+  .or-phase strong {
+    font-size: 14px;
+  }
+  .or-phase span {
+    font-size: 13px;
+  }
+  .or-quicknav {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    column-gap: 18px;
+    row-gap: 4px;
+    padding: 6px 0;
+  }
+  .or-quicknav a {
+    font-size: 13px;
+    min-height: 44px;
+  }
+  .or-room .or-years button {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+  .or-atlas-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .or-room .or-state-select select {
+    font-size: 15px;
+    max-width: 100%;
+  }
+  .or-state-select {
+    flex: 1 1 100%;
+    border-top: 1px solid var(--line);
+    padding-top: 5px;
+  }
+  .or-state-select select {
+    width: 100%;
+  }
+  .or-room .or-person strong {
+    font-size: 14px;
+  }
+  .or-room .or-person small {
+    font-size: 12px;
+    line-height: 1.55;
+  }
+  .or-person {
+    align-items: flex-start;
+  }
+  .or-person img {
+    width: 30px;
+    height: 36px;
+  }
+  .or-room .or-vote-number > span {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .or-room .or-vote-number > strong {
+    font-size: 30px;
+  }
+  .or-room .or-action,
+  .or-room .or-link {
+    font-size: 14px;
+    min-height: 44px;
+  }
+  .or-room .map-legend,
+  .or-room .map-hint,
+  .or-room .map-table summary {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .or-room .map-legend {
+    gap: 10px 15px;
+  }
+  .or-room .or-atlas-foot {
+    flex-wrap: wrap;
+  }
+  .or-room .or-atlas-foot > span,
+  .or-room .or-atlas-foot a {
+    font-size: 12px;
+    max-width: none;
+    line-height: 1.7;
+  }
+  .or-context {
+    padding: 0 18px 20px;
+  }
+  .or-context .or-section-head {
+    flex-wrap: wrap;
+    padding-bottom: 12px;
+  }
+  .or-context .or-section-head .or-link {
+    margin-top: -10px;
+  }
+  .or-story h3 {
+    font-size: 16px;
+  }
+  .or-story-lead h3 {
+    font-size: 22px;
+  }
+  .or-story {
+    gap: 11px;
+  }
+  .or-story > .news-visual {
+    width: 72px;
+    height: 72px;
+  }
+  .or-story-lead > .news-visual {
+    width: 100%;
+    height: auto;
+  }
+  .or-story > svg {
+    display: none;
+  }
+  .or-story-meta {
+    font-size: 13px;
+  }
+  .or-story-action {
+    font-size: 14px;
+  }
+  .or-room .or-poll-meta,
+  .or-room .or-poll-meta > span,
+  .or-room .or-poll-numbers > div > span {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .or-room .or-poll-timeline small {
+    font-size: 12px;
+  }
+  .or-room .or-poll-timeline button {
+    flex-basis: 50px;
+  }
+  .or-room .or-poll-numbers > span {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+  .or-poll-numbers strong {
+    font-size: 34px;
+  }
+  .or-finalists > button {
+    font-size: 14px;
+  }
+  .or-room .or-finalists > button > span:not(.or-candidate-dot) {
+    font-size: 13px;
+  }
+  .or-local p {
+    font-size: 14px;
+  }
+  .or-room .or-date small {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .or-date > div {
+    font-size: 16px;
+  }
+  .or-participation span {
+    font-size: 13px;
+  }
+  .or-source {
+    white-space: normal;
+  }
+  .or-section-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}
+.control-room input:is([type='checkbox'], [type='radio']) {
+  accent-color: var(--or-amber);
+}
+.control-room :is(.segmented, .basis-switch, .timeline) button {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.control-room .subtle-tag {
+  white-space: normal;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+@media (max-width: 700px) {
+  .control-room main p {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+  .control-room .panel-head {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .control-room .panel-head > div {
+    min-width: 0;
   }
 }
