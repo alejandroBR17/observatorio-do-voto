@@ -42,7 +42,6 @@ import { LiveCountdown } from './live-countdown';
 import { ThemeMenu } from './theme-menu';
 import { TransferScenario } from './transfer-scenario';
 import { RecentUpdates } from './recent-updates';
-import { ObservationDesk } from './observation-desk';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
 import { termsVersion } from '@/lib/terms';
 import { alertPreferences, defaultAlerts } from '@/lib/alerts';
@@ -87,16 +86,16 @@ const sectionKickers: Record<string, string> = {
   social: 'CONTEXTO / COBERTURA E FONTES',
   watch: 'SEU RECORTE / ACOMPANHAMENTO',
 };
-export default function Dashboard() {
+export default function Dashboard({ reviewOnly = false }: { reviewOnly?: boolean }) {
   return (
     <PwaProvider>
       <ReadingProvider>
-        <DashboardContent />
+        <DashboardContent reviewOnly={reviewOnly} />
       </ReadingProvider>
     </PwaProvider>
   );
 }
-function DashboardContent() {
+function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
   const { installed } = usePwa();
   const { setReading } = useReading();
   const [welcome, setWelcome] = useState(false),
@@ -422,11 +421,13 @@ function DashboardContent() {
     try {
       setTermsReviewOnly(localStorage.getItem('observatorio.welcome') === '1');
       setWelcome(
-        localStorage.getItem('observatorio.welcome') !== '1' ||
-          JSON.parse(localStorage.getItem('observatorio.terms') || '{}').version !== termsVersion,
+        !reviewOnly &&
+          (localStorage.getItem('observatorio.welcome') !== '1' ||
+            JSON.parse(localStorage.getItem('observatorio.terms') || '{}').version !==
+              termsVersion),
       );
     } catch {
-      setWelcome(true);
+      setWelcome(!reviewOnly);
     }
     Promise.all(
       ['BR', ...states.map((s) => s[1]), 'ZZ'].map(async (code) => {
@@ -441,6 +442,7 @@ function DashboardContent() {
       .then(setAll)
       .catch((e) => setError(e.message))
       .finally(() => setBusy(false));
+    if (reviewOnly) return;
     navigator.serviceWorker
       ?.register('/sw.js')
       .then(async (r) => {
@@ -473,7 +475,7 @@ function DashboardContent() {
         if (saved.ok) setNotification('Ativadas');
       })
       .catch(() => {});
-  }, []);
+  }, [reviewOnly]);
   useEffect(() => {
     if (!hydrated) return;
     const media = window.matchMedia('(prefers-color-scheme: dark)');
@@ -1002,6 +1004,11 @@ function DashboardContent() {
                 />
               )}
             </div>
+            {reviewOnly && (
+              <div className="notice">
+                Prévia para revisão · o site em produção permanece inalterado.
+              </div>
+            )}
             {error && (
               <div className="notice error">
                 {error}
@@ -1010,7 +1017,25 @@ function DashboardContent() {
                 </button>
               </div>
             )}
-            {tab === 'overview' && <ObservationDesk liveStatus={live.status} onGo={go} />}
+            {tab === 'overview' && (
+              <div className="election-banner">
+                <div className="banner-icon">
+                  <Vote size={23} />
+                </div>
+                <div>
+                  <strong>O próximo capítulo é em 25 de outubro.</strong>
+                  <span>2º turno presidencial · domingo · votação das 8h às 17h (Brasília)</span>
+                </div>
+                <span className="pill">
+                  <Clock size={12} />
+                  {live.status === 'live' ? 'APURAÇÃO INICIADA' : 'AGUARDANDO VOTAÇÃO'}
+                </span>
+                <button className="button secondary" onClick={() => go('live')}>
+                  Acompanhar
+                  <ArrowUpRight size={17} />
+                </button>
+              </div>
+            )}
             {(tab === 'overview' || tab === 'history') && (
               <div className="active-filters">
                 <span>{tab === 'history' ? `${year} · ${turn}º turno` : '2026 · 1º turno'}</span>
@@ -1150,14 +1175,6 @@ function DashboardContent() {
                 onTest={pushTest}
               />
             )}
-            {tab === 'overview' && (
-              <>
-                <RecentUpdates onGo={go} />
-                <div className="observatory-chapter">
-                  <span>O TERRITÓRIO / RESULTADOS DO 1º TURNO</span>
-                </div>
-              </>
-            )}
             {['profile', 'alerts', 'app'].includes(tab) ? null : busy ? (
               <div className="loading large">
                 <RefreshCw size={20} />
@@ -1168,6 +1185,34 @@ function DashboardContent() {
                 {tab === 'overview' && selected && (
                   <>
                     <DataFreshness archived generated={selected.generated} />
+                    <section
+                      className="panorama-candidates"
+                      aria-label="Candidatos ao segundo turno e resultado do primeiro turno"
+                    >
+                      {['22', '13'].map((number) => {
+                        const result = selected.candidates.find((c) => c.number === number);
+                        const candidate = candidates.find((c) => c.number === number);
+                        return result && candidate ? (
+                          <article className="panorama-candidate" key={number}>
+                            <img
+                              src={candidate.photo}
+                              alt={name(result.name)}
+                              width="72"
+                              height="88"
+                            />
+                            <div>
+                              <span className="eyebrow">NO 2º TURNO · {result.party}</span>
+                              <h2>{name(result.name)}</h2>
+                              <strong style={{ color: color(number) }}>
+                                {pct(result.percent)}
+                              </strong>
+                              <small>{fmt(result.votes)} votos · 1º turno</small>
+                            </div>
+                          </article>
+                        ) : null;
+                      })}
+                    </section>
+                    <RecentUpdates onGo={go} />
                     <button
                       className="text-button municipality-entry"
                       onClick={() => go('municipality')}

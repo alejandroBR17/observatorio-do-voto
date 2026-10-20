@@ -307,11 +307,15 @@ export function PollExplorer({
       {loading ? (
         <div className="loading">Consultando institutos…</div>
       ) : (
-        <div className="poll-grid">
-          {filtered.map((p) => (
-            <PollCard key={p.id} poll={p} basis={basis} onNote={onNote} />
-          ))}
-        </div>
+        <ExpandList
+          key={`${institute}:${basis}`}
+          items={filtered}
+          initial={4}
+          className="poll-grid"
+          moreLabel="Ver mais pesquisas"
+          lessLabel="Ver menos pesquisas"
+          render={(p) => <PollCard key={p.id} poll={p} basis={basis} onNote={onNote} />}
+        />
       )}
       {!loading && !filtered.length && (
         <div className="notice">Nenhum resultado numérico confirmado para este filtro.</div>
