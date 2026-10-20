@@ -21,6 +21,7 @@ import './pwa.css';
 import './actions.css';
 import './recent-updates.css';
 import './observatory.css';
+import './research.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),

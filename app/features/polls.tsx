@@ -7,6 +7,7 @@ import { Disclosure, ExpandList } from '../disclosure';
 import { useReading } from '../reading';
 import { NewsVisual } from '../news-visual';
 import { DataFreshness } from '../components/data-freshness';
+import { CandidatePortrait } from '../components/candidate-portrait';
 
 import { pollNumbers, type PollBasis } from '@/lib/poll-view';
 import { type NotebookEntry } from '@/lib/notebook';
@@ -26,9 +27,11 @@ function PollCard({
   compact = false,
   basis,
   onNote,
+  observatory = false,
 }: {
   poll: PollSnapshot;
   compact?: boolean;
+  observatory?: boolean;
   basis?: PollBasis;
   onNote?: (note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>) => void;
 }) {
@@ -97,16 +100,10 @@ function PollCard({
           {poll.sample ? 'entrevistas' : ''}
         </span>
       </div>
-      <p className="fine">Entrevistas: {poll.fieldwork || 'período não informado'}</p>
-      <p className="fine">
-        Contratante: {poll.contractor || 'Ainda não confirmado na fonte original'}.
-      </p>
-      <p className="fine">
-        Confiança: {poll.confidence != null ? poll.confidence + '%' : 'Não informada'} · Registro:{' '}
-        {poll.registration || 'Não identificado'}.
-      </p>
+      {!observatory && <PollMethodology poll={poll} />}
       <details className="inline-details" key={reading} open={reading === 'detailed'}>
         <summary>Detalhes da pesquisa</summary>
+        {observatory && <PollMethodology poll={poll} />}
         <p className="fine">
           Base:{' '}
           {poll.basis === 'valid'
@@ -176,6 +173,20 @@ function PollCard({
         </button>
       )}
     </section>
+  );
+}
+function PollMethodology({ poll }: { poll: PollSnapshot }) {
+  return (
+    <>
+      <p className="fine">Entrevistas: {poll.fieldwork || 'período não informado'}</p>
+      <p className="fine">
+        Contratante: {poll.contractor || 'Ainda não confirmado na fonte original'}.
+      </p>
+      <p className="fine">
+        Confiança: {poll.confidence != null ? poll.confidence + '%' : 'Não informada'} · Registro:{' '}
+        {poll.registration || 'Não identificado'}.
+      </p>
+    </>
   );
 }
 export function PollOverview({ onExplore }: { onExplore: () => void }) {
@@ -279,29 +290,39 @@ export function PollExplorer({
       </div>
       <div className="basis-switch" role="group" aria-label="Visualização dos percentuais">
         <button aria-pressed={basis === 'valid'} onClick={() => setBasis('valid')}>
-          Entre quem escolheu um candidato
+          {observatory ? 'Votos válidos' : 'Entre quem escolheu um candidato'}
         </button>
         <button aria-pressed={basis === 'total'} onClick={() => setBasis('total')}>
-          Incluindo brancos, nulos e indecisos
+          {observatory ? 'Todas as respostas' : 'Incluindo brancos, nulos e indecisos'}
         </button>
       </div>
       <p className="basis-explanation">
-        {basis === 'valid'
-          ? 'Quem não escolheu um candidato fica fora desta conta. As escolhas por candidatos passam a representar 100%.'
-          : 'Todas as respostas entram na conta. Por isso, os percentuais dos candidatos podem somar menos de 100%.'}{' '}
-        Os números continuam sendo os publicados pelo instituto.
+        {observatory
+          ? basis === 'valid'
+            ? 'Somente escolhas por candidatos. Brancos, nulos e indecisos ficam de fora.'
+            : 'Inclui candidatos, brancos, nulos e indecisos.'
+          : basis === 'valid'
+            ? 'Quem não escolheu um candidato fica fora desta conta. As escolhas por candidatos passam a representar 100%.'
+            : 'Todas as respostas entram na conta. Por isso, os percentuais dos candidatos podem somar menos de 100%.'}{' '}
+        {!observatory && 'Os números continuam sendo os publicados pelo instituto.'}
       </p>
-      <details className="inline-details basis-example">
-        <summary>Por que os percentuais mudam?</summary>
-        <p>
-          Exemplo fictício: em 100 entrevistas, A recebe 45 escolhas, B recebe 40 e outras respostas
-          somam 15. Contando todas as respostas, A tem 45%. Entre as 85 escolhas por candidatos, A
-          tem 52,9%. É o mesmo levantamento, com uma base diferente.
-        </p>
-      </details>
+      {!observatory && (
+        <details className="inline-details basis-example">
+          <summary>Por que os percentuais mudam?</summary>
+          <p>
+            Exemplo fictício: em 100 entrevistas, A recebe 45 escolhas, B recebe 40 e outras
+            respostas somam 15. Contando todas as respostas, A tem 45%. Entre as 85 escolhas por
+            candidatos, A tem 52,9%. É o mesmo levantamento, com uma base diferente.
+          </p>
+        </details>
+      )}
       <div className="active-filters">
-        <span>{institute === 'Todos' ? 'Todos os institutos' : institute}</span>
-        <span>{basis === 'valid' ? 'Escolhas por candidatos' : 'Todas as respostas'}</span>
+        {!observatory && (
+          <>
+            <span>{institute === 'Todos' ? 'Todos os institutos' : institute}</span>
+            <span>{basis === 'valid' ? 'Escolhas por candidatos' : 'Todas as respostas'}</span>
+          </>
+        )}
         {(institute !== 'Todos' || basis !== 'valid') && (
           <button
             className="text-button"
@@ -326,7 +347,9 @@ export function PollExplorer({
           className="poll-grid"
           moreLabel="Ver mais pesquisas"
           lessLabel="Ver menos pesquisas"
-          render={(p) => <PollCard key={p.id} poll={p} basis={basis} onNote={onNote} />}
+          render={(p) => (
+            <PollCard key={p.id} poll={p} basis={basis} onNote={onNote} observatory={observatory} />
+          )}
         />
       )}
       {!loading && !filtered.length && (
@@ -490,10 +513,24 @@ function PollTimeline({ polls, basis }: { polls: PollSnapshot[]; basis: PollBasi
       <div className="or-section-head">
         <div>
           <span className="or-overline">PERCORRA AS DIVULGAÇÕES</span>
-          <h2>O que cada levantamento mostra</h2>
+          <h2>Intenções de voto</h2>
         </div>
         <span className="or-source">2º turno · Nacional</span>
       </div>
+      <label className="or-research-picker">
+        Divulgação
+        <select
+          aria-label="Divulgação da pesquisa"
+          value={selected.id}
+          onChange={(event) => setSelectedId(event.target.value)}
+        >
+          {ordered.map((poll) => (
+            <option key={poll.id} value={poll.id}>
+              {date(poll.publishedAt)} · {poll.institute}
+            </option>
+          ))}
+        </select>
+      </label>
       <div className="or-research-timeline" role="group" aria-label="Escolher divulgação">
         {ordered.map((poll) => (
           <button
@@ -508,17 +545,20 @@ function PollTimeline({ polls, basis }: { polls: PollSnapshot[]; basis: PollBasi
       </div>
       <div className="or-poll-reading" aria-live="polite" aria-atomic="true">
         <div className="or-poll-selected">
-          <span className="or-overline">LEVANTAMENTO SELECIONADO</span>
           <h3>{selected.institute}</h3>
           <p>
-            Divulgado em {date(selected.publishedAt)} · Entrevistas:{' '}
-            {selected.fieldwork || 'período não informado'}
+            Divulgado em {date(selected.publishedAt)} ·{' '}
+            {basis === 'valid' ? 'Votos válidos' : 'Todas as respostas'}
           </p>
         </div>
-        {numbers ? (
+        <>
           <div className="or-poll-bars">
             {candidates.map((candidate) => {
-              const value = candidate.number === '22' ? numbers.flavio : numbers.lula;
+              const value = numbers
+                ? candidate.number === '22'
+                  ? numbers.flavio
+                  : numbers.lula
+                : null;
               return (
                 <div
                   key={candidate.number}
@@ -529,18 +569,25 @@ function PollTimeline({ polls, basis }: { polls: PollSnapshot[]; basis: PollBasi
                     } as React.CSSProperties
                   }
                 >
-                  <span>
-                    {candidate.name}
-                    <strong>{percent(value)}</strong>
-                  </span>
-                  <div className="or-poll-track">
-                    <i style={{ width: `${value}%` }} />
+                  <div className="or-poll-person">
+                    <CandidatePortrait name={candidate.name} />
+                    <div>
+                      <span>{candidate.name}</span>
+                      <small>{candidate.party}</small>
+                    </div>
+                    <strong>{value === null ? '—' : percent(value)}</strong>
                   </div>
+                  {value !== null && (
+                    <div className="or-poll-track">
+                      <i style={{ width: `${value}%` }} />
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
-        ) : (
+        </>
+        {!numbers && (
           <p className="notice">
             Esta base não foi publicada neste levantamento. Selecione a outra visualização para
             consultar os números disponíveis.
@@ -561,6 +608,18 @@ function PollTimeline({ polls, basis }: { polls: PollSnapshot[]; basis: PollBasi
           </span>
           <Link href={selected.source}>Consultar a origem</Link>
         </div>
+        <details className="inline-details or-selected-methodology">
+          <summary>Coleta, registro e metodologia</summary>
+          <PollMethodology poll={selected} />
+          {selected.note && <p className="fine">{selected.note}</p>}
+          {selected.metadataSource && selected.metadataSource !== selected.source && (
+            <Link href={selected.metadataSource}>Consultar ficha da pesquisa</Link>
+          )}
+          <p className="fine">
+            Usamos a base publicada pelo instituto, sem estimar percentuais ausentes. Votos válidos
+            excluem brancos, nulos e indecisos; todas as respostas os incluem.
+          </p>
+        </details>
       </div>
       <p className="or-poll-caution">
         Pesquisas podem ter métodos e períodos de coleta diferentes. Compare também a metodologia;
