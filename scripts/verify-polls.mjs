@@ -116,7 +116,22 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 25);
+assert.equal(pollSnapshots.length, 28);
+// October 20: keep the original reports' precision and the effective fieldwork.
+for (const [registration, sample, flavio, lula, totals] of [
+  ['BR-07896/2026', 3000, 50.81, 49.19, [40.95, 39.65]],
+  ['BR-02952/2026', 2000, 52, 48, [48, 45]],
+  ['BR-00820/2026', 2700, 51.5, 48.5, [48.8, 45.9]],
+]) {
+  const snapshot = pollSnapshots.find((poll) => poll.registration === registration);
+  assert.ok(snapshot, registration);
+  assert.equal(snapshot.sample, sample);
+  assert.deepEqual([snapshot.flavio, snapshot.lula], [flavio, lula]);
+  assert.deepEqual([snapshot.totalVotes.flavio, snapshot.totalVotes.lula], totals);
+  assert.match(snapshot.publishedAt, /^2026-10-20T/);
+  assert.ok(snapshot.registryCheckedAt);
+  assert.match(snapshot.metadataSource, /^https:\/\/dadosabertos\.tse\.jus\.br\//);
+}
 assert.equal(new Set(pollSnapshots.map((p) => p.registration)).size, pollSnapshots.length);
 for (const p of pollSnapshots) {
   if (p.basis === 'valid') assert.equal(p.flavio + p.lula, 100);
