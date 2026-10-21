@@ -266,6 +266,12 @@
   border-radius: 12px;
 }
 .or-welcome .welcome-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 14px 0;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
