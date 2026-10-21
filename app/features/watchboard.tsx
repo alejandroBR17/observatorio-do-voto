@@ -1,16 +1,35 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { ArrowUpRight, Bell, MapPin, Check, Bookmark, ShieldCheck, Plus, X } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Bell,
+  MapPin,
+  Check,
+  Bookmark,
+  ShieldCheck,
+  Plus,
+  X,
+  ArrowDown,
+  BookOpen,
+} from 'lucide-react';
 import { states, Result } from '@/lib/elections';
 import { candidates } from '@/lib/content';
 import { ExpandList } from '../disclosure';
 
 import { Map } from '../geo-map';
+import { CandidatePortrait } from '../components/candidate-portrait';
 import { Notebook } from '../notebook';
 import { ShareButton } from '../components/share-button';
 
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
 import { formatCompactPercent as percent } from '@/lib/presentation';
+function searchText(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('pt-BR')
+    .trim();
+}
 export function Watchboard({
   selectedNote,
   favorite,
@@ -21,7 +40,9 @@ export function Watchboard({
   uf,
   year,
   turn,
+  observatory = false,
 }: {
+  observatory?: boolean;
   selectedNote?: string;
   favorite: string;
   onAlerts: () => void;
@@ -88,31 +109,87 @@ export function Watchboard({
     setEntries(next);
   }
   function toggle(code: string) {
+    setSaved('saving');
     setFollow((f) => (f.includes(code) ? f.filter((x) => x !== code) : [...f, code]));
     setFocus(code);
   }
+  const queryCode = states.find((s) => searchText(s[1]) === searchText(query))?.[1];
   const selected = states.find((s) => s[1] === focus),
     visible = states.filter(
       (s) =>
         (area === 'Todas' || s[3] === area) &&
-        s[2].toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR')),
+        (queryCode ? s[1] === queryCode : searchText(s[2]).includes(searchText(query))),
     );
   const result = data.find((d) => d.uf === focus);
   return (
-    <>
-      <section className="panel discovery-head">
-        <div>
-          <span className="eyebrow">O SEU JEITO DE ACOMPANHAR</span>
-          <h2>O país, pelos lugares que importam para você.</h2>
-          <p>Monte uma comparação entre estados e guarde suas observações no caderno.</p>
-        </div>
-        <Bookmark size={40} />
-      </section>
-      <section className="panel follow-panel">
+    <div
+      className={observatory ? 'or-watch' : undefined}
+      style={observatory ? undefined : { display: 'contents' }}
+    >
+      {observatory && (
+        <>
+          <nav className="or-watch-nav" aria-label="Seu acompanhamento">
+            <a href="#escolher-estados">
+              <MapPin size={21} aria-hidden="true" />
+              <span>
+                Explorar estados<small>Mapa e busca por nome</small>
+              </span>
+              <ArrowDown size={16} aria-hidden="true" />
+            </a>
+            <a href="#estados-seguidos">
+              <Bookmark size={21} aria-hidden="true" />
+              <span>
+                {ready
+                  ? `${follow.length} ${follow.length === 1 ? 'estado seguido' : 'estados seguidos'}`
+                  : 'Seus estados'}
+                <small>Resultados e atalhos</small>
+              </span>
+              <ArrowDown size={16} aria-hidden="true" />
+            </a>
+            <a href="#seu-caderno">
+              <BookOpen size={21} aria-hidden="true" />
+              <span>
+                {ready && entries.length
+                  ? `${entries.length} ${entries.length === 1 ? 'anotação' : 'anotações'}`
+                  : 'Seu caderno'}
+                <small>Perguntas e observações</small>
+              </span>
+              <ArrowDown size={16} aria-hidden="true" />
+            </a>
+          </nav>
+          <p className="or-watch-storage" role="status">
+            <ShieldCheck size={16} aria-hidden="true" />
+            {!ready
+              ? 'Recuperando seu acompanhamento…'
+              : saved === 'error'
+                ? 'Não foi possível salvar neste aparelho.'
+                : saved === 'saving'
+                  ? 'Salvando neste aparelho…'
+                  : 'Acompanhamento salvo neste aparelho.'}
+          </p>
+        </>
+      )}
+      {!observatory && (
+        <section className="panel discovery-head">
+          <div>
+            <span className="eyebrow">O SEU JEITO DE ACOMPANHAR</span>
+            <h2>O país, pelos lugares que importam para você.</h2>
+            <p>Monte uma comparação entre estados e guarde suas observações no caderno.</p>
+          </div>
+          <Bookmark size={40} />
+        </section>
+      )}
+      <section className="panel follow-panel" id="escolher-estados">
         <div className="panel-head">
           <div>
-            <span className="eyebrow">SEUS ESTADOS</span>
-            <h2>Escolha no mapa. Compare abaixo.</h2>
+            <span className="eyebrow">
+              {observatory ? '01 / SEU OLHAR NO TERRITÓRIO' : 'SEUS ESTADOS'}
+            </span>
+            <h2>
+              {observatory
+                ? 'Quais lugares você quer acompanhar?'
+                : 'Escolha no mapa. Compare abaixo.'}
+            </h2>
           </div>
           <span className="subtle-tag">{follow.length} seguindo</span>
         </div>
@@ -160,7 +237,7 @@ export function Watchboard({
               <label className="form-label">
                 Buscar estado
                 <input
-                  placeholder="Nome do estado"
+                  placeholder={observatory ? 'Nome ou sigla do estado' : 'Nome do estado'}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
@@ -208,10 +285,12 @@ export function Watchboard({
           </div>
         </div>
       </section>
-      <section className="panel followed-results">
+      <section className="panel followed-results" id="estados-seguidos">
         <div className="panel-head">
           <div>
-            <span className="eyebrow">COMPARAÇÃO PESSOAL</span>
+            <span className="eyebrow">
+              {observatory ? '02 / ESTADOS QUE VOCÊ SEGUE' : 'COMPARAÇÃO PESSOAL'}
+            </span>
             <h2>
               {follow.length
                 ? 'Seus estados, lado a lado.'
@@ -224,6 +303,21 @@ export function Watchboard({
           Os estados seguidos ficam reunidos aqui, com atalhos para a apuração e o histórico. Essa
           seleção não restringe os alertas nacionais.
         </p>
+        {observatory && ready && follow.length === 0 && (
+          <div className="or-watch-empty">
+            <MapPin size={30} aria-hidden="true" />
+            <div>
+              <h3>Um lugar para começar.</h3>
+              <p>
+                Escolha um estado e toque em “Seguir estado”. Seus resultados ficam reunidos aqui.
+              </p>
+            </div>
+            <a className="button secondary" href="#escolher-estados">
+              Escolher meu primeiro estado
+              <ArrowUpRight size={15} aria-hidden="true" />
+            </a>
+          </div>
+        )}
         {follow.length > 0 && (
           <ExpandList
             className="followed-grid"
@@ -255,16 +349,27 @@ export function Watchboard({
                       <span className="fine">1º turno · {d.year} · votos válidos</span>
                       <div className="followed-votes">
                         <span>
-                          Flávio <strong>{percent(a.percent)}</strong>
+                          {observatory && <CandidatePortrait name="Flávio Bolsonaro" />}
+                          <span>
+                            Flávio <strong>{percent(a.percent)}</strong>
+                          </span>
                         </span>
                         <span>
-                          Lula <strong>{percent(b.percent)}</strong>
+                          {observatory && <CandidatePortrait name="Lula" />}
+                          <span>
+                            Lula <strong>{percent(b.percent)}</strong>
+                          </span>
                         </span>
                       </div>
                       <div className="split-bar">
                         <div style={{ width: a.percent + '%', background: '#24796d' }} />
                         <div style={{ width: b.percent + '%', background: '#c96856' }} />
                       </div>
+                      {observatory && (
+                        <small className="or-watch-others">
+                          Demais candidatos completam os votos válidos.
+                        </small>
+                      )}
                       <small>Abstenção: {percent(d.abstention)}</small>
                     </>
                   ) : (
@@ -286,15 +391,17 @@ export function Watchboard({
           />
         )}
       </section>
-      {ready && (
-        <Notebook
-          entries={entries}
-          onChange={changeEntries}
-          saved={saved}
-          savedAt={savedAt}
-          selectedNote={selectedNote}
-        />
-      )}
+      <div id="seu-caderno" style={observatory ? undefined : { display: 'contents' }}>
+        {ready && (
+          <Notebook
+            entries={entries}
+            onChange={changeEntries}
+            saved={saved}
+            savedAt={savedAt}
+            selectedNote={selectedNote}
+          />
+        )}
+      </div>
       <section className="watch-shortcuts">
         <div className="watch-summary">
           <span className="eyebrow">SEU ACOMPANHAMENTO</span>
@@ -334,6 +441,6 @@ export function Watchboard({
         Seu caderno e sua seleção ficam no aparelho. O link compartilhado contém apenas os filtros
         públicos da visualização.
       </p>
-    </>
+    </div>
   );
 }

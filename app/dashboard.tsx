@@ -996,9 +996,11 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                       ? 'Quem disputa a Presidência.'
                       : reviewOnly && tab === 'social'
                         ? 'A eleição em debate.'
-                        : tab === 'overview'
-                          ? 'O país em perspectiva.'
-                          : nav.find((n) => n[0] === tab)?.[1]}
+                        : reviewOnly && tab === 'watch'
+                          ? 'Seu olhar sobre a eleição.'
+                          : tab === 'overview'
+                            ? 'O país em perspectiva.'
+                            : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
@@ -2058,6 +2060,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
 
                 {tab === 'watch' && (
                   <Watchboard
+                    observatory={reviewOnly}
                     selectedNote={selectedNote}
                     favorite={favorite}
                     onAlerts={() => go('alerts')}

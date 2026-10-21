@@ -112,11 +112,13 @@ export function MediaExplorer({ observatory = false }: { observatory?: boolean }
       </section>
       {observatory && (
         <nav className="or-coverage-nav" aria-label="Nesta página">
-          <a href="#noticiario">
-            <Newspaper size={17} aria-hidden="true" />
-            Noticiário
-            <ArrowDown size={14} aria-hidden="true" />
-          </a>
+          {articles.length > 0 && (
+            <a href="#noticiario">
+              <Newspaper size={17} aria-hidden="true" />
+              Noticiário
+              <ArrowDown size={14} aria-hidden="true" />
+            </a>
+          )}
           {data?.stats && (
             <a href="#cobertura-numeros">
               <Radio size={17} aria-hidden="true" />A cobertura em números
@@ -147,17 +149,22 @@ export function MediaExplorer({ observatory = false }: { observatory?: boolean }
                 <h2>No noticiário</h2>
               </div>
               <span className="or-coverage-count">
-                <strong>{articles.length}</strong> notícias nesta coleta
+                <strong>{visibleArticles.length}</strong>{' '}
+                {currentVehicle === 'all'
+                  ? 'notícias nesta coleta'
+                  : `notícias · ${currentVehicle}`}
               </span>
             </div>
           ) : (
             <h2>No noticiário</h2>
           )}
           <div className="news-filter">
-            <p className="fine">
-              {observatory
-                ? `${vehicles.length} veículos nesta coleta. As notícias mais recentes aparecem primeiro.`
-                : `${articles.length} notícias de ${vehicles.length} veículos nesta coleta. As mais recentes aparecem primeiro.`}
+            <p className="fine" role={observatory ? 'status' : undefined}>
+              {observatory && currentVehicle !== 'all'
+                ? `${visibleArticles.length} notícias de ${currentVehicle}. As mais recentes aparecem primeiro.`
+                : observatory
+                  ? `${vehicles.length} veículos nesta coleta. As notícias mais recentes aparecem primeiro.`
+                  : `${articles.length} notícias de ${vehicles.length} veículos nesta coleta. As mais recentes aparecem primeiro.`}
             </p>
             <label>
               Veículo{' '}

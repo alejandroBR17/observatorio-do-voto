@@ -24,6 +24,7 @@ import './observatory.css';
 import './research.css';
 import './candidates.css';
 import './coverage.css';
+import './watch.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),

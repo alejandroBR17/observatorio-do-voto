@@ -1,0 +1,575 @@
+/* Personal observatory: amber selects and navigates; candidate colors encode votes. */
+.control-room:has(.or-watch) .preview-note {
+  display: none;
+}
+.or-watch {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.or-watch > .panel,
+.or-watch .notebook {
+  margin: 0;
+  border-radius: 20px;
+  box-shadow: none;
+  min-width: 0;
+  scroll-margin-top: 100px;
+}
+.or-watch-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.or-watch-nav a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 98px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+  color: var(--ink);
+  background: var(--surface);
+  text-decoration: none;
+}
+.or-watch-nav a > svg {
+  color: var(--or-amber);
+  flex-shrink: 0;
+}
+.or-watch-nav a > svg:last-child {
+  margin-left: auto;
+}
+.or-watch-nav span {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.or-watch-nav small {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  margin-top: 6px;
+}
+.or-watch-nav a:hover {
+  border-color: var(--or-amber);
+}
+.or-watch a:focus-visible,
+.or-watch button:focus-visible,
+.or-watch input:focus-visible,
+.or-watch textarea:focus-visible,
+.or-watch select:focus-visible {
+  outline: 2px solid var(--or-amber);
+  outline-offset: 3px;
+}
+.or-watch .or-watch-storage {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: -10px 0 0;
+}
+.or-watch-storage svg {
+  flex-shrink: 0;
+  color: var(--or-amber);
+}
+.or-watch .panel-head {
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+.or-watch .panel-head h2 {
+  font-size: clamp(24px, 2.6vw, 32px);
+  letter-spacing: -0.7px;
+  line-height: 1.2;
+  margin-top: 10px;
+}
+.or-watch .panel-head .eyebrow {
+  color: var(--or-amber);
+  font-size: 11px;
+  letter-spacing: 1.1px;
+  line-height: 1.6;
+}
+.or-watch .subtle-tag {
+  color: var(--or-amber);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 12px;
+  white-space: nowrap;
+}
+.or-watch .fine {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.or-watch .follow-explorer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+.or-watch .follow-explorer > div {
+  min-width: 0;
+}
+.or-watch .map-wrap {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px;
+}
+.or-watch .brazil-map {
+  width: 100%;
+  max-height: 380px;
+}
+.or-watch .map-legend {
+  gap: 10px 16px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+.or-watch .map-hint {
+  font-size: 12px;
+}
+.or-watch .map-table {
+  min-width: 0;
+}
+.or-watch .map-table .table-scroll {
+  max-width: 100%;
+}
+.or-watch .selected-state {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--surface);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.or-watch .selected-state h3 {
+  font-size: 24px;
+  letter-spacing: -0.6px;
+  margin: 6px 0;
+}
+.or-watch .selected-state small {
+  font-size: 13px;
+}
+.or-watch .selected-state .button {
+  min-height: 44px;
+  font-size: 14px;
+  border-radius: 11px;
+}
+.or-watch .state-picker {
+  min-width: 0;
+}
+.or-watch .state-picker-tools {
+  gap: 14px;
+}
+.or-watch .form-label {
+  font-size: 14px;
+  line-height: 1.5;
+  gap: 8px;
+}
+.or-watch input,
+.or-watch select {
+  min-width: 0;
+  min-height: 46px;
+  font-size: 16px;
+  border-radius: 10px;
+  background: var(--bg);
+}
+.or-watch .state-filters {
+  font-size: 12px;
+  margin: 16px 0;
+  gap: 10px;
+}
+.or-watch .state-picker-list {
+  max-height: 380px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0 14px;
+  scrollbar-gutter: stable;
+}
+.or-watch .state-picker-list > div {
+  gap: 12px;
+  min-height: 68px;
+}
+.or-watch .state-name {
+  min-height: 56px;
+  border-radius: 8px;
+}
+.or-watch .state-name span {
+  font-size: 15px;
+  font-weight: 600;
+}
+.or-watch .state-name small {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.or-watch .follow-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+.or-watch .follow-toggle[aria-pressed='true'] {
+  background: var(--or-amber);
+  color: var(--bg);
+}
+.or-watch .or-watch-empty {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 24px;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  background: var(--bg);
+}
+.or-watch-empty > svg {
+  color: var(--or-amber);
+  flex-shrink: 0;
+}
+.or-watch-empty > div {
+  flex: 1 1 220px;
+}
+.or-watch-empty h3 {
+  font-size: 21px;
+  margin: 0 0 10px;
+}
+.or-watch-empty p {
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
+  color: var(--muted);
+  max-width: 54ch;
+}
+.or-watch-empty a {
+  min-height: 46px;
+  font-size: 14px;
+  text-decoration: none;
+}
+.or-watch .followed-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  align-items: start;
+  gap: 18px;
+}
+.or-watch .followed-card {
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--bg);
+  min-width: 0;
+}
+.or-watch .followed-card h3 {
+  font-size: 25px;
+  letter-spacing: -0.6px;
+  margin: 8px 0 14px;
+}
+.or-watch .followed-card .icon-button {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 12px;
+}
+.or-watch .followed-card .fine,
+.or-watch .followed-card > small {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.or-watch .followed-votes {
+  gap: 18px;
+}
+.or-watch .followed-votes > span {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+.or-watch .followed-votes > span:last-child {
+  flex-direction: row-reverse;
+}
+.or-watch .followed-votes strong {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--data-flavio);
+}
+.or-watch .followed-votes > span:last-child strong {
+  color: var(--data-lula);
+}
+.or-watch .candidate-portrait {
+  width: 42px;
+  height: 52px;
+  border-radius: 9px;
+  object-fit: cover;
+}
+.or-watch .split-bar {
+  height: 7px;
+  border-radius: 8px;
+  background: var(--data-other);
+}
+.or-watch .or-watch-others {
+  display: block;
+  color: var(--muted);
+  margin: 10px 0;
+  font-size: 12px;
+}
+.or-watch .followed-card .quick-actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.or-watch .text-button {
+  min-height: 44px;
+  font-size: 13px;
+  padding: 10px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  text-decoration: none;
+}
+.or-watch #seu-caderno {
+  min-width: 0;
+  scroll-margin-top: 100px;
+}
+.or-watch .notebook-layout {
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+}
+.or-watch .notebook-list {
+  gap: 10px;
+}
+.or-watch .notebook-list button {
+  padding: 16px;
+  min-height: 66px;
+  background: var(--bg);
+  border-radius: 12px;
+}
+.or-watch .notebook-list button.selected {
+  border-color: var(--or-amber);
+  background: var(--soft);
+}
+.or-watch .notebook-list strong {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.or-watch .notebook-list small {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.or-watch .notebook-editor .note-body-label textarea {
+  font-size: 16px;
+  line-height: 1.85;
+  background: var(--bg);
+  padding: 22px;
+  border-radius: 14px;
+  min-height: 250px;
+  box-shadow: none;
+}
+.or-watch .notebook-save {
+  margin-bottom: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.or-watch .notebook-empty {
+  text-align: left;
+  border: 1px dashed var(--line);
+  background: var(--bg);
+  padding: 28px;
+}
+.or-watch .notebook-empty h3 {
+  font-size: 25px;
+  letter-spacing: -0.6px;
+}
+.or-watch .notebook-empty p {
+  margin: 0 0 22px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+.or-watch .notebook .button {
+  min-height: 46px;
+  font-size: 14px;
+  border-radius: 12px;
+}
+.or-watch .note-organize summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+.or-watch .note-editor-footer {
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.or-watch .watch-shortcuts {
+  margin: 0;
+  border: 1px solid var(--line);
+  padding: 24px;
+  border-radius: 18px;
+  background: var(--surface);
+  gap: 24px;
+}
+.or-watch .watch-summary strong {
+  font-family: var(--serif);
+  font-size: 22px;
+  letter-spacing: -0.4px;
+}
+.or-watch .watch-shortcuts .action-group {
+  justify-content: flex-end;
+}
+.or-watch .watch-shortcuts .button {
+  min-height: 46px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+.or-watch .privacy-label {
+  margin: 0;
+  font-size: 13px;
+}
+@media (max-width: 1050px) {
+  .or-watch-nav a {
+    padding: 16px;
+    gap: 10px;
+  }
+  .or-watch-nav span {
+    font-size: 14px;
+  }
+  .or-watch .follow-explorer {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+  }
+  .or-watch .followed-votes {
+    flex-direction: column;
+  }
+  .or-watch .followed-votes > span:last-child {
+    flex-direction: row;
+    text-align: left;
+  }
+}
+@media (max-width: 750px) {
+  .or-watch {
+    gap: 18px;
+  }
+  .or-watch-nav {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .or-watch-nav a {
+    min-height: 74px;
+  }
+  .or-watch .follow-explorer,
+  .or-watch .followed-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-watch .panel {
+    padding: 20px;
+  }
+  .or-watch .panel-head {
+    flex-wrap: wrap;
+  }
+  .or-watch .panel-head h2 {
+    font-size: 25px;
+  }
+  .or-watch .state-picker-tools {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-watch .state-picker-list {
+    max-height: 300px;
+  }
+  .or-watch .notebook-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-watch .notebook-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    max-height: 240px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .or-watch .notebook-list button {
+    min-width: 0;
+  }
+  .or-watch .notebook-editor {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .or-watch .notebook-editor .note-body-label textarea {
+    padding: 16px;
+  }
+  .or-watch .note-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-watch .followed-votes {
+    flex-direction: row;
+  }
+  .or-watch .followed-votes > span:last-child {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+  .or-watch .followed-card {
+    padding: 18px;
+  }
+  .or-watch .followed-votes strong {
+    font-size: 25px;
+  }
+  .or-watch .watch-shortcuts {
+    padding: 20px;
+  }
+  .or-watch .watch-shortcuts .action-group {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 390px) {
+  .or-watch .followed-votes {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .or-watch .followed-votes > span:last-child {
+    flex-direction: row;
+    text-align: left;
+  }
+  .or-watch .map-wrap {
+    padding: 10px;
+  }
+  .or-watch .panel {
+    padding: 18px;
+  }
+  .or-watch .or-watch-empty {
+    padding: 18px;
+  }
+  .or-watch .notebook-empty {
+    padding: 20px;
+  }
+}
+.or-watch .map-table table {
+  min-width: 560px;
+}
+.or-watch .map-table .table-scroll {
+  overflow: auto;
+  max-height: 320px;
+}
+.or-watch .map-table td button {
+  white-space: nowrap;
+}
+.or-watch .map-table summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 13px;
+}
+.or-watch .map-table summary::after {
+  content: '+';
+  margin-left: auto;
+  color: var(--or-amber);
+  font-size: 20px;
+}
+.or-watch .map-table[open] summary::after {
+  content: '−';
+}
