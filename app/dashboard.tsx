@@ -523,10 +523,22 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
     };
   }, [year]);
   useEffect(() => {
+    let canceled = false;
+    setPoints([]);
     fetch(`/data/progression-2022-${turn}.json`)
-      .then((r) => readJson(r))
-      .then((d) => setPoints(d as any[]))
-      .catch(() => setPoints([]));
+      .then((r) => {
+        if (!r.ok) throw new Error('Sequência indisponível.');
+        return readJson(r);
+      })
+      .then((d) => {
+        if (!canceled) setPoints(d as ProgressionPoint[]);
+      })
+      .catch(() => {
+        if (!canceled) setPoints([]);
+      });
+    return () => {
+      canceled = true;
+    };
   }, [turn]);
   useEffect(() => {
     if (tab !== 'live' || live.status !== 'live') {
@@ -1012,9 +1024,11 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                                 ? 'O observatório no seu aparelho.'
                                 : reviewOnly && tab === 'history'
                                   ? 'As eleições, ano a ano.'
-                                  : tab === 'overview'
-                                    ? 'O país em perspectiva.'
-                                    : nav.find((n) => n[0] === tab)?.[1]}
+                                  : reviewOnly && tab === 'municipality'
+                                    ? 'O voto, perto de você.'
+                                    : tab === 'overview'
+                                      ? 'O país em perspectiva.'
+                                      : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
@@ -2011,7 +2025,9 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                     )}
                   </>
                 )}
-                {tab === 'municipality' && <MunicipalityExplorer initialUf={uf} />}
+                {tab === 'municipality' && (
+                  <MunicipalityExplorer initialUf={uf} observatory={reviewOnly} />
+                )}
                 {tab === 'polls' && (
                   <>
                     <PollExplorer onNote={contextNote} observatory={reviewOnly} />

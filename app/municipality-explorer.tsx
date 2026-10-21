@@ -3,14 +3,21 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, MapPin, Search, X } from 'lucide-react';
 import { states } from '@/lib/elections';
 import { searchText, type LocalResponse, type PlaceSummary } from '@/lib/local-results';
-import { candidateName, formatVotes, formatPercent } from '@/lib/presentation';
+import { candidateName, candidateColor, formatVotes, formatPercent } from '@/lib/presentation';
+import { CandidatePortrait } from './components/candidate-portrait';
 import { DataFreshness } from './components/data-freshness';
 import { Source } from './components/source-link';
 import { rememberedCity, type RememberedCity } from '@/lib/remembered-city';
 import { ShareButton } from './components/share-button';
 import { resultLink } from '@/lib/sharing';
 
-export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
+export function MunicipalityExplorer({
+  initialUf,
+  observatory = false,
+}: {
+  initialUf: string;
+  observatory?: boolean;
+}) {
   const [uf, setUf] = useState(states.some((s) => s[1] === initialUf) ? initialUf : 'SP');
   const [index, setIndex] = useState<LocalResponse | null>(null);
   const [city, setCity] = useState<LocalResponse | null>(null);
@@ -224,17 +231,50 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
         ? `Zona eleitoral ${Number(detail.selection.zone)}`
         : city?.municipality?.name;
   return (
-    <div className="municipality-explorer">
-      <section className="panel municipality-search">
+    <div className={`municipality-explorer${observatory ? ' or-local' : ''}`}>
+      {observatory && (
+        <ol className="or-local-steps" aria-label="Explore o resultado local">
+          <li aria-current={!city ? 'step' : undefined}>
+            <span>01</span>
+            <div>
+              <strong>Município</strong>
+              <small>{city?.municipality?.name || 'Escolha sua cidade'}</small>
+            </div>
+          </li>
+          <li aria-current={city && !detail ? 'step' : undefined}>
+            <span>02</span>
+            <div>
+              <strong>Local e seção</strong>
+              <small>Explore onde você votou</small>
+            </div>
+          </li>
+          <li aria-current={detail ? 'step' : undefined}>
+            <span>03</span>
+            <div>
+              <strong>Votos</strong>
+              <small>Consulte o resultado coletivo</small>
+            </div>
+          </li>
+        </ol>
+      )}
+      <section className="panel municipality-search" id="buscar-municipio">
         <span className="eyebrow">PRESIDÊNCIA · 2026 · 1º TURNO</span>
-        <h2>Como a sua cidade votou?</h2>
-        <p>Encontre o município. Depois, explore a escola ou a seção onde você votou.</p>
+        <h2>
+          {observatory && city?.municipality
+            ? `${city.municipality.name} · ${uf}`
+            : 'Como a sua cidade votou?'}
+        </h2>
+        {(!observatory || !city?.municipality) && (
+          <p>Encontre o município. Depois, explore a escola ou a seção onde você votou.</p>
+        )}
         {city?.municipality && (
           <div className="remembered-city">
             <div>
-              <strong>
-                {city.municipality.name} · {uf}
-              </strong>
+              {!observatory && (
+                <strong>
+                  {city.municipality.name} · {uf}
+                </strong>
+              )}
               <small role="status">
                 {storageStatus === 'saved'
                   ? 'Sua escolha fica lembrada neste navegador.'
@@ -250,89 +290,99 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
                 setDetail(null);
                 setQuery('');
                 setError('');
-                searchInput.current?.focus();
+                requestAnimationFrame(() => searchInput.current?.focus());
               }}
             >
               Pesquisar outro município
             </button>
           </div>
         )}
-        <div className="local-search-fields">
-          <label>
-            Estado
-            <select
-              value={uf}
-              onChange={(e) => {
-                restore.current = null;
-                setUf(e.target.value);
-              }}
-            >
-              {states.map((s) => (
-                <option key={s[1]} value={s[1]}>
-                  {s[2]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Município
-            <div className="local-search-input">
-              <Search size={18} aria-hidden="true" />
-              <input
-                ref={searchInput}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                type="search"
-                placeholder="Digite o nome da cidade"
-                aria-label="Município"
-                autoComplete="off"
-                aria-describedby="city-search-status"
-              />
-              {query && (
-                <button aria-label="Limpar busca de município" onClick={() => setQuery('')}>
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-          </label>
-        </div>
-        <p className="fine" id="city-search-status" role="status">
-          {!index
-            ? error
-              ? 'Não foi possível carregar a lista.'
-              : 'Carregando municípios…'
-            : query.trim().length < 2
-              ? 'Digite pelo menos duas letras. Não precisa colocar acentos.'
-              : `${matches.length} ${matches.length === 1 ? 'município encontrado' : 'municípios encontrados'}.`}
-        </p>
-        {query.trim().length >= 2 && (
-          <ul className="local-search-results">
-            {matches.slice(0, 8).map((m) => (
-              <li key={m.code}>
-                <button
-                  disabled={busy}
-                  onClick={() => {
-                    setCity(null);
-                    void load(m.code);
+        {(!observatory || !city?.municipality) && (
+          <>
+            <div className="local-search-fields">
+              <label>
+                Estado
+                <select
+                  value={uf}
+                  onChange={(e) => {
+                    restore.current = null;
+                    setUf(e.target.value);
                   }}
                 >
-                  <MapPin size={17} aria-hidden="true" />
-                  <span>
-                    {m.name}
-                    <small>{uf}</small>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        {matches.length > 8 && query.trim().length >= 2 && (
-          <p className="fine">Continue digitando para encontrar sua cidade.</p>
+                  {states.map((s) => (
+                    <option key={s[1]} value={s[1]}>
+                      {s[2]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Município
+                <div className="local-search-input">
+                  <Search size={18} aria-hidden="true" />
+                  <input
+                    ref={searchInput}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    type="search"
+                    placeholder="Digite o nome da cidade"
+                    aria-label="Município"
+                    autoComplete="off"
+                    aria-describedby="city-search-status"
+                  />
+                  {query && (
+                    <button aria-label="Limpar busca de município" onClick={() => setQuery('')}>
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              </label>
+            </div>
+            <p className="fine" id="city-search-status" role="status">
+              {!index
+                ? error
+                  ? 'Não foi possível carregar a lista.'
+                  : 'Carregando municípios…'
+                : query.trim().length < 2
+                  ? 'Digite pelo menos duas letras. Não precisa colocar acentos.'
+                  : `${matches.length} ${matches.length === 1 ? 'município encontrado' : 'municípios encontrados'}.`}
+            </p>
+            {query.trim().length >= 2 && (
+              <ul className="local-search-results">
+                {matches.slice(0, 8).map((m) => (
+                  <li key={m.code}>
+                    <button
+                      disabled={busy}
+                      onClick={() => {
+                        setCity(null);
+                        void load(m.code);
+                      }}
+                    >
+                      <MapPin size={17} aria-hidden="true" />
+                      <span>
+                        {m.name}
+                        <small>{uf}</small>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {matches.length > 8 && query.trim().length >= 2 && (
+              <p className="fine">Continue digitando para encontrar sua cidade.</p>
+            )}
+          </>
         )}
         {index && (
           <DataFreshness archived checkedAt={index.importedAt} generated={index.generated} />
         )}
       </section>
+      {observatory && city?.municipality && (
+        <nav className="or-local-nav" aria-label="Explorar este município">
+          <a href="#locais-votacao">Locais e seções</a>
+          <a href="#votos-locais">Ver resultado em números</a>
+        </nav>
+      )}
       {error && (
         <div className="notice error" role="alert">
           {error}
@@ -351,303 +401,313 @@ export function MunicipalityExplorer({ initialUf }: { initialUf: string }) {
           Consultando os votos…
         </p>
       )}
-      {city?.municipality && (
-        <section className="panel local-places">
-          <div className="panel-head">
-            <div>
-              <span className="eyebrow">
-                {city.municipality.name} · {uf}
-              </span>
-              <h2>Encontre seu local de votação</h2>
+      <div className="local-workspace">
+        {city?.municipality && (
+          <section className="panel local-places" id="locais-votacao">
+            <div className="panel-head">
+              <div>
+                <span className="eyebrow">
+                  {city.municipality.name} · {uf}
+                </span>
+                <h2>Encontre seu local de votação</h2>
+              </div>
             </div>
-          </div>
-          <div
-            className="segmented local-method"
-            role="group"
-            aria-label="Como encontrar o local de votação"
-          >
-            <button
-              aria-pressed={method === 'name'}
-              className={method === 'name' ? 'active' : ''}
-              onClick={() => setMethod('name')}
-            >
-              Pelo nome do local
-            </button>
-            <button
-              aria-pressed={method === 'section'}
-              className={method === 'section' ? 'active' : ''}
-              onClick={() => setMethod('section')}
-            >
-              Pela zona e seção
-            </button>
-          </div>
-          {method === 'name' ? (
-            <>
-              <label className="local-search-label">
-                Escola, local ou endereço
-                <input
-                  type="search"
-                  placeholder="Ex.: Escola Municipal ou nome da rua"
-                  value={localQuery}
-                  onChange={(e) => {
-                    setLocalQuery(e.target.value);
-                    setShowPlaces(false);
-                  }}
-                />
-              </label>
-              <p className="fine" role="status">
-                {places.length} locais encontrados no município.
-              </p>
-              <ul className="local-search-results places-results">
-                {(showPlaces ? places : places.slice(0, 6)).map((p) => (
-                  <li key={p.id}>
-                    <button
-                      disabled={busy}
-                      onClick={() => void load(city.municipality!.code, p)}
-                      aria-pressed={detail?.selection?.place?.id === p.id}
-                    >
-                      <MapPin size={17} aria-hidden="true" />
-                      <span>
-                        {p.name}
-                        <small>
-                          {p.address} · Zona {Number(p.zone)} · {p.sections.length}{' '}
-                          {p.sections.length === 1 ? 'seção' : 'seções'}
-                        </small>
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              {places.length > 6 && (
-                <button
-                  className="text-button"
-                  aria-expanded={showPlaces}
-                  onClick={() => setShowPlaces(!showPlaces)}
-                >
-                  {showPlaces ? 'Ver menos locais' : `Ver os ${places.length} locais`}
-                </button>
-              )}
-            </>
-          ) : (
-            <form
-              className="local-section-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void load(city.municipality!.code, undefined, true);
-              }}
-            >
-              <p className="fine">
-                Você encontra esses dois números no e-Título ou no comprovante de votação.
-              </p>
-              <div className="local-search-fields">
-                <label>
-                  Zona eleitoral
-                  <input
-                    required
-                    inputMode="numeric"
-                    pattern="[0-9]{1,4}"
-                    maxLength={4}
-                    placeholder="Ex.: 101"
-                    value={zone}
-                    onChange={(e) => setZone(e.target.value.replace(/\D/g, ''))}
-                  />
-                </label>
-                <label>
-                  Seção
-                  <input
-                    inputMode="numeric"
-                    pattern="[0-9]{1,4}"
-                    maxLength={4}
-                    placeholder="Ex.: 105"
-                    value={section}
-                    onChange={(e) => setSection(e.target.value.replace(/\D/g, ''))}
-                  />
-                </label>
-                <button className="button primary" disabled={busy} type="submit">
-                  Consultar votos
-                </button>
-              </div>
-              <p className="fine">
-                Se não informar a seção, mostramos todas as seções dessa zona no município.
-              </p>
-            </form>
-          )}
-        </section>
-      )}
-      {!error && tally && (
-        <section
-          className="panel local-tally"
-          aria-labelledby="local-result-title"
-          aria-busy={busy}
-        >
-          {detail && (
-            <button className="text-button" onClick={() => setDetail(null)}>
-              <ArrowLeft size={15} aria-hidden="true" />
-              Ver o município inteiro
-            </button>
-          )}
-          <span className="eyebrow">
-            {detail ? 'RESULTADO DO LOCAL SELECIONADO' : 'RESULTADO DO MUNICÍPIO'} · 1º TURNO
-          </span>
-          <h2 id="local-result-title" ref={resultHeading} tabIndex={-1}>
-            {title}
-          </h2>
-          <ShareButton
-            title={`${title} · votação presidencial de 2026 · 1º turno`}
-            label="Compartilhar resultado"
-            url={() =>
-              resultLink(location.origin, {
-                tab: 'municipality',
-                uf,
-                municipality: city?.municipality?.code,
-                place: selectedPlace?.id,
-                zone: detail?.selection?.zone,
-                section: selectedSection,
-              })
-            }
-          />
-          {detail?.selection?.place && (
-            <p className="fine">
-              {detail.selection.place.address} · Zona {Number(detail.selection.place.zone)}
-            </p>
-          )}
-          {selectedPlace && (
             <div
-              className="local-section-picker"
+              className="segmented local-method"
               role="group"
-              aria-labelledby="local-section-heading"
+              aria-label="Como encontrar o local de votação"
             >
-              <div className="panel-head">
-                <div>
-                  <h3 id="local-section-heading">Veja o colégio inteiro ou encontre sua seção</h3>
-                  <p className="fine">
-                    Zona {Number(selectedPlace.zone)} · {selectedPlace.sections.length} seções neste
-                    local
-                  </p>
-                </div>
-              </div>
-              <div
-                className="local-scope-buttons"
-                role="group"
-                aria-label="Votos do colégio ou de uma seção"
+              <button
+                aria-pressed={method === 'name'}
+                className={method === 'name' ? 'active' : ''}
+                onClick={() => setMethod('name')}
               >
-                <button
-                  className="button secondary"
-                  disabled={busy}
-                  aria-pressed={!selectedSection && !showSectionPicker}
-                  onClick={() => {
-                    setShowSectionPicker(false);
-                    if (selectedSection) void load(city!.municipality!.code, selectedPlace);
-                  }}
-                >
-                  Colégio inteiro
-                </button>
-                <button
-                  className="button secondary"
-                  disabled={busy}
-                  aria-expanded={showSectionPicker}
-                  aria-controls="local-section-chooser"
-                  aria-pressed={showSectionPicker || !!selectedSection}
-                  onClick={() => setShowSectionPicker(!showSectionPicker)}
-                >
-                  Escolher seção
-                </button>
-              </div>
-              {showSectionPicker && (
-                <div id="local-section-chooser">
-                  <label className="local-search-label">
-                    Procurar seção neste colégio
+                Pelo nome do local
+              </button>
+              <button
+                aria-pressed={method === 'section'}
+                className={method === 'section' ? 'active' : ''}
+                onClick={() => setMethod('section')}
+              >
+                Pela zona e seção
+              </button>
+            </div>
+            {method === 'name' ? (
+              <>
+                <label className="local-search-label">
+                  Escola, local ou endereço
+                  <input
+                    type="search"
+                    placeholder="Ex.: Escola Municipal ou nome da rua"
+                    value={localQuery}
+                    onChange={(e) => {
+                      setLocalQuery(e.target.value);
+                      setShowPlaces(false);
+                    }}
+                  />
+                </label>
+                <p className="fine" role="status">
+                  {places.length} locais encontrados no município.
+                </p>
+                <ul className="local-search-results places-results">
+                  {(showPlaces ? places : places.slice(0, 6)).map((p) => (
+                    <li key={p.id}>
+                      <button
+                        disabled={busy}
+                        onClick={() => void load(city.municipality!.code, p)}
+                        aria-pressed={detail?.selection?.place?.id === p.id}
+                      >
+                        <MapPin size={17} aria-hidden="true" />
+                        <span>
+                          {p.name}
+                          <small>
+                            {p.address} · Zona {Number(p.zone)} · {p.sections.length}{' '}
+                            {p.sections.length === 1 ? 'seção' : 'seções'}
+                          </small>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {places.length > 6 && (
+                  <button
+                    className="text-button"
+                    aria-expanded={showPlaces}
+                    onClick={() => setShowPlaces(!showPlaces)}
+                  >
+                    {showPlaces ? 'Ver menos locais' : `Ver os ${places.length} locais`}
+                  </button>
+                )}
+              </>
+            ) : (
+              <form
+                className="local-section-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void load(city.municipality!.code, undefined, true);
+                }}
+              >
+                <p className="fine">
+                  Você encontra esses dois números no e-Título ou no comprovante de votação.
+                </p>
+                <div className="local-search-fields">
+                  <label>
+                    Zona eleitoral
                     <input
-                      type="search"
+                      required
                       inputMode="numeric"
-                      value={sectionQuery}
+                      pattern="[0-9]{1,4}"
                       maxLength={4}
-                      placeholder="Digite o número da sua seção"
-                      aria-controls="local-section-options"
-                      onChange={(e) => setSectionQuery(e.target.value.replace(/\D/g, ''))}
+                      placeholder="Ex.: 101"
+                      value={zone}
+                      onChange={(e) => setZone(e.target.value.replace(/\D/g, ''))}
                     />
                   </label>
-                  <div className="section-buttons" id="local-section-options">
-                    {matchingSections.map((s) => (
-                      <button
-                        key={s}
-                        className="button secondary"
-                        disabled={busy}
-                        aria-pressed={selectedSection === s}
-                        onClick={() =>
-                          void load(city!.municipality!.code, selectedPlace, true, {
-                            zone: selectedPlace.zone,
-                            section: s,
-                          })
-                        }
-                      >
-                        Seção {Number(s)}
-                      </button>
-                    ))}
-                  </div>
-                  {!matchingSections.length && (
-                    <p className="fine" role="status">
-                      Essa seção não está neste colégio. Confira o número ou procure pela zona e
-                      seção no município.
-                    </p>
-                  )}
+                  <label>
+                    Seção
+                    <input
+                      inputMode="numeric"
+                      pattern="[0-9]{1,4}"
+                      maxLength={4}
+                      placeholder="Ex.: 105"
+                      value={section}
+                      onChange={(e) => setSection(e.target.value.replace(/\D/g, ''))}
+                    />
+                  </label>
+                  <button className="button primary" disabled={busy} type="submit">
+                    Consultar votos
+                  </button>
                 </div>
-              )}
-              <p className="fine local-scope-status" role="status">
-                {busy
-                  ? 'Atualizando os votos…'
-                  : selectedSection
-                    ? `Mostrando somente a seção ${Number(selectedSection)}.`
-                    : 'Mostrando os votos de todas as seções do colégio.'}
+                <p className="fine">
+                  Se não informar a seção, mostramos todas as seções dessa zona no município.
+                </p>
+              </form>
+            )}
+          </section>
+        )}
+        {!error && tally && (
+          <section
+            className="panel local-tally"
+            id="votos-locais"
+            aria-labelledby="local-result-title"
+            aria-busy={busy}
+          >
+            {detail && (
+              <button className="text-button" onClick={() => setDetail(null)}>
+                <ArrowLeft size={15} aria-hidden="true" />
+                Ver o município inteiro
+              </button>
+            )}
+            <span className="eyebrow">
+              {detail ? 'RESULTADO DO LOCAL SELECIONADO' : 'RESULTADO DO MUNICÍPIO'} · 1º TURNO
+            </span>
+            <h2 id="local-result-title" ref={resultHeading} tabIndex={-1}>
+              {title}
+            </h2>
+            <ShareButton
+              title={`${title} · votação presidencial de 2026 · 1º turno`}
+              label="Compartilhar resultado"
+              url={() =>
+                resultLink(location.origin, {
+                  tab: 'municipality',
+                  uf,
+                  municipality: city?.municipality?.code,
+                  place: selectedPlace?.id,
+                  zone: detail?.selection?.zone,
+                  section: selectedSection,
+                })
+              }
+            />
+            {detail?.selection?.place && (
+              <p className="fine">
+                {detail.selection.place.address} · Zona {Number(detail.selection.place.zone)}
               </p>
-            </div>
-          )}
-          <div className="local-tally-stats">
-            <div>
-              <strong>{formatVotes(tally.total)}</strong>
-              <span>votos registrados</span>
-            </div>
-            <div>
-              <strong>{formatVotes(tally.sections)}</strong>
-              <span>{tally.sections === 1 ? 'seção consultada' : 'seções consultadas'}</span>
-            </div>
-          </div>
-          <p className="fine">
-            Percentuais calculados sobre os {formatVotes(tally.valid)} votos válidos deste recorte.
-          </p>
-          {(showCandidates ? tally.candidates : tally.candidates.slice(0, 3)).map((c) => (
-            <div className="local-candidate" key={c.number}>
+            )}
+            {selectedPlace && (
+              <div
+                className="local-section-picker"
+                role="group"
+                aria-labelledby="local-section-heading"
+              >
+                <div className="panel-head">
+                  <div>
+                    <h3 id="local-section-heading">Veja o colégio inteiro ou encontre sua seção</h3>
+                    <p className="fine">
+                      Zona {Number(selectedPlace.zone)} · {selectedPlace.sections.length} seções
+                      neste local
+                    </p>
+                  </div>
+                </div>
+                <div
+                  className="local-scope-buttons"
+                  role="group"
+                  aria-label="Votos do colégio ou de uma seção"
+                >
+                  <button
+                    className="button secondary"
+                    disabled={busy}
+                    aria-pressed={!selectedSection && !showSectionPicker}
+                    onClick={() => {
+                      setShowSectionPicker(false);
+                      if (selectedSection) void load(city!.municipality!.code, selectedPlace);
+                    }}
+                  >
+                    Colégio inteiro
+                  </button>
+                  <button
+                    className="button secondary"
+                    disabled={busy}
+                    aria-expanded={showSectionPicker}
+                    aria-controls="local-section-chooser"
+                    aria-pressed={showSectionPicker || !!selectedSection}
+                    onClick={() => setShowSectionPicker(!showSectionPicker)}
+                  >
+                    Escolher seção
+                  </button>
+                </div>
+                {showSectionPicker && (
+                  <div id="local-section-chooser">
+                    <label className="local-search-label">
+                      Procurar seção neste colégio
+                      <input
+                        type="search"
+                        inputMode="numeric"
+                        value={sectionQuery}
+                        maxLength={4}
+                        placeholder="Digite o número da sua seção"
+                        aria-controls="local-section-options"
+                        onChange={(e) => setSectionQuery(e.target.value.replace(/\D/g, ''))}
+                      />
+                    </label>
+                    <div className="section-buttons" id="local-section-options">
+                      {matchingSections.map((s) => (
+                        <button
+                          key={s}
+                          className="button secondary"
+                          disabled={busy}
+                          aria-pressed={selectedSection === s}
+                          onClick={() =>
+                            void load(city!.municipality!.code, selectedPlace, true, {
+                              zone: selectedPlace.zone,
+                              section: s,
+                            })
+                          }
+                        >
+                          Seção {Number(s)}
+                        </button>
+                      ))}
+                    </div>
+                    {!matchingSections.length && (
+                      <p className="fine" role="status">
+                        Essa seção não está neste colégio. Confira o número ou procure pela zona e
+                        seção no município.
+                      </p>
+                    )}
+                  </div>
+                )}
+                <p className="fine local-scope-status" role="status">
+                  {busy
+                    ? 'Atualizando os votos…'
+                    : selectedSection
+                      ? `Mostrando somente a seção ${Number(selectedSection)}.`
+                      : 'Mostrando os votos de todas as seções do colégio.'}
+                </p>
+              </div>
+            )}
+            <div className="local-tally-stats">
               <div>
-                <strong>{candidateName(c.name)}</strong>
-                <span>
-                  {formatPercent(c.percent)} · {formatVotes(c.votes)} votos
-                </span>
+                <strong>{formatVotes(tally.total)}</strong>
+                <span>votos registrados</span>
               </div>
-              <div className="local-vote-track" aria-hidden="true">
-                <i style={{ width: `${c.percent}%` }} />
+              <div>
+                <strong>{formatVotes(tally.sections)}</strong>
+                <span>{tally.sections === 1 ? 'seção consultada' : 'seções consultadas'}</span>
               </div>
             </div>
-          ))}
-          {tally.candidates.length > 3 && (
-            <button
-              className="text-button"
-              aria-expanded={showCandidates}
-              onClick={() => setShowCandidates(!showCandidates)}
-            >
-              {showCandidates ? 'Ver menos candidatos' : 'Ver todos os candidatos'}
-            </button>
-          )}
-          <p className="fine">
-            Brancos: {formatVotes(tally.blank)} · Nulos: {formatVotes(tally.nullVotes)}.
-          </p>
-          <DataFreshness archived checkedAt={active.importedAt} generated={active.generated} />
-          <Source href={active.source}>Fonte: votos por seção do TSE</Source>
-          <p className="fine local-privacy">
-            Os números são coletivos. Não é possível identificar em quem uma pessoa votou. Locais e
-            seções correspondem a esta eleição e podem mudar entre turnos.
-          </p>
-        </section>
-      )}
+            <p className="fine">
+              Percentuais calculados sobre os {formatVotes(tally.valid)} votos válidos deste
+              recorte.
+            </p>
+            {(showCandidates ? tally.candidates : tally.candidates.slice(0, 3)).map((c) => (
+              <div className="local-candidate" key={c.number}>
+                {observatory && <CandidatePortrait name={c.name} />}
+                <div className="local-candidate-summary">
+                  <strong>{candidateName(c.name)}</strong>
+                  <span>
+                    {formatPercent(c.percent)} · {formatVotes(c.votes)} votos
+                  </span>
+                </div>
+                <div className="local-vote-track" aria-hidden="true">
+                  <i
+                    style={{
+                      width: `${c.percent}%`,
+                      ...(observatory ? { background: candidateColor(c.number) } : {}),
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+            {tally.candidates.length > 3 && (
+              <button
+                className="text-button"
+                aria-expanded={showCandidates}
+                onClick={() => setShowCandidates(!showCandidates)}
+              >
+                {showCandidates ? 'Ver menos candidatos' : 'Ver todos os candidatos'}
+              </button>
+            )}
+            <p className="fine">
+              Brancos: {formatVotes(tally.blank)} · Nulos: {formatVotes(tally.nullVotes)}.
+            </p>
+            <DataFreshness archived checkedAt={active.importedAt} generated={active.generated} />
+            <Source href={active.source}>Fonte: votos por seção do TSE</Source>
+            <p className="fine local-privacy">
+              Os números são coletivos. Não é possível identificar em quem uma pessoa votou. Locais
+              e seções correspondem a esta eleição e podem mudar entre turnos.
+            </p>
+          </section>
+        )}
+      </div>
     </div>
   );
 }

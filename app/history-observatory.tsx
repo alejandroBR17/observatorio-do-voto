@@ -272,7 +272,8 @@ export function HistoryObservatory({
               summary={`Brasil · ${turn}º turno · observe como os percentuais mudaram durante a contagem.`}
             >
               <p className="fine">
-                Esta sequência é nacional, independentemente do estado selecionado acima.
+                Esta sequência é nacional, independentemente do estado selecionado acima. O app
+                incorporou os arquivos de evolução publicados pelo TSE para 2022.
               </p>
               <Progression
                 points={points}
@@ -292,6 +293,25 @@ export function HistoryObservatory({
                 href={`https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2022/Historico_Totalizacao_Presidente_BR_${turn}T_2022.zip`}
               >
                 Histórico de totalização do TSE
+              </Source>
+            </Disclosure>
+          )}
+          {year !== 2022 && (
+            <Disclosure
+              title="Evolução da apuração neste ano"
+              summary="O resultado final está disponível; a sequência das atualizações não está incorporada ao app."
+            >
+              <p>
+                O resultado final mostra como a eleição terminou. Para desenhar a evolução,
+                precisamos dos registros de cada atualização durante a contagem. Um não permite
+                reconstruir o outro.
+              </p>
+              <p>
+                Atualmente, o app tem essa sequência apenas para 2022, nos dois turnos. Isso não
+                significa que o acompanhamento da apuração tenha começado naquele ano.
+              </p>
+              <Source href="https://dadosabertos.tse.jus.br/dataset/resultados-2022">
+                Históricos de totalização de 2022 no TSE
               </Source>
             </Disclosure>
           )}

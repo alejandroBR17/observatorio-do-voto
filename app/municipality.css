@@ -1,0 +1,457 @@
+/* The local explorer keeps the same data flow; the review surface changes its presentation. */
+.local-workspace {
+  display: contents;
+}
+.control-room:has(.or-local) .preview-note {
+  display: none;
+}
+.or-local {
+  max-width: none;
+  min-width: 0;
+  gap: 24px;
+}
+.or-local .panel {
+  margin: 0;
+  padding: 28px;
+  border-radius: 20px;
+  min-width: 0;
+  box-shadow: none;
+}
+.or-local h2 {
+  font-size: clamp(25px, 2.3vw, 30px);
+  line-height: 1.25;
+  letter-spacing: -0.6px;
+  margin: 10px 0 16px;
+  overflow-wrap: anywhere;
+}
+.or-local p {
+  max-width: none;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--muted);
+}
+.or-local .fine {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.or-local .eyebrow {
+  color: var(--or-amber);
+  font-size: 11px;
+  line-height: 1.7;
+  letter-spacing: 1.1px;
+}
+.or-local .municipality-search {
+  background: radial-gradient(ellipse at 0 0, var(--or-glow), transparent 70%), var(--surface);
+}
+.or-local-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.or-local-steps li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  min-width: 0;
+}
+.or-local-steps li[aria-current='step'] {
+  border-color: var(--or-amber);
+}
+.or-local-steps li > span {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--or-amber);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.or-local-steps li > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.or-local-steps strong {
+  font-size: 15px;
+  line-height: 1.4;
+}
+.or-local-steps small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.or-local .local-search-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: end;
+}
+.or-local label {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+  font-weight: 500;
+}
+.or-local input,
+.or-local select {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  font-size: 16px;
+  padding: 12px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.or-local .local-search-input {
+  background: var(--bg);
+  border-radius: 10px;
+}
+.or-local .local-search-input input {
+  border: none;
+}
+.or-local .local-search-input > svg {
+  color: var(--or-amber);
+  flex-shrink: 0;
+}
+.or-local button,
+.or-local a,
+.or-local input,
+.or-local select {
+  touch-action: manipulation;
+}
+.or-local button:focus-visible,
+.or-local a:focus-visible,
+.or-local input:focus-visible,
+.or-local select:focus-visible {
+  outline: 2px solid var(--or-amber);
+  outline-offset: 4px;
+}
+.or-local .button,
+.or-local .text-button,
+.or-local .source {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: normal;
+  color: var(--ink);
+  background: var(--bg);
+  text-decoration: none;
+}
+.or-local .button.primary {
+  background: var(--or-amber);
+  border-color: var(--or-amber);
+  color: var(--bg);
+  font-weight: 600;
+}
+.or-local .source {
+  justify-content: flex-start;
+  color: var(--or-amber);
+  margin-top: 12px;
+}
+.or-local .button:hover,
+.or-local .text-button:hover,
+.or-local .source:hover {
+  border-color: var(--or-amber);
+}
+.or-local .button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.or-local .remembered-city {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 20px 0 8px;
+}
+.or-local .remembered-city strong {
+  font-size: 23px;
+  line-height: 1.3;
+}
+.or-local .remembered-city small {
+  display: block;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 9px;
+  color: var(--muted);
+}
+.or-local-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.or-local-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--or-amber);
+  background: var(--surface);
+  text-decoration: none;
+}
+.or-local-nav a:hover {
+  border-color: var(--or-amber);
+}
+.or-local #locais-votacao,
+.or-local #votos-locais {
+  scroll-margin-top: 96px;
+}
+.or-local .local-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: start;
+  gap: 24px;
+}
+.or-local .local-workspace:empty {
+  display: none;
+}
+.or-local .panel-head {
+  gap: 12px;
+}
+.or-local .local-method {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  border: 0;
+  padding: 0;
+  background: none;
+}
+.or-local .local-method button {
+  min-height: 48px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--bg);
+}
+.or-local .local-method button.active,
+.or-local .local-scope-buttons button[aria-pressed='true'],
+.or-local .section-buttons button[aria-pressed='true'] {
+  color: var(--or-amber);
+  border-color: var(--or-amber);
+  background: var(--or-glow);
+  box-shadow: inset 0 0 0 1px var(--or-amber);
+}
+.or-local .local-search-results {
+  gap: 10px;
+}
+.or-local .local-search-results button {
+  padding: 17px;
+  border-radius: 12px;
+  background: var(--bg);
+  min-height: 52px;
+}
+.or-local .local-search-results button span {
+  font-size: 15px;
+  line-height: 1.5;
+}
+.or-local .local-search-results button small {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.or-local .local-search-results button:hover,
+.or-local .local-search-results button[aria-pressed='true'] {
+  border-color: var(--or-amber);
+  background: var(--or-glow);
+}
+.or-local .places-results {
+  max-height: 460px;
+}
+.or-local .local-section-form .local-search-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.or-local .local-section-form .button {
+  grid-column: 1 / -1;
+}
+.or-local .local-tally > .text-button {
+  margin-bottom: 22px;
+}
+.or-local .local-tally > .share-control {
+  margin: 12px 0 20px;
+}
+.or-local .local-tally-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+.or-local .local-tally-stats > div {
+  padding: 18px;
+  min-width: 0;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.or-local .local-tally-stats strong {
+  font-size: clamp(24px, 2.3vw, 32px);
+  line-height: 1.25;
+  letter-spacing: -0.6px;
+  overflow-wrap: anywhere;
+}
+.or-local .local-tally-stats span {
+  display: block;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 8px;
+}
+.or-local .local-candidate {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+.or-local .candidate-portrait,
+.or-local .candidate-portrait-fallback {
+  width: 48px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.or-local .local-candidate-summary {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.or-local .local-candidate-summary strong {
+  font-size: 20px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.or-local .local-candidate-summary span {
+  font-size: 15px;
+  line-height: 1.6;
+}
+.or-local .local-vote-track {
+  grid-column: 1 / -1;
+  margin: 0;
+  height: 6px;
+}
+.or-local .local-section-picker {
+  padding: 20px;
+  background: var(--bg);
+  border-radius: 14px;
+}
+.or-local .local-section-picker h3 {
+  font-size: 21px;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+}
+.or-local .local-scope-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.or-local .local-scope-status {
+  font-size: 14px;
+}
+.or-local .local-privacy {
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 1000px) {
+  .or-local .local-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-local-steps li {
+    padding: 14px;
+    gap: 10px;
+  }
+  .or-local-steps small {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .or-local {
+    gap: 20px;
+  }
+  .or-local .panel {
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+  .or-local-steps {
+    gap: 8px;
+  }
+  .or-local-steps li {
+    flex-direction: column;
+    align-items: start;
+    padding: 12px;
+    gap: 10px;
+  }
+  .or-local-steps li > span {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  .or-local-steps strong {
+    font-size: 13px;
+  }
+  .or-local .local-search-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-local .local-method {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-local .places-results {
+    max-height: 340px;
+  }
+  .or-local .local-section-picker {
+    padding: 16px;
+  }
+  .or-local .local-tally-stats > div {
+    padding: 14px;
+  }
+  .or-local .local-tally-stats strong {
+    font-size: 24px;
+  }
+  .or-local .local-tally-stats span {
+    font-size: 13px;
+  }
+  .or-local .remembered-city strong {
+    font-size: 22px;
+  }
+}
+@media (max-width: 360px) {
+  .or-local-steps {
+    gap: 6px;
+  }
+  .or-local-steps li {
+    padding: 10px;
+  }
+  .or-local .local-tally-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-local .local-scope-buttons {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
