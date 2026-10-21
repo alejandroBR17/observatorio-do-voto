@@ -93,16 +93,22 @@ const sectionKickers: Record<string, string> = {
   social: 'CONTEXTO / COBERTURA E FONTES',
   watch: 'SEU RECORTE / ACOMPANHAMENTO',
 };
-export default function Dashboard({ reviewOnly = false }: { reviewOnly?: boolean }) {
+export default function Dashboard({
+  reviewOnly = false,
+  initialTab = 'overview',
+}: {
+  reviewOnly?: boolean;
+  initialTab?: string;
+}) {
   return (
     <PwaProvider>
       <ReadingProvider>
-        <DashboardContent reviewOnly={reviewOnly} />
+        <DashboardContent reviewOnly={reviewOnly} initialTab={initialTab} />
       </ReadingProvider>
     </PwaProvider>
   );
 }
-function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
+function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; initialTab: string }) {
   const { installed } = usePwa();
   const { setReading } = useReading();
   const [welcome, setWelcome] = useState(false),
@@ -127,7 +133,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
   useEffect(() => {
     void checkPush();
   }, []);
-  const [tab, setTab] = useState('overview'),
+  const [tab, setTab] = useState(nav.some(([id]) => id === initialTab) ? initialTab : 'overview'),
     [mobile, setMobile] = useState(false),
     [region, setRegion] = useState('Brasil'),
     [uf, setUf] = useState('BR'),
@@ -874,7 +880,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
           />
           <aside
             id="main-navigation"
-            className="sidebar open"
+            className={`sidebar open${reviewOnly ? ' or-navigation' : ''}`}
             data-state={mobile ? 'open' : 'closing'}
             inert={!mobile}
             aria-hidden={!mobile}
@@ -895,6 +901,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
             <a
               className="brand"
               href="/"
+              aria-label="Observatório do Voto · Panorama"
               onClick={(e) => {
                 e.preventDefault();
                 go('overview');
@@ -931,7 +938,14 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
           </aside>
         </>
       )}
-      <div className={`main-shell${reviewOnly ? ' control-room' : ''}`} inert={mobile}>
+      <div
+        className={`main-shell${reviewOnly ? ' control-room' : ''}`}
+        inert={
+          mobile ||
+          (night === 'preview' && !!national) ||
+          (night === 'live' && !!nightNational?.result)
+        }
+      >
         <header className="topbar">
           <div className="top-brand">
             <button
@@ -948,6 +962,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
             <a
               className="header-brand"
               href="/"
+              aria-label="Observatório do Voto · Panorama"
               onClick={(e) => {
                 e.preventDefault();
                 go('overview');
@@ -2252,7 +2267,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
         />
       )}
       {!welcome && !mobile && !night && <AppDock tab={tab} onGo={go} />}
-      {showTop && (
+      {showTop && !welcome && !mobile && !night && (
         <button
           className="back-to-top"
           aria-label="Voltar ao topo"

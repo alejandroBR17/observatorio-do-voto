@@ -246,9 +246,16 @@ export function PwaPanel({
     ],
   };
   const steps = (
-    <ol>
-      {guides[pwa.platform].map((step) => (
-        <li key={step}>{step}</li>
+    <ol role="list">
+      {guides[pwa.platform].map((step, index) => (
+        <li key={step}>
+          {observatory && (
+            <span className="or-install-step-number" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+          )}
+          {step}
+        </li>
       ))}
     </ol>
   );

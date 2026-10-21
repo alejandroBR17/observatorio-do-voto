@@ -15,6 +15,8 @@
   --or-amber: #94621b;
   --or-glow: #a16a1210;
   --or-grid: #65766a12;
+  --scroll-thumb: #949f99;
+  --scroll-track: #f2f0e9;
 }
 :root[data-theme='dark'] {
   --bg: #0e1419;
@@ -30,9 +32,37 @@
   --or-amber: #e6bb73;
   --or-glow: #e9b85a0b;
   --or-grid: #b4c9bb0b;
+  --scroll-thumb: #65716e;
+  --scroll-track: #10171c;
 }
 .control-room {
   background: radial-gradient(ellipse at 65% 0, var(--or-glow), transparent 52%), var(--bg);
+}
+/* Navigation uses the same amber selection as the content, in both themes. */
+.or-navigation {
+  --nav-text: #bdc5c2;
+  --scroll-thumb: #65716e;
+  --scroll-track: #1b2529;
+}
+.or-navigation .nav-item.active {
+  color: #f2d49b;
+  background: #e6bb731a;
+  box-shadow: inset 3px 0 0 #e6bb73;
+}
+.or-navigation .nav-item:hover {
+  background: #ffffff0c;
+}
+.or-navigation :is(.side-label, .drawer-footer) {
+  color: #bdc5c2;
+}
+.or-navigation :is(a, button):focus-visible {
+  outline: 2px solid #e6bb73;
+  outline-offset: 2px;
+}
+.control-room summary:focus-visible {
+  outline: 3px solid var(--or-amber);
+  outline-offset: 4px;
+  border-radius: 8px;
 }
 .control-room .topbar {
   background: var(--bg);
@@ -2047,4 +2077,11 @@
 .or-map-waiting .state[aria-pressed='true'] {
   stroke: var(--or-amber);
   stroke-width: 2.5;
+}
+@media (max-width: 900px) {
+  /* Keep native fields readable and avoid focus zoom on iOS. */
+  .control-room .page-view select,
+  .or-night .or-night-state select {
+    font-size: 16px;
+  }
 }

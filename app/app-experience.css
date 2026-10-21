@@ -144,7 +144,6 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   list-style: none;
-  counter-reset: install-step;
   padding: 0;
   margin: 20px 0;
 }
@@ -152,7 +151,6 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  counter-increment: install-step;
   padding: 20px;
   margin: 0;
   border: 1px solid var(--line);
@@ -162,8 +160,7 @@
   line-height: 1.7;
   min-width: 0;
 }
-.or-app li::before {
-  content: counter(install-step, decimal-leading-zero);
+.or-app .or-install-step-number {
   display: grid;
   place-items: center;
   width: 36px;
