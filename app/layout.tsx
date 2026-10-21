@@ -33,6 +33,7 @@ import './municipality.css';
 import './live-observatory.css';
 import './night-observatory.css';
 import './welcome-observatory.css';
+import './documents.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),

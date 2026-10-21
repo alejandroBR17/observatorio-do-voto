@@ -1,0 +1,290 @@
+.document-observatory {
+  min-height: 100vh;
+}
+.document-header,
+.document-intro,
+.document-tabs,
+.document-grid,
+.document-footer {
+  max-width: 1320px;
+  margin-inline: auto;
+}
+.document-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 28px 36px;
+}
+.document-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+.document-brand small {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 4px;
+  margin-top: 3px;
+}
+.document-intro {
+  padding: 30px 36px 24px;
+}
+.document-intro .eyebrow {
+  color: var(--or-amber);
+}
+.document-intro p {
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+.document-intro .document-preview-note {
+  font-size: 13px;
+}
+.document-tabs {
+  display: flex;
+  gap: 10px;
+  padding: 0 36px 30px;
+  border-bottom: 1px solid var(--line);
+}
+.document-tabs a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  text-decoration: none;
+  font-size: 15px;
+}
+.document-tabs a[aria-current='page'] {
+  border-color: var(--or-amber);
+  color: var(--or-amber);
+  background: var(--or-glow);
+  box-shadow: inset 0 0 0 1px var(--or-amber);
+}
+.document-grid {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  align-items: start;
+  gap: 48px;
+  padding: 40px 36px 60px;
+}
+.document-index {
+  position: sticky;
+  top: 24px;
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+}
+.document-index h2 {
+  margin: 0 0 18px;
+  font-size: 15px;
+}
+.document-index ol {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+.document-index a {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.document-index a > span {
+  color: var(--or-amber);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.document-index a:hover {
+  background: var(--soft);
+  border-color: var(--line);
+}
+.document-index-mobile {
+  display: none;
+}
+.document-observatory .legal-page {
+  padding: 32px;
+  margin: 0;
+  max-width: none;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+.document-observatory .legal-page > .text-button:first-child {
+  display: none;
+}
+.document-observatory .legal-page > .eyebrow {
+  margin: 0 0 20px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.document-observatory .legal-page h1 {
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin: 0 0 24px;
+}
+.document-observatory .legal-page h2 {
+  font-size: 22px;
+  line-height: 1.35;
+  margin: 0 0 16px;
+}
+.document-observatory .legal-page section p,
+.document-observatory .legal-page li,
+.document-observatory .legal-page > p {
+  font-size: 16px;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+.document-observatory .legal-page section {
+  scroll-margin-top: 24px;
+  padding: 28px 0;
+}
+.document-observatory .legal-page section:target {
+  border-top-color: var(--or-amber);
+}
+.document-observatory .legal-page a {
+  color: var(--or-amber);
+  text-underline-offset: 4px;
+}
+.document-observatory a:focus-visible,
+.document-observatory summary:focus-visible {
+  outline: 2px solid var(--or-amber);
+  outline-offset: 4px;
+}
+.document-footer {
+  padding: 0 36px 40px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+}
+.document-footer p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+.document-skip {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  transform: translateY(-200%);
+  z-index: 2;
+  background: var(--surface);
+  border: 2px solid var(--or-amber);
+  padding: 14px;
+  border-radius: 8px;
+}
+.document-skip:focus {
+  transform: none;
+}
+@media (max-width: 900px) {
+  .document-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .document-index {
+    position: static;
+    max-height: none;
+  }
+  .document-index-desktop {
+    display: none;
+  }
+  .document-index-mobile {
+    display: block;
+    padding: 16px;
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .document-index-mobile summary {
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .document-index-mobile summary > span {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .document-index-mobile[open] summary {
+    margin-bottom: 16px;
+  }
+}
+@media (max-width: 600px) {
+  .document-header {
+    padding: 22px 18px;
+    gap: 12px;
+  }
+  .document-brand {
+    font-size: 20px;
+    gap: 8px;
+  }
+  .document-brand img {
+    width: 30px;
+    height: 30px;
+  }
+  .document-header .button {
+    padding: 12px;
+    min-height: 44px;
+  }
+  .document-header .button span {
+    display: none;
+  }
+  .document-header .button::after {
+    content: 'Painel';
+  }
+  .document-intro {
+    padding: 20px 18px;
+  }
+  .document-intro .eyebrow {
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  .document-tabs {
+    padding: 0 18px 22px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .document-tabs a {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 12px 6px;
+  }
+  .document-grid {
+    padding: 24px 14px 32px;
+  }
+  .document-observatory .legal-page {
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+  .document-observatory .legal-page h2 {
+    font-size: 21px;
+  }
+  .document-observatory .legal-page section {
+    scroll-margin-top: 16px;
+  }
+  .document-footer {
+    padding: 16px 18px 32px;
+  }
+}
