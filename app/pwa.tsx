@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { ArrowDownToLine, BookOpen, Check, Globe2, Radio, Smartphone, WifiOff } from 'lucide-react';
 import type { Result } from '@/lib/elections';
 import { installationPlatform, offlineSnapshot } from '@/lib/pwa';
+import { Disclosure } from './disclosure';
 
 type InstallPrompt = Event & {
   prompt(): Promise<void>;
@@ -183,7 +184,9 @@ export function PwaPanel({
   result,
   onAlerts,
   onGo,
+  observatory = false,
 }: {
+  observatory?: boolean;
   result?: Result;
   onAlerts: () => void;
   onGo?: (tab: string) => void;
@@ -242,6 +245,19 @@ export function PwaPanel({
       'Confirme e abra pelo novo ícone. Se a opção não existir, use um navegador compatível.',
     ],
   };
+  const steps = (
+    <ol>
+      {guides[pwa.platform].map((step) => (
+        <li key={step}>{step}</li>
+      ))}
+    </ol>
+  );
+  const browserHelp = (
+    <p className="fine">
+      Em navegadores de redes sociais ou dentro de outros apps, abra primeiro o link no navegador do
+      aparelho. A instalação varia conforme o sistema e o navegador.
+    </p>
+  );
   function save() {
     if (!result) return;
     try {
@@ -256,19 +272,42 @@ export function PwaPanel({
     }
   }
   return (
-    <div className="pwa-panels">
-      <section className="panel pwa-hero">
-        <img src="/app-icon-192.png" width="72" height="72" alt="" />
+    <div className={`pwa-panels${observatory ? ' or-app' : ''}`}>
+      {observatory && (
+        <div className="or-app-state" role="status">
+          <span>
+            <Smartphone size={15} aria-hidden="true" />
+            {pwa.installed ? 'Aberto como aplicativo' : 'Acesso pelo navegador'}
+          </span>
+          <span>
+            <Globe2 size={15} aria-hidden="true" />
+            {online ? 'Com conexão' : 'Sem conexão'}
+          </span>
+        </div>
+      )}
+      <section className="panel pwa-hero" id="instalacao-app">
+        <img
+          src={observatory ? '/app-icon.svg' : '/app-icon-192.png'}
+          width="72"
+          height="72"
+          alt=""
+        />
         <div>
-          <span className="eyebrow">O OBSERVATÓRIO NO SEU APARELHO</span>
+          <span className="eyebrow">
+            {observatory ? 'INSTALAÇÃO E RECURSOS' : 'O OBSERVATÓRIO NO SEU APARELHO'}
+          </span>
           <h2>
             {pwa.installed
               ? 'Seu app, pronto para acompanhar.'
               : pwa.hasApp
-                ? 'Seu app já está no aparelho.'
+                ? observatory
+                  ? 'Já instalou? Abra pelo ícone.'
+                  : 'Seu app já está no aparelho.'
                 : pwa.pending
                   ? 'Instalação solicitada.'
-                  : 'Leve o país, voto a voto, com você.'}
+                  : observatory
+                    ? 'O observatório, sempre à mão.'
+                    : 'Leve o país, voto a voto, com você.'}
           </h2>
           <p>
             {pwa.installed
@@ -295,6 +334,22 @@ export function PwaPanel({
           )}
         </div>
       </section>
+      {observatory && (
+        <nav className="or-app-nav" aria-label="Nesta página">
+          <a href="#instalacao-app">
+            <ArrowDownToLine size={17} aria-hidden="true" />
+            Instalação e acesso
+          </a>
+          <a href="#recursos-app">
+            <Smartphone size={17} aria-hidden="true" />
+            Recursos do app
+          </a>
+          <a href="#espaco-offline">
+            <WifiOff size={17} aria-hidden="true" />
+            Sem conexão
+          </a>
+        </nav>
+      )}
       {pwa.message && (
         <p className="notice" role="status">
           {pwa.message}
@@ -324,35 +379,37 @@ export function PwaPanel({
           </div>
         </section>
       )}
-      {!pwa.installed && !pwa.hasApp && !pwa.pending && (
-        <section className="panel pwa-guide">
-          <h2>Como instalar neste aparelho</h2>
-          <ol>
-            {guides[pwa.platform].map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-          <p className="fine">
-            Em navegadores de redes sociais ou dentro de outros apps, abra primeiro o link no
-            navegador do aparelho. A instalação varia conforme o sistema e o navegador.
-          </p>
-        </section>
-      )}
+      {!pwa.installed &&
+        !pwa.hasApp &&
+        !pwa.pending &&
+        (observatory && pwa.canInstall ? (
+          <div className="or-app-manual">
+            <Disclosure
+              title="Instalar pelo menu do navegador"
+              summary="Instruções alternativas para este aparelho"
+            >
+              {steps}
+              {browserHelp}
+            </Disclosure>
+          </div>
+        ) : (
+          <section className="panel pwa-guide">
+            <h2>Como instalar neste aparelho</h2>
+            {steps}
+            {browserHelp}
+          </section>
+        ))}
       {!pwa.installed && (pwa.hasApp || pwa.pending) && (
         <details className="panel pwa-guide">
           <summary>Não encontrou o ícone? Ver ajuda de instalação</summary>
-          <ol>
-            {guides[pwa.platform].map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
+          {steps}
           <p className="fine">
             O registro neste navegador não confirma se você removeu o app depois. Se necessário,
             instale novamente pelo menu do navegador.
           </p>
         </details>
       )}
-      <div className="pwa-features">
+      <div className="pwa-features" id="recursos-app">
         {!pwa.installed && (
           <section className="panel">
             <Smartphone size={23} />
@@ -378,7 +435,7 @@ export function PwaPanel({
             frequência da coleta.
           </p>
         </section>
-        <section className="panel">
+        <section className="panel" id="espaco-offline">
           <WifiOff size={23} />
           <h3>Seu espaço sem conexão</h3>
           <p>
@@ -392,6 +449,11 @@ export function PwaPanel({
                   ? 'Atualizar resultado guardado'
                   : 'Guardar resultado para consultar offline'}
               </button>
+              {observatory && !result?.final && (
+                <p className="fine" role="status">
+                  Aguarde o carregamento de um resultado nacional concluído para guardar a cópia.
+                </p>
+              )}
               {saved && (
                 <p className="fine" role="status">
                   Guardado neste aparelho em {new Date(saved).toLocaleString('pt-BR')}.

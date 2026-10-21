@@ -1004,9 +1004,11 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                             ? 'Seu espaço no observatório.'
                             : reviewOnly && tab === 'alerts'
                               ? 'A eleição, no seu ritmo.'
-                              : tab === 'overview'
-                                ? 'O país em perspectiva.'
-                                : nav.find((n) => n[0] === tab)?.[1]}
+                              : reviewOnly && tab === 'app'
+                                ? 'O observatório no seu aparelho.'
+                                : tab === 'overview'
+                                  ? 'O país em perspectiva.'
+                                  : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
@@ -1230,7 +1232,12 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
             )}
 
             {tab === 'app' && (
-              <PwaPanel result={national} onAlerts={() => go('alerts')} onGo={go} />
+              <PwaPanel
+                observatory={reviewOnly}
+                result={national}
+                onAlerts={() => go('alerts')}
+                onGo={go}
+              />
             )}
             {tab === 'profile' && (
               <Profile

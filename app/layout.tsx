@@ -27,6 +27,7 @@ import './coverage.css';
 import './watch.css';
 import './profile.css';
 import './alerts.css';
+import './app-experience.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
