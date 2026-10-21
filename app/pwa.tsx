@@ -464,7 +464,10 @@ export function PwaPanel({
                   {error}
                 </p>
               )}
-              <a className="text-button" href="/offline.html">
+              <a
+                className="text-button"
+                href={observatory ? '/offline.html?retorno=previa' : '/offline.html'}
+              >
                 Abrir meu espaço offline
               </a>
             </>

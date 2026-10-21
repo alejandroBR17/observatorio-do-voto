@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <meta name="theme-color" content="#14283d" />
+    <meta name="theme-color" content="#0e1419" />
     <title>Seu espaço offline · Observatório do Voto</title>
     <link rel="stylesheet" href="/offline.css" />
     <script src="/offline.js" defer></script>
@@ -11,31 +11,56 @@
   <body>
     <main>
       <header>
-        <img src="/app-icon.svg" alt="" width="60" height="60" /><span>OBSERVATÓRIO DO VOTO</span>
-        <h1>Seu espaço, mesmo sem conexão.</h1>
+        <div class="offline-brand">
+          <img src="/app-icon.svg" alt="" width="36" height="36" /><span
+            >observatório<small>DO VOTO</small></span
+          >
+        </div>
+        <span class="eyebrow">MEU OBSERVATÓRIO / LEITURA LOCAL</span>
+        <h1>Seu observatório continua aqui.</h1>
         <p>
           O que você guardou neste ambiente continua disponível. A apuração e as pesquisas atuais
           precisam de internet.
         </p>
-        <button id="reconnect" type="button">Voltar ao app</button>
-        <p id="connection" role="status"></p>
+        <div class="offline-connection">
+          <button id="reconnect" type="button">
+            Voltar ao painel <span aria-hidden="true">↗</span>
+          </button>
+          <p id="connection" role="status"></p>
+        </div>
       </header>
-      <section aria-labelledby="result-title">
-        <h2 id="result-title">Resultado guardado</h2>
-        <p id="result-empty">
-          Abra “Meu app” pelo ícone do Observatório e guarde um resultado final para consultar aqui.
+      <nav class="offline-nav" aria-label="Conteúdo guardado">
+        <a href="#result-title">Resultado guardado <span aria-hidden="true">↓</span></a
+        ><a href="#notes-title">Seu caderno <span aria-hidden="true">↓</span></a>
+      </nav>
+      <div class="offline-grid">
+        <section aria-labelledby="result-title">
+          <span class="eyebrow">01 / RESULTADO FINAL</span>
+          <h2 id="result-title">Resultado guardado</h2>
+          <p id="result-empty">
+            Abra “Meu app” pelo ícone do Observatório e guarde um resultado final para consultar
+            aqui.
+          </p>
+          <div id="saved-result" hidden></div>
+        </section>
+        <section aria-labelledby="notes-title">
+          <span class="eyebrow">02 / ANOTAÇÕES PESSOAIS</span>
+          <h2 id="notes-title">Seu caderno</h2>
+          <p id="notes-empty">Não há anotações salvas neste ambiente do aparelho.</p>
+          <div id="notes"></div>
+          <p class="fine">
+            Aqui você pode ler suas anotações. Para editar, volte ao caderno quando tiver conexão.
+            Limpar os dados deste app também remove o conteúdo local.
+          </p>
+        </section>
+      </div>
+      <footer>
+        <strong>Guardado neste aparelho.</strong>
+        <p>
+          Esta tela não consulta dados ao vivo. Abra o painel com internet para acompanhar novas
+          pesquisas e a apuração.
         </p>
-        <div id="saved-result" hidden></div>
-      </section>
-      <section aria-labelledby="notes-title">
-        <h2 id="notes-title">Seu caderno</h2>
-        <p id="notes-empty">Não há anotações salvas neste ambiente do aparelho.</p>
-        <div id="notes"></div>
-        <p class="fine">
-          Aqui você pode ler suas anotações. Para editar, volte ao caderno quando tiver conexão.
-          Limpar os dados deste app também remove o conteúdo local.
-        </p>
-      </section>
+      </footer>
     </main>
   </body>
 </html>

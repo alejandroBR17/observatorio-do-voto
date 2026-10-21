@@ -73,6 +73,7 @@ function worker() {
         'observatorio-offline-v7',
         'observatorio-offline-v8',
         'observatorio-offline-v9',
+        'observatorio-offline-v10',
         'another-app',
       ],
       delete: async (key: string) => {
@@ -138,6 +139,7 @@ test('service worker removes only its old caches and never caches live APIs', as
     'observatorio-offline-v6',
     'observatorio-offline-v7',
     'observatorio-offline-v8',
+    'observatorio-offline-v9',
   ]);
   let intercepted = false;
   w.handlers.fetch({

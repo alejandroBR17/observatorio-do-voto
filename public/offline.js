@@ -24,7 +24,8 @@
   window.addEventListener('online', connection);
   window.addEventListener('offline', connection);
   document.getElementById('reconnect').addEventListener('click', () => {
-    location.href = '/?tab=overview';
+    location.href =
+      location.search === '?retorno=previa' ? '/identidade?tab=app' : '/?tab=overview';
   });
   const result = get('observatorio.offline-result');
   if (
