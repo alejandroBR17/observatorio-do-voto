@@ -1,0 +1,419 @@
+.control-room:has(.or-history) .preview-note {
+  display: none;
+}
+.or-history {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.or-history .panel {
+  margin: 0;
+  padding: 28px;
+  min-width: 0;
+  border-radius: 20px;
+  box-shadow: none;
+}
+.or-history h2 {
+  font-size: clamp(24px, 2.1vw, 29px);
+  line-height: 1.25;
+  letter-spacing: -0.6px;
+  margin: 9px 0 16px;
+}
+.or-history p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--muted);
+}
+.or-history .fine {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.or-history .eyebrow {
+  color: var(--or-amber);
+  font-size: 11px;
+  line-height: 1.7;
+  letter-spacing: 1.1px;
+}
+.or-history button,
+.or-history select,
+.or-history a {
+  touch-action: manipulation;
+}
+.or-history button:focus-visible,
+.or-history select:focus-visible,
+.or-history a:focus-visible {
+  outline: 2px solid var(--or-amber);
+  outline-offset: 4px;
+}
+.or-history .or-history-controls {
+  background: radial-gradient(ellipse at 0 0, var(--or-glow), transparent 70%), var(--surface);
+}
+.or-history-control-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.or-history-control-heading > span {
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.or-history-years {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 24px;
+}
+.or-history-years button,
+.or-history-turns button {
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 46px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px;
+}
+.or-history-years button[aria-pressed='true'],
+.or-history-turns button[aria-pressed='true'] {
+  border-color: var(--or-amber);
+  color: var(--or-amber);
+  background: var(--or-glow);
+  box-shadow: inset 0 0 0 1px var(--or-amber);
+}
+.or-history-years button:hover,
+.or-history-turns button:not(:disabled):hover {
+  border-color: var(--or-amber);
+}
+.or-history-filters {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 20px;
+}
+.or-history-turns {
+  display: flex;
+  gap: 8px;
+}
+.or-history-turns button {
+  flex: 1;
+}
+.or-history-turns button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.or-history-filters label {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.or-history-filters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  padding: 10px 12px;
+}
+.or-history-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.or-history-context > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.or-history-context svg {
+  color: var(--or-amber);
+  flex-shrink: 0;
+}
+.or-history-context span {
+  display: grid;
+  gap: 4px;
+}
+.or-history-context strong {
+  font-size: 20px;
+}
+.or-history-context small {
+  font-size: 14px;
+  color: var(--muted);
+}
+.or-history-indicators {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.or-history-indicators > div {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  padding: 23px;
+  min-width: 0;
+}
+.or-history-indicators span {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.or-history-indicators strong {
+  font-size: clamp(28px, 3vw, 36px);
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+}
+.or-history-indicators small {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.or-history-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.or-history .or-history-candidate {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  gap: 12px 14px;
+  align-items: center;
+  padding: 22px 0;
+  border-top: 1px solid var(--line);
+}
+.or-history-candidate .candidate-portrait,
+.or-history-candidate .candidate-portrait-fallback {
+  width: 56px;
+  height: 68px;
+  border-radius: 11px;
+  object-fit: cover;
+}
+.or-history-person {
+  min-width: 0;
+}
+.or-history-person span,
+.or-history-person small {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.or-history-person h3 {
+  font-size: 20px;
+  line-height: 1.25;
+  margin: 5px 0;
+  letter-spacing: -0.3px;
+  overflow-wrap: anywhere;
+}
+.or-history-candidate > strong {
+  font-size: 25px;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+.or-history-candidate .bar-track {
+  grid-column: 1 / -1;
+  height: 6px;
+  margin: 0;
+}
+.or-history .or-history-ranking > .button {
+  margin-top: 20px;
+}
+.or-history .button,
+.or-history .text-button,
+.or-history .source,
+.or-history .collapse-bottom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: normal;
+  text-decoration: none;
+}
+.or-history .source {
+  justify-content: flex-start;
+  color: var(--or-amber);
+  margin-top: 16px;
+}
+.or-history .button:hover,
+.or-history .text-button:hover,
+.or-history .source:hover {
+  border-color: var(--or-amber);
+}
+.or-history .disclosure-heading {
+  align-items: center;
+  gap: 16px;
+}
+.or-history .disclosure-heading h2 {
+  font-size: 24px;
+  margin: 0 0 8px;
+}
+.or-history .disclosure-heading p {
+  font-size: 14px;
+  margin: 0;
+}
+.or-history .disclosure-heading > span {
+  color: var(--or-amber);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.or-history-ranking .disclosure-panel {
+  padding: 18px;
+  background: var(--bg);
+  margin-top: 12px;
+}
+.or-history-ranking .disclosure-heading h2 {
+  font-size: 18px;
+}
+.or-history-ranking .disclosure-heading p {
+  font-size: 13px;
+}
+.or-history .map-wrap {
+  min-width: 0;
+}
+.or-history .brazil-map {
+  max-height: 420px;
+  width: 100%;
+}
+.or-history .map-legend {
+  font-size: 13px;
+  line-height: 1.6;
+  flex-wrap: wrap;
+}
+.or-history .map-table {
+  max-width: 100%;
+  min-width: 0;
+}
+.or-history .map-table summary {
+  color: var(--or-amber);
+  min-height: 44px;
+  padding: 12px 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+.or-history .table-scroll {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.or-history table {
+  min-width: 540px;
+  font-size: 14px;
+}
+.or-history table th,
+.or-history table td {
+  padding: 14px 12px;
+}
+.or-history-page > .page-heading {
+  align-items: end;
+}
+@media (max-width: 900px) {
+  .or-history-years {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .or-history-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-history-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .or-history-turns {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 600px) {
+  .or-history {
+    gap: 20px;
+  }
+  .or-history .panel {
+    padding: 21px 18px;
+    border-radius: 16px;
+  }
+  .or-history-control-heading {
+    align-items: start;
+  }
+  .or-history-control-heading > span {
+    display: none;
+  }
+  .or-history h2 {
+    font-size: 25px;
+  }
+  .or-history-years {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .or-history-filters {
+    gap: 14px;
+  }
+  .or-history-filters label {
+    font-size: 14px;
+  }
+  .or-history-filters select {
+    font-size: 16px;
+    padding: 10px 8px;
+  }
+  .or-history-indicators {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .or-history-indicators > div {
+    padding: 20px;
+  }
+  .or-history-candidate > strong {
+    font-size: 23px;
+  }
+  .or-history .or-history-candidate {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 10px 12px;
+  }
+  .or-history-candidate .candidate-portrait,
+  .or-history-candidate .candidate-portrait-fallback {
+    width: 48px;
+    height: 60px;
+  }
+  .or-history-candidate > strong {
+    grid-column: 2;
+  }
+  .or-history-person h3 {
+    font-size: 20px;
+  }
+  .or-history .disclosure-heading {
+    flex-wrap: wrap;
+  }
+  .or-history .disclosure-heading h2 {
+    font-size: 23px;
+  }
+  .or-history-ranking .disclosure-heading h2 {
+    font-size: 19px;
+  }
+  .or-history-page > .page-heading h1 {
+    font-size: 32px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .or-history button,
+  .or-history a {
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease;
+  }
+}

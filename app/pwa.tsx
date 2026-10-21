@@ -281,7 +281,7 @@ export function PwaPanel({
           </span>
           <span>
             <Globe2 size={15} aria-hidden="true" />
-            {online ? 'Com conexão' : 'Sem conexão'}
+            {online ? 'Você está online' : 'Você está offline'}
           </span>
         </div>
       )}
@@ -346,7 +346,7 @@ export function PwaPanel({
           </a>
           <a href="#espaco-offline">
             <WifiOff size={17} aria-hidden="true" />
-            Sem conexão
+            Recursos offline
           </a>
         </nav>
       )}
@@ -437,7 +437,7 @@ export function PwaPanel({
         </section>
         <section className="panel" id="espaco-offline">
           <WifiOff size={23} />
-          <h3>Seu espaço sem conexão</h3>
+          <h3>{observatory ? 'O que você pode consultar offline' : 'Seu espaço sem conexão'}</h3>
           <p>
             Consulte as anotações deste app e um resultado final guardado no aparelho. Pesquisas e
             apuração ao vivo precisam de internet.

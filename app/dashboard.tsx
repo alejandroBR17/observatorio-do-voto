@@ -44,6 +44,7 @@ import { TransferScenario } from './transfer-scenario';
 import { RecentUpdates } from './recent-updates';
 import { ObservatoryRoom } from './observatory-room';
 import { CandidateObservatory } from './candidate-observatory';
+import { HistoryObservatory } from './history-observatory';
 import { CandidatePortrait } from './components/candidate-portrait';
 import { electionPalette } from '@/lib/election-palette';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
@@ -987,7 +988,10 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
           </div>
         )}
         <main id="page-content">
-          <div className="page-view" key={tab}>
+          <div
+            className={`page-view${reviewOnly && tab === 'history' ? ' or-history-page' : ''}`}
+            key={tab}
+          >
             <div className="page-heading">
               <div>
                 <div className="eyebrow">{sectionKickers[tab] || 'OBSERVATÓRIO DO VOTO'}</div>
@@ -1006,9 +1010,11 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                               ? 'A eleição, no seu ritmo.'
                               : reviewOnly && tab === 'app'
                                 ? 'O observatório no seu aparelho.'
-                                : tab === 'overview'
-                                  ? 'O país em perspectiva.'
-                                  : nav.find((n) => n[0] === tab)?.[1]}
+                                : reviewOnly && tab === 'history'
+                                  ? 'As eleições, ano a ano.'
+                                  : tab === 'overview'
+                                    ? 'O país em perspectiva.'
+                                    : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
@@ -1016,7 +1022,9 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                     : tab === 'live'
                       ? 'A evolução dos votos, direto da fonte oficial.'
                       : tab === 'history'
-                        ? 'O país que votou ontem ajuda a entender o país de hoje.'
+                        ? reviewOnly
+                          ? 'Percorra os anos, explore o mapa e veja o resultado de cada disputa.'
+                          : 'O país que votou ontem ajuda a entender o país de hoje.'
                         : tab === 'municipality'
                           ? 'Da cidade à sua seção: descubra os votos perto de você.'
                           : tab === 'polls'
@@ -1063,7 +1071,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 </button>
               </div>
             )}
-            {tab === 'history' && year === 1994 && uf === 'BR' && (
+            {tab === 'history' && !reviewOnly && year === 1994 && uf === 'BR' && (
               <div className="notice">
                 O total de 1994 nesta base soma os votos no país; os votos no exterior não estão
                 incluídos.
@@ -1132,7 +1140,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 </button>
               </div>
             )}
-            {((tab === 'overview' && !reviewOnly) || tab === 'history') && (
+            {!reviewOnly && (tab === 'overview' || tab === 'history') && (
               <div className="active-filters">
                 <span>{tab === 'history' ? `${year} · ${turn}º turno` : '2026 · 1º turno'}</span>
                 <span>{uf !== 'BR' ? states.find((s) => s[1] === uf)?.[2] : region}</span>
@@ -1154,7 +1162,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 )}
               </div>
             )}
-            {((tab === 'overview' && !reviewOnly) || tab === 'history') && (
+            {!reviewOnly && (tab === 'overview' || tab === 'history') && (
               <div className="filters">
                 <div className="segmented">
                   {tab === 'overview' ? (
@@ -1786,7 +1794,30 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                     </div>
                   </>
                 )}
-                {tab === 'history' && (
+                {tab === 'history' && reviewOnly && (
+                  <HistoryObservatory
+                    data={hist}
+                    current={all}
+                    year={year}
+                    turn={turn}
+                    region={region}
+                    uf={uf}
+                    error={historyError}
+                    points={points}
+                    onYear={(next) => {
+                      setYear(next);
+                      setTurn([1994, 1998].includes(next) ? 1 : 2);
+                    }}
+                    onTurn={setTurn}
+                    onRegion={(next) => {
+                      setRegion(next);
+                      setUf('BR');
+                    }}
+                    onState={setUf}
+                    onNote={contextNote}
+                  />
+                )}
+                {tab === 'history' && !reviewOnly && (
                   <>
                     {past && <DataFreshness archived generated={past.generated} />}
                     <div className="timeline">
