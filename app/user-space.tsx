@@ -180,13 +180,20 @@ export function Profile({
           <span className="section-index">SEU ACOMPANHAMENTO</span>
           <h2>Quem você quer acompanhar?</h2>
           <p className="fine">
-            A escolha aparece no seu acompanhamento. Os resultados oficiais continuam iguais para
-            todos.
+            {observatory
+              ? 'A escolha identifica o candidato em Meu acompanhamento. Acompanhar alguém não representa um voto declarado.'
+              : 'A escolha aparece no seu acompanhamento. Os resultados oficiais continuam iguais para todos.'}
           </p>
           <p className="fine">
             Escolha opcional: ao selecionar um candidato, você autoriza guardar esta preferência
             política somente neste aparelho. Acompanhar os dois remove a escolha.
           </p>
+          {observatory && (
+            <p className="fine">
+              A cobertura mantém informações favoráveis e críticas, com fontes. Pesquisas e
+              resultados continuam mostrando os dois candidatos.
+            </p>
+          )}
           <div className="preference-options">
             <button
               aria-pressed={!favorite}
@@ -284,7 +291,9 @@ export function Alerts({
   onTest,
   consentAccepted,
   onConsent,
+  observatory = false,
 }: {
+  observatory?: boolean;
   notification: string;
   prefs: Prefs;
   onPrefs: (next: Prefs) => void;
@@ -360,8 +369,49 @@ export function Alerts({
       ),
     [],
   );
+  const renderOption = ([key, title, description]: (typeof labels)[number]) => (
+    <label className="alert-option" key={key}>
+      <input
+        type="checkbox"
+        checked={prefs[key]}
+        onChange={(e) => onPrefs({ ...prefs, [key]: e.target.checked })}
+      />
+      <span>
+        <strong>{title}</strong>
+        <small>{description}</small>
+      </span>
+    </label>
+  );
+  const testPanel = (
+    <section className="push-test-panel panel">
+      <div>
+        <span className="eyebrow">CONFIRA A ENTREGA</span>
+        <h2>Seu aparelho está recebendo?</h2>
+        <p>Envie um aviso identificado como teste. Ele usa a mesma inscrição dos alertas reais.</p>
+      </div>
+      <button
+        className="button secondary"
+        disabled={testing || notification !== 'Ativadas'}
+        onClick={test}
+      >
+        <Bell size={16} />
+        {testing ? 'Aguardando confirmação…' : 'Enviar notificação de teste'}
+      </button>
+      {notification !== 'Ativadas' && (
+        <p className="fine">Ative as notificações acima para testar neste aparelho.</p>
+      )}
+      {testFeedback && (
+        <div className={'test-feedback ' + (testOk ? 'confirmed' : '')} role="status">
+          {testFeedback}
+        </div>
+      )}
+    </section>
+  );
   return (
-    <>
+    <div
+      className={observatory ? 'or-alerts' : undefined}
+      style={observatory ? undefined : { display: 'contents' }}
+    >
       <section className="alert-hero panel">
         <span className="alert-orbit">
           <Bell size={30} />
@@ -379,7 +429,9 @@ export function Alerts({
           <button
             className="button primary"
             onClick={enable}
-            disabled={activating || !supported || !serviceReady}
+            disabled={
+              activating || !supported || !serviceReady || (observatory && !consentAccepted)
+            }
             aria-busy={activating}
           >
             <Bell size={16} />
@@ -398,6 +450,26 @@ export function Alerts({
           )}
         </div>
       </section>
+      {observatory && !consentAccepted && (
+        <p className="or-alert-guidance">
+          Para ativar neste aparelho, leia a autorização abaixo e marque sua escolha. Os eventos
+          podem ser ajustados antes de ativar.
+        </p>
+      )}
+      {observatory && (
+        <nav className="or-alert-nav" aria-label="Nesta página">
+          <a href="#eventos-alertas">
+            <Check size={17} aria-hidden="true" />
+            Escolher eventos
+            <ArrowUpRight size={15} aria-hidden="true" />
+          </a>
+          <a href="#avisos-recebidos">
+            <Bell size={17} aria-hidden="true" />
+            Avisos recebidos
+            <ArrowUpRight size={15} aria-hidden="true" />
+          </a>
+        </nav>
+      )}
       {!consentAccepted && (
         <section className="panel" aria-label="Autorização das notificações">
           <h2>Você decide como receber.</h2>
@@ -408,31 +480,7 @@ export function Alerts({
           </p>
         </section>
       )}
-      <section className="push-test-panel panel">
-        <div>
-          <span className="eyebrow">CONFIRA A ENTREGA</span>
-          <h2>Seu aparelho está recebendo?</h2>
-          <p>
-            Envie um aviso identificado como teste. Ele usa a mesma inscrição dos alertas reais.
-          </p>
-        </div>
-        <button
-          className="button secondary"
-          disabled={testing || notification !== 'Ativadas'}
-          onClick={test}
-        >
-          <Bell size={16} />
-          {testing ? 'Aguardando confirmação…' : 'Enviar notificação de teste'}
-        </button>
-        {notification !== 'Ativadas' && (
-          <p className="fine">Ative as notificações acima para testar neste aparelho.</p>
-        )}
-        {testFeedback && (
-          <div className={'test-feedback ' + (testOk ? 'confirmed' : '')} role="status">
-            {testFeedback}
-          </div>
-        )}
-      </section>
+      {!observatory && testPanel}
       {!supported && (
         <div className="notice" role="status">
           No iPhone ou iPad com iOS 16.4 ou mais recente, adicione o app à Tela de Início pelo menu
@@ -448,7 +496,7 @@ export function Alerts({
           </button>
         </div>
       )}
-      <section className="panel">
+      <section className="panel or-alert-settings" id="eventos-alertas">
         <div className="panel-head">
           <div>
             <span className="section-index">SEUS EVENTOS</span>
@@ -456,6 +504,31 @@ export function Alerts({
           </div>
           <span className="subtle-tag">Salvo automaticamente</span>
         </div>
+        {observatory && (
+          <div className="or-alert-events-group">
+            <span className="eyebrow">01 / MARCOS DA APURAÇÃO</span>
+            <h3>Quando a disputa muda.</h3>
+            <p className="fine">
+              Estes eventos têm prioridade, se selecionados. A entrega ocorre depois que a
+              atualização é identificada nas fontes.
+            </p>
+            <div className="alert-options">
+              {labels
+                .filter(([key]) => ['winner', 'mathematical', 'lead'].includes(key))
+                .map(renderOption)}
+            </div>
+          </div>
+        )}
+        {observatory && (
+          <div className="or-alert-group-heading">
+            <span className="eyebrow">02 / SEGUIR A ELEIÇÃO</span>
+            <h3>Atualizações no seu ritmo.</h3>
+            <p className="fine">
+              Pesquisas, notícias, mudanças de vantagem e novos parciais respeitam o intervalo
+              escolhido abaixo.
+            </p>
+          </div>
+        )}
         <fieldset className="alert-frequency">
           <legend>Com que frequência quer receber atualizações comuns?</legend>
           <div className="frequency-options">
@@ -484,19 +557,10 @@ export function Alerts({
           </p>
         </fieldset>
         <div className="alert-options">
-          {labels.map(([key, title, description]) => (
-            <label className="alert-option" key={key}>
-              <input
-                type="checkbox"
-                checked={prefs[key]}
-                onChange={(e) => onPrefs({ ...prefs, [key]: e.target.checked })}
-              />
-              <span>
-                <strong>{title}</strong>
-                <small>{description}</small>
-              </span>
-            </label>
-          ))}
+          {(observatory
+            ? labels.filter(([key]) => !['winner', 'mathematical', 'lead'].includes(key))
+            : labels
+          ).map(renderOption)}
         </div>
         <p className="fine">
           Categorias atualizadas automaticamente na inscrição ativa. A entrega depende da permissão
@@ -514,7 +578,23 @@ export function Alerts({
           </p>
         </div>
       </div>
-      <NotificationHistory />
+      {observatory && (
+        <div className="or-alert-test">
+          <Disclosure
+            title="Conferir entrega neste aparelho"
+            summary={
+              notification === 'Ativadas'
+                ? 'Envie um teste quando quiser verificar sua inscrição'
+                : 'Ative as notificações para poder testar a entrega'
+            }
+          >
+            {testPanel}
+          </Disclosure>
+        </div>
+      )}
+      <div id="avisos-recebidos" style={observatory ? undefined : { display: 'contents' }}>
+        <NotificationHistory />
+      </div>
       <Disclosure
         title="Como os alertas são calculados"
         summary="Fonte oficial, limites de vitória e privacidade"
@@ -528,7 +608,11 @@ export function Alerts({
           Uma liderança parcial pode mudar. Notificações podem atrasar ou não chegar; confira os
           resultados na tela de apuração.
         </p>
-        <p>Seu candidato preferido não é enviado ao serviço de notificações.</p>
+        <p>
+          {observatory
+            ? 'O candidato escolhido para acompanhar fica neste aparelho e não é enviado ao serviço de notificações.'
+            : 'Seu candidato preferido não é enviado ao serviço de notificações.'}
+        </p>
       </Disclosure>
       <button className="destination-card" onClick={onLive}>
         <Radio size={24} />
@@ -538,6 +622,6 @@ export function Alerts({
         </div>
         <ArrowUpRight size={22} />
       </button>
-    </>
+    </div>
   );
 }

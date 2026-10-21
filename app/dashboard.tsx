@@ -1002,9 +1002,11 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                           ? 'Seu olhar sobre a eleição.'
                           : reviewOnly && tab === 'profile'
                             ? 'Seu espaço no observatório.'
-                            : tab === 'overview'
-                              ? 'O país em perspectiva.'
-                              : nav.find((n) => n[0] === tab)?.[1]}
+                            : reviewOnly && tab === 'alerts'
+                              ? 'A eleição, no seu ritmo.'
+                              : tab === 'overview'
+                                ? 'O país em perspectiva.'
+                                : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
@@ -1258,6 +1260,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
             )}
             {tab === 'alerts' && (
               <Alerts
+                observatory={reviewOnly}
                 notification={notification}
                 consentAccepted={pushConsentAccepted}
                 onConsent={setPushConsentAccepted}
