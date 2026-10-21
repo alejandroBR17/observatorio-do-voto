@@ -116,7 +116,30 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 28);
+assert.equal(pollSnapshots.length, 31);
+// October 21: preserve published bases and the digital survey's rounding.
+for (const [registration, sample, basis, flavio, lula, totals] of [
+  ['BR-06614/2026', 2000, 'valid', 51.1, 48.9, [48.9, 46.8]],
+  ['BR-08251/2026', 1500, 'valid', 51.1, 48.9, [48, 46]],
+  ['BR-04612/2026', 5000, 'total', 50, 48, [50, 48]],
+]) {
+  const snapshot = pollSnapshots.find((poll) => poll.registration === registration);
+  assert.ok(snapshot, registration);
+  assert.equal(snapshot.sample, sample);
+  assert.equal(snapshot.basis, basis);
+  assert.deepEqual([snapshot.flavio, snapshot.lula], [flavio, lula]);
+  assert.deepEqual([snapshot.totalVotes.flavio, snapshot.totalVotes.lula], totals);
+  assert.match(snapshot.publishedAt, /^2026-10-21T/);
+  assert.ok(snapshot.registryCheckedAt);
+  assert.match(snapshot.metadataSource, /^https:\/\/dadosabertos\.tse\.jus\.br\//);
+}
+const palverOctober21 = pollSnapshots.find((poll) => poll.registration === 'BR-04612/2026');
+assert.match(palverOctober21.fieldwork, /^18 a 20\/10\/2026/);
+assert.equal(palverOctober21.totalVotes.other, 1);
+assert.equal(palverOctober21.totalVotes.undecided, 0);
+for (const pending of ['BR-03835/2026', 'BR-06396/2026', 'BR-08535/2026']) {
+  assert.ok(!pollSnapshots.some((poll) => poll.registration === pending));
+}
 // October 20: keep the original reports' precision and the effective fieldwork.
 for (const [registration, sample, flavio, lula, totals] of [
   ['BR-07896/2026', 3000, 50.81, 49.19, [40.95, 39.65]],

@@ -2,6 +2,88 @@ import type { PollSnapshot, Publication } from './types';
 
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-06614/2026',
+    institute: 'Futura/100 Cidades',
+    publishedAt: '2026-10-21T10:57:58-03:00',
+    fieldwork: '19 a 20/10/2026 · entrevistas telefônicas assistidas por computador (CATI)',
+    sample: 2000,
+    margin: 2.2,
+    confidence: 95,
+    contractor: 'Futura Consultoria e Assessoria Ltda. — contratante e pagante no TSE',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-21T23:36:29.000Z',
+    registration: 'BR-06614/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 51.1,
+    lula: 48.9,
+    source:
+      'https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2026/10/Relatorio_BR_Out_4.pdf',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 48.9,
+      lula: 46.8,
+      other: 2,
+      otherLabel: 'Ninguém, branco ou nulo',
+      undecided: 2.3,
+    },
+    note: 'Relatório original conferido em 21/10: metodologia na página 4, totais na página 10 e válidos na página 12. Percentuais transcritos sem recálculo. Cadastro nacional, coleta, amostra, contratante e pagante conferidos nos arquivos oficiais do TSE gerados em 21/10, por volta de 05h46. Horário de divulgação conforme a CNN Brasil.',
+  },
+  {
+    id: 'BR-08251/2026',
+    institute: 'Meio/Ideia',
+    publishedAt: '2026-10-21T07:00:00-03:00',
+    fieldwork: '15 a 19/10/2026 · entrevistas telefônicas com questionário estruturado',
+    sample: 1500,
+    margin: 2.5,
+    confidence: 95,
+    contractor: 'Canal Meio S.A. — contratante e pagante no TSE',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-21T23:36:29.000Z',
+    registration: 'BR-08251/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 51.1,
+    lula: 48.9,
+    source:
+      'https://www.canalmeio.com.br/wp-content/uploads/2026/10/Pesquisa-Meio_Ideia-Outubro.pdf',
+    mode: 'snapshot',
+    totalVotes: { flavio: 48, lula: 46, blankNull: 3.4, undecided: 2.6 },
+    note: 'Relatório original conferido em 21/10: metodologia na página 2, válidos na página 6 e totais na página 7. Percentuais transcritos sem recálculo. Cadastro nacional, coleta, amostra, contratante e pagante conferidos nos arquivos oficiais do TSE gerados em 21/10, por volta de 05h46. Divulgação às 7h conforme a Folha de S.Paulo.',
+  },
+  {
+    id: 'BR-04612/2026',
+    institute: 'Palver',
+    publishedAt: '2026-10-21T07:00:00-03:00',
+    fieldwork:
+      '18 a 20/10/2026 · pesquisa digital não probabilística, recrutada por anúncios, com cotas e ponderação',
+    sample: 5000,
+    margin: 2.4,
+    confidence: 95,
+    contractor:
+      'Palver Consultoria e Desenvolvimento Tecnológico Ltda. — contratante e pagante no TSE (pesquisa própria)',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-21T23:36:29.000Z',
+    registration: 'BR-04612/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'total',
+    flavio: 50,
+    lula: 48,
+    source: 'https://palver.com/api/surveys/voting-intention-2026-october-w8/report',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 50,
+      lula: 48,
+      other: 1,
+      otherLabel: 'Branco, nulo ou não votaria',
+      undecided: 0,
+    },
+    note: 'Relatório original da onda 8 conferido em 21/10: método nas páginas 16–18, amostra na página 20 e intenção nacional nas páginas 23–24. Coleta efetiva de 18 a 20/10; o registro previa 16 a 20/10. Amostra efetiva de 1.745 após ponderação (Kish), efeito de desenho 2,86; margem máxima informada de 2,4 pontos e intervalos individuais disponíveis no relatório. Percentuais totais arredondados somam 99%; preservados sem completar a diferença ou estimar válidos. Cadastro nacional, amostra, contratante e pagante conferidos nos arquivos oficiais do TSE gerados em 21/10, por volta de 05h46. Divulgação às 7h conforme a Folha de S.Paulo.',
+  },
+  {
     id: 'BR-07896/2026',
     institute: 'Instituto França',
     publishedAt: '2026-10-20T11:10:01-03:00',
@@ -733,6 +815,67 @@ export const pollSnapshots: PollSnapshot[] = [
 // Newly located reporting stays in publications until the original numeric
 // report and its methodology have been checked. Never infer totals from a headline.
 export const verifiedPublications: Publication[] = [
+  {
+    institute: 'Gerp',
+    title: 'Gerp: nova divulgação de segundo turno; período de coleta ainda em conferência',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-53-dos-votos-validos-contra-47-de-lula-diz-gerp/',
+    publishedAt: '2026-10-21T18:06:16-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-53-dos-votos-validos-contra-47-de-lula-diz-gerp/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
+  {
+    institute: 'Veritá',
+    title: 'Veritá divulga nova rodada nacional; relatório original ainda em conferência',
+    url: 'https://www.cnnbrasil.com.br/eleicoes/verita-flavio-tem-507-dos-votos-validos-no-2o-turno-lula-493/',
+    publishedAt: '2026-10-21T12:00:00-03:00',
+    source:
+      'https://www.cnnbrasil.com.br/eleicoes/verita-flavio-tem-507-dos-votos-validos-no-2o-turno-lula-493/',
+    kind: 'publication',
+    publisher: 'CNN Brasil',
+  },
+  {
+    institute: 'Futura/100 Cidades',
+    title: 'Futura divulga nova pesquisa nacional de segundo turno',
+    url: 'https://www.cnnbrasil.com.br/eleicoes/futura-flavio-tem-511-dos-votos-validos-no-2o-turno-lula-489/',
+    publishedAt: '2026-10-21T10:57:58-03:00',
+    source:
+      'https://www.cnnbrasil.com.br/eleicoes/futura-flavio-tem-511-dos-votos-validos-no-2o-turno-lula-489/',
+    kind: 'publication',
+    publisher: 'CNN Brasil',
+  },
+  {
+    institute: 'Quaest',
+    title:
+      'Quaest divulga intenção nacional de segundo turno; relatório original ainda em conferência',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-45-contra-44-de-lula-no-2o-turno-diz-quaest/',
+    publishedAt: '2026-10-21T10:56:45-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/flavio-tem-45-contra-44-de-lula-no-2o-turno-diz-quaest/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
+  {
+    institute: 'Meio/Ideia',
+    title: 'Meio/Ideia divulga nova pesquisa nacional de segundo turno',
+    url: 'https://www1.folha.uol.com.br/poder/2026/10/flavio-bolsonaro-tem-511-e-lula-489-dos-votos-validos-e-seguem-empatados-diz-meioideia.shtml',
+    publishedAt: '2026-10-21T07:00:00-03:00',
+    source:
+      'https://www1.folha.uol.com.br/poder/2026/10/flavio-bolsonaro-tem-511-e-lula-489-dos-votos-validos-e-seguem-empatados-diz-meioideia.shtml',
+    kind: 'publication',
+    publisher: 'Folha de S.Paulo',
+  },
+  {
+    institute: 'Palver',
+    title: 'Palver divulga a oitava onda nacional de intenção de voto',
+    url: 'https://noticias.uol.com.br/eleicoes/2026/10/21/palver-pesquisa-presidencial-segundo-turno-21-de-outubro.ghtm',
+    publishedAt: '2026-10-21T07:00:00-03:00',
+    source:
+      'https://noticias.uol.com.br/eleicoes/2026/10/21/palver-pesquisa-presidencial-segundo-turno-21-de-outubro.ghtm',
+    kind: 'publication',
+    publisher: 'UOL',
+  },
   {
     institute: 'Instituto França',
     title: 'Instituto França divulga pesquisa nacional de segundo turno',
