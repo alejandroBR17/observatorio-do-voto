@@ -45,6 +45,7 @@ import { RecentUpdates } from './recent-updates';
 import { ObservatoryRoom } from './observatory-room';
 import { CandidateObservatory } from './candidate-observatory';
 import { HistoryObservatory } from './history-observatory';
+import { LiveObservatory } from './live-observatory';
 import { CandidatePortrait } from './components/candidate-portrait';
 import { electionPalette } from '@/lib/election-palette';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
@@ -84,6 +85,7 @@ const nav = [
   ['app', 'Meu app', Smartphone],
 ] as const;
 const sectionKickers: Record<string, string> = {
+  live: 'CONTAGEM / APURAÇÃO OFICIAL',
   overview: 'OBSERVATÓRIO DO VOTO / PANORAMA',
   history: 'ACERVO / ELEIÇÕES PRESIDENCIAIS',
   municipality: 'TERRITÓRIO / OBSERVAÇÃO LOCAL',
@@ -1026,9 +1028,11 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                                   ? 'As eleições, ano a ano.'
                                   : reviewOnly && tab === 'municipality'
                                     ? 'O voto, perto de você.'
-                                    : tab === 'overview'
-                                      ? 'O país em perspectiva.'
-                                      : nav.find((n) => n[0] === tab)?.[1]}
+                                    : reviewOnly && tab === 'live'
+                                      ? 'A disputa, voto a voto.'
+                                      : tab === 'overview'
+                                        ? 'O país em perspectiva.'
+                                        : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
@@ -1598,7 +1602,35 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                     </Disclosure>
                   </>
                 )}
-                {tab === 'live' && (
+                {tab === 'live' && reviewOnly && (
+                  <LiveObservatory
+                    live={live}
+                    uf={uf}
+                    region={region}
+                    notification={notification}
+                    points={livePoints}
+                    stateResults={liveStates}
+                    canPreview={!!national}
+                    onState={setUf}
+                    onRegion={(next) => {
+                      setRegion(next);
+                      setUf('BR');
+                    }}
+                    onAlerts={() => go('alerts')}
+                    onNight={() => {
+                      setNightNational(null);
+                      setNight(
+                        electionNightAvailable(live.status, live.result?.turn) ? 'live' : 'preview',
+                      );
+                    }}
+                    onHistory={() => {
+                      setYear(2022);
+                      setTurn(2);
+                      go('history');
+                    }}
+                  />
+                )}
+                {tab === 'live' && !reviewOnly && (
                   <>
                     <div className="live-toolbar">
                       <span className="connection">

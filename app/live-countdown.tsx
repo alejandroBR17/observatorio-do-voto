@@ -16,11 +16,13 @@ export function LiveCountdown({
   serviceReady,
   onEnable,
   onAlerts,
+  onPrepare,
 }: {
   notification: string;
   serviceReady: boolean;
   onEnable: () => Promise<{ ok: boolean; message: string }>;
   onAlerts: () => void;
+  onPrepare?: () => void;
 }) {
   const [now, setNow] = useState<number | null>(null),
     [busy, setBusy] = useState(false),
@@ -47,7 +49,9 @@ export function LiveCountdown({
       <h2>
         {now !== null && now >= resultsStart
           ? 'Aguardando os primeiros votos.'
-          : 'O próximo capítulo tem hora marcada.'}
+          : onPrepare
+            ? 'Contagem para a apuração.'
+            : 'O próximo capítulo tem hora marcada.'}
       </h2>
       <p>
         {now !== null && now >= resultsStart
@@ -79,10 +83,10 @@ export function LiveCountdown({
         </p>
       )}
       <div className="live-wait-actions">
-        {notification === 'Ativadas' ? (
-          <button className="button primary" onClick={onAlerts}>
-            <Check size={17} />
-            Escolher alertas
+        {notification === 'Ativadas' || onPrepare ? (
+          <button className="button primary" onClick={onPrepare || onAlerts}>
+            {notification === 'Ativadas' ? <Check size={17} /> : <Bell size={17} />}
+            {onPrepare ? 'Escolher meus alertas' : 'Escolher alertas'}
             <ArrowRight size={17} />
           </button>
         ) : (

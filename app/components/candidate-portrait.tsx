@@ -4,8 +4,8 @@ import { candidateIdentity } from '@/lib/candidate-identity';
 
 export function CandidatePortrait({ name }: { name: string }) {
   const person = candidateIdentity(name);
-  const [failed, setFailed] = useState(false);
-  return person && !failed ? (
+  const [failedSource, setFailedSource] = useState('');
+  return person && failedSource !== person.photo ? (
     <img
       className="candidate-portrait"
       src={person.photo}
@@ -13,7 +13,7 @@ export function CandidatePortrait({ name }: { name: string }) {
       width="40"
       height="48"
       loading="lazy"
-      onError={() => setFailed(true)}
+      onError={() => setFailedSource(person.photo)}
     />
   ) : (
     <span className="candidate-portrait-fallback" aria-label="Retrato indisponível">

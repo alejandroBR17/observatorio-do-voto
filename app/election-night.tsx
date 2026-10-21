@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Expand, Minimize, X } from 'lucide-react';
 import type { Candidate, Result } from '@/lib/elections';
+import { candidateIdentity } from '@/lib/candidate-identity';
 import { candidateName, formatPercent, formatVotes } from '@/lib/presentation';
 import { Map } from './geo-map';
 import { DataFreshness } from './components/data-freshness';
@@ -11,17 +12,12 @@ import { Source } from './components/source-link';
 import { ScreenAwakeButton } from './pwa';
 
 function CandidatePortrait({ candidate }: { candidate: Candidate }) {
-  const [failed, setFailed] = useState(false);
-  const photo =
-    candidate.number === '13'
-      ? '/assets/lula.jpeg'
-      : candidate.number === '22'
-        ? '/assets/flavio.jpeg'
-        : candidate.photo;
+  const [failedSource, setFailedSource] = useState('');
+  const photo = candidateIdentity(candidate.name)?.photo || candidate.photo;
   return (
     <span className="night-portrait" aria-hidden="true">
-      {photo && !failed ? (
-        <img src={photo} alt="" loading="lazy" onError={() => setFailed(true)} />
+      {photo && failedSource !== photo ? (
+        <img src={photo} alt="" loading="lazy" onError={() => setFailedSource(photo)} />
       ) : (
         <span>
           {candidateName(candidate.name)

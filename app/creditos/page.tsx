@@ -1,4 +1,4 @@
-import { historicalPortraits } from '@/lib/candidate-identity';
+import { additionalPortraits, historicalPortraits } from '@/lib/candidate-identity';
 import Link from 'next/link';
 import { sharingMetadata } from '@/lib/site-metadata';
 
@@ -98,6 +98,30 @@ export default function Credits() {
           pela plataforma. A interface pode ajustar o enquadramento para o cartão. O uso mantém
           autoria, fonte e licença identificadas.
         </p>
+      </section>
+      <section id="retratos-2026">
+        <h2>Demais candidatos de 2026</h2>
+        <p>
+          Retratos usados para identificação. Miniaturas locais podem ser redimensionadas e
+          enquadradas na interface; as imagens e essas adaptações mantêm as licenças indicadas. A
+          fotografia pode ser anterior à eleição.
+        </p>
+        <ul>
+          {additionalPortraits.map((person) => (
+            <li key={person.name}>
+              <strong>{person.name}</strong> —{' '}
+              {person.author || 'Autoria não identificada na fonte'}.{' '}
+              <a href={person.source} target="_blank" rel="noreferrer">
+                Origem, autoria e condições de uso
+              </a>{' '}
+              ·{' '}
+              <a href={person.licenseUrl} target="_blank" rel="noreferrer">
+                {person.license}
+              </a>
+              .
+            </li>
+          ))}
+        </ul>
       </section>
       <section id="retratos-historicos">
         <h2>Retratos dos candidatos do acervo</h2>

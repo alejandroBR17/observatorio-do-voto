@@ -67,6 +67,21 @@ test('historical legends use that election’s candidates rather than current ca
   assert.equal(palette[1].color, '#24796d');
 });
 
+test('every current presidential candidate has a distinct portrait for full and ballot names', () => {
+  const raw = JSON.parse(fs.readFileSync('public/data/2026-br.json', 'utf8'));
+  const photos = new Set<string>();
+  for (const group of raw.carg[0].agr)
+    for (const party of group.par)
+      for (const candidate of party.cand) {
+        const person = candidateIdentity(candidate.nm);
+        assert.ok(person, candidate.nm);
+        assert.equal(candidateIdentity(candidate.nmu)?.photo, person.photo, candidate.nmu);
+        assert.ok(fs.existsSync('public' + person.photo), person.photo);
+        photos.add(person.photo);
+      }
+  assert.equal(photos.size, 12);
+});
+
 test('important visit updates exclude articles and publications, deduplicate polls and reject future dates', () => {
   const sample = { ...pollSnapshots[0], publishedAt: '2026-10-19T12:00:00Z' };
   const result = importantUpdates(

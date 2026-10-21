@@ -1,0 +1,411 @@
+.control-room:has(.or-live) .preview-note {
+  display: none;
+}
+.or-live {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.or-live .panel {
+  margin: 0;
+  min-width: 0;
+  padding: 28px;
+  border-radius: 20px;
+  box-shadow: none;
+}
+.or-live h2 {
+  font-size: clamp(25px, 2.4vw, 32px);
+  line-height: 1.25;
+  letter-spacing: -0.7px;
+  margin: 12px 0 16px;
+}
+.or-live p {
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--muted);
+  max-width: none;
+}
+.or-live .fine {
+  font-size: 14px;
+  line-height: 1.75;
+}
+.or-live .eyebrow {
+  color: var(--or-amber);
+  font-size: 11px;
+  line-height: 1.7;
+  letter-spacing: 1.1px;
+}
+.or-live-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.or-live-status > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--or-amber);
+}
+.or-live .or-live-countdown {
+  padding: clamp(24px, 3vw, 44px);
+  background: radial-gradient(ellipse at 100% 0, var(--or-glow), transparent 65%), var(--surface);
+}
+.or-live .live-wait {
+  max-width: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+.or-live .live-wait h2 {
+  max-width: 25ch;
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+.or-live .live-wait > p {
+  max-width: 72ch;
+  text-align: left;
+  margin-left: 0;
+  margin-right: 0;
+}
+.or-live .live-date {
+  justify-content: flex-start;
+  color: var(--or-amber);
+  font-size: 12px;
+  line-height: 1.7;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.or-live .countdown-clock {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 110px));
+  gap: 12px;
+  justify-content: start;
+  margin: 28px 0;
+}
+.or-live .countdown-clock > div {
+  min-width: 0;
+  width: auto;
+  padding: 18px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+}
+.or-live .countdown-clock strong {
+  font-size: clamp(30px, 4vw, 48px);
+  color: var(--ink);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.or-live .countdown-clock span {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.or-live .live-wait-actions {
+  justify-content: start;
+  margin: 20px 0 12px;
+}
+.or-live .button,
+.or-live .source,
+.or-live .text-button,
+.or-live .collapse-bottom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 11px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  white-space: normal;
+}
+.or-live .button.primary {
+  color: var(--bg);
+  border-color: var(--or-amber);
+  background: var(--or-amber);
+  font-weight: 600;
+}
+.or-live .button:hover,
+.or-live .source:hover,
+.or-live .text-button:hover {
+  border-color: var(--or-amber);
+}
+.or-live .button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.or-live .source {
+  color: var(--or-amber);
+  justify-content: start;
+  margin-top: 16px;
+}
+.or-live button,
+.or-live a,
+.or-live select {
+  touch-action: manipulation;
+}
+.or-live button:focus-visible,
+.or-live a:focus-visible,
+.or-live select:focus-visible {
+  outline: 2px solid var(--or-amber);
+  outline-offset: 4px;
+}
+.or-live-contenders {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.or-live-command {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  min-width: 0;
+}
+.or-live-command:has(.or-live-countdown) {
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+}
+.or-live-command:has(.or-live-countdown) .or-live-contenders {
+  grid-template-columns: minmax(0, 1fr);
+}
+.or-live-contenders article {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  border-top: 3px solid var(--contender-color);
+}
+.or-live-contenders .candidate-portrait,
+.or-live-contenders .candidate-portrait-fallback {
+  width: 78px;
+  height: 100px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.or-live-contenders article > div {
+  min-width: 0;
+}
+.or-live-contenders article span {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.or-live-contenders h2 {
+  font-size: 26px;
+  margin: 7px 0 10px;
+  overflow-wrap: anywhere;
+}
+.or-live-contenders p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+.or-live-contenders strong {
+  display: block;
+  font-size: 34px;
+  line-height: 1.2;
+  margin: 10px 0;
+}
+.or-live-contenders small {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.or-live-preparation {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+.or-live-preparation p {
+  font-size: 15px;
+}
+.or-live .or-live-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: end;
+  gap: 20px;
+}
+.or-live label {
+  display: grid;
+  gap: 9px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.or-live select {
+  min-width: 0;
+  min-height: 46px;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 16px;
+  padding: 10px 12px;
+}
+.or-live-total {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 20px 0;
+}
+.or-live-total strong {
+  font-size: 40px;
+  line-height: 1.2;
+}
+.or-live-total span {
+  font-size: 14px;
+  color: var(--muted);
+}
+.or-live-tally .bar-track > div {
+  height: 100%;
+  background: var(--or-amber);
+}
+.or-live-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.or-live .disclosure-heading {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.or-live .disclosure-heading h2 {
+  font-size: 25px;
+  margin: 0 0 10px;
+}
+.or-live .disclosure-heading p {
+  font-size: 14px;
+  margin: 0;
+}
+.or-live .disclosure-heading > span {
+  font-size: 13px;
+  color: var(--or-amber);
+}
+.or-live-explanation {
+  display: flex;
+  align-items: start;
+  gap: 14px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.or-live-explanation svg {
+  flex-shrink: 0;
+  color: var(--or-amber);
+  margin-top: 3px;
+}
+.or-live-explanation h3 {
+  font-size: 20px;
+  line-height: 1.4;
+  margin: 0 0 10px;
+}
+.or-live-explanation p {
+  font-size: 15px;
+  margin: 0;
+}
+.or-live .or-live-footnote {
+  margin: 0;
+}
+.or-live .or-live-territory .brazil-map {
+  max-height: 460px;
+}
+.or-live .table-scroll {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.or-live table {
+  min-width: 540px;
+  font-size: 14px;
+}
+.or-live summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  color: var(--or-amber);
+  font-size: 14px;
+}
+@media (max-width: 800px) {
+  .or-live-command:has(.or-live-countdown) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-live-contenders,
+  .or-live-preparation {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .or-live {
+    gap: 20px;
+  }
+  .or-live .panel {
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+  .or-live .live-wait h2 {
+    font-size: 30px;
+  }
+  .or-live .live-date {
+    font-size: 12px;
+  }
+  .or-live .countdown-clock {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin: 24px 0;
+  }
+  .or-live .countdown-clock > div {
+    padding: 15px 5px;
+    border-radius: 10px;
+  }
+  .or-live .countdown-clock strong {
+    font-size: 32px;
+  }
+  .or-live .countdown-clock span {
+    font-size: 12px;
+  }
+  .or-live-contenders article {
+    padding: 22px 18px;
+    gap: 16px;
+    grid-template-columns: 62px minmax(0, 1fr);
+  }
+  .or-live-contenders .candidate-portrait,
+  .or-live-contenders .candidate-portrait-fallback {
+    width: 62px;
+    height: 80px;
+  }
+  .or-live-contenders h2 {
+    font-size: 25px;
+  }
+  .or-live .live-wait-actions .button {
+    width: 100%;
+  }
+  .or-live select {
+    width: 100%;
+  }
+  .or-live .or-live-heading > label {
+    width: 100%;
+  }
+}
