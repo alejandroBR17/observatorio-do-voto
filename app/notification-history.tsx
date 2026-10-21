@@ -1,8 +1,8 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import { Bell, ExternalLink, Trash2 } from 'lucide-react';
+import { Bell, ExternalLink, Trash2, RotateCcw, LoaderCircle, CloudOff } from 'lucide-react';
 import { ExpandList } from './disclosure';
-type Received = {
+export type Received = {
   id: string;
   title: string;
   body: string;
@@ -32,24 +32,41 @@ async function historyRequest(clear = false): Promise<Received[]> {
     );
   });
 }
-export function NotificationHistory() {
-  const [items, setItems] = useState<Received[]>([]);
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
+export type HistoryPreview = { status: 'loading' | 'ready' | 'error'; items: Received[] };
+export function NotificationHistory({ preview }: { preview?: HistoryPreview } = {}) {
+  const [items, setItems] = useState<Received[]>(preview?.items || []);
+  const [error, setError] = useState(
+    preview?.status === 'error' ? 'Não foi possível consultar os avisos agora.' : '',
+  );
+  const [busy, setBusy] = useState(!preview || preview.status === 'loading');
+  const [loaded, setLoaded] = useState(!!preview && preview.status !== 'loading');
   const [confirmClear, setConfirmClear] = useState(false);
-  const refresh = useCallback(async (clear = false) => {
-    setBusy(true);
-    try {
-      setItems(await historyRequest(clear));
-      setError('');
-      setConfirmClear(false);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Histórico indisponível.');
-    } finally {
-      setBusy(false);
-    }
-  }, []);
+  const refresh = useCallback(
+    async (clear = false) => {
+      if (preview) {
+        setItems(clear ? [] : preview.items);
+        setError('');
+        setConfirmClear(false);
+        setBusy(false);
+        setLoaded(true);
+        return;
+      }
+      setBusy(true);
+      try {
+        setItems(await historyRequest(clear));
+        setError('');
+        setConfirmClear(false);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Histórico indisponível.');
+      } finally {
+        setBusy(false);
+        setLoaded(true);
+      }
+    },
+    [preview],
+  );
   useEffect(() => {
+    if (preview) return;
     void refresh();
     const update = () => {
       if (document.visibilityState === 'visible') void refresh();
@@ -65,7 +82,7 @@ export function NotificationHistory() {
       navigator.serviceWorker?.removeEventListener('message', message);
       navigator.serviceWorker?.removeEventListener('controllerchange', update);
     };
-  }, [refresh]);
+  }, [refresh, preview]);
   return (
     <section
       className="panel notification-history"
@@ -77,25 +94,53 @@ export function NotificationHistory() {
           <span className="eyebrow">NESTE APARELHO</span>
           <h2 id="received-alerts-title">Avisos recebidos</h2>
         </div>
-        <Bell size={20} aria-hidden="true" />
-      </div>
-      <p className="fine">
-        Até 50 avisos dos últimos 30 dias, guardados somente aqui. Começamos a registrar a partir
-        desta atualização; avisos antigos não são recuperados.
-      </p>
-      {error ? (
-        <p role="status">
-          {error}{' '}
-          <button className="text-button" onClick={() => void refresh()}>
-            Tentar novamente
+        {!error && (
+          <button
+            className="button secondary history-refresh"
+            disabled={busy}
+            onClick={() => void refresh()}
+          >
+            <RotateCcw size={16} aria-hidden="true" />
+            {busy ? 'Consultando…' : 'Atualizar histórico'}
           </button>
-        </p>
-      ) : !items.length ? (
-        <p className="history-empty">
-          Quando este aparelho receber um alerta, ele aparecerá aqui. O histórico não gera
-          notificações extras.
-        </p>
-      ) : (
+        )}
+      </div>
+      <p className="fine">Até 50 avisos dos últimos 30 dias, guardados somente neste aparelho.</p>
+      {error && (
+        <div className="history-state history-error" role="status">
+          <CloudOff size={26} aria-hidden="true" />
+          <div>
+            <strong>A consulta não terminou.</strong>
+            <p>
+              {error}
+              {items.length > 0 && ' Os avisos já carregados continuam abaixo.'}
+            </p>
+            <button className="button secondary" disabled={busy} onClick={() => void refresh()}>
+              Tentar novamente
+            </button>
+          </div>
+        </div>
+      )}
+      {busy && !loaded ? (
+        <div className="history-state" role="status">
+          <LoaderCircle className="history-loader" size={26} aria-hidden="true" />
+          <div>
+            <strong>Consultando seus avisos.</strong>
+            <p>Buscando o que ficou guardado neste aparelho.</p>
+          </div>
+        </div>
+      ) : !items.length && !error ? (
+        <div className="history-state history-empty">
+          <Bell size={26} aria-hidden="true" />
+          <div>
+            <strong>Seu próximo aviso aparece aqui.</strong>
+            <p>
+              Releia as atualizações que este aparelho receber. Guardar o histórico não gera
+              notificações extras.
+            </p>
+          </div>
+        </div>
+      ) : items.length > 0 ? (
         <ExpandList
           items={items}
           initial={4}
@@ -115,14 +160,20 @@ export function NotificationHistory() {
               <p>{item.body}</p>
               <a
                 className="text-button"
-                href={item.url.startsWith('/?') ? item.url : '/?tab=alerts'}
+                href={
+                  preview
+                    ? `/identidade${item.url.startsWith('/?') ? item.url.slice(1) : '?tab=alerts'}`
+                    : item.url.startsWith('/?')
+                      ? item.url
+                      : '/?tab=alerts'
+                }
               >
                 Ver atualização <ExternalLink size={14} aria-hidden="true" />
               </a>
             </article>
           )}
         />
-      )}
+      ) : null}
       {items.length > 0 && (
         <div className="history-tools">
           {confirmClear ? (

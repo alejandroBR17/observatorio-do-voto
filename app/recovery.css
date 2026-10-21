@@ -7,7 +7,7 @@
 .recovery-page > footer {
   width: min(100%, 1200px);
   margin-inline: auto;
-  padding: 32px;
+  padding: 28px 32px;
 }
 .recovery-brand {
   display: inline-flex;
@@ -26,32 +26,81 @@
 }
 .recovery-page > main {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
   gap: 64px;
   align-items: center;
-  width: min(100%, 1060px);
+  width: min(100%, 1120px);
   margin: auto;
-  padding: 56px 32px;
+  padding: 40px 32px 60px;
 }
 .recovery-visual {
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 20px;
+  min-width: 0;
+  align-self: center;
   border: 1px solid var(--line);
-  border-radius: 50%;
-  aspect-ratio: 1;
-  background: var(--surface);
-  box-shadow: 0 0 0 20px var(--or-glow);
+  border-radius: 22px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 65% 25%, var(--or-glow), transparent 70%), var(--surface);
+}
+.recovery-visual > svg {
+  width: 100%;
+  display: block;
+}
+.recovery-terrain {
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+.recovery-route-base {
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 6;
+  opacity: 0.6;
+}
+.recovery-route {
+  stroke: var(--or-amber);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 240;
+  animation: recovery-route-in 900ms ease-out both;
+}
+.recovery-point {
+  fill: var(--surface);
+  stroke: var(--or-amber);
+  stroke-width: 2;
+}
+.recovery-destination {
+  fill: var(--or-glow);
+  stroke: var(--or-amber);
+  stroke-width: 2;
+}
+.recovery-pulse {
+  stroke: var(--or-amber);
+  stroke-width: 1;
+  transform-origin: 209px 51px;
+  animation: recovery-signal 1.5s ease-out 2;
+  opacity: 0.15;
+}
+.recovery-map-caption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
   color: var(--muted);
 }
-.recovery-visual > span {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 5px;
+.recovery-map-caption > strong {
+  font-size: 24px;
+  letter-spacing: -1px;
+  color: var(--or-amber);
+}
+.recovery-map-caption > svg {
+  color: var(--or-amber);
+  flex-shrink: 0;
 }
 .recovery-copy {
   min-width: 0;
+  animation: recovery-copy-in 280ms ease-out both;
 }
 .recovery-copy .eyebrow {
   color: var(--or-amber);
@@ -59,8 +108,8 @@
   line-height: 1.7;
 }
 .recovery-copy h1 {
-  margin: 18px 0 20px;
-  font-size: clamp(32px, 4vw, 48px);
+  margin: 14px 0 18px;
+  font-size: clamp(30px, 4vw, 46px);
   line-height: 1.12;
   letter-spacing: -1px;
   max-width: 20ch;
@@ -68,14 +117,14 @@
 .recovery-copy p {
   font-size: 16px;
   color: var(--muted);
-  line-height: 1.8;
-  max-width: 55ch;
+  line-height: 1.7;
+  max-width: 48ch;
 }
 .recovery-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 28px;
+  margin-top: 24px;
 }
 .recovery-actions .button {
   font-size: 15px;
@@ -84,23 +133,41 @@
 .recovery-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 20px;
-  padding: 10px 0;
-  color: var(--muted);
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
   font-size: 14px;
 }
+.recovery-secondary:hover {
+  border-color: var(--or-amber);
+}
 .recovery-page > footer {
+  margin-top: auto;
   color: var(--muted);
   font-size: 14px;
   border-top: 1px solid var(--line);
 }
 .recovery-review {
   border-bottom: 1px solid var(--line);
-  padding: 16px 24px;
+  padding: 14px 24px;
   background: var(--surface);
+}
+.recovery-review summary {
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.recovery-review summary > span {
+  display: inline-block;
+  margin-left: 12px;
+  color: var(--or-amber);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .recovery-review p {
   font-size: 14px;
@@ -126,27 +193,77 @@
   border-color: var(--or-amber);
   color: var(--or-amber);
 }
+.recovery-review + .recovery-page {
+  min-height: calc(100dvh - 65px);
+}
+@keyframes recovery-route-in {
+  from {
+    stroke-dashoffset: 240;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes recovery-signal {
+  from {
+    transform: scale(0.65);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1.25);
+    opacity: 0.15;
+  }
+}
+@keyframes recovery-copy-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 @media (max-width: 700px) {
   .recovery-page > main {
     grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-    padding: 36px 24px;
+    gap: 24px;
+    padding: 16px 24px 32px;
+    margin-block: 0;
   }
   .recovery-visual {
-    width: 132px;
-    gap: 6px;
-    box-shadow: 0 0 0 10px var(--or-glow);
+    width: 100%;
   }
   .recovery-visual > svg {
-    width: 42px;
-    height: 42px;
+    height: 115px;
+    width: 100%;
   }
-  .recovery-visual > span {
-    font-size: 14px;
+  .recovery-map-caption {
+    padding: 12px 18px;
+    font-size: 13px;
+  }
+  .recovery-map-caption > strong {
+    font-size: 20px;
+  }
+  .recovery-map-caption > svg {
+    width: 20px;
+    height: 20px;
   }
   .recovery-page > header,
   .recovery-page > footer {
-    padding: 24px;
+    padding: 22px 24px;
+  }
+  .recovery-copy h1 {
+    font-size: 32px;
+    max-width: 22ch;
+  }
+  .recovery-actions {
+    margin-top: 20px;
+  }
+  .recovery-actions .button,
+  .recovery-secondary {
+    justify-content: center;
+    width: 100%;
   }
 }
 @media (max-width: 380px) {
@@ -158,10 +275,20 @@
   .recovery-brand {
     font-size: 23px;
   }
-  .recovery-actions {
-    flex-direction: column;
+  .recovery-copy h1 {
+    font-size: 30px;
   }
   .recovery-review {
-    padding: 16px 18px;
+    padding: 12px 18px;
+  }
+  .recovery-review summary > span {
+    margin-left: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .recovery-route,
+  .recovery-pulse,
+  .recovery-copy {
+    animation: none;
   }
 }
