@@ -1,0 +1,396 @@
+/* Profile review: personal controls share the observatory's amber action language. */
+.control-room:has(.or-profile) .preview-note {
+  display: none;
+}
+.or-profile {
+  display: grid;
+  min-width: 0;
+  gap: 24px;
+}
+.or-profile .panel {
+  margin: 0;
+  min-width: 0;
+  border-radius: 20px;
+  box-shadow: none;
+}
+.or-profile .profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 28px;
+  background: radial-gradient(ellipse at 0 0, var(--or-glow), transparent 72%), var(--surface);
+}
+.or-profile .personal-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  color: var(--or-amber);
+  background: var(--bg);
+  font-size: 28px;
+}
+.or-profile .profile-hero .eyebrow {
+  color: var(--or-amber);
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 1.1px;
+}
+.or-profile .profile-hero h2 {
+  font-size: clamp(25px, 2.8vw, 35px);
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  margin: 9px 0 12px;
+  overflow-wrap: anywhere;
+}
+.or-profile .profile-hero p {
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0 0 14px;
+}
+.or-profile .privacy-label {
+  font-size: 13px;
+  line-height: 1.6;
+  align-items: center;
+  gap: 8px;
+}
+.or-profile .privacy-label svg {
+  flex-shrink: 0;
+  color: var(--or-amber);
+}
+.or-profile .profile-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  gap: 16px;
+}
+.or-profile .profile-summary button {
+  min-width: 0;
+  min-height: 150px;
+  padding: 22px;
+  border-radius: 16px;
+  background: var(--surface);
+}
+.or-profile .profile-summary button:hover {
+  border-color: var(--or-amber);
+  background: var(--soft);
+}
+.or-profile .profile-summary strong {
+  font-size: clamp(24px, 2.5vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+  overflow-wrap: anywhere;
+}
+.or-profile .profile-summary span {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.or-profile .dashboard-grid.equal {
+  gap: 24px;
+  align-items: start;
+  margin: 0;
+}
+.or-profile .section-index {
+  font-size: 11px;
+  letter-spacing: 1.1px;
+  color: var(--or-amber);
+  line-height: 1.6;
+}
+.or-profile .panel h2 {
+  font-size: 25px;
+  letter-spacing: -0.6px;
+  line-height: 1.25;
+}
+.or-profile .or-profile-identity h2,
+.or-profile .or-profile-candidates h2 {
+  margin: 10px 0 20px;
+}
+.or-profile .form-label {
+  font-size: 14px;
+  line-height: 1.6;
+  gap: 9px;
+  margin: 0 0 16px;
+}
+.or-profile .form-label input {
+  min-width: 0;
+  width: 100%;
+  min-height: 48px;
+  font-size: 16px;
+  border-radius: 11px;
+  background: var(--bg);
+}
+.or-profile .button {
+  min-height: 46px;
+  font-size: 14px;
+  border-radius: 11px;
+}
+.or-profile .fine {
+  font-size: 14px;
+  line-height: 1.75;
+}
+.or-profile .save-hint {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.or-profile .profile-theme {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  padding-top: 22px;
+  margin-top: 24px;
+}
+.or-profile .profile-theme > span {
+  font-size: 15px;
+  font-weight: 600;
+}
+.or-profile .profile-theme small {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 400;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+.or-profile .theme-button {
+  min-height: 46px;
+  border-radius: 11px;
+}
+.or-profile .preference-options {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+.or-profile .preference-options button {
+  display: flex;
+  align-items: center;
+  min-height: 86px;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  min-width: 0;
+}
+.or-profile .preference-options button.chosen {
+  border-color: var(--or-amber);
+  background: var(--soft);
+  box-shadow: inset 3px 0 0 var(--or-amber);
+}
+.or-profile .preference-options button > img {
+  width: 56px;
+  height: 68px;
+  border-radius: 10px;
+  object-fit: cover;
+  object-position: center 15%;
+  flex-shrink: 0;
+}
+.or-profile .preference-options button > svg {
+  flex-shrink: 0;
+  color: var(--or-amber);
+}
+.or-profile .preference-options button > span {
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.or-profile .preference-options small {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-top: 5px;
+  color: var(--muted);
+}
+.or-profile .analysis-preference .alert-option {
+  min-height: 72px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  border-radius: 14px;
+  margin-top: 20px;
+  gap: 16px;
+}
+.or-profile .alert-option strong {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.or-profile .alert-option small {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-top: 6px;
+}
+.or-profile input[type='checkbox'] {
+  accent-color: var(--or-amber);
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.or-profile .or-profile-privacy {
+  min-width: 0;
+}
+.or-profile .disclosure-heading {
+  gap: 20px;
+  align-items: center;
+}
+.or-profile .disclosure-heading p {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.or-profile .disclosure-heading > span {
+  color: var(--or-amber);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.or-profile .disclosure-body > .panel {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+.or-profile .terms-check {
+  font-size: 15px;
+  line-height: 1.7;
+}
+.or-profile .profile-following .panel-head {
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.or-profile .followed-labels span {
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.or-profile .profile-bottom-actions {
+  gap: 12px;
+  padding: 0;
+}
+.or-profile .text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  background: var(--surface);
+}
+.or-profile a:focus-visible,
+.or-profile button:focus-visible,
+.or-profile input:focus-visible {
+  outline: 2px solid var(--or-amber);
+  outline-offset: 3px;
+}
+@media (max-width: 1050px) {
+  .or-profile .dashboard-grid.equal {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 650px) {
+  .or-profile {
+    gap: 18px;
+  }
+  .or-profile .panel {
+    padding: 20px;
+  }
+  .or-profile .profile-hero {
+    padding: 22px;
+    align-items: flex-start;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .or-profile .personal-avatar {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    font-size: 23px;
+  }
+  .or-profile .profile-hero h2 {
+    font-size: 27px;
+  }
+  .or-profile .profile-summary {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .or-profile .profile-summary button {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) 16px;
+    align-items: center;
+    gap: 5px 14px;
+    padding: 18px;
+    min-height: 84px;
+  }
+  .or-profile .profile-summary button > svg:first-child {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+  .or-profile .profile-summary strong {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 22px;
+  }
+  .or-profile .profile-summary span {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 13px;
+  }
+  .or-profile .profile-summary button > svg:last-child {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+  .or-profile .panel h2 {
+    font-size: 24px;
+  }
+  .or-profile .preference-options button {
+    padding: 14px;
+    gap: 12px;
+  }
+  .or-profile .preference-options button > img {
+    width: 48px;
+    height: 60px;
+  }
+  .or-profile .preference-options button > span {
+    font-size: 16px;
+  }
+  .or-profile .profile-theme {
+    align-items: flex-start;
+  }
+  .or-profile .disclosure-panel {
+    padding: 0;
+  }
+  .or-profile .disclosure-heading {
+    flex-wrap: wrap;
+    padding: 20px;
+    gap: 14px;
+  }
+  .or-profile .disclosure-body {
+    padding: 0 20px 20px;
+  }
+  .or-profile .disclosure-body > .panel {
+    padding: 0;
+  }
+  .or-profile .profile-bottom-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .or-profile .profile-bottom-actions .text-button {
+    justify-content: space-between;
+    text-align: left;
+  }
+}

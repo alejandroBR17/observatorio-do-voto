@@ -30,6 +30,7 @@ function searchText(value: string) {
     .toLocaleLowerCase('pt-BR')
     .trim();
 }
+export type WatchSection = 'estados-seguidos' | 'seu-caderno';
 export function Watchboard({
   selectedNote,
   favorite,
@@ -41,7 +42,9 @@ export function Watchboard({
   year,
   turn,
   observatory = false,
+  focusSection,
 }: {
+  focusSection?: WatchSection;
   observatory?: boolean;
   selectedNote?: string;
   favorite: string;
@@ -104,6 +107,15 @@ export function Watchboard({
     }, 100);
     return () => clearTimeout(timer);
   }, [ready, selectedNote]);
+  useEffect(() => {
+    if (!ready || !focusSection) return;
+    const frame = requestAnimationFrame(() => {
+      const section = document.getElementById(focusSection);
+      section?.scrollIntoView({ block: 'start', behavior: 'instant' });
+      section?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [ready, focusSection]);
   function changeEntries(next: NotebookEntry[]) {
     setSaved('saving');
     setEntries(next);
@@ -285,7 +297,7 @@ export function Watchboard({
           </div>
         </div>
       </section>
-      <section className="panel followed-results" id="estados-seguidos">
+      <section className="panel followed-results" id="estados-seguidos" tabIndex={-1}>
         <div className="panel-head">
           <div>
             <span className="eyebrow">
@@ -391,7 +403,7 @@ export function Watchboard({
           />
         )}
       </section>
-      <div id="seu-caderno" style={observatory ? undefined : { display: 'contents' }}>
+      <div tabIndex={-1} id="seu-caderno" style={observatory ? undefined : { display: 'contents' }}>
         {ready && (
           <Notebook
             entries={entries}

@@ -20,6 +20,7 @@ import { PrivacyControls } from './components/privacy-controls';
 import { PushConsent } from './components/privacy-consent';
 import { states } from '@/lib/elections';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
+import type { WatchSection } from './features/watchboard';
 type Prefs = AlertPreferences;
 export function Profile({
   nickname,
@@ -32,12 +33,14 @@ export function Profile({
   onAlerts,
   theme,
   onTheme,
+  observatory = false,
 }: {
+  observatory?: boolean;
   nickname: string;
   onNickname: (name: string) => boolean;
   favorite: string;
   onFavorite: (candidate: string) => void;
-  onWatch: () => void;
+  onWatch: (section?: WatchSection) => void;
   onCustomize: () => void;
   notification: string;
   onAlerts: () => void;
@@ -45,7 +48,8 @@ export function Profile({
   onTheme: (theme: 'system' | 'light' | 'dark') => void;
 }) {
   const [draft, setDraft] = useState(nickname),
-    [saved, setSaved] = useState(false),
+    [saved, setSaved] = useState<'idle' | 'saved' | 'error'>('idle'),
+    [watchReady, setWatchReady] = useState(false),
     [watch, setWatch] = useState<{ states: string[]; entries: NotebookEntry[] }>({
       states: [],
       entries: [],
@@ -57,10 +61,11 @@ export function Profile({
     } catch {
       // Keep the empty local summary when notebook storage is unreadable.
     }
+    setWatchReady(true);
   }, []);
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    setSaved(onNickname(draft.trim().slice(0, 40)));
+    setSaved(onNickname(draft.trim().slice(0, 40)) ? 'saved' : 'error');
   }
   const initials = nickname
     .trim()
@@ -70,29 +75,48 @@ export function Profile({
     .join('')
     .toLocaleUpperCase('pt-BR');
   return (
-    <>
+    <div
+      className={observatory ? 'or-profile' : undefined}
+      style={observatory ? undefined : { display: 'contents' }}
+    >
       <section className="profile-hero panel">
         <div className="personal-avatar">{initials || <UserRound size={40} />}</div>
         <div>
-          <span className="eyebrow">SEU ESPAÇO NO OBSERVATÓRIO</span>
-          <h2>{nickname ? 'Olá, ' + nickname + '.' : 'Seu olhar sobre a eleição.'}</h2>
-          <p>Organize o que quer acompanhar e ajuste como prefere ver o app.</p>
+          <span className="eyebrow">
+            {observatory ? 'PREFERÊNCIAS DESTE APARELHO' : 'SEU ESPAÇO NO OBSERVATÓRIO'}
+          </span>
+          <h2>
+            {nickname
+              ? 'Olá, ' + nickname + '.'
+              : observatory
+                ? 'Do seu jeito.'
+                : 'Seu olhar sobre a eleição.'}
+          </h2>
+          <p>
+            {observatory
+              ? 'Escolha como acompanhar a eleição e o que manter à mão.'
+              : 'Organize o que quer acompanhar e ajuste como prefere ver o app.'}
+          </p>
           <span className="privacy-label">
             <ShieldCheck size={13} />
             Preferências pessoais salvas neste navegador
           </span>
         </div>
       </section>
-      <div className="profile-summary">
-        <button onClick={onWatch}>
+      <div
+        className="profile-summary"
+        aria-label="Resumo do seu acompanhamento"
+        aria-busy={!watchReady}
+      >
+        <button onClick={() => onWatch(observatory ? 'estados-seguidos' : undefined)}>
           <MapPin size={20} />
-          <strong>{watch.states.length}</strong>
+          <strong>{watchReady ? watch.states.length : '—'}</strong>
           <span>Estados seguidos</span>
           <ArrowUpRight size={15} />
         </button>
-        <button onClick={onWatch}>
+        <button onClick={() => onWatch(observatory ? 'seu-caderno' : undefined)}>
           <BookOpen size={20} />
-          <strong>{watch.entries.length}</strong>
+          <strong>{watchReady ? watch.entries.length : '—'}</strong>
           <span>Anotações no caderno</span>
           <ArrowUpRight size={15} />
         </button>
@@ -104,7 +128,7 @@ export function Profile({
         </button>
       </div>
       <div className="dashboard-grid equal">
-        <section className="panel">
+        <section className="panel or-profile-identity">
           <span className="section-index">IDENTIDADE LOCAL</span>
           <h2>Como quer ser chamado?</h2>
           <form onSubmit={submit}>
@@ -116,7 +140,7 @@ export function Profile({
                 value={draft}
                 onChange={(e) => {
                   setDraft(e.target.value);
-                  setSaved(false);
+                  setSaved('idle');
                 }}
                 placeholder="Seu nome aqui"
               />
@@ -125,21 +149,34 @@ export function Profile({
               <Check size={16} />
               Salvar meu nome
             </button>
-            {saved && (
+            {saved !== 'idle' && (
               <p className="save-hint" role="status">
-                Nome salvo neste aparelho.
+                {saved === 'saved'
+                  ? 'Nome salvo neste aparelho.'
+                  : 'Não foi possível salvar o nome. Tente novamente.'}
               </p>
             )}
           </form>
           <div className="profile-theme">
-            <span>Aparência</span>
+            <span>
+              Aparência
+              {observatory && (
+                <small>
+                  {theme === 'system'
+                    ? 'Acompanha o sistema do aparelho'
+                    : theme === 'light'
+                      ? 'Tema claro selecionado'
+                      : 'Tema escuro selecionado'}
+                </small>
+              )}
+            </span>
             <ThemeMenu value={theme} onChange={onTheme} />
           </div>
           <p className="fine">
             Seu perfil não é público. Não há conta ou foto visível para outras pessoas.
           </p>
         </section>
-        <section className="panel">
+        <section className="panel or-profile-candidates">
           <span className="section-index">SEU ACOMPANHAMENTO</span>
           <h2>Quem você quer acompanhar?</h2>
           <p className="fine">
@@ -183,12 +220,26 @@ export function Profile({
         </section>
       </div>
       <AnalysisPreference />
-      <PrivacyControls />
+      {observatory ? (
+        <div className="or-profile-privacy">
+          <Disclosure
+            title="Privacidade e dados deste aparelho"
+            summary="Estatísticas opcionais e orientações sobre suas escolhas"
+          >
+            <PrivacyControls />
+          </Disclosure>
+        </div>
+      ) : (
+        <PrivacyControls />
+      )}
       {watch.states.length > 0 && (
         <section className="panel profile-following">
           <div className="panel-head">
             <h2>Os lugares que você acompanha</h2>
-            <button className="text-button" onClick={onWatch}>
+            <button
+              className="text-button"
+              onClick={() => onWatch(observatory ? 'estados-seguidos' : undefined)}
+            >
               Abrir comparação
               <ArrowUpRight size={14} />
             </button>
@@ -217,7 +268,7 @@ export function Profile({
           <ArrowUpRight size={14} />
         </a>
       </div>
-    </>
+    </div>
   );
 }
 export function Alerts({

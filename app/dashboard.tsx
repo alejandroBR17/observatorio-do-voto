@@ -145,6 +145,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
     [search, setSearch] = useState('');
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system');
   const [selectedNote, setSelectedNote] = useState('');
+  const [watchSection, setWatchSection] = useState<'estados-seguidos' | 'seu-caderno'>();
   function contextNote(note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>) {
     try {
       const previous = readWatch(JSON.parse(localStorage.getItem('observatorio.watch') || '{}'));
@@ -238,6 +239,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
     }
   }
   const go = (next: string) => {
+    if (next !== 'watch') setWatchSection(undefined);
     setMobile(false);
     if (reviewOnly && next === 'overview') setRegion('Brasil');
     if (next === tab) {
@@ -998,9 +1000,11 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                         ? 'A eleição em debate.'
                         : reviewOnly && tab === 'watch'
                           ? 'Seu olhar sobre a eleição.'
-                          : tab === 'overview'
-                            ? 'O país em perspectiva.'
-                            : nav.find((n) => n[0] === tab)?.[1]}
+                          : reviewOnly && tab === 'profile'
+                            ? 'Seu espaço no observatório.'
+                            : tab === 'overview'
+                              ? 'O país em perspectiva.'
+                              : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
@@ -1228,11 +1232,16 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
             )}
             {tab === 'profile' && (
               <Profile
+                observatory={reviewOnly}
                 nickname={nickname}
                 onNickname={saveNickname}
                 favorite={favorite}
                 onFavorite={favoriteChange}
-                onWatch={() => go('watch')}
+                onWatch={(section) => {
+                  setSelectedNote('');
+                  setWatchSection(section);
+                  go('watch');
+                }}
                 onCustomize={() => {
                   setMobile(false);
                   setTermsReviewOnly(false);
@@ -2061,6 +2070,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                 {tab === 'watch' && (
                   <Watchboard
                     observatory={reviewOnly}
+                    focusSection={watchSection}
                     selectedNote={selectedNote}
                     favorite={favorite}
                     onAlerts={() => go('alerts')}
