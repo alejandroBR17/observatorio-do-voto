@@ -49,6 +49,48 @@
   stroke: var(--line);
   stroke-width: 1.5;
 }
+.recovery-document-shadow {
+  fill: var(--soft);
+  stroke: var(--line);
+}
+.recovery-document {
+  fill: var(--surface);
+  stroke: var(--muted);
+  stroke-opacity: 0.5;
+}
+.recovery-document-block {
+  fill: var(--soft);
+  stroke: var(--line);
+}
+.recovery-document-lines {
+  stroke: var(--muted);
+  stroke-opacity: 0.5;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.recovery-reload-disc {
+  fill: var(--surface);
+  stroke: var(--or-amber);
+  stroke-width: 1.5;
+}
+.recovery-reload-arrow {
+  stroke: var(--or-amber);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-origin: 236px 119px;
+  animation: recovery-reload-in 900ms ease-out both;
+}
+@keyframes recovery-reload-in {
+  from {
+    transform: rotate(-90deg);
+    opacity: 0.3;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
 .recovery-route-base {
   stroke: var(--muted);
   stroke-width: 1.5;
@@ -288,7 +330,8 @@
 @media (prefers-reduced-motion: reduce) {
   .recovery-route,
   .recovery-pulse,
-  .recovery-copy {
+  .recovery-copy,
+  .recovery-reload-arrow {
     animation: none;
   }
 }

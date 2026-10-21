@@ -26,19 +26,49 @@ export function RecoveryScreen({
       </header>
       <main>
         <div className="recovery-visual" aria-hidden="true">
-          <svg viewBox="0 0 320 170" fill="none">
-            <path
-              className="recovery-terrain"
-              d="M-10 110C50 45 75 170 140 90S230 10 340 65M-10 140C70 75 90 200 170 115S260 40 340 100M-10 60C45 0 90 100 150 45S245-20 340 25"
-            />
-            <path className="recovery-route-base" d="M32 126L95 96L149 110L209 51L286 42" />
-            <path className="recovery-route" d="M32 126L95 96L149 110L209 51" />
-            <circle className="recovery-point" cx="32" cy="126" r="5" />
-            <circle className="recovery-point" cx="95" cy="96" r="5" />
-            <circle className="recovery-point" cx="149" cy="110" r="5" />
-            <circle className="recovery-destination" cx="209" cy="51" r="16" />
-            <circle className="recovery-pulse" cx="209" cy="51" r="27" />
-          </svg>
+          {missing ? (
+            <svg viewBox="0 0 320 170" fill="none">
+              <path
+                className="recovery-terrain"
+                d="M-10 110C50 45 75 170 140 90S230 10 340 65M-10 140C70 75 90 200 170 115S260 40 340 100M-10 60C45 0 90 100 150 45S245-20 340 25"
+              />
+              <path className="recovery-route-base" d="M32 126L95 96L149 110L209 51L286 42" />
+              <path className="recovery-route" d="M32 126L95 96L149 110L209 51" />
+              <circle className="recovery-point" cx="32" cy="126" r="5" />
+              <circle className="recovery-point" cx="95" cy="96" r="5" />
+              <circle className="recovery-point" cx="149" cy="110" r="5" />
+              <circle className="recovery-destination" cx="209" cy="51" r="16" />
+              <circle className="recovery-pulse" cx="209" cy="51" r="27" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 320 170" fill="none">
+              <rect
+                className="recovery-document-shadow"
+                x="62"
+                y="18"
+                width="210"
+                height="128"
+                rx="14"
+              />
+              <rect className="recovery-document" x="48" y="28" width="210" height="128" rx="14" />
+              <rect
+                className="recovery-document-block"
+                x="68"
+                y="48"
+                width="28"
+                height="28"
+                rx="6"
+              />
+              <path
+                className="recovery-document-lines"
+                d="M110 52H232M110 66H192M68 94H225M68 109H167M68 124H146"
+              />
+              <circle className="recovery-reload-disc" cx="236" cy="119" r="30" />
+              <g className="recovery-reload-arrow">
+                <path d="M249 116a14 14 0 1 0-3 13M249 105v11h-11" />
+              </g>
+            </svg>
+          )}
           <div className="recovery-map-caption">
             {missing ? <strong>404</strong> : <RotateCcw size={22} />}
             <span>{missing ? 'Vamos por outro caminho' : 'Pronto para tentar de novo'}</span>
