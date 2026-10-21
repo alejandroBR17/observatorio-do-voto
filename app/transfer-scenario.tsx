@@ -2,7 +2,18 @@
 import { useState } from 'react';
 import { RotateCcw, ArrowDown } from 'lucide-react';
 import { transferScenario } from '@/lib/poll-view';
-export function TransferScenario({ a, b, others }: { a: number; b: number; others: number }) {
+import { candidates } from '@/lib/content';
+export function TransferScenario({
+  a,
+  b,
+  others,
+  observatory = false,
+}: {
+  a: number;
+  b: number;
+  others: number;
+  observatory?: boolean;
+}) {
   const [toA, setToA] = useState(50),
     [excluded, setExcluded] = useState(10),
     s = transferScenario(a, b, others, toA, excluded);
@@ -31,6 +42,7 @@ export function TransferScenario({ a, b, others }: { a: number; b: number; other
           min="0"
           max="100"
           value={excluded}
+          aria-valuetext={`${excluded}% sem voto em candidato`}
           onChange={(e) => setExcluded(+e.target.value)}
         />
         <p className="fine">Nesta hipótese, essa parcela se abstém ou vota branco/nulo.</p>
@@ -44,6 +56,7 @@ export function TransferScenario({ a, b, others }: { a: number; b: number; other
           min="0"
           max="100"
           value={toA}
+          aria-valuetext={`${toA}% para Flávio e ${100 - toA}% para Lula, dos votos restantes`}
           onChange={(e) => setToA(+e.target.value)}
         />
         <div className="transfer-range-labels">
@@ -54,12 +67,16 @@ export function TransferScenario({ a, b, others }: { a: number; b: number; other
       <p className="fine">A cada 100 votos desse grupo, a distribuição seria:</p>
       <div className="transfer-destinations">
         <div>
-          <span>Flávio</span>
+          <span className="transfer-candidate">
+            {observatory && <img src={candidates[0].photo} width="36" height="36" alt="" />}Flávio
+          </span>
           <strong>{pct(s.aShare)}</strong>
           <small>{votes(s.aVotes - a)} votos transferidos</small>
         </div>
         <div>
-          <span>Lula</span>
+          <span className="transfer-candidate">
+            {observatory && <img src={candidates[1].photo} width="36" height="36" alt="" />}Lula
+          </span>
           <strong>{pct(s.bShare)}</strong>
           <small>{votes(s.bVotes - b)} votos transferidos</small>
         </div>
@@ -69,7 +86,7 @@ export function TransferScenario({ a, b, others }: { a: number; b: number; other
           <small>{votes(s.excluded)} votos fora dos válidos</small>
         </div>
       </div>
-      <div className="transfer-result">
+      <div className="transfer-result" role="status" aria-live="polite" aria-atomic="true">
         <span className="eyebrow">RESULTADO DESTA HIPÓTESE · VOTOS VÁLIDOS</span>
         <div className="poll-big">
           <span style={{ color: 'var(--candidate-a)' }}>
@@ -95,7 +112,7 @@ export function TransferScenario({ a, b, others }: { a: number; b: number; other
         </p>
       </details>
       <button
-        className="text-button"
+        className={observatory ? 'button secondary' : 'text-button'}
         onClick={() => {
           setToA(50);
           setExcluded(10);

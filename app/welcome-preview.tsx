@@ -10,8 +10,8 @@ export function WelcomePreview() {
         <span className="eyebrow">OBSERVATÓRIO DO VOTO · PRÉVIA</span>
         <h1>Boas-vindas ao observatório.</h1>
         <p>
-          Revise as etapas de personalização. Esta demonstração não salva escolhas nem ativa
-          serviços.
+          Percorra todas as etapas, incluindo o aceite e a ativação simulados. Ao concluir, você
+          volta para esta tela. Nenhuma escolha é salva e nenhum serviço é ativado.
         </p>
         <button className="button primary" onClick={() => setOpen(true)}>
           Reabrir boas-vindas

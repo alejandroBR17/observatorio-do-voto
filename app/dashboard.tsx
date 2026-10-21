@@ -2067,7 +2067,12 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                       title="Simular transferência de votos"
                       summary="Distribua os votos dos demais candidatos e veja uma hipótese de segundo turno."
                     >
-                      <TransferScenario a={f?.votes || 0} b={l?.votes || 0} others={others} />
+                      <TransferScenario
+                        a={f?.votes || 0}
+                        b={l?.votes || 0}
+                        others={others}
+                        observatory={reviewOnly}
+                      />
                     </Disclosure>
                   </>
                 )}

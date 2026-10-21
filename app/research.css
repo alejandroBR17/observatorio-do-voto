@@ -428,3 +428,99 @@
     transition: none;
   }
 }
+.control-room .transfer-lab {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.control-room .transfer-lab > h2,
+.control-room .transfer-lab > p {
+  margin: 0;
+}
+.control-room .transfer-lab > h2 {
+  font-size: clamp(23px, 3vw, 32px);
+  max-width: 28ch;
+}
+.control-room .transfer-lab p,
+.control-room .transfer-controls label {
+  font-size: 15px;
+  line-height: 1.65;
+}
+.control-room .transfer-origin {
+  margin: 0;
+  padding: 24px;
+  background: radial-gradient(ellipse at top right, var(--or-glow), transparent 70%), var(--soft);
+  font-size: 14px;
+  text-align: center;
+}
+.control-room .transfer-origin > svg,
+.control-room .transfer-controls label strong {
+  color: var(--or-amber);
+}
+.control-room .transfer-controls {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 4px 24px 0;
+  background: var(--surface);
+}
+.control-room .transfer-controls input {
+  accent-color: var(--or-amber);
+  min-height: 44px;
+}
+.control-room .transfer-controls input:focus-visible {
+  outline: 2px solid var(--or-amber);
+  outline-offset: 4px;
+}
+.control-room .transfer-range-labels {
+  font-size: 14px;
+}
+.control-room .transfer-destinations {
+  margin: 0;
+}
+.control-room .transfer-destinations span,
+.control-room .transfer-destinations small {
+  font-size: 14px;
+}
+.control-room .transfer-candidate {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 600;
+}
+.control-room .transfer-candidate img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+.control-room .transfer-result {
+  margin: 0;
+  padding: 24px;
+  background: var(--surface);
+}
+.control-room .transfer-lab > .button {
+  justify-self: start;
+}
+@media (max-width: 600px) {
+  .control-room .transfer-controls,
+  .control-room .transfer-result {
+    padding: 18px;
+  }
+  .control-room .transfer-destinations {
+    grid-template-columns: 1fr;
+  }
+  .control-room .transfer-destinations > div {
+    padding: 18px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+  .control-room .transfer-destinations small {
+    grid-column: 1 / -1;
+  }
+  .control-room .transfer-destinations strong {
+    font-size: 27px;
+  }
+  .control-room .transfer-controls label {
+    font-size: 15px;
+  }
+}

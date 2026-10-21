@@ -65,6 +65,10 @@ export function Onboarding({
     [details, setDetails] = useState(reading === 'detailed'),
     [accepted, setAccepted] = useState(false);
   const [analytics, setAnalytics] = useState(false);
+  const [previewConsent, setPreviewConsent] = useState(false);
+  const [previewActivated, setPreviewActivated] = useState(false);
+  const alertsActive = reviewOnly ? previewActivated : notification === 'Ativadas';
+  const alertsConsent = reviewOnly ? previewConsent : consentAccepted;
   useEffect(() => {
     if (!reviewOnly) setAnalytics(!!readPrivacyChoice('analytics'));
   }, [reviewOnly]);
@@ -94,21 +98,30 @@ export function Onboarding({
     dialog.current?.scrollTo({ top: 0 });
   }, [step]);
   async function activate() {
-    if (reviewOnly) return;
-    if (activating || !accepted || !consentAccepted) return;
+    if (activating || !accepted || !alertsConsent) return;
+    if (reviewOnly) {
+      setPreviewActivated(true);
+      setStep(5);
+      return;
+    }
     setActivating(true);
     try {
       const result = await onEnable();
       setMessage(result.message);
       if (result.ok) setStep(5);
+    } catch {
+      setMessage('Não foi possível ativar agora. Tente novamente ou continue sem notificações.');
     } finally {
       setActivating(false);
     }
   }
   function finish(alerts = false) {
-    if (reviewOnly) return;
     if (!accepted) {
       setMessage('Leia e aceite os Termos de Uso para continuar.');
+      return;
+    }
+    if (reviewOnly) {
+      onDismiss?.();
       return;
     }
     if (
@@ -150,7 +163,7 @@ export function Onboarding({
             </nav>
           </details>
           <button onClick={onDismiss}>Fechar prévia</button>
-          <small>Nada é salvo ou enviado.</small>
+          <small>Simulação interativa. Nenhum aceite, preferência ou inscrição é salvo.</small>
         </div>
       )}
       <div className="welcome-layout">
@@ -354,16 +367,15 @@ export function Onboarding({
                 <label className="terms-check">
                   <input
                     type="checkbox"
-                    disabled={reviewOnly}
                     checked={accepted}
                     onChange={(e) => setAccepted(e.target.checked)}
                   />
                   <span>
-                    Li e aceito os{' '}
+                    {reviewOnly ? 'Simular o aceite dos ' : 'Li e aceito os '}
                     <a href="/termos" target="_blank" rel="noreferrer">
                       Termos de Uso
                     </a>
-                    .
+                    .{reviewOnly && ' Sem validade ou registro de consentimento.'}
                   </span>
                 </label>
               </>
@@ -376,25 +388,32 @@ export function Onboarding({
                   <Bell size={23} />
                   <div>
                     <strong>
-                      {notification === 'Ativadas'
-                        ? 'Seus alertas estão ativados'
-                        : 'Você escolhe o que receber'}
+                      {alertsActive ? 'Seus alertas estão ativados' : 'Você escolhe o que receber'}
                     </strong>
-                    {notification === 'Ativadas' && (
-                      <p>Categorias e frequência podem ser ajustadas em Alertas.</p>
-                    )}
-                    {notification !== 'Ativadas' && (
-                      <fieldset className="welcome-consent-preview" disabled={reviewOnly}>
-                        <PushConsent checked={consentAccepted} onChange={onConsent} />
+                    {alertsActive && <p>Categorias e frequência podem ser ajustadas em Alertas.</p>}
+                    {!alertsActive && (
+                      <fieldset className="welcome-consent-preview">
+                        <PushConsent
+                          simulation={reviewOnly}
+                          checked={alertsConsent}
+                          onChange={reviewOnly ? setPreviewConsent : onConsent}
+                        />
                       </fieldset>
                     )}
-                    {!supported && (
+                    {!reviewOnly && !supported && (
                       <p className="fine">
                         No iPhone, adicione à Tela de Início e abra pelo ícone instalado para
                         ativar.
                       </p>
                     )}
-                    {serviceMessage && <p className="fine">{serviceMessage}</p>}
+                    {reviewOnly ? (
+                      <p className="fine">
+                        Teste o próximo passo sem pedir permissão ao navegador nem ativar alertas
+                        reais.
+                      </p>
+                    ) : serviceMessage ? (
+                      <p className="fine">{serviceMessage}</p>
+                    ) : null}
                   </div>
                 </div>
               </>
@@ -404,8 +423,17 @@ export function Onboarding({
                   Se quiser, ajude a melhorar o app com estatísticas de acesso. A escolha é
                   opcional.
                 </p>
-                <fieldset className="welcome-consent-preview" disabled={reviewOnly}>
-                  <AnalyticsConsent checked={analytics} onChange={setAnalytics} />
+                {reviewOnly && previewActivated && (
+                  <p className="welcome-feedback" role="status">
+                    Fluxo de ativação simulado. Nenhuma notificação real foi ativada.
+                  </p>
+                )}
+                <fieldset className="welcome-consent-preview">
+                  <AnalyticsConsent
+                    simulation={reviewOnly}
+                    checked={analytics}
+                    onChange={setAnalytics}
+                  />
                 </fieldset>
               </>
             )}
@@ -431,7 +459,7 @@ export function Onboarding({
                   <ChevronLeft size={14} />
                   Voltar
                 </button>
-                {step === 4 && notification !== 'Ativadas' && (
+                {step === 4 && !alertsActive && (
                   <button className="text-button" disabled={activating} onClick={() => setStep(5)}>
                     Agora não
                   </button>
@@ -442,22 +470,26 @@ export function Onboarding({
                     activating ||
                     (step >= welcomeTermsStep && !accepted) ||
                     (step === 4 &&
-                      notification !== 'Ativadas' &&
-                      (!accepted || !consentAccepted || !supported || !serviceReady))
+                      !alertsActive &&
+                      (!alertsConsent || (!reviewOnly && (!supported || !serviceReady))))
                   }
                   aria-busy={activating}
                   onClick={() => {
                     if (step === 5) finish();
-                    else if (step === 4 && notification !== 'Ativadas') void activate();
+                    else if (step === 4 && !alertsActive) void activate();
                     else setStep(step + 1);
                   }}
                 >
                   {activating
                     ? 'Ativando…'
                     : step === 5
-                      ? 'Entrar no Observatório'
-                      : step === 4 && notification !== 'Ativadas'
-                        ? 'Ativar e continuar'
+                      ? reviewOnly
+                        ? 'Concluir simulação'
+                        : 'Entrar no Observatório'
+                      : step === 4 && !alertsActive
+                        ? reviewOnly
+                          ? 'Simular ativação e continuar'
+                          : 'Ativar e continuar'
                         : 'Continuar'}
                   <ArrowRight size={16} />
                 </button>
@@ -469,7 +501,7 @@ export function Onboarding({
               {message}
             </p>
           )}
-          {step === 5 && (
+          {step === 5 && !reviewOnly && (
             <button className="welcome-alerts" disabled={!accepted} onClick={() => finish(true)}>
               <SlidersHorizontal size={15} />
               Entrar e escolher categorias de alertas

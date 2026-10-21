@@ -3,7 +3,9 @@ import { pushConsentText, pushTransferText } from '@/lib/privacy';
 export function PushConsent({
   checked,
   onChange,
+  simulation = false,
 }: {
+  simulation?: boolean;
   checked: boolean;
   onChange: (checked: boolean) => void;
 }) {
@@ -15,7 +17,11 @@ export function PushConsent({
           checked={checked}
           onChange={(event) => onChange(event.target.checked)}
         />
-        <span>{pushConsentText}</span>
+        <span>
+          {simulation
+            ? 'Simular autorização de notificações (nenhum dado será enviado).'
+            : pushConsentText}
+        </span>
       </label>
       <p className="fine">{pushTransferText}</p>
       <a
@@ -32,7 +38,9 @@ export function PushConsent({
 export function AnalyticsConsent({
   checked,
   onChange,
+  simulation = false,
 }: {
+  simulation?: boolean;
   checked: boolean;
   onChange: (checked: boolean) => void;
 }) {
@@ -44,7 +52,11 @@ export function AnalyticsConsent({
           checked={checked}
           onChange={(event) => onChange(event.target.checked)}
         />
-        <span>Quero ajudar a melhorar o app com estatísticas de acesso opcionais.</span>
+        <span>
+          {simulation
+            ? 'Simular a escolha de estatísticas opcionais (sem ativar coleta).'
+            : 'Quero ajudar a melhorar o app com estatísticas de acesso opcionais.'}
+        </span>
       </label>
       <p className="fine">
         A Vercel pode processar dados técnicos da visita fora do Brasil. Os relatórios mostram
