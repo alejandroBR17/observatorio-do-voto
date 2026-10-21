@@ -1,0 +1,437 @@
+.welcome-consent-preview {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.welcome-preview-page {
+  max-width: 800px;
+  margin: 80px auto;
+  padding: 24px;
+}
+.welcome-preview-page h1 {
+  font-size: 36px;
+  line-height: 1.2;
+}
+.welcome-preview-page p {
+  font-size: 16px;
+  line-height: 1.7;
+}
+.welcome-preview-page > .button {
+  margin: 16px 12px 0 0;
+}
+.welcome-dialog.or-welcome {
+  box-sizing: border-box;
+  max-width: calc(100vw - 40px);
+  width: min(1060px, calc(100vw - 40px));
+  max-height: calc(100dvh - 40px);
+  border-radius: 22px;
+  box-shadow: 0 24px 100px #0003;
+}
+.or-welcome::backdrop {
+  background: #0e1419c9;
+}
+.or-welcome .welcome-layout {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  align-items: stretch;
+}
+.or-welcome .welcome-story {
+  border-radius: 0;
+  background: var(--bg);
+  color: var(--ink);
+  border-right: 1px solid var(--line);
+  padding: 32px;
+  gap: 26px;
+}
+.or-welcome .welcome-brand {
+  color: var(--ink);
+  font-size: 26px;
+  letter-spacing: -0.7px;
+}
+.or-welcome .welcome-brand img {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+}
+.or-welcome .welcome-brand small {
+  font-size: 10px;
+  letter-spacing: 4px;
+}
+.or-welcome .welcome-story .eyebrow {
+  color: var(--or-amber);
+  font-size: 10px;
+  line-height: 1.8;
+  letter-spacing: 0.8px;
+}
+.or-welcome .welcome-story h2 {
+  font-size: 34px;
+  line-height: 1.2;
+  margin: 16px 0;
+  letter-spacing: -1px;
+}
+.or-welcome .welcome-story h2 em {
+  color: var(--or-amber);
+}
+.or-welcome .welcome-story p {
+  max-width: none;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.or-welcome .welcome-art {
+  color: var(--or-amber);
+  height: 90px;
+  padding: 0;
+  margin: 20px 0;
+}
+.or-welcome .welcome-art i {
+  border-color: var(--line);
+}
+.or-welcome .welcome-steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 0;
+  padding: 0;
+}
+.or-welcome .welcome-steps li {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  gap: 12px;
+}
+.or-welcome .welcome-step-number {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+.or-welcome .welcome-steps .current {
+  color: var(--ink);
+}
+.or-welcome .welcome-steps .current .welcome-step-number {
+  color: var(--bg);
+  background: var(--or-amber);
+  border-color: var(--or-amber);
+}
+.or-welcome .welcome-steps .done .welcome-step-number {
+  background: var(--soft);
+  color: var(--or-amber);
+  border-color: var(--line);
+}
+.or-welcome .welcome-pane {
+  padding: 32px;
+  min-width: 0;
+  align-self: start;
+}
+.or-welcome .welcome-step-heading {
+  font-size: 11px;
+  line-height: 1.7;
+  gap: 12px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+.or-welcome .welcome-step-heading > span:first-child {
+  color: var(--or-amber);
+}
+.or-welcome .welcome-content h2 {
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  margin: 0 0 20px;
+}
+.or-welcome .welcome-content p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--muted);
+  max-width: none;
+}
+.or-welcome .welcome-content .fine {
+  font-size: 13px;
+  line-height: 1.75;
+}
+.or-welcome .form-label {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.or-welcome .form-label small {
+  font-size: 12px;
+}
+.or-welcome .form-label input {
+  min-width: 0;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  background: var(--bg);
+  font-size: 16px;
+}
+.or-welcome .welcome-promise,
+.or-welcome .welcome-terms,
+.or-welcome .welcome-notifications {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+}
+.or-welcome .welcome-promise strong,
+.or-welcome .welcome-terms strong,
+.or-welcome .welcome-notifications strong {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.or-welcome .welcome-promise p,
+.or-welcome .welcome-terms p,
+.or-welcome .welcome-notifications p {
+  font-size: 14px;
+  line-height: 1.75;
+}
+.or-welcome .welcome-promise > svg,
+.or-welcome .welcome-terms > svg,
+.or-welcome .welcome-notifications > svg {
+  color: var(--or-amber);
+}
+.or-welcome .preference-options {
+  display: grid;
+  gap: 12px;
+}
+.or-welcome .preference-options button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 72px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.or-welcome .preference-options button.chosen {
+  border-color: var(--or-amber);
+  background: var(--or-glow);
+  box-shadow: inset 0 0 0 1px var(--or-amber);
+}
+.or-welcome .preference-options button small {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.or-welcome .preference-options button img {
+  width: 44px;
+  height: 54px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.or-welcome .welcome-reading-option {
+  padding: 18px;
+  background: var(--bg);
+  border-radius: 13px;
+}
+.or-welcome .welcome-reading-option:has(input:checked) {
+  border-color: var(--or-amber);
+  background: var(--or-glow);
+}
+.or-welcome .welcome-reading-copy {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.or-welcome .welcome-reading-copy strong {
+  font-size: 18px;
+}
+.or-welcome .welcome-reading-preview > span {
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 5px 8px;
+  background: var(--surface);
+}
+.or-welcome .terms-check {
+  font-size: 14px;
+  line-height: 1.75;
+}
+.or-welcome input[type='checkbox'],
+.or-welcome input[type='radio'] {
+  accent-color: var(--or-amber);
+  flex-shrink: 0;
+}
+.or-welcome .privacy-choice {
+  background: var(--surface);
+  padding: 16px;
+  border-radius: 12px;
+}
+.or-welcome .welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 28px;
+}
+.or-welcome .button,
+.or-welcome .text-button,
+.or-welcome .legal-links a,
+.or-welcome .welcome-alerts {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: normal;
+  text-decoration: none;
+}
+.or-welcome .button.primary {
+  background: var(--or-amber);
+  border-color: var(--or-amber);
+  color: var(--bg);
+  font-weight: 600;
+}
+.or-welcome button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.or-welcome button:focus-visible,
+.or-welcome a:focus-visible,
+.or-welcome input:focus-visible,
+.or-welcome summary:focus-visible {
+  outline: 2px solid var(--or-amber);
+  outline-offset: 4px;
+}
+.or-welcome .legal-links {
+  gap: 10px;
+  text-decoration: none;
+}
+.or-welcome .legal-links a {
+  color: var(--or-amber);
+}
+.or-welcome .welcome-alerts {
+  margin-top: 16px;
+  width: 100%;
+}
+.welcome-review-bar {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.welcome-review-bar details {
+  min-width: 0;
+}
+.welcome-review-bar summary {
+  min-height: 36px;
+  cursor: pointer;
+  padding: 7px 0;
+}
+.welcome-review-bar nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.welcome-review-bar button {
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 8px;
+  font-size: 12px;
+}
+.welcome-review-bar nav button[aria-pressed='true'] {
+  border-color: var(--or-amber);
+  color: var(--or-amber);
+}
+.welcome-review-bar small {
+  width: auto;
+  align-self: center;
+  color: var(--muted);
+}
+@media (max-width: 800px) {
+  .welcome-dialog.or-welcome {
+    max-width: calc(100vw - 24px);
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+  .or-welcome .welcome-layout {
+    display: block;
+  }
+  .or-welcome .welcome-story {
+    padding: 20px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    gap: 18px;
+  }
+  .or-welcome .welcome-story-copy {
+    display: none;
+  }
+  .or-welcome .welcome-steps {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+  }
+  .or-welcome .welcome-step-label {
+    display: none;
+  }
+  .or-welcome .welcome-steps li {
+    justify-content: center;
+  }
+  .or-welcome .welcome-brand {
+    font-size: 23px;
+  }
+  .or-welcome .welcome-pane {
+    padding: 24px 20px;
+  }
+  .or-welcome .welcome-content h2 {
+    font-size: 29px;
+  }
+  .or-welcome .welcome-step-heading {
+    margin-bottom: 20px;
+  }
+}
+@media (max-width: 380px) {
+  .or-welcome .welcome-pane {
+    padding: 22px 16px;
+  }
+  .or-welcome .welcome-content h2 {
+    font-size: 27px;
+  }
+  .or-welcome .welcome-actions > .button,
+  .or-welcome .welcome-actions > .text-button {
+    width: 100%;
+  }
+  .or-welcome .welcome-actions {
+    flex-direction: column-reverse;
+  }
+  .or-welcome .welcome-promise,
+  .or-welcome .welcome-terms,
+  .or-welcome .welcome-notifications {
+    padding: 16px;
+  }
+  .or-welcome .welcome-promise > svg,
+  .or-welcome .welcome-notifications > svg {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-dialog.or-welcome,
+  .or-welcome .welcome-content {
+    animation: none;
+  }
+}

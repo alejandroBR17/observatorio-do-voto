@@ -39,7 +39,13 @@ export function Onboarding({
   initialStep = 0,
   consentAccepted,
   onConsent,
+  observatory = false,
+  reviewOnly = false,
+  onDismiss,
 }: {
+  observatory?: boolean;
+  reviewOnly?: boolean;
+  onDismiss?: () => void;
   nickname: string;
   favorite: string;
   onFinish: (choices: WelcomeChoices, alerts: boolean) => boolean;
@@ -59,7 +65,9 @@ export function Onboarding({
     [details, setDetails] = useState(reading === 'detailed'),
     [accepted, setAccepted] = useState(false);
   const [analytics, setAnalytics] = useState(false);
-  useEffect(() => setAnalytics(!!readPrivacyChoice('analytics')), []);
+  useEffect(() => {
+    if (!reviewOnly) setAnalytics(!!readPrivacyChoice('analytics'));
+  }, [reviewOnly]);
   const [supported, setSupported] = useState(false),
     [activating, setActivating] = useState(false),
     [message, setMessage] = useState('');
@@ -86,6 +94,7 @@ export function Onboarding({
     dialog.current?.scrollTo({ top: 0 });
   }, [step]);
   async function activate() {
+    if (reviewOnly) return;
     if (activating || !accepted || !consentAccepted) return;
     setActivating(true);
     try {
@@ -97,6 +106,7 @@ export function Onboarding({
     }
   }
   function finish(alerts = false) {
+    if (reviewOnly) return;
     if (!accepted) {
       setMessage('Leia e aceite os Termos de Uso para continuar.');
       return;
@@ -112,13 +122,37 @@ export function Onboarding({
   return (
     <dialog
       ref={dialog}
-      className="welcome-dialog"
+      className={`welcome-dialog${observatory ? ' or-welcome' : ''}`}
       aria-labelledby="welcome-title"
       onCancel={(e) => {
         e.preventDefault();
+        if (reviewOnly) {
+          onDismiss?.();
+          return;
+        }
         setStep(welcomeTermsStep);
       }}
     >
+      {reviewOnly && (
+        <div className="welcome-review-bar">
+          <details>
+            <summary>Prévia visual · ver outra etapa</summary>
+            <nav aria-label="Etapas da prévia">
+              {welcomeSteps.map((item, index) => (
+                <button
+                  key={item.label}
+                  aria-pressed={step === index}
+                  onClick={() => setStep(index)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </details>
+          <button onClick={onDismiss}>Fechar prévia</button>
+          <small>Nada é salvo ou enviado.</small>
+        </div>
+      )}
       <div className="welcome-layout">
         <aside className="welcome-story">
           <div className="welcome-brand">
@@ -171,7 +205,15 @@ export function Onboarding({
           </header>
           <div className="welcome-content" key={step}>
             <h2 id="welcome-title" tabIndex={-1}>
-              {welcomeSteps[step].title}
+              {observatory && step === 0
+                ? 'Bem-vindo ao Observatório.'
+                : observatory && step === 1
+                  ? 'Quem você quer acompanhar?'
+                  : observatory && step === 2
+                    ? 'Quanto detalhe quer ver?'
+                    : observatory && step === 5
+                      ? 'Ajude a melhorar o app.'
+                      : welcomeSteps[step].title}
             </h2>
             {step === 0 ? (
               <>
@@ -312,6 +354,7 @@ export function Onboarding({
                 <label className="terms-check">
                   <input
                     type="checkbox"
+                    disabled={reviewOnly}
                     checked={accepted}
                     onChange={(e) => setAccepted(e.target.checked)}
                   />
@@ -341,7 +384,9 @@ export function Onboarding({
                       <p>Categorias e frequência podem ser ajustadas em Alertas.</p>
                     )}
                     {notification !== 'Ativadas' && (
-                      <PushConsent checked={consentAccepted} onChange={onConsent} />
+                      <fieldset className="welcome-consent-preview" disabled={reviewOnly}>
+                        <PushConsent checked={consentAccepted} onChange={onConsent} />
+                      </fieldset>
                     )}
                     {!supported && (
                       <p className="fine">
@@ -359,7 +404,9 @@ export function Onboarding({
                   Se quiser, ajude a melhorar o app com estatísticas de acesso. A escolha é
                   opcional.
                 </p>
-                <AnalyticsConsent checked={analytics} onChange={setAnalytics} />
+                <fieldset className="welcome-consent-preview" disabled={reviewOnly}>
+                  <AnalyticsConsent checked={analytics} onChange={setAnalytics} />
+                </fieldset>
               </>
             )}
           </div>

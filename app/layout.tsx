@@ -31,6 +31,8 @@ import './app-experience.css';
 import './history.css';
 import './municipality.css';
 import './live-observatory.css';
+import './night-observatory.css';
+import './welcome-observatory.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),

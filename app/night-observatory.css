@@ -1,0 +1,342 @@
+.election-night.or-night {
+  --bg: #f2f0e9;
+  --surface: #fcfbf7;
+  --ink: #242c30;
+  --muted: #647074;
+  --line: #d9ddd7;
+  --soft: #e9ece6;
+  --accent: #94621b;
+  --green: #94621b;
+}
+:root[data-theme='dark'] .election-night.or-night {
+  --bg: #0e1419;
+  --surface: #151d23;
+  --ink: #e9ebe7;
+  --muted: #a0abaa;
+  --line: #2b353b;
+  --soft: #1c272d;
+  --accent: #e6bb73;
+  --green: #e6bb73;
+}
+.or-night .night-header {
+  padding: 18px 32px;
+  min-height: 88px;
+  box-sizing: border-box;
+}
+.or-night .night-header .eyebrow {
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 1.1px;
+  line-height: 1.7;
+}
+.or-night .night-header h2 {
+  font-size: clamp(22px, 2vw, 28px);
+  letter-spacing: -0.7px;
+  line-height: 1.2;
+}
+.or-night .night-content {
+  max-width: 1480px;
+  padding: 24px 32px 48px;
+}
+.or-night-scope {
+  position: sticky;
+  top: var(--night-header-height, 88px);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 32px;
+}
+.or-night-scope > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.or-night-scope svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.or-night-scope span {
+  display: grid;
+  gap: 4px;
+}
+.or-night-scope strong {
+  font-size: 17px;
+  line-height: 1.3;
+}
+.or-night-scope small {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.or-night .night-preview-label {
+  background: var(--soft);
+  border-color: var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.or-night .night-preview-label strong {
+  font-size: 12px;
+  line-height: 1.7;
+  letter-spacing: 0.6px;
+}
+.or-night .night-preview-label p,
+.or-night .night-live-label {
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: none;
+}
+.or-night .night-grid {
+  gap: 24px;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  align-items: start;
+}
+.or-night .night-scoreboard,
+.or-night .night-map,
+.or-night .night-progression {
+  padding: 26px;
+  border-radius: 18px;
+}
+.or-night h3 {
+  font-size: 25px;
+  line-height: 1.3;
+  letter-spacing: -0.6px;
+  margin: 12px 0 18px;
+}
+.or-night .night-total {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.or-night .night-total strong {
+  font-size: 42px;
+  letter-spacing: -1.2px;
+  line-height: 1.3;
+}
+.or-night .night-scoreboard progress {
+  appearance: none;
+  display: block;
+  border: none;
+  background: var(--soft);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.or-night progress::-webkit-progress-bar {
+  background: var(--soft);
+}
+.or-night progress::-webkit-progress-value {
+  background: var(--accent);
+  border-radius: 6px;
+}
+.or-night progress::-moz-progress-bar {
+  background: var(--accent);
+}
+.or-night .night-candidate {
+  display: grid;
+  grid-template-columns: 24px 60px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 20px 0;
+}
+.or-night .night-portrait {
+  width: 60px;
+  height: 76px;
+  border-radius: 11px;
+}
+.or-night .night-candidate h4 {
+  font-size: 21px;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+  overflow-wrap: anywhere;
+}
+.or-night .night-candidate small {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.or-night .night-candidate > strong {
+  font-size: 29px;
+  line-height: 1.3;
+  letter-spacing: -0.6px;
+}
+.or-night-vote-track {
+  height: 5px;
+  background: var(--soft);
+  overflow: hidden;
+  border-radius: 5px;
+  margin-top: 12px;
+}
+.or-night-vote-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--night-candidate-color);
+}
+.or-night .button,
+.or-night .text-button,
+.or-night .source {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 11px 14px;
+  white-space: normal;
+  text-decoration: none;
+}
+.or-night .source {
+  color: var(--accent);
+  margin-top: 16px;
+}
+.or-night .button:hover,
+.or-night .text-button:hover,
+.or-night .source:hover {
+  border-color: var(--accent);
+}
+.or-night .button:focus-visible,
+.or-night .text-button:focus-visible,
+.or-night .source:focus-visible,
+.or-night select:focus-visible,
+.or-night summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.or-night .fine,
+.or-night .data-freshness {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.or-night .night-map .map-wrap {
+  max-width: none;
+}
+.or-night .night-map .brazil-map {
+  max-height: 420px;
+}
+.or-night-state {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.or-night-state select {
+  width: 100%;
+  min-height: 46px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.or-night .table-scroll {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.or-night table {
+  min-width: 540px;
+  font-size: 14px;
+}
+.or-night summary {
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 44px;
+  cursor: pointer;
+  padding: 12px 0;
+  color: var(--accent);
+}
+.or-night .map-legend {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.or-night .line-series-lula {
+  stroke: #c96856;
+}
+.or-night .line-series-bolsonaro {
+  stroke: #24796d;
+}
+@media (max-width: 900px) {
+  .or-night .night-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .or-night .night-header {
+    padding: 14px 16px;
+    min-height: 132px;
+    flex-wrap: wrap;
+    align-content: center;
+    gap: 12px;
+  }
+  .or-night .night-header h2 {
+    font-size: 21px;
+    margin-top: 3px;
+  }
+  .or-night .night-header > div:first-child {
+    width: 100%;
+  }
+  .or-night .night-controls {
+    margin-left: auto;
+  }
+  .or-night-scope {
+    top: var(--night-header-height, 156px);
+    padding: 12px 16px;
+  }
+  .or-night-scope strong {
+    font-size: 16px;
+  }
+  .or-night-scope small {
+    font-size: 12px;
+  }
+  .or-night .night-content {
+    padding: 20px 16px 40px;
+  }
+  .or-night .night-scoreboard,
+  .or-night .night-map,
+  .or-night .night-progression {
+    padding: 20px 16px;
+    border-radius: 14px;
+  }
+  .or-night .night-candidate {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 10px 12px;
+  }
+  .or-night .night-candidate > .night-rank {
+    display: none;
+  }
+  .or-night .night-portrait {
+    width: 48px;
+    height: 62px;
+  }
+  .or-night .night-candidate h4 {
+    font-size: 20px;
+  }
+  .or-night .night-candidate > strong {
+    grid-column: 2;
+    font-size: 27px;
+  }
+  .or-night .night-preview-label {
+    padding: 16px;
+  }
+  .or-night .night-total strong {
+    font-size: 36px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .election-night.or-night {
+    animation: none;
+  }
+}

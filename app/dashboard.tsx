@@ -2198,6 +2198,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
       </div>
       {night === 'preview' && national && (
         <ElectionNight
+          observatory={reviewOnly}
           preview
           result={national}
           states={stateData}
@@ -2207,6 +2208,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
       )}
       {night === 'live' && nightNational?.result && (
         <ElectionNight
+          observatory={reviewOnly}
           preview={false}
           result={nightNational.result}
           states={liveStates}
@@ -2229,6 +2231,9 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
       )}
       {welcome && (
         <Onboarding
+          observatory={reviewOnly}
+          reviewOnly={reviewOnly}
+          onDismiss={() => setWelcome(false)}
           nickname={nickname}
           initialStep={termsReviewOnly ? welcomeTermsStep : 0}
           consentAccepted={pushConsentAccepted}

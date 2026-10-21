@@ -3,7 +3,7 @@ import test from 'node:test';
 import { readFile } from 'node:fs/promises';
 import { localIndex } from '../lib/local-index';
 import { selectLocal, searchText, tallySections, type LocalIndex } from '../lib/local-results';
-import { SECOND_TURN_START, electionNightAvailable } from '../lib/election-night';
+import { SECOND_TURN_START, electionNightAvailable, nightResult } from '../lib/election-night';
 import { normalize, states } from '../lib/elections';
 import { GET } from '../app/api/local-results/route';
 
@@ -76,6 +76,22 @@ test('live election night requires both the opening time and actual second-turn 
   assert.equal(electionNightAvailable('waiting', 2, SECOND_TURN_START), false);
   assert.equal(electionNightAvailable('live', 1, SECOND_TURN_START), false);
   assert.equal(electionNightAvailable('live', 2, SECOND_TURN_START), true);
+});
+
+test('expanded election view never substitutes national or another turn for missing state votes', async () => {
+  const national = normalize(
+    JSON.parse(await readFile('public/data/2026-br.json', 'utf8')),
+    'https://resultados.tse.jus.br',
+  );
+  const state = normalize(
+    JSON.parse(await readFile('public/data/2026-sp.json', 'utf8')),
+    'https://resultados.tse.jus.br',
+  );
+  assert.equal(nightResult(national, [state], 'BR'), national);
+  assert.equal(nightResult(national, [state], 'SP'), state);
+  assert.equal(nightResult(national, [], 'SP'), undefined);
+  assert.equal(nightResult(national, [{ ...state, turn: 2 }], 'SP'), undefined);
+  assert.equal(nightResult(national, [{ ...state, year: 2022 }], 'SP'), undefined);
 });
 test('local API rejects invalid scope/path traversal before accessing data', async () => {
   for (const query of [
