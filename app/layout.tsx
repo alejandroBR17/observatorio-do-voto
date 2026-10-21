@@ -23,6 +23,7 @@ import './recent-updates.css';
 import './observatory.css';
 import './research.css';
 import './candidates.css';
+import './coverage.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),

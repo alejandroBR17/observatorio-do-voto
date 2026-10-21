@@ -994,9 +994,11 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                     ? 'O pulso da disputa.'
                     : reviewOnly && tab === 'candidates'
                       ? 'Quem disputa a Presidência.'
-                      : tab === 'overview'
-                        ? 'O país em perspectiva.'
-                        : nav.find((n) => n[0] === tab)?.[1]}
+                      : reviewOnly && tab === 'social'
+                        ? 'A eleição em debate.'
+                        : tab === 'overview'
+                          ? 'O país em perspectiva.'
+                          : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
                   {tab === 'overview'
@@ -2052,7 +2054,7 @@ function DashboardContent({ reviewOnly }: { reviewOnly: boolean }) {
                     </div>
                   </>
                 )}
-                {tab === 'social' && <MediaExplorer />}
+                {tab === 'social' && <MediaExplorer observatory={reviewOnly} />}
 
                 {tab === 'watch' && (
                   <Watchboard
