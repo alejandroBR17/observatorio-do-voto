@@ -185,8 +185,10 @@ export function PwaPanel({
   onAlerts,
   onGo,
   observatory = false,
+  reviewOnly = false,
 }: {
   observatory?: boolean;
+  reviewOnly?: boolean;
   result?: Result;
   onAlerts: () => void;
   onGo?: (tab: string) => void;
@@ -473,7 +475,7 @@ export function PwaPanel({
               )}
               <a
                 className="text-button"
-                href={observatory ? '/offline.html?retorno=previa' : '/offline.html'}
+                href={reviewOnly ? '/offline.html?retorno=previa' : '/offline.html'}
               >
                 Abrir meu espaço offline
               </a>

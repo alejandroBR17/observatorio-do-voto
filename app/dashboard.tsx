@@ -95,20 +95,34 @@ const sectionKickers: Record<string, string> = {
 };
 export default function Dashboard({
   reviewOnly = false,
+  observatory = reviewOnly,
   initialTab = 'overview',
 }: {
   reviewOnly?: boolean;
+  observatory?: boolean;
   initialTab?: string;
 }) {
   return (
     <PwaProvider>
       <ReadingProvider>
-        <DashboardContent reviewOnly={reviewOnly} initialTab={initialTab} />
+        <DashboardContent
+          reviewOnly={reviewOnly}
+          observatory={observatory}
+          initialTab={initialTab}
+        />
       </ReadingProvider>
     </PwaProvider>
   );
 }
-function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; initialTab: string }) {
+function DashboardContent({
+  reviewOnly,
+  observatory,
+  initialTab,
+}: {
+  reviewOnly: boolean;
+  observatory: boolean;
+  initialTab: string;
+}) {
   const { installed } = usePwa();
   const { setReading } = useReading();
   const [welcome, setWelcome] = useState(false),
@@ -250,7 +264,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
   const go = (next: string) => {
     if (next !== 'watch') setWatchSection(undefined);
     setMobile(false);
-    if (reviewOnly && next === 'overview') setRegion('Brasil');
+    if (observatory && next === 'overview') setRegion('Brasil');
     if (next === tab) {
       window.scrollTo({ top: 0, behavior: scrollBehavior() });
       return;
@@ -433,7 +447,8 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
     const params = new URLSearchParams(location.search);
     if (nav.some((n) => n[0] === params.get('tab'))) setTab(params.get('tab')!);
     if (states.some((s) => s[1] === params.get('uf'))) setUf(params.get('uf')!);
-    if (reviewOnly && (!params.get('tab') || params.get('tab') === 'overview')) setRegion('Brasil');
+    if (observatory && (!params.get('tab') || params.get('tab') === 'overview'))
+      setRegion('Brasil');
     else if (regions.includes(params.get('region') || '')) setRegion(params.get('region')!);
     if (years.includes(Number(params.get('year')))) setYear(Number(params.get('year')));
     if (['1', '2'].includes(params.get('turn') || '')) setTurn(Number(params.get('turn')));
@@ -496,7 +511,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
         if (saved.ok) setNotification('Ativadas');
       })
       .catch(() => {});
-  }, [reviewOnly]);
+  }, [reviewOnly, observatory]);
   useEffect(() => {
     if (!hydrated) return;
     const media = window.matchMedia('(prefers-color-scheme: dark)');
@@ -626,7 +641,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
   }, [live, uf]);
   useEffect(() => setLivePoints([]), [uf]);
   useEffect(() => {
-    if ((tab !== 'live' && !(reviewOnly && tab === 'overview')) || live.status !== 'live') return;
+    if ((tab !== 'live' && !(observatory && tab === 'overview')) || live.status !== 'live') return;
     let canceled = false;
     let refreshing = false;
     const controller = new AbortController();
@@ -634,7 +649,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
       if (refreshing || canceled) return;
       refreshing = true;
       const result = [];
-      for (const stateUf of [...(reviewOnly ? ['BR'] : []), ...states.map((state) => state[1])]) {
+      for (const stateUf of [...(observatory ? ['BR'] : []), ...states.map((state) => state[1])]) {
         if (canceled) break;
         try {
           const d: any = await (
@@ -664,7 +679,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
       controller.abort();
       clearInterval(t);
     };
-  }, [tab, live.status, reviewOnly]);
+  }, [tab, live.status, observatory]);
   const national = all.find((d) => d.uf === 'BR'),
     selected = all.find((d) => d.uf === uf) || national,
     historical = hist.filter((d) => d.turn === turn),
@@ -880,7 +895,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
           />
           <aside
             id="main-navigation"
-            className={`sidebar open${reviewOnly ? ' or-navigation' : ''}`}
+            className={`sidebar open${observatory ? ' or-navigation' : ''}`}
             data-state={mobile ? 'open' : 'closing'}
             inert={!mobile}
             aria-hidden={!mobile}
@@ -939,7 +954,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
         </>
       )}
       <div
-        className={`main-shell${reviewOnly ? ' control-room' : ''}`}
+        className={`main-shell${observatory ? ' control-room' : ''}`}
         inert={
           mobile ||
           (night === 'preview' && !!national) ||
@@ -997,7 +1012,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
           </div>
         </header>
         {['overview', 'history', 'live'].includes(tab) && (region !== 'Brasil' || uf !== 'BR') && (
-          <div className={`scope-notice${reviewOnly ? ' or-scope-bar' : ''}`} role="status">
+          <div className={`scope-notice${observatory ? ' or-scope-bar' : ''}`} role="status">
             <Globe2 size={17} />
             <span>
               <small>Mapa e resultados</small>
@@ -1018,32 +1033,32 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
         )}
         <main id="page-content">
           <div
-            className={`page-view${reviewOnly && tab === 'history' ? ' or-history-page' : ''}`}
+            className={`page-view${observatory && tab === 'history' ? ' or-history-page' : ''}`}
             key={tab}
           >
             <div className="page-heading">
               <div>
                 <div className="eyebrow">{sectionKickers[tab] || 'OBSERVATÓRIO DO VOTO'}</div>
                 <h1 tabIndex={-1} data-page-title>
-                  {reviewOnly && tab === 'polls'
+                  {observatory && tab === 'polls'
                     ? 'O pulso da disputa.'
-                    : reviewOnly && tab === 'candidates'
+                    : observatory && tab === 'candidates'
                       ? 'Quem disputa a Presidência.'
-                      : reviewOnly && tab === 'social'
+                      : observatory && tab === 'social'
                         ? 'A eleição em debate.'
-                        : reviewOnly && tab === 'watch'
+                        : observatory && tab === 'watch'
                           ? 'Seu olhar sobre a eleição.'
-                          : reviewOnly && tab === 'profile'
+                          : observatory && tab === 'profile'
                             ? 'Seu espaço no observatório.'
-                            : reviewOnly && tab === 'alerts'
+                            : observatory && tab === 'alerts'
                               ? 'A eleição, no seu ritmo.'
-                              : reviewOnly && tab === 'app'
+                              : observatory && tab === 'app'
                                 ? 'O observatório no seu aparelho.'
-                                : reviewOnly && tab === 'history'
+                                : observatory && tab === 'history'
                                   ? 'As eleições, ano a ano.'
-                                  : reviewOnly && tab === 'municipality'
+                                  : observatory && tab === 'municipality'
                                     ? 'O voto, perto de você.'
-                                    : reviewOnly && tab === 'live'
+                                    : observatory && tab === 'live'
                                       ? 'A disputa, voto a voto.'
                                       : tab === 'overview'
                                         ? 'O país em perspectiva.'
@@ -1055,7 +1070,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                     : tab === 'live'
                       ? 'A evolução dos votos, direto da fonte oficial.'
                       : tab === 'history'
-                        ? reviewOnly
+                        ? observatory
                           ? 'Percorra os anos, explore o mapa e veja o resultado de cada disputa.'
                           : 'O país que votou ontem ajuda a entender o país de hoje.'
                         : tab === 'municipality'
@@ -1104,13 +1119,13 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                 </button>
               </div>
             )}
-            {tab === 'history' && !reviewOnly && year === 1994 && uf === 'BR' && (
+            {tab === 'history' && !observatory && year === 1994 && uf === 'BR' && (
               <div className="notice">
                 O total de 1994 nesta base soma os votos no país; os votos no exterior não estão
                 incluídos.
               </div>
             )}
-            {tab === 'overview' && reviewOnly && (
+            {tab === 'overview' && observatory && (
               <ObservatoryRoom
                 results={all}
                 uf={uf}
@@ -1132,7 +1147,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                 }
               />
             )}
-            {tab === 'overview' && !reviewOnly && selected && (
+            {tab === 'overview' && !observatory && selected && (
               <section
                 className="panorama-candidates"
                 aria-label="Candidatos ao segundo turno e resultado do primeiro turno"
@@ -1154,7 +1169,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                 })}
               </section>
             )}
-            {tab === 'overview' && !reviewOnly && (
+            {tab === 'overview' && !observatory && (
               <div className="election-banner">
                 <div className="banner-icon">
                   <Vote size={23} />
@@ -1173,7 +1188,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                 </button>
               </div>
             )}
-            {!reviewOnly && (tab === 'overview' || tab === 'history') && (
+            {!observatory && (tab === 'overview' || tab === 'history') && (
               <div className="active-filters">
                 <span>{tab === 'history' ? `${year} · ${turn}º turno` : '2026 · 1º turno'}</span>
                 <span>{uf !== 'BR' ? states.find((s) => s[1] === uf)?.[2] : region}</span>
@@ -1195,7 +1210,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                 )}
               </div>
             )}
-            {!reviewOnly && (tab === 'overview' || tab === 'history') && (
+            {!observatory && (tab === 'overview' || tab === 'history') && (
               <div className="filters">
                 <div className="segmented">
                   {tab === 'overview' ? (
@@ -1274,7 +1289,8 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
 
             {tab === 'app' && (
               <PwaPanel
-                observatory={reviewOnly}
+                observatory={observatory}
+                reviewOnly={reviewOnly}
                 result={national}
                 onAlerts={() => go('alerts')}
                 onGo={go}
@@ -1282,7 +1298,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
             )}
             {tab === 'profile' && (
               <Profile
-                observatory={reviewOnly}
+                observatory={observatory}
                 nickname={nickname}
                 onNickname={saveNickname}
                 favorite={favorite}
@@ -1308,7 +1324,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
             )}
             {tab === 'alerts' && (
               <Alerts
-                observatory={reviewOnly}
+                observatory={observatory}
                 notification={notification}
                 consentAccepted={pushConsentAccepted}
                 onConsent={setPushConsentAccepted}
@@ -1324,14 +1340,14 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
               />
             )}
             {['profile', 'alerts', 'app'].includes(tab) ||
-            (reviewOnly && tab === 'overview') ? null : busy ? (
+            (observatory && tab === 'overview') ? null : busy ? (
               <div className="loading large">
                 <RefreshCw size={20} />
                 Carregando dados oficiais…
               </div>
             ) : (
               <>
-                {tab === 'overview' && !reviewOnly && selected && (
+                {tab === 'overview' && !observatory && selected && (
                   <>
                     <DataFreshness archived generated={selected.generated} />
                     <RecentUpdates onGo={go} />
@@ -1617,7 +1633,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                     </Disclosure>
                   </>
                 )}
-                {tab === 'live' && reviewOnly && (
+                {tab === 'live' && observatory && (
                   <LiveObservatory
                     live={live}
                     uf={uf}
@@ -1645,7 +1661,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                     }}
                   />
                 )}
-                {tab === 'live' && !reviewOnly && (
+                {tab === 'live' && !observatory && (
                   <>
                     <div className="live-toolbar">
                       <span className="connection">
@@ -1855,7 +1871,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                     </div>
                   </>
                 )}
-                {tab === 'history' && reviewOnly && (
+                {tab === 'history' && observatory && (
                   <HistoryObservatory
                     data={hist}
                     current={all}
@@ -1878,7 +1894,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                     onNote={contextNote}
                   />
                 )}
-                {tab === 'history' && !reviewOnly && (
+                {tab === 'history' && !observatory && (
                   <>
                     {past && <DataFreshness archived generated={past.generated} />}
                     <div className="timeline">
@@ -2073,11 +2089,11 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                   </>
                 )}
                 {tab === 'municipality' && (
-                  <MunicipalityExplorer initialUf={uf} observatory={reviewOnly} />
+                  <MunicipalityExplorer initialUf={uf} observatory={observatory} />
                 )}
                 {tab === 'polls' && (
                   <>
-                    <PollExplorer onNote={contextNote} observatory={reviewOnly} />
+                    <PollExplorer onNote={contextNote} observatory={observatory} />
                     <Disclosure
                       title="Simular transferência de votos"
                       summary="Distribua os votos dos demais candidatos e veja uma hipótese de segundo turno."
@@ -2086,12 +2102,12 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                         a={f?.votes || 0}
                         b={l?.votes || 0}
                         others={others}
-                        observatory={reviewOnly}
+                        observatory={observatory}
                       />
                     </Disclosure>
                   </>
                 )}
-                {tab === 'candidates' && reviewOnly && (
+                {tab === 'candidates' && observatory && (
                   <CandidateObservatory
                     result={national}
                     favorite={favorite}
@@ -2106,7 +2122,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                     }}
                   />
                 )}
-                {tab === 'candidates' && !reviewOnly && (
+                {tab === 'candidates' && !observatory && (
                   <>
                     <div className="candidate-profiles">
                       {candidates.map((c) => (
@@ -2174,11 +2190,11 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
                     </div>
                   </>
                 )}
-                {tab === 'social' && <MediaExplorer observatory={reviewOnly} />}
+                {tab === 'social' && <MediaExplorer observatory={observatory} />}
 
                 {tab === 'watch' && (
                   <Watchboard
-                    observatory={reviewOnly}
+                    observatory={observatory}
                     focusSection={watchSection}
                     selectedNote={selectedNote}
                     favorite={favorite}
@@ -2218,7 +2234,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
       </div>
       {night === 'preview' && national && (
         <ElectionNight
-          observatory={reviewOnly}
+          observatory={observatory}
           preview
           result={national}
           states={stateData}
@@ -2228,7 +2244,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
       )}
       {night === 'live' && nightNational?.result && (
         <ElectionNight
-          observatory={reviewOnly}
+          observatory={observatory}
           preview={false}
           result={nightNational.result}
           states={liveStates}
@@ -2251,7 +2267,7 @@ function DashboardContent({ reviewOnly, initialTab }: { reviewOnly: boolean; ini
       )}
       {welcome && (
         <Onboarding
-          observatory={reviewOnly}
+          observatory={observatory}
           reviewOnly={reviewOnly}
           onDismiss={() => setWelcome(false)}
           nickname={nickname}
