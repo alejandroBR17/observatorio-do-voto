@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import { ArrowDown, ArrowUpRight, Newspaper, Radio, SearchCheck } from 'lucide-react';
 
-import { Disclosure, ExpandList } from '../disclosure';
+import { Disclosure } from '../disclosure';
 
 import { NewsVisual } from '../news-visual';
+import { PersonalizedFeed } from '../personalized-feed';
 import { DataFreshness } from '../components/data-freshness';
 
 import { ShareButton } from '../components/share-button';
@@ -161,10 +162,10 @@ export function MediaExplorer({ observatory = false }: { observatory?: boolean }
           <div className="news-filter">
             <p className="fine" role={observatory ? 'status' : undefined}>
               {observatory && currentVehicle !== 'all'
-                ? `${visibleArticles.length} notícias de ${currentVehicle}. As mais recentes aparecem primeiro.`
+                ? `${visibleArticles.length} notícias de ${currentVehicle}. Data e origem acompanham cada notícia.`
                 : observatory
-                  ? `${vehicles.length} veículos nesta coleta. As notícias mais recentes aparecem primeiro.`
-                  : `${articles.length} notícias de ${vehicles.length} veículos nesta coleta. As mais recentes aparecem primeiro.`}
+                  ? `${vehicles.length} veículos nesta coleta. Data e origem acompanham cada notícia.`
+                  : `${articles.length} notícias de ${vehicles.length} veículos nesta coleta.`}
             </p>
             <label>
               Veículo{' '}
@@ -178,11 +179,9 @@ export function MediaExplorer({ observatory = false }: { observatory?: boolean }
               </select>
             </label>
           </div>
-          <ExpandList
+          <PersonalizedFeed
             key={currentVehicle}
-            className="news-grid"
             items={visibleArticles}
-            initial={4}
             moreLabel="Ver mais notícias"
             lessLabel="Ver menos notícias"
             render={(a) => (

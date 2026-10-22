@@ -2,7 +2,14 @@ import type { Database } from './database';
 import webpush from 'web-push';
 import { cleanupPushRetention, removePushRegistration } from './push-storage';
 export { eventId } from './push-identifier';
-import { alertPreferences, frequencyWindow, priorityAlert, type AlertType } from './alerts';
+import {
+  alertPreferences,
+  adaptiveWindow,
+  frequencyWindow,
+  priorityAlert,
+  type AlertType,
+} from './alerts';
+import type { ContentSubject } from './content-personalization';
 import { imageUrl } from './article-image';
 const b64 = (bytes: Uint8Array) =>
   btoa(String.fromCharCode(...bytes))
@@ -81,6 +88,7 @@ export type PushEvent = {
   image?: string;
   icon?: string;
   urgent?: boolean;
+  subjects?: ContentSubject[];
 };
 function notificationAsset(value: string | undefined) {
   if (!value || value.length > 1500) return undefined;
@@ -174,7 +182,7 @@ export async function dispatchPush(db: Database, send = sendPush) {
               nextCheck = Date.now();
             if (wanted) {
               try {
-                const window = frequencyWindow(prefs),
+                const window = adaptiveWindow(prefs, event, now),
                   priority = priorityAlert(event.types, prefs);
                 let message = {
                   ...event,
@@ -190,11 +198,23 @@ export async function dispatchPush(db: Database, send = sendPush) {
                     .bind(sub.endpoint, now - window)
                     .all<{ updated: number; value: string }>();
                   const recentCommon = history.results.filter(
-                    (r) => !priorityAlert((JSON.parse(r.value) as PushEvent).types, prefs),
+                    (r) =>
+                      !priorityAlert((JSON.parse(r.value) as PushEvent).types, prefs) &&
+                      (adaptiveWindow(prefs, JSON.parse(r.value), now) === window ||
+                        now - r.updated < frequencyWindow(prefs)),
                   );
                   if (recentCommon.length) {
                     status = 'deferred';
-                    nextCheck = Math.max(...recentCommon.map((r) => r.updated)) + window - 60000;
+                    nextCheck =
+                      Math.max(
+                        ...recentCommon.map(
+                          (r) =>
+                            r.updated +
+                            (adaptiveWindow(prefs, JSON.parse(r.value), now) === window
+                              ? window
+                              : frequencyWindow(prefs)),
+                        ),
+                      ) - 60000;
                   } else {
                     const pending = await db
                       .prepare(
@@ -204,7 +224,11 @@ export async function dispatchPush(db: Database, send = sendPush) {
                       .all<{ id: string; value: string }>();
                     const common = pending.results.filter((r) => {
                       const e = JSON.parse(r.value) as PushEvent;
-                      return e.types.some((t) => prefs[t]) && !priorityAlert(e.types, prefs);
+                      return (
+                        e.types.some((t) => prefs[t]) &&
+                        !priorityAlert(e.types, prefs) &&
+                        adaptiveWindow(prefs, e, now) === window
+                      );
                     });
                     grouped = common.filter((r) => r.id !== row.id).map((r) => r.id);
                     if (common.length > 1) {

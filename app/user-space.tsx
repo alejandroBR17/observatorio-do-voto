@@ -14,7 +14,7 @@ import { candidates } from '@/lib/content';
 import { Disclosure } from './disclosure';
 import { ThemeMenu } from './theme-menu';
 import { AnalysisPreference } from './reading';
-import { PersonalizationSettings } from './personalization';
+import { PersonalizationSettings, PersonalizationChoices } from './personalization';
 import type { AlertPreferences } from '@/lib/alerts';
 import { NotificationHistory } from './notification-history';
 import { PrivacyControls } from './components/privacy-controls';
@@ -309,7 +309,7 @@ export function Alerts({
   consentAccepted: boolean;
   onConsent: (accepted: boolean) => void;
 }) {
-  const labels: [Exclude<keyof Prefs, 'frequency'>, string, string][] = [
+  const labels: [Exclude<keyof Prefs, 'frequency' | 'adaptive'>, string, string][] = [
     ['winner', 'Resultado confirmado', 'Quando o TSE informar o candidato eleito.'],
     [
       'mathematical',
@@ -569,6 +569,12 @@ export function Alerts({
           do navegador.
         </p>
       </section>
+      <Disclosure
+        title="Alertas que acompanham seu uso"
+        summary="Opcional: adapte o ritmo sem perder os marcos escolhidos"
+      >
+        <PersonalizationChoices />
+      </Disclosure>
       <div className="delivery-status">
         <Radio size={19} />
         <div>

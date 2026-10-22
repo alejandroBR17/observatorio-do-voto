@@ -38,6 +38,8 @@ import { usePresence, transitionPage, scrollBehavior } from './motion';
 import { ReadingProvider, useReading } from './reading';
 import { PersonalizationProvider, usePersonalization } from './personalization';
 import { learningTopics } from '@/lib/personalization';
+import { learnedAlertSummary } from '@/lib/content-personalization';
+import { readLearning } from '@/lib/personalization';
 import { Onboarding, welcomeTermsStep, type WelcomeChoices } from './onboarding';
 import { Map } from './geo-map';
 import { LiveCountdown } from './live-countdown';
@@ -129,11 +131,8 @@ function DashboardContent({
 }) {
   const { installed } = usePwa();
   const { setReading } = useReading();
-  const {
-    ready: learningReady,
-    state: { enabled: learningEnabled },
-    visit: learnVisit,
-  } = usePersonalization();
+  const { ready: learningReady, state: learningState, visit: learnVisit } = usePersonalization();
+  const learningEnabled = learningState.enabled;
   const [welcome, setWelcome] = useState(false),
     [welcomeDismissible, setWelcomeDismissible] = useState(false),
     [termsReviewOnly, setTermsReviewOnly] = useState(false),
@@ -352,27 +351,59 @@ function DashboardContent({
   async function updateAlerts(next: typeof prefs) {
     setPrefs(next);
     save(favorite, next);
-    if (notification !== 'Ativadas') return;
-    try {
-      const reg = await navigator.serviceWorker.getRegistration('/sw.js'),
-        sub = await reg?.pushManager.getSubscription();
-      if (!sub) return;
-      const r = await fetch('/api/push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          endpoint: sub.endpoint,
-          subscription: sub.toJSON(),
-          preferences: next,
-        }),
-      });
-      if (!r.ok) throw new Error();
-    } catch {
-      notify(
-        'Categorias salvas no aparelho. Não foi possível atualizar a inscrição; tente Atualizar inscrição.',
-      );
-    }
   }
+  const deliveryPreferences = JSON.stringify({
+    ...prefs,
+    adaptive: learnedAlertSummary(learningState) || null,
+  });
+  const [deliverySync, setDeliverySync] = useState('');
+  const deliveryQueue = useRef<Promise<void>>(Promise.resolve());
+  useEffect(() => {
+    if (reviewOnly || !hydrated || !learningReady || notification !== 'Ativadas') return;
+    let stopped = false,
+      active = false;
+    async function sync() {
+      if (stopped || active) return;
+      active = true;
+      const task = async () => {
+        if (stopped) return;
+        try {
+          const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+          const sub = await reg?.pushManager.getSubscription();
+          if (!sub) throw Error();
+          const response = await fetch('/api/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              endpoint: sub.endpoint,
+              subscription: sub.toJSON(),
+              preferences: JSON.parse(deliveryPreferences),
+            }),
+          });
+          if (!response.ok) throw Error();
+          if (!stopped) setDeliverySync('Preferências de alertas sincronizadas.');
+        } catch {
+          if (!stopped)
+            setDeliverySync(
+              'A alteração está neste aparelho, mas ainda não chegou ao servidor. Vamos tentar novamente com conexão. O ajuste anterior pode continuar valendo até sincronizar.',
+            );
+        }
+      };
+      deliveryQueue.current = deliveryQueue.current.catch(() => {}).then(task);
+      await deliveryQueue.current;
+      active = false;
+    }
+    const timer = setTimeout(() => void sync(), 1200);
+    const retry = setInterval(() => void sync(), 15 * 60000);
+    const reconnect = () => void sync();
+    window.addEventListener('online', reconnect);
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+      clearInterval(retry);
+      window.removeEventListener('online', reconnect);
+    };
+  }, [reviewOnly, hydrated, learningReady, notification, deliveryPreferences]);
   useEffect(() => {
     const handle = () => setShowTop(window.scrollY > 500);
     window.addEventListener('scroll', handle, { passive: true });
@@ -507,9 +538,12 @@ function DashboardContent({
         if (!keyResponse.ok || !keyData.publicKey) return;
         const sub = await ensurePushSubscription(r, keyData.publicKey);
         if (!sub) return;
-        let stored;
+        let stored, storedLearning;
         try {
           stored = JSON.parse(localStorage.getItem('observatorio.preferences') || '{}').alerts;
+          storedLearning = readLearning(
+            JSON.parse(localStorage.getItem('observatorio.learning.v1') || 'null'),
+          );
         } catch {
           // Normalize absent preferences to the default alert categories below.
         }
@@ -519,7 +553,10 @@ function DashboardContent({
           body: JSON.stringify({
             endpoint: sub.endpoint,
             subscription: sub.toJSON(),
-            preferences: alertPreferences(stored),
+            preferences: {
+              ...alertPreferences(stored),
+              adaptive: storedLearning ? learnedAlertSummary(storedLearning) || null : null,
+            },
           }),
         });
         if (saved.ok) setNotification('Ativadas');
@@ -758,7 +795,7 @@ function DashboardContent({
         body: JSON.stringify({
           endpoint: sub.endpoint,
           subscription: sub.toJSON(),
-          preferences: prefs,
+          preferences: JSON.parse(deliveryPreferences),
           authorization: pushAuthorization,
         }),
       });
@@ -819,7 +856,7 @@ function DashboardContent({
           body: JSON.stringify({
             endpoint: subscription.endpoint,
             subscription: subscription.toJSON(),
-            preferences: prefs,
+            preferences: JSON.parse(deliveryPreferences),
           }),
         });
         if (!response.ok)
@@ -1352,22 +1389,34 @@ function DashboardContent({
                 }}
               />
             )}
+            {tab === 'profile' && deliverySync && (
+              <p className="fine" role="status">
+                {deliverySync}
+              </p>
+            )}
             {tab === 'alerts' && (
-              <Alerts
-                observatory={observatory}
-                notification={notification}
-                consentAccepted={pushConsentAccepted}
-                onConsent={setPushConsentAccepted}
-                prefs={prefs}
-                onPrefs={updateAlerts}
-                onEnable={pushEnable}
-                onDisable={pushDisable}
-                onLive={() => go('live')}
-                serviceReady={!!pushKey}
-                serviceMessage={pushMessage}
-                onRetry={checkPush}
-                onTest={pushTest}
-              />
+              <>
+                {deliverySync && (
+                  <p className="fine" role="status">
+                    {deliverySync}
+                  </p>
+                )}
+                <Alerts
+                  observatory={observatory}
+                  notification={notification}
+                  consentAccepted={pushConsentAccepted}
+                  onConsent={setPushConsentAccepted}
+                  prefs={prefs}
+                  onPrefs={updateAlerts}
+                  onEnable={pushEnable}
+                  onDisable={pushDisable}
+                  onLive={() => go('live')}
+                  serviceReady={!!pushKey}
+                  serviceMessage={pushMessage}
+                  onRetry={checkPush}
+                  onTest={pushTest}
+                />
+              </>
             )}
             {['profile', 'alerts', 'app'].includes(tab) ||
             (observatory && tab === 'overview') ? null : busy ? (

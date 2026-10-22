@@ -1,4 +1,4 @@
-export const privacyVersion = '2026-10-22.1';
+export const privacyVersion = '2026-10-22.2';
 export const pushConsentVersion = '2026-10-13-push';
 export const analyticsConsentVersion = '2026-10-13-analytics';
 export const privacyContact = {
@@ -23,7 +23,7 @@ export function validPushAuthorization(value: unknown): value is Omit<
   typeof pushAuthorization,
   'noticeVersion'
 > & {
-  noticeVersion: typeof privacyVersion | '2026-10-13.2';
+  noticeVersion: typeof privacyVersion | '2026-10-13.2' | '2026-10-22.1';
 } {
   if (!value || typeof value !== 'object') return false;
   const record = value as Record<string, unknown>;
@@ -31,7 +31,7 @@ export function validPushAuthorization(value: unknown): value is Omit<
   // A still-open older client may submit the exact prior push disclosure it actually displayed.
   return Object.entries(pushAuthorization).every(([key, expected]) =>
     key === 'noticeVersion'
-      ? record[key] === expected || record[key] === '2026-10-13.2'
+      ? record[key] === expected || record[key] === '2026-10-13.2' || record[key] === '2026-10-22.1'
       : record[key] === expected,
   );
 }

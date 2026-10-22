@@ -1,6 +1,7 @@
 import type { Database } from './database';
 import { queuePush, eventId } from './push';
 import { articlePreview } from './article-preview';
+import { contentSubject } from './content-personalization';
 export async function queueContentAlerts(
   db: Database,
   current: any,
@@ -34,6 +35,11 @@ export async function queueContentAlerts(
         .join('|'),
     ),
     types: [kind],
+    subjects: [
+      ...new Set<ReturnType<typeof contentSubject>>(
+        fresh.map((p: any) => contentSubject(p.title || '', kind === 'polls')),
+      ),
+    ],
     title:
       fresh.length === 1
         ? fresh[0].title

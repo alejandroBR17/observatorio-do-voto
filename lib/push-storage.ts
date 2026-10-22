@@ -21,6 +21,12 @@ export async function removePushRegistration(db: Database, endpoint: string) {
 
 export async function cleanupPushRetention(db: Database, now = Date.now()) {
   await cleanupPushRateLimits(db, now);
+  await db
+    .prepare(
+      "UPDATE subscriptions SET preferences=json_remove(preferences,'$.adaptive') WHERE json_valid(preferences) AND json_extract(preferences,'$.adaptive.expiresAt')<=?",
+    )
+    .bind(now)
+    .run();
   const before = now - pushRetentionMs;
   await db.prepare('DELETE FROM push_deliveries WHERE updated<?').bind(before).run();
   await db

@@ -38,7 +38,9 @@ Em **Meu app**, guarde um resultado nacional finalizado para leitura offline. Es
 
 ## Privacidade e fontes
 
-No Panorama, **Adaptar ao meu uso** ativa sugestões que aprendem com suas consultas a assuntos, estados e regiões. **Mais disso**, **Menos disso** e **Desfazer** corrigem as próximas sugestões. Depois de várias interações com detalhes de pesquisas, a leitura também pode se ajustar nas próximas páginas. No Perfil, pause, mantenha o nível manual ou apague o aprendizado. Esses sinais ficam somente neste aparelho e perdem relevância com o tempo; não alteram os resultados nem suas escolhas de notificações.
+No Panorama, **Adaptar ao meu uso** abre suas escolhas de personalização. Com autorização, o app aprende com consultas e aberturas de matérias, sem exigir avaliações. **Mais disso**, **Menos disso** e **Desfazer** são correções opcionais. Notícias e publicações podem ser organizadas **Para você** ou por **Mais recentes**, sempre com todas as fontes disponíveis. A leitura também pode se ajustar depois de várias interações com detalhes. No Perfil, pause, mantenha o nível manual ou apague o aprendizado.
+
+O aprendizado fica no aparelho. Se autorizar separadamente **Adaptar também o ritmo dos alertas**, um resumo de até três assuntos gerais vai ao servidor por até sete dias, permitindo agrupar assuntos menos acompanhados em intervalos diários mesmo com o app fechado. Não envia histórico de leituras, candidatos ou lugares. Suas categorias, frequência máxima e marcos decisivos continuam valendo. A sincronização exige conexão; falhas aparecem em Alertas. Não há mudança dos números oficiais, inferência de voto ou custo adicional por essa personalização.
 
 Preferências e anotações permanecem neste navegador. Limpar seus dados, usar outro aparelho ou navegar em modo privado pode remover essas configurações. Elas não formam um perfil público e não são sincronizadas entre aparelhos. As inscrições push são mantidas no servidor para permitir o envio de alertas; confira o [Aviso de Privacidade](https://observatorio-voto.vercel.app/privacidade).
 

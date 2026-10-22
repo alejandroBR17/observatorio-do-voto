@@ -13,6 +13,7 @@ import { candidates } from '@/lib/content';
 import { useReading } from './reading';
 import { AnalyticsConsent, PushConsent } from './components/privacy-consent';
 import { readPrivacyChoice } from '@/lib/privacy-choices';
+import { PersonalizationChoices } from './personalization';
 export type WelcomeChoices = {
   nickname: string;
   favorite: string;
@@ -349,6 +350,12 @@ export function Onboarding({
                 <p className="fine">
                   Você pode mudar depois no Perfil. Os resultados oficiais são iguais para todos.
                 </p>
+                {!reviewOnly && (
+                  <details className="inline-details">
+                    <summary>Quer que o app aprenda com seu uso? É opcional.</summary>
+                    <PersonalizationChoices compact />
+                  </details>
+                )}
               </>
             ) : step === welcomeTermsStep ? (
               <>

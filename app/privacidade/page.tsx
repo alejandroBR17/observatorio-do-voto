@@ -68,16 +68,32 @@ export default function Privacy() {
             Ao ativar “Adaptar ao meu uso” no Panorama ou “Aprender com meu uso” no Perfil, você
             autoriza guardar contadores resumidos de consultas por assunto, estado e região, sinais
             de abertura e fechamento de detalhes, correções “Mais disso” e “Menos disso” e
-            identificadores das sugestões apresentadas. Esses sinais organizam sugestões e ajustam o
-            nível de detalhe nas próximas páginas. Não ficam no banco central nem são enviados ao
-            Analytics. Não usamos esse aprendizado para inferir voto ou preferência por candidato,
-            alterar números oficiais ou ativar notificações.
+            identificadores das sugestões apresentadas. Ao autorizar também notícias e publicações,
+            aberturas de matérias acrescentam contadores por assunto e identificadores locais
+            derivados das manchetes, sem guardar títulos ou endereços das leituras. Esses sinais
+            organizam sugestões, notícias e publicações e ajustam o nível de detalhe nas próximas
+            páginas. Não ficam no banco central nem são enviados ao Analytics. Não usamos esse
+            aprendizado para inferir voto ou preferência por candidato, alterar números oficiais ou
+            ativar notificações.
+          </p>
+          <p>
+            A opção separada “Adaptar também o ritmo dos alertas” autoriza enviar ao servidor no
+            Turso, nos Estados Unidos, somente até três assuntos gerais com evidência recente de
+            interesse, o identificador da autorização e seu horário, e a validade do resumo. Não
+            envia leituras, contadores, locais, fontes preferidas, nomes de candidatos ou opiniões
+            políticas. O resumo perde efeito em até sete dias sem renovação e é removido na próxima
+            limpeza do monitor. Notícias e publicações menos acompanhadas respeitam um intervalo
+            diário; não são canceladas. Categorias escolhidas, marcos decisivos e sua frequência
+            máxima continuam valendo.
           </p>
           <p>
             Os sinais perdem peso com o tempo; registros sem atualização por 30 dias são descartados
             na próxima leitura do app. No Perfil, você pode pausar novas observações, desligar o
             ajuste automático de detalhes ou apagar todo o aprendizado, sem remover o caderno e
-            outras preferências. Navegador e app instalado podem ter armazenamentos separados.
+            outras preferências. Pausar, apagar ou desligar os alertas adaptativos solicita também
+            remover o resumo remoto na próxima sincronização com conexão; uma falha é informada em
+            Alertas e o ajuste anterior pode continuar até sincronizar ou vencer. Navegador e app
+            instalado podem ter armazenamentos separados.
           </p>
         </section>
         <section id="notificacoes">
@@ -256,8 +272,8 @@ export default function Privacy() {
             funcionamento do app e não limita seus direitos.
           </p>
           <p>
-            <Link className="text-button" href="/privacidade/versoes/2026-10-13">
-              Consultar o aviso anterior, de 13/10/2026 →
+            <Link className="text-button" href="/privacidade/versoes/2026-10-22-1">
+              Consultar o aviso anterior, de 22/10/2026 (versão 1) →
             </Link>
           </p>
         </section>

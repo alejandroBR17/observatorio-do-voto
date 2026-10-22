@@ -8,7 +8,7 @@ import {
   type Discovery,
   type LearningState,
 } from '@/lib/personalization';
-import { usePersonalization } from './personalization';
+import { PersonalizationChoices, usePersonalization } from './personalization';
 
 export function SmartDiscoveries({
   onExplore,
@@ -17,26 +17,32 @@ export function SmartDiscoveries({
   onExplore: (item: Discovery) => void;
   publishedAt?: string;
 }) {
-  const { state, ready, configure } = usePersonalization();
+  const { state, ready } = usePersonalization();
+  const [choosing, setChoosing] = useState(false);
   if (!ready)
     return (
       <aside className="learning-offer" aria-busy="true">
         <p>Preparando seu espaço de exploração…</p>
       </aside>
     );
-  if (!state.enabled)
+  if (!state.enabled || choosing)
     return (
       <aside className="learning-offer">
         <div>
           <strong>Um observatório mais próximo dos seus interesses</strong>
           <p>
-            Autorize o aprendizado local para adaptar sugestões e detalhes ao seu uso. Você pode
-            pausar e apagar no Perfil.
+            Escolha se quer adaptar sugestões, notícias e detalhes ao seu uso. Você pode pausar e
+            apagar no Perfil.
           </p>
         </div>
-        <button className="button secondary" onClick={() => configure(true)}>
-          Adaptar ao meu uso
+        <button
+          className="button secondary"
+          aria-expanded={choosing}
+          onClick={() => setChoosing(!choosing)}
+        >
+          {choosing ? 'Concluir escolhas' : 'Adaptar ao meu uso'}
         </button>
+        {choosing && <PersonalizationChoices />}
       </aside>
     );
   return (
@@ -46,6 +52,9 @@ export function SmartDiscoveries({
           <span className="eyebrow">SEU PRÓXIMO OLHAR</span>
           <h2>Para explorar agora</h2>
         </div>
+        <button className="button secondary" onClick={() => setChoosing(true)}>
+          Minhas escolhas
+        </button>
       </div>
       <DiscoverySession initial={state} onExplore={onExplore} publishedAt={publishedAt} />
     </section>
@@ -99,8 +108,8 @@ function DiscoverySession({
   return (
     <div ref={root}>
       <p className="fine">
-        As sugestões consideram seu uso neste aparelho. “Mais disso” e “Menos disso” ajustam as
-        próximas visitas.
+        As sugestões aprendem com seu uso neste aparelho. “Mais disso” e “Menos disso” são ajustes
+        opcionais. No Perfil, você escolhe se quer adaptar também notícias e alertas.
       </p>
       <div className="discovery-grid">
         {items.map((item) => {

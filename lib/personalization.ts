@@ -18,6 +18,10 @@ export type LearningState = {
   version: 1;
   enabled: boolean;
   autoDetails: boolean;
+  contentEnabled: boolean;
+  contentOrder: 'personal' | 'recent';
+  pushEnabled: boolean;
+  pushAcceptedAt: number;
   interests: Record<string, Signal>;
   corrections: Record<string, Signal>;
   seen: Record<string, { count: number; at: number }>;
@@ -28,6 +32,10 @@ export function emptyLearning(): LearningState {
     version: 1,
     enabled: false,
     autoDetails: true,
+    contentEnabled: false,
+    contentOrder: 'personal',
+    pushEnabled: false,
+    pushAcceptedAt: 0,
     interests: {},
     corrections: {},
     seen: {},
@@ -43,7 +51,9 @@ export function validInterest(key: string) {
       ? learningTopics.some((topic) => topic === value)
       : kind === 'state'
         ? states.some((state) => state[1] === value)
-        : kind === 'region' && learningRegions.includes(value))
+        : kind === 'content'
+          ? ['polls', 'proposals', 'debates', 'results', 'service', 'context'].includes(value)
+          : kind === 'region' && learningRegions.includes(value))
   );
 }
 const fresh = (at: unknown, now: number): at is number =>
@@ -55,6 +65,15 @@ export function readLearning(raw: unknown, now = Date.now()): LearningState {
   if (input.version !== 1) return result;
   result.enabled = input.enabled === true;
   result.autoDetails = input.autoDetails !== false;
+  result.contentEnabled = input.contentEnabled === true;
+  result.contentOrder = input.contentOrder === 'recent' ? 'recent' : 'personal';
+  result.pushEnabled = input.pushEnabled === true;
+  result.pushAcceptedAt =
+    typeof input.pushAcceptedAt === 'number' &&
+    input.pushAcceptedAt > 0 &&
+    input.pushAcceptedAt <= now
+      ? input.pushAcceptedAt
+      : 0;
   for (const kind of ['interests', 'corrections'] as const) {
     if (!input[kind] || typeof input[kind] !== 'object' || Array.isArray(input[kind])) continue;
     for (const [key, signal] of Object.entries(input[kind])) {
@@ -75,9 +94,11 @@ export function readLearning(raw: unknown, now = Date.now()): LearningState {
     }
   }
   if (input.seen && typeof input.seen === 'object' && !Array.isArray(input.seen)) {
-    for (const [id, item] of Object.entries(input.seen).slice(0, 64)) {
+    for (const [id, item] of Object.entries(input.seen)
+      .sort((a, b) => (Number(b[1]?.at) || 0) - (Number(a[1]?.at) || 0))
+      .slice(0, 64)) {
       if (
-        /^(overview|history|polls|social|live|watch|municipality)(:(?:[A-Z]{2}|Norte|Nordeste|Centro-Oeste|Sudeste|Sul))?$/.test(
+        /^(?:content:[a-f0-9]{8}|(?:overview|history|polls|social|live|watch|municipality)(:(?:[A-Z]{2}|Norte|Nordeste|Centro-Oeste|Sudeste|Sul))?)$/.test(
           id,
         ) &&
         item &&

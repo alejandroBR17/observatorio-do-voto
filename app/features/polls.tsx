@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useDetailLearning } from '../personalization';
+import { PersonalizedFeed } from '../personalized-feed';
 import { ArrowUpRight, Bookmark, Newspaper, ShieldCheck, X } from 'lucide-react';
 
 import { candidates } from '@/lib/content';
@@ -445,17 +446,16 @@ export function PollExplorer({
         <div className="panel-head">
           <div>
             <span className="eyebrow">DESCOBERTA AUTOMÁTICA</span>
-            <h2>Publicações mais recentes</h2>
+            <h2>Publicações sobre pesquisas</h2>
           </div>
           <Newspaper size={22} />
         </div>
         <p className="fine">
           Consulte a publicação original para conhecer o cenário e a metodologia.
         </p>
-        <ExpandList
-          className="news-grid"
+        <PersonalizedFeed
+          publication
           items={publications}
-          initial={4}
           moreLabel="Ver mais publicações"
           lessLabel="Ver menos publicações"
           render={(p) => (

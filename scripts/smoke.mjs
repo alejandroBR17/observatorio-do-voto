@@ -92,17 +92,25 @@ for (const path of ['/termos', '/privacidade']) {
     assert.ok(html.includes('id="personalizacao"'));
     assert.ok(html.includes('id="transferencias"'));
     assert.ok(html.includes('id="estatisticas"'));
+    assert.ok(html.includes('2026-10-22.2'));
+    assert.ok(html.includes('Adaptar também o ritmo dos alertas'));
   }
 }
 for (const path of [
   '/termos/versoes/2026-10-09',
   '/privacidade/versoes/2026-10-10',
   '/privacidade/versoes/2026-10-13',
+  '/privacidade/versoes/2026-10-22-1',
 ])
   assert.equal((await fetch(base + path)).status, 200, path);
 const priorPrivacy = await (await fetch(base + '/privacidade/versoes/2026-10-13')).text();
 assert.ok(priorPrivacy.includes('Documento histórico.'));
 assert.ok(priorPrivacy.includes('noindex'));
+const learningPrivacy = await (await fetch(base + '/privacidade/versoes/2026-10-22-1')).text();
+assert.ok(learningPrivacy.includes('Documento histórico.') && learningPrivacy.includes('noindex'));
+const profilePage = await (await fetch(base + '/?tab=profile')).text();
+assert.ok(profilePage.includes('Personalizar minha experiência pelo uso'));
+assert.ok(profilePage.includes('Organizar notícias e publicações para mim'));
 const credits = await fetch(base + '/creditos');
 assert.equal(credits.status, 200);
 const creditsHtml = await credits.text();

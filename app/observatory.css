@@ -13,6 +13,45 @@
 .learning-offer > div {
   flex: 1 1 300px;
 }
+.learning-offer > .learning-choices {
+  flex-basis: 100%;
+}
+.learning-choices {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.learning-choices .alert-option {
+  align-items: start;
+  min-width: 0;
+}
+.learning-choices small {
+  display: block;
+  line-height: 1.65;
+  margin-top: 6px;
+}
+.feed-order {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 16px 0;
+}
+.feed-order label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 15px;
+}
+.feed-order select {
+  min-height: 44px;
+  max-width: 100%;
+}
+.feed-order p {
+  flex: 1 1 280px;
+  margin: 0;
+}
 .learning-offer p {
   color: var(--muted);
   font-size: 15px;
