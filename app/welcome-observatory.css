@@ -31,6 +31,20 @@
 .or-welcome::backdrop {
   background: #0e1419c9;
 }
+.welcome-dismiss {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.welcome-dismiss .button {
+  min-height: 44px;
+  font-size: 14px;
+}
 .or-welcome .welcome-layout {
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   align-items: stretch;

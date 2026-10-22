@@ -49,7 +49,7 @@ import { LiveObservatory } from './live-observatory';
 import { CandidatePortrait } from './components/candidate-portrait';
 import { electionPalette } from '@/lib/election-palette';
 import { readWatch, type NotebookEntry } from '@/lib/notebook';
-import { termsVersion } from '@/lib/terms';
+import { hasCurrentTerms, termsVersion } from '@/lib/terms';
 import { alertPreferences, defaultAlerts } from '@/lib/alerts';
 import { Source } from './components/source-link';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
@@ -126,6 +126,7 @@ function DashboardContent({
   const { installed } = usePwa();
   const { setReading } = useReading();
   const [welcome, setWelcome] = useState(false),
+    [welcomeDismissible, setWelcomeDismissible] = useState(false),
     [termsReviewOnly, setTermsReviewOnly] = useState(false),
     [pushConsentAccepted, setPushConsentAccepted] = useState(false),
     [pushKey, setPushKey] = useState(''),
@@ -459,8 +460,7 @@ function DashboardContent({
       setWelcome(
         !reviewOnly &&
           (localStorage.getItem('observatorio.welcome') !== '1' ||
-            JSON.parse(localStorage.getItem('observatorio.terms') || '{}').version !==
-              termsVersion),
+            !hasCurrentTerms(localStorage.getItem('observatorio.terms'))),
       );
     } catch {
       setWelcome(!reviewOnly);
@@ -1311,6 +1311,13 @@ function DashboardContent({
                 onCustomize={() => {
                   setMobile(false);
                   setTermsReviewOnly(false);
+                  try {
+                    setWelcomeDismissible(
+                      hasCurrentTerms(localStorage.getItem('observatorio.terms')),
+                    );
+                  } catch {
+                    setWelcomeDismissible(false);
+                  }
                   setWelcome(true);
                 }}
                 notification={notification}
@@ -2269,6 +2276,7 @@ function DashboardContent({
         <Onboarding
           observatory={observatory}
           reviewOnly={reviewOnly}
+          allowDismiss={welcomeDismissible}
           onDismiss={() => setWelcome(false)}
           nickname={nickname}
           initialStep={termsReviewOnly ? welcomeTermsStep : 0}

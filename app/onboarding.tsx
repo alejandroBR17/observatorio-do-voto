@@ -41,10 +41,12 @@ export function Onboarding({
   onConsent,
   observatory = false,
   reviewOnly = false,
+  allowDismiss = false,
   onDismiss,
 }: {
   observatory?: boolean;
   reviewOnly?: boolean;
+  allowDismiss?: boolean;
   onDismiss?: () => void;
   nickname: string;
   favorite: string;
@@ -139,7 +141,7 @@ export function Onboarding({
       aria-labelledby="welcome-title"
       onCancel={(e) => {
         e.preventDefault();
-        if (reviewOnly) {
+        if (reviewOnly || allowDismiss) {
           onDismiss?.();
           return;
         }
@@ -164,6 +166,14 @@ export function Onboarding({
           </details>
           <button onClick={onDismiss}>Fechar prévia</button>
           <small>Simulação interativa. Nenhum aceite, preferência ou inscrição é salvo.</small>
+        </div>
+      )}
+      {!reviewOnly && allowDismiss && onDismiss && (
+        <div className="welcome-dismiss">
+          <button className="button secondary" onClick={onDismiss}>
+            <ChevronLeft size={16} aria-hidden="true" />
+            Voltar ao perfil
+          </button>
         </div>
       )}
       <div className="welcome-layout">
