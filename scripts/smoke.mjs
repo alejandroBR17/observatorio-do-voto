@@ -82,16 +82,27 @@ for (const path of ['/termos', '/privacidade']) {
   assert.equal(response.status, 200, path);
   const html = await response.text();
   assert.ok(html.includes(`<link rel="canonical" href="${new URL(path, canonical).href}"`));
-  assert.ok(html.includes('13 DE OUTUBRO DE 2026'), path);
+  assert.ok(
+    html.includes(path === '/privacidade' ? '22 DE OUTUBRO DE 2026' : '13 DE OUTUBRO DE 2026'),
+    path,
+  );
   assert.ok(html.includes('Alejandro Mateus Sobral Cortes'), path);
   assert.ok(html.includes('mailto:ale.sobral.cortes@gmail.com'), path);
   if (path === '/privacidade') {
+    assert.ok(html.includes('id="personalizacao"'));
     assert.ok(html.includes('id="transferencias"'));
     assert.ok(html.includes('id="estatisticas"'));
   }
 }
-for (const path of ['/termos/versoes/2026-10-09', '/privacidade/versoes/2026-10-10'])
+for (const path of [
+  '/termos/versoes/2026-10-09',
+  '/privacidade/versoes/2026-10-10',
+  '/privacidade/versoes/2026-10-13',
+])
   assert.equal((await fetch(base + path)).status, 200, path);
+const priorPrivacy = await (await fetch(base + '/privacidade/versoes/2026-10-13')).text();
+assert.ok(priorPrivacy.includes('Documento histórico.'));
+assert.ok(priorPrivacy.includes('noindex'));
 const credits = await fetch(base + '/creditos');
 assert.equal(credits.status, 200);
 const creditsHtml = await credits.text();
