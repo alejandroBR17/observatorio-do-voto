@@ -236,6 +236,7 @@ export function HistoryObservatory({
               ))}
               {result.candidates.length > 2 && (
                 <Disclosure
+                  learnDetails
                   title={`Ver os outros ${result.candidates.length - 2} candidatos`}
                   summary="Abra para consultar o resultado completo."
                 >
@@ -271,6 +272,7 @@ export function HistoryObservatory({
           {year === 2022 && points.length > 0 && (
             <Disclosure
               title="Rever a evolução da apuração de 2022"
+              learnDetails
               summary={`Brasil · ${turn}º turno · observe como os percentuais mudaram durante a contagem.`}
             >
               <p className="fine">
@@ -319,6 +321,7 @@ export function HistoryObservatory({
           )}
           <Disclosure
             title="Comparar com a eleição de 2026"
+            learnDetails
             summary="Consulte a participação do PT por estado nos dois momentos."
           >
             <h3>Participação do PT nos votos válidos</h3>

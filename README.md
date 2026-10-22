@@ -38,6 +38,8 @@ Em **Meu app**, guarde um resultado nacional finalizado para leitura offline. Es
 
 ## Privacidade e fontes
 
+No Panorama, **Adaptar ao meu uso** ativa sugestões que aprendem com suas consultas a assuntos, estados e regiões. **Mais disso**, **Menos disso** e **Desfazer** corrigem as próximas sugestões. Depois de várias interações com detalhes de pesquisas, a leitura também pode se ajustar nas próximas páginas. No Perfil, pause, mantenha o nível manual ou apague o aprendizado. Esses sinais ficam somente neste aparelho e perdem relevância com o tempo; não alteram os resultados nem suas escolhas de notificações.
+
 Preferências e anotações permanecem neste navegador. Limpar seus dados, usar outro aparelho ou navegar em modo privado pode remover essas configurações. Elas não formam um perfil público e não são sincronizadas entre aparelhos. As inscrições push são mantidas no servidor para permitir o envio de alertas; confira o [Aviso de Privacidade](https://observatorio-voto.vercel.app/privacidade).
 
 Resultados eleitorais usam o TSE como referência; o território usa o IBGE. Pesquisas e notícias identificam suas fontes. Intenção de voto não é resultado oficial nem garantia de vitória. Falhas ou dados ainda não disponíveis são sinalizados; não são substituídos por números inventados.

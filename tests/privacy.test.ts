@@ -32,6 +32,11 @@ test('optional statistics require the current explicit local choice, never a gen
     false,
   );
   assert.equal(validPushAuthorization(pushAuthorization), true);
+  assert.equal(
+    validPushAuthorization({ ...pushAuthorization, noticeVersion: '2026-10-13.2' }),
+    true,
+  );
+  assert.equal(validPushAuthorization({ ...pushAuthorization, noticeVersion: 'unknown' }), false);
 });
 
 test('retention clears old technical receipts on quiet days without deleting active consent or VAPID keys', async () => {
@@ -132,6 +137,21 @@ test('push routes require explicit new opt-in, preserve legacy records honestly 
       .first<{ value: string; accepted: number }>();
     assert.deepEqual(JSON.parse(granted!.value), pushAuthorization);
     assert.equal(granted!.accepted, now);
+    assert.equal(
+      (
+        await POST(
+          request('POST', {
+            ...body,
+            authorization: { ...pushAuthorization, noticeVersion: '2026-10-13.2' },
+          }),
+        )
+      ).status,
+      200,
+    );
+    const priorDisclosure = await db
+      .prepare('SELECT value FROM subscription_consents')
+      .first<{ value: string }>();
+    assert.equal(JSON.parse(priorDisclosure!.value).noticeVersion, '2026-10-13.2');
     now += 10000;
     assert.equal((await POST(request('POST', body))).status, 200);
     assert.equal(

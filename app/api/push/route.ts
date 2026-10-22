@@ -43,7 +43,8 @@ export async function POST(req: Request) {
   try {
     const db = env.DB;
     if (!db) return unavailable();
-    const authorized = validPushAuthorization(body.authorization);
+    const authorization = body.authorization;
+    const authorized = validPushAuthorization(authorization);
     if (body.authorization !== undefined && !authorized)
       return Response.json(
         {
@@ -74,7 +75,11 @@ export async function POST(req: Request) {
         .prepare(
           'INSERT INTO subscription_consents(endpoint,value,accepted) VALUES(?,?,?) ON CONFLICT(endpoint) DO UPDATE SET value=excluded.value,accepted=excluded.accepted',
         )
-        .bind(body.endpoint, JSON.stringify(pushAuthorization), Date.now())
+        .bind(
+          body.endpoint,
+          JSON.stringify({ ...pushAuthorization, noticeVersion: authorization.noticeVersion }),
+          Date.now(),
+        )
         .run();
     }
     const saved = await db

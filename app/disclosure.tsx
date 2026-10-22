@@ -2,23 +2,35 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { usePresence, reducedMotion, scrollBehavior } from './motion';
+import { useDetailLearning } from './personalization';
+import { useReading } from './reading';
 export function Disclosure({
   title,
   summary,
   children,
   defaultOpen = false,
+  adaptive = false,
+  learnDetails = false,
 }: {
   title: string;
   summary?: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  adaptive?: boolean;
+  learnDetails?: boolean;
 }) {
+  const { reading } = useReading();
+  const learnDetail = useDetailLearning();
+  const touched = useRef(false);
   const [open, setOpen] = useState(defaultOpen),
     id = useId(),
     root = useRef<HTMLElement>(null),
     button = useRef<HTMLButtonElement>(null),
     timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined),
     present = usePresence(open);
+  useEffect(() => {
+    if (adaptive && !touched.current) setOpen(defaultOpen || reading === 'detailed');
+  }, [adaptive, defaultOpen, reading]);
   useEffect(
     () => () => {
       if (timer.current) clearTimeout(timer.current);
@@ -28,6 +40,8 @@ export function Disclosure({
   function toggle() {
     if (timer.current) clearTimeout(timer.current);
     const closing = open;
+    touched.current = true;
+    if (adaptive || learnDetails) learnDetail(!closing);
     setOpen(!open);
     if (closing) {
       button.current?.focus({ preventScroll: true });

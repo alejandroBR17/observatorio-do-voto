@@ -14,6 +14,7 @@ import { candidates } from '@/lib/content';
 import { Disclosure } from './disclosure';
 import { ThemeMenu } from './theme-menu';
 import { AnalysisPreference } from './reading';
+import { PersonalizationSettings } from './personalization';
 import type { AlertPreferences } from '@/lib/alerts';
 import { NotificationHistory } from './notification-history';
 import { PrivacyControls } from './components/privacy-controls';
@@ -227,6 +228,7 @@ export function Profile({
         </section>
       </div>
       <AnalysisPreference />
+      <PersonalizationSettings />
       {observatory ? (
         <div className="or-profile-privacy">
           <Disclosure

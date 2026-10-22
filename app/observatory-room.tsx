@@ -35,12 +35,15 @@ import { electionPalette } from '@/lib/election-palette';
 import { overviewResults } from '@/lib/overview-results';
 import { historySelection } from '@/lib/history-selection';
 import { RegionalResults, electoralRegions } from './regional-results';
+import { SmartDiscoveries } from './smart-discoveries';
+import type { Discovery } from '@/lib/personalization';
 
 export function ObservatoryRoom({
   results,
   uf,
   region,
   onRegion,
+  onExplore,
   onState,
   onGo,
   liveStatus,
@@ -51,6 +54,7 @@ export function ObservatoryRoom({
   uf: string;
   region: string;
   onRegion: (region: string) => void;
+  onExplore: (item: Discovery) => void;
   onState: (uf: string) => void;
   onGo: (tab: string) => void;
   liveStatus: string;
@@ -499,6 +503,10 @@ export function ObservatoryRoom({
           )}
         </aside>
       </div>
+      <SmartDiscoveries
+        onExplore={onExplore}
+        publishedAt={polling?.latestPublishedAt || undefined}
+      />
       <div className="or-secondary">
         <section className="or-pulse" id="pulso">
           <div className="or-section-head">
@@ -562,6 +570,7 @@ export function ObservatoryRoom({
               </p>
               <Disclosure
                 title="Como ler este levantamento"
+                adaptive
                 summary={`Margem ±${poll.margin.toLocaleString('pt-BR')} p.p. · ${formatVotes(poll.sample)} entrevistas`}
               >
                 <p>

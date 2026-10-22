@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { usePersonalization } from './personalization';
 
 type Reading = 'essential' | 'detailed';
 const ReadingContext = createContext<{
@@ -8,6 +9,7 @@ const ReadingContext = createContext<{
   storageError: boolean;
 }>({ reading: 'essential', setReading: () => {}, storageError: false });
 export function ReadingProvider({ children }: { children: React.ReactNode }) {
+  const { readingSuggestion, baseline } = usePersonalization();
   const [reading, setValue] = useState<Reading>('essential'),
     [storageError, setStorageError] = useState(false);
   useEffect(() => {
@@ -19,6 +21,7 @@ export function ReadingProvider({ children }: { children: React.ReactNode }) {
   }, []);
   function setReading(value: Reading) {
     setValue(value);
+    baseline(value);
     try {
       localStorage.setItem(
         'observatorio.analysisDetails',
@@ -30,7 +33,9 @@ export function ReadingProvider({ children }: { children: React.ReactNode }) {
     }
   }
   return (
-    <ReadingContext.Provider value={{ reading, setReading, storageError }}>
+    <ReadingContext.Provider
+      value={{ reading: readingSuggestion || reading, setReading, storageError }}
+    >
       {children}
     </ReadingContext.Provider>
   );
@@ -38,6 +43,7 @@ export function ReadingProvider({ children }: { children: React.ReactNode }) {
 export const useReading = () => useContext(ReadingContext);
 export function AnalysisPreference() {
   const { reading, setReading, storageError } = useReading();
+  const { state, readingSuggestion } = usePersonalization();
   return (
     <section className="panel analysis-preference">
       <span className="section-index">03 / PREFERÊNCIAS</span>
@@ -53,6 +59,13 @@ export function AnalysisPreference() {
           <small>Deixar metodologia e contexto abertos ao comparar os institutos.</small>
         </span>
       </label>
+      {state.enabled && state.autoDetails && (
+        <p className="fine">
+          {readingSuggestion
+            ? 'O nível atual foi ajustado pelo seu uso. Você pode mudar esta escolha ou desligar o ajuste automático abaixo.'
+            : 'Seu uso pode ajustar os detalhes nas próximas páginas, depois de várias interações.'}
+        </p>
+      )}
       {storageError && (
         <p className="fine" role="status">
           Este navegador não permitiu salvar a preferência. Ela vale nesta visita.

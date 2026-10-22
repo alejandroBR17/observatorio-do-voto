@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useDetailLearning } from '../personalization';
 import { ArrowUpRight, Bookmark, Newspaper, ShieldCheck, X } from 'lucide-react';
 
 import { candidates } from '@/lib/content';
@@ -36,6 +37,12 @@ function PollCard({
   onNote?: (note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>) => void;
 }) {
   const { reading } = useReading();
+  const [detailsOpen, setDetailsOpen] = useState(reading === 'detailed');
+  const detailsTouched = useRef(false);
+  const detailLearning = useDetailLearning();
+  useEffect(() => {
+    if (!detailsTouched.current) setDetailsOpen(reading === 'detailed');
+  }, [reading]);
   const requested = basis || original.basis,
     numbers = pollNumbers(original, requested),
     poll = { ...original, ...(numbers || {}), basis: requested };
@@ -101,8 +108,17 @@ function PollCard({
         </span>
       </div>
       {!observatory && <PollMethodology poll={poll} />}
-      <details className="inline-details" key={reading} open={reading === 'detailed'}>
-        <summary>Detalhes da pesquisa</summary>
+      <details className="inline-details" open={detailsOpen}>
+        <summary
+          onClick={(event) => {
+            event.preventDefault();
+            detailsTouched.current = true;
+            detailLearning(!detailsOpen);
+            setDetailsOpen(!detailsOpen);
+          }}
+        >
+          Detalhes da pesquisa
+        </summary>
         {observatory && <PollMethodology poll={poll} />}
         <p className="fine">
           Base:{' '}
@@ -358,6 +374,7 @@ export function PollExplorer({
       {filtered.length > 0 && (
         <Disclosure
           title="Comparação lado a lado"
+          learnDetails
           summary={`${filtered.length} resultados · tabela detalhada por instituto`}
         >
           <div
@@ -463,6 +480,7 @@ export function PollExplorer({
       </section>
       <Disclosure
         title="Fontes e metodologia"
+        learnDetails
         summary="Disponibilidade dos institutos e critérios de atualização"
       >
         <div className="source-health">

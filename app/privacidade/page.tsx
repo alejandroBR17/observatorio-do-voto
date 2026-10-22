@@ -15,6 +15,7 @@ export default function Privacy() {
       active="privacidade"
       sections={[
         { id: 'o-que-fica-somente-no-aparelho', label: 'O que fica somente no aparelho' },
+        { id: 'personalizacao', label: 'Personalização opcional no aparelho' },
         { id: 'notificacoes', label: 'Dados necessários para notificações' },
         { id: 'estatisticas', label: 'Estatísticas de acesso, se você autorizar' },
         {
@@ -31,7 +32,7 @@ export default function Privacy() {
         <Link href="/" className="text-button">
           ← Voltar ao Observatório
         </Link>
-        <span className="eyebrow">VERSÃO DE 13 DE OUTUBRO DE 2026</span>
+        <span className="eyebrow">VERSÃO DE 22 DE OUTUBRO DE 2026</span>
         <h1>Seu navegador, suas escolhas.</h1>
         <p>
           Este aviso explica como o Observatório do Voto trata informações para oferecer seu
@@ -59,6 +60,24 @@ export default function Privacy() {
             dias, e pode ser limpo em Alertas. Dados do aparelho podem ser vistos por outras pessoas
             que tenham acesso a ele. Limpar o armazenamento local não cancela, por si só, uma
             inscrição que ainda esteja no servidor.
+          </p>
+        </section>
+        <section id="personalizacao">
+          <h2>Personalização opcional no aparelho</h2>
+          <p>
+            Ao ativar “Adaptar ao meu uso” no Panorama ou “Aprender com meu uso” no Perfil, você
+            autoriza guardar contadores resumidos de consultas por assunto, estado e região, sinais
+            de abertura e fechamento de detalhes, correções “Mais disso” e “Menos disso” e
+            identificadores das sugestões apresentadas. Esses sinais organizam sugestões e ajustam o
+            nível de detalhe nas próximas páginas. Não ficam no banco central nem são enviados ao
+            Analytics. Não usamos esse aprendizado para inferir voto ou preferência por candidato,
+            alterar números oficiais ou ativar notificações.
+          </p>
+          <p>
+            Os sinais perdem peso com o tempo; registros sem atualização por 30 dias são descartados
+            na próxima leitura do app. No Perfil, você pode pausar novas observações, desligar o
+            ajuste automático de detalhes ou apagar todo o aprendizado, sem remover o caderno e
+            outras preferências. Navegador e app instalado podem ter armazenamentos separados.
           </p>
         </section>
         <section id="notificacoes">
@@ -237,8 +256,8 @@ export default function Privacy() {
             funcionamento do app e não limita seus direitos.
           </p>
           <p>
-            <Link className="text-button" href="/privacidade/versoes/2026-10-10">
-              Consultar o aviso anterior, de 10/10/2026 →
+            <Link className="text-button" href="/privacidade/versoes/2026-10-13">
+              Consultar o aviso anterior, de 13/10/2026 →
             </Link>
           </p>
         </section>

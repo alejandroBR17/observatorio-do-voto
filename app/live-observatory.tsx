@@ -196,6 +196,7 @@ export function LiveObservatory({
           </section>
           <Disclosure
             title="Como a contagem está evoluindo"
+            learnDetails
             summary={`Resultados de ${place}, registrados desde que você abriu esta tela.`}
           >
             <Progression

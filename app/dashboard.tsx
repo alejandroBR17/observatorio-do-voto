@@ -36,6 +36,8 @@ import { Disclosure } from './disclosure';
 import { Profile, Alerts } from './user-space';
 import { usePresence, transitionPage, scrollBehavior } from './motion';
 import { ReadingProvider, useReading } from './reading';
+import { PersonalizationProvider, usePersonalization } from './personalization';
+import { learningTopics } from '@/lib/personalization';
 import { Onboarding, welcomeTermsStep, type WelcomeChoices } from './onboarding';
 import { Map } from './geo-map';
 import { LiveCountdown } from './live-countdown';
@@ -104,13 +106,15 @@ export default function Dashboard({
 }) {
   return (
     <PwaProvider>
-      <ReadingProvider>
-        <DashboardContent
-          reviewOnly={reviewOnly}
-          observatory={observatory}
-          initialTab={initialTab}
-        />
-      </ReadingProvider>
+      <PersonalizationProvider>
+        <ReadingProvider>
+          <DashboardContent
+            reviewOnly={reviewOnly}
+            observatory={observatory}
+            initialTab={initialTab}
+          />
+        </ReadingProvider>
+      </PersonalizationProvider>
     </PwaProvider>
   );
 }
@@ -125,6 +129,11 @@ function DashboardContent({
 }) {
   const { installed } = usePwa();
   const { setReading } = useReading();
+  const {
+    ready: learningReady,
+    state: { enabled: learningEnabled },
+    visit: learnVisit,
+  } = usePersonalization();
   const [welcome, setWelcome] = useState(false),
     [welcomeDismissible, setWelcomeDismissible] = useState(false),
     [termsReviewOnly, setTermsReviewOnly] = useState(false),
@@ -170,6 +179,14 @@ function DashboardContent({
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>('system');
   const [selectedNote, setSelectedNote] = useState('');
   const [watchSection, setWatchSection] = useState<'estados-seguidos' | 'seu-caderno'>();
+  useEffect(() => {
+    if (!learningReady || !learningEnabled || welcome) return;
+    if (learningTopics.some((topic) => topic === tab)) learnVisit(`topic:${tab}`);
+    if (['overview', 'history', 'live'].includes(tab)) {
+      if (uf !== 'BR') learnVisit(`state:${uf}`);
+      else if (region !== 'Brasil') learnVisit(`region:${region}`);
+    }
+  }, [tab, uf, region, learningReady, learningEnabled, learnVisit, welcome]);
   function contextNote(note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>) {
     try {
       const previous = readWatch(JSON.parse(localStorage.getItem('observatorio.watch') || '{}'));
@@ -1127,6 +1144,11 @@ function DashboardContent({
                 results={all}
                 uf={uf}
                 region={region}
+                onExplore={(item) => {
+                  setUf(item.state || 'BR');
+                  setRegion(item.region || 'Brasil');
+                  go(item.topic);
+                }}
                 onRegion={(next) => {
                   setRegion(next);
                   setUf('BR');

@@ -1,4 +1,4 @@
-export const privacyVersion = '2026-10-13.2';
+export const privacyVersion = '2026-10-22.1';
 export const pushConsentVersion = '2026-10-13-push';
 export const analyticsConsentVersion = '2026-10-13-analytics';
 export const privacyContact = {
@@ -19,8 +19,19 @@ export const pushAuthorization = {
   transferInformation: pushTransferText,
 } as const;
 
-export function validPushAuthorization(value: unknown) {
+export function validPushAuthorization(value: unknown): value is Omit<
+  typeof pushAuthorization,
+  'noticeVersion'
+> & {
+  noticeVersion: typeof privacyVersion | '2026-10-13.2';
+} {
   if (!value || typeof value !== 'object') return false;
   const record = value as Record<string, unknown>;
-  return Object.entries(pushAuthorization).every(([key, expected]) => record[key] === expected);
+  // The new notice adds optional local learning; the push purpose and statements are unchanged.
+  // A still-open older client may submit the exact prior push disclosure it actually displayed.
+  return Object.entries(pushAuthorization).every(([key, expected]) =>
+    key === 'noticeVersion'
+      ? record[key] === expected || record[key] === '2026-10-13.2'
+      : record[key] === expected,
+  );
 }
