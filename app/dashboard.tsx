@@ -265,7 +265,6 @@ function DashboardContent({
   const go = (next: string) => {
     if (next !== 'watch') setWatchSection(undefined);
     setMobile(false);
-    if (observatory && next === 'overview') setRegion('Brasil');
     if (next === tab) {
       window.scrollTo({ top: 0, behavior: scrollBehavior() });
       return;
@@ -448,9 +447,7 @@ function DashboardContent({
     const params = new URLSearchParams(location.search);
     if (nav.some((n) => n[0] === params.get('tab'))) setTab(params.get('tab')!);
     if (states.some((s) => s[1] === params.get('uf'))) setUf(params.get('uf')!);
-    if (observatory && (!params.get('tab') || params.get('tab') === 'overview'))
-      setRegion('Brasil');
-    else if (regions.includes(params.get('region') || '')) setRegion(params.get('region')!);
+    if (regions.includes(params.get('region') || '')) setRegion(params.get('region')!);
     if (years.includes(Number(params.get('year')))) setYear(Number(params.get('year')));
     if (['1', '2'].includes(params.get('turn') || '')) setTurn(Number(params.get('turn')));
     setHydrated(true);
@@ -1129,8 +1126,12 @@ function DashboardContent({
               <ObservatoryRoom
                 results={all}
                 uf={uf}
+                region={region}
+                onRegion={(next) => {
+                  setRegion(next);
+                  setUf('BR');
+                }}
                 onState={(next) => {
-                  setRegion('Brasil');
                   setUf(next);
                 }}
                 onGo={go}

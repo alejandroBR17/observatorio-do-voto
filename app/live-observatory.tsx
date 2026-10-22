@@ -11,6 +11,7 @@ import { Progression, type ProgressionPoint } from './components/vote-progressio
 import { LiveCountdown } from './live-countdown';
 import { Disclosure } from './disclosure';
 import { Map } from './geo-map';
+import { RegionalResults } from './regional-results';
 
 type LiveState = {
   status: string;
@@ -228,6 +229,7 @@ export function LiveObservatory({
               </label>
             </div>
             <Map data={stateResults} region={region} selected={uf} onSelect={onState} />
+            <RegionalResults data={stateResults} turn={2} region={region} onRegion={onRegion} />
             <p className="fine">
               Os estados são consultados separadamente. A atualização de um estado pode ocorrer em
               momento diferente da totalização nacional.

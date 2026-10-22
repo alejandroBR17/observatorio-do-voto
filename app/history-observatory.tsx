@@ -16,6 +16,7 @@ import { Source } from './components/source-link';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
 import { Disclosure } from './disclosure';
 import { Map } from './geo-map';
+import { RegionalResults } from './regional-results';
 
 const regions = ['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'];
 
@@ -180,6 +181,7 @@ export function HistoryObservatory({
       ) : (
         <>
           <DataFreshness archived generated={result.generated} />
+          <RegionalResults data={data} turn={turn} region={region} onRegion={onRegion} />
           {(year === 1994 || year === 1998 || result.missingStates > 0) && (
             <p className="notice">
               {year <= 1998

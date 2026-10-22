@@ -248,6 +248,80 @@
   font-size: 12px;
   white-space: nowrap;
 }
+.regional-results {
+  padding: 20px;
+  min-width: 0;
+}
+.regional-results h3 {
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+.regional-results > p {
+  color: var(--muted);
+  font-size: 15px;
+  margin: 0 0 16px;
+}
+.regional-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: 12px;
+}
+.regional-result {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.regional-result[aria-pressed='true'] {
+  border-color: var(--or-amber);
+  box-shadow: inset 0 0 0 1px var(--or-amber);
+}
+.regional-result > strong {
+  font-size: 18px;
+}
+.regional-result-status,
+.regional-result small {
+  font-size: 13px;
+  color: var(--muted);
+}
+.regional-result-candidate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+.regional-result-candidate > span:not(:first-child) {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.regional-result-candidate img {
+  width: 32px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.regional-result-candidate small {
+  display: block;
+  margin-top: 4px;
+}
+.regional-result-candidate b {
+  margin-left: auto;
+  white-space: nowrap;
+}
+.regional-result-action {
+  color: var(--or-amber);
+  font-size: 14px;
+  margin-top: auto;
+}
 .or-atlas-toolbar {
   display: flex;
   align-items: center;

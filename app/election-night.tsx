@@ -11,6 +11,7 @@ import { DataFreshness } from './components/data-freshness';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
 import { Source } from './components/source-link';
 import { ScreenAwakeButton } from './pwa';
+import { RegionalResults } from './regional-results';
 
 function CandidatePortrait({ candidate }: { candidate: Candidate }) {
   const [failedSource, setFailedSource] = useState('');
@@ -59,6 +60,7 @@ export function ElectionNight({
   const [fullscreen, setFullscreen] = useState(false);
   const [fullError, setFullError] = useState('');
   const [selected, setSelected] = useState('BR');
+  const [region, setRegion] = useState('Brasil');
   const [allCandidates, setAllCandidates] = useState(false);
   const shown = nightResult(result, states, selected);
   const place =
@@ -179,8 +181,14 @@ export function ElectionNight({
               </small>
             </span>
           </div>
-          {selected !== 'BR' && (
-            <button className="button secondary" onClick={() => setSelected('BR')}>
+          {(selected !== 'BR' || region !== 'Brasil') && (
+            <button
+              className="button secondary"
+              onClick={() => {
+                setSelected('BR');
+                setRegion('Brasil');
+              }}
+            >
               <RotateCcw size={16} aria-hidden="true" />
               Voltar ao Brasil
             </button>
@@ -273,21 +281,32 @@ export function ElectionNight({
             </section>
           )}
           <section className="night-map">
-            <h3>O país, estado por estado</h3>
+            <h3>{region === 'Brasil' ? 'O país, estado por estado' : `Mapa · ${region}`}</h3>
             {observatory && (
               <label className="or-night-state">
                 Consultar estado
                 <select value={selected} onChange={(event) => setSelected(event.target.value)}>
                   <option value="BR">Brasil inteiro</option>
-                  {stateCatalog.map((state) => (
-                    <option key={state[1]} value={state[1]}>
-                      {state[2]}
-                    </option>
-                  ))}
+                  {stateCatalog
+                    .filter((state) => region === 'Brasil' || state[3] === region)
+                    .map((state) => (
+                      <option key={state[1]} value={state[1]}>
+                        {state[2]}
+                      </option>
+                    ))}
                 </select>
               </label>
             )}
-            <Map data={states} region="Brasil" selected={selected} onSelect={setSelected} />
+            <Map data={states} region={region} selected={selected} onSelect={setSelected} />
+            <RegionalResults
+              data={states}
+              turn={result.turn}
+              region={region}
+              onRegion={(next) => {
+                setRegion(next);
+                setSelected('BR');
+              }}
+            />
             {selected !== 'BR' && !observatory && (
               <button className="button secondary" onClick={() => setSelected('BR')}>
                 Voltar ao Brasil

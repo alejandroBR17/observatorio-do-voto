@@ -33,10 +33,14 @@ import { VisitHighlights } from './visit-highlights';
 import type { ImportantLive } from '@/lib/important-updates';
 import { electionPalette } from '@/lib/election-palette';
 import { overviewResults } from '@/lib/overview-results';
+import { historySelection } from '@/lib/history-selection';
+import { RegionalResults, electoralRegions } from './regional-results';
 
 export function ObservatoryRoom({
   results,
   uf,
+  region,
+  onRegion,
   onState,
   onGo,
   liveStatus,
@@ -45,6 +49,8 @@ export function ObservatoryRoom({
 }: {
   results: Result[];
   uf: string;
+  region: string;
+  onRegion: (region: string) => void;
   onState: (uf: string) => void;
   onGo: (tab: string) => void;
   liveStatus: string;
@@ -81,17 +87,22 @@ export function ObservatoryRoom({
   }, [year]);
   const secondTurn = year === 2026 && turn === 2;
   const data = overviewResults(year, turn, results, liveResults, archive);
-  const waiting = secondTurn && !data.some((r) => r.uf === uf);
-  const current = data.find((r) => r.uf === uf);
+  const current =
+    uf === 'BR' && region !== 'Brasil'
+      ? historySelection(data, turn, uf, region)
+      : data.find((r) => r.uf === uf);
+  const waiting = secondTurn && !current;
   const national = data.find((r) => r.uf === 'BR');
   const palette = electionPalette(national?.candidates || []);
   const resultColor = (number: string) =>
     palette.find((candidate) => candidate.number === number)?.color || '#87999b';
   const selection =
     uf === 'BR'
-      ? year === 1994
-        ? 'Brasil · votos no país'
-        : 'Brasil'
+      ? region !== 'Brasil'
+        ? region
+        : year === 1994
+          ? 'Brasil · votos no país'
+          : 'Brasil'
       : states.find((s) => s[1] === uf)?.[2] || uf;
   const pair = current?.candidates.filter((c) => c.votes > 0).slice(0, 2) || [];
   const orderedPolls = [...(polling?.polls || [])]
@@ -101,7 +112,9 @@ export function ObservatoryRoom({
   const poll = orderedPolls.find((p) => p.id === pollId) || latest;
   const numbers = poll && pollNumbers(poll, 'valid');
   const leading = data.filter(
-    (r) => states.some((s) => s[1] === r.uf) && (!focus || r.candidates[0]?.number === focus),
+    (r) =>
+      states.some((s) => s[1] === r.uf && (region === 'Brasil' || s[3] === region)) &&
+      (!focus || r.candidates[0]?.number === focus),
   );
   const leadingStates = leading.filter((r) => r.uf !== 'DF').length;
   const leadsFederalDistrict = leading.some((r) => r.uf === 'DF');
@@ -201,18 +214,34 @@ export function ObservatoryRoom({
               )}
             </div>
             <label className="or-state-select">
+              Região
+              <select
+                aria-label="Região dos resultados"
+                value={region}
+                onChange={(event) => onRegion(event.target.value)}
+              >
+                {electoralRegions.map((value) => (
+                  <option key={value}>{value}</option>
+                ))}
+              </select>
+            </label>
+            <label className="or-state-select">
               <MapPin size={14} />
               <select
                 aria-label="Explorar estado"
                 value={uf}
                 onChange={(e) => onState(e.target.value)}
               >
-                <option value="BR">Brasil inteiro</option>
-                {states.map((s) => (
-                  <option key={s[1]} value={s[1]}>
-                    {s[2]}
-                  </option>
-                ))}
+                <option value="BR">
+                  {region === 'Brasil' ? 'Brasil inteiro' : 'Toda a região'}
+                </option>
+                {states
+                  .filter((s) => region === 'Brasil' || s[3] === region)
+                  .map((s) => (
+                    <option key={s[1]} value={s[1]}>
+                      {s[2]}
+                    </option>
+                  ))}
               </select>
             </label>
           </div>
@@ -237,7 +266,7 @@ export function ObservatoryRoom({
               ) : (
                 <Map
                   data={data.filter((r) => r.uf !== 'BR')}
-                  region="Brasil"
+                  region={region}
                   selected={uf}
                   onSelect={onState}
                   focusCandidate={focus}
@@ -358,7 +387,9 @@ export function ObservatoryRoom({
               {year === 2026
                 ? waiting
                   ? 'aguardando divulgação oficial'
-                  : `${current ? pct(current.counted) : '—'} das seções`
+                  : current && 'counted' in current
+                    ? `${pct(current.counted)} das seções`
+                    : 'soma dos votos dos estados da região'
                 : 'acervo do TSE'}
             </span>
             {current && (
@@ -367,12 +398,18 @@ export function ObservatoryRoom({
               </a>
             )}
           </div>
-          {year === 1994 && uf === 'BR' && (
+          {current && 'missingStates' in current && current.missingStates > 0 && (
+            <p className="or-coverage-note">
+              Faltam registros de {current.missingStates} estado(s) neste recorte.
+            </p>
+          )}
+          {year === 1994 && uf === 'BR' && region === 'Brasil' && (
             <p className="or-coverage-note">
               O total de 1994 nesta base soma os votos no país; os votos no exterior não estão
               incluídos.
             </p>
           )}
+          <RegionalResults data={data} turn={turn} region={region} onRegion={onRegion} />
           <details className="or-archive-sources">
             <summary>Fontes dos resultados e retratos</summary>
             <p>
@@ -451,7 +488,9 @@ export function ObservatoryRoom({
               <div>
                 <span>Participação</span>
                 <strong>
-                  {current.turnout > 0 && Number.isFinite(current.abstention)
+                  {'turnout' in current &&
+                  current.turnout > 0 &&
+                  Number.isFinite(current.abstention)
                     ? pct(100 - current.abstention)
                     : 'Não disponível'}
                 </strong>
