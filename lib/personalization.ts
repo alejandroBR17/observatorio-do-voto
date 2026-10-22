@@ -17,6 +17,7 @@ type Signal = { value: number; at: number };
 export type LearningState = {
   version: 1;
   enabled: boolean;
+  decided: boolean;
   autoDetails: boolean;
   contentEnabled: boolean;
   contentOrder: 'personal' | 'recent';
@@ -31,6 +32,7 @@ export function emptyLearning(): LearningState {
   return {
     version: 1,
     enabled: false,
+    decided: false,
     autoDetails: true,
     contentEnabled: false,
     contentOrder: 'personal',
@@ -64,6 +66,8 @@ export function readLearning(raw: unknown, now = Date.now()): LearningState {
   const input = raw as Partial<LearningState>;
   if (input.version !== 1) return result;
   result.enabled = input.enabled === true;
+  result.decided =
+    input.decided === true || input.enabled === true || input.contentEnabled === true;
   result.autoDetails = input.autoDetails !== false;
   result.contentEnabled = input.contentEnabled === true;
   result.contentOrder = input.contentOrder === 'recent' ? 'recent' : 'personal';

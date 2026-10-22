@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Onboarding, welcomeTermsStep } from '../app/onboarding';
+import { Onboarding, welcomePersonalizationStep, welcomeTermsStep } from '../app/onboarding';
 import { hasCurrentTerms, termsVersion } from '../lib/terms';
 
 test('missing, outdated or unreadable terms never authorize dismissal of a required welcome', () => {
@@ -11,12 +11,12 @@ test('missing, outdated or unreadable terms never authorize dismissal of a requi
   assert.equal(hasCurrentTerms(JSON.stringify({ version: termsVersion })), true);
 });
 
-function renderWelcome(allowDismiss = false) {
+function renderWelcome(allowDismiss = false, initialStep = welcomeTermsStep) {
   return renderToStaticMarkup(
     createElement(Onboarding, {
       nickname: '',
       favorite: '',
-      initialStep: welcomeTermsStep,
+      initialStep,
       notification: 'Desativadas',
       serviceReady: false,
       serviceMessage: '',
@@ -35,6 +35,17 @@ test('the required welcome retains its unchecked terms and provides no profile e
   assert.ok(html.includes('Li e aceito os'));
   assert.ok(!html.includes('checked=""'));
   assert.ok(!html.includes('Voltar ao perfil'));
+});
+
+test('personalization has a visible dedicated step before terms and never preselects optional learning', () => {
+  const html = renderWelcome(false, welcomePersonalizationStep);
+  assert.ok(welcomePersonalizationStep < welcomeTermsStep);
+  assert.ok(html.includes('Quer que o app aprenda com seu uso?'));
+  assert.ok(html.includes('Personalizar minha experiência pelo uso'));
+  assert.ok(html.includes('Organizar notícias e publicações para mim'));
+  assert.ok(!html.includes('<details'));
+  assert.ok(!html.includes('checked=""'));
+  assert.ok(!html.includes('Li e aceito os'));
 });
 
 test('an optional profile review offers an exit without recording or preselecting consent', () => {

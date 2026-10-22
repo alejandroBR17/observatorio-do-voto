@@ -13,18 +13,22 @@ import { candidates } from '@/lib/content';
 import { useReading } from './reading';
 import { AnalyticsConsent, PushConsent } from './components/privacy-consent';
 import { readPrivacyChoice } from '@/lib/privacy-choices';
-import { PersonalizationChoices } from './personalization';
+import { PersonalizationChoices, usePersonalization } from './personalization';
 export type WelcomeChoices = {
   nickname: string;
   favorite: string;
   details: boolean;
   analytics: boolean;
 };
-export const welcomeTermsStep = 3;
+export const welcomePersonalizationStep = 3;
+export const welcomeTermsStep = 4;
+const welcomeNotificationsStep = 5;
+const welcomeFinalStep = 6;
 const welcomeSteps = [
   { label: 'Boas-vindas', title: 'Seu próprio olhar.' },
   { label: 'Quem acompanhar', title: 'Qual perspectiva você prefere?' },
   { label: 'Seu jeito de ler', title: 'Quanto contexto faz sentido?' },
+  { label: 'Personalização', title: 'Quer que o app aprenda com seu uso?' },
   { label: 'Termos', title: 'Transparência antes de começar.' },
   { label: 'Notificações', title: 'Avisos no seu ritmo.' },
   { label: 'Estatísticas', title: 'Tudo pronto para acompanhar.' },
@@ -62,6 +66,7 @@ export function Onboarding({
 }) {
   const dialog = useRef<HTMLDialogElement>(null),
     { reading } = useReading();
+  const learning = usePersonalization();
   const [step, setStep] = useState(initialStep),
     [name, setName] = useState(nickname),
     [choice, setChoice] = useState(favorite),
@@ -104,14 +109,14 @@ export function Onboarding({
     if (activating || !accepted || !alertsConsent) return;
     if (reviewOnly) {
       setPreviewActivated(true);
-      setStep(5);
+      setStep(welcomeFinalStep);
       return;
     }
     setActivating(true);
     try {
       const result = await onEnable();
       setMessage(result.message);
-      if (result.ok) setStep(5);
+      if (result.ok) setStep(welcomeFinalStep);
     } catch {
       setMessage('Não foi possível ativar agora. Tente novamente ou continue sem notificações.');
     } finally {
@@ -235,7 +240,7 @@ export function Onboarding({
                   ? 'Quem você quer acompanhar?'
                   : observatory && step === 2
                     ? 'Quanto detalhe quer ver?'
-                    : observatory && step === 5
+                    : observatory && step === welcomeFinalStep
                       ? 'Ajude a melhorar o app.'
                       : welcomeSteps[step].title}
             </h2>
@@ -350,12 +355,19 @@ export function Onboarding({
                 <p className="fine">
                   Você pode mudar depois no Perfil. Os resultados oficiais são iguais para todos.
                 </p>
-                {!reviewOnly && (
-                  <details className="inline-details">
-                    <summary>Quer que o app aprenda com seu uso? É opcional.</summary>
-                    <PersonalizationChoices compact />
-                  </details>
-                )}
+              </>
+            ) : step === welcomePersonalizationStep ? (
+              <>
+                <p>
+                  Você decide. Se autorizar, o app aprende pelas suas consultas, sem exigir
+                  avaliações a cada leitura.
+                </p>
+                <PersonalizationChoices compact preview={reviewOnly} />
+                <p className="fine">
+                  Prefere não personalizar? Deixe as opções desligadas e continue. Você pode mudar
+                  no Panorama ou no Perfil. Os alertas adaptativos têm uma autorização separada em
+                  Alertas.
+                </p>
               </>
             ) : step === welcomeTermsStep ? (
               <>
@@ -396,7 +408,7 @@ export function Onboarding({
                   </span>
                 </label>
               </>
-            ) : step === 4 ? (
+            ) : step === welcomeNotificationsStep ? (
               <>
                 <p>
                   Novas pesquisas e os principais momentos da apuração, mesmo com o app fechado.
@@ -458,7 +470,13 @@ export function Onboarding({
           <div className="welcome-actions">
             {step === 0 ? (
               <>
-                <button className="text-button" onClick={() => setStep(welcomeTermsStep)}>
+                <button
+                  className="text-button"
+                  onClick={() => {
+                    if (!reviewOnly && !learning.state.decided) learning.configure(false);
+                    setStep(welcomeTermsStep);
+                  }}
+                >
                   Continuar sem personalizar
                 </button>
                 <button className="button primary" onClick={() => setStep(1)}>
@@ -476,8 +494,12 @@ export function Onboarding({
                   <ChevronLeft size={14} />
                   Voltar
                 </button>
-                {step === 4 && !alertsActive && (
-                  <button className="text-button" disabled={activating} onClick={() => setStep(5)}>
+                {step === welcomeNotificationsStep && !alertsActive && (
+                  <button
+                    className="text-button"
+                    disabled={activating}
+                    onClick={() => setStep(welcomeFinalStep)}
+                  >
                     Agora não
                   </button>
                 )}
@@ -486,24 +508,32 @@ export function Onboarding({
                   disabled={
                     activating ||
                     (step >= welcomeTermsStep && !accepted) ||
-                    (step === 4 &&
+                    (step === welcomeNotificationsStep &&
                       !alertsActive &&
                       (!alertsConsent || (!reviewOnly && (!supported || !serviceReady))))
                   }
                   aria-busy={activating}
                   onClick={() => {
-                    if (step === 5) finish();
-                    else if (step === 4 && !alertsActive) void activate();
-                    else setStep(step + 1);
+                    if (step === welcomeFinalStep) finish();
+                    else if (step === welcomeNotificationsStep && !alertsActive) void activate();
+                    else {
+                      if (
+                        step === welcomePersonalizationStep &&
+                        !reviewOnly &&
+                        !learning.state.decided
+                      )
+                        learning.configure(false);
+                      setStep(step + 1);
+                    }
                   }}
                 >
                   {activating
                     ? 'Ativando…'
-                    : step === 5
+                    : step === welcomeFinalStep
                       ? reviewOnly
                         ? 'Concluir simulação'
                         : 'Entrar no Observatório'
-                      : step === 4 && !alertsActive
+                      : step === welcomeNotificationsStep && !alertsActive
                         ? reviewOnly
                           ? 'Simular ativação e continuar'
                           : 'Ativar e continuar'
@@ -518,7 +548,7 @@ export function Onboarding({
               {message}
             </p>
           )}
-          {step === 5 && !reviewOnly && (
+          {step === welcomeFinalStep && !reviewOnly && (
             <button className="welcome-alerts" disabled={!accepted} onClick={() => finish(true)}>
               <SlidersHorizontal size={15} />
               Entrar e escolher categorias de alertas

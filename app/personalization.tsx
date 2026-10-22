@@ -1,5 +1,6 @@
 'use client';
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
+import { SlidersHorizontal } from 'lucide-react';
 import { learningLabel } from '@/lib/discoveries';
 import {
   adaptiveNotice,
@@ -141,6 +142,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
       update((value) => ({
         ...readLearning(value),
         enabled,
+        decided: true,
         autoDetails: autoDetails ?? value.autoDetails,
       }));
       setReadingSuggestion(suggestedReading(current.current));
@@ -226,8 +228,25 @@ export function useDetailLearning() {
   };
 }
 
-export function PersonalizationChoices({ compact = false }: { compact?: boolean }) {
-  const { state, ready, configure, configureContent, configurePush } = usePersonalization();
+export function PersonalizationChoices({
+  compact = false,
+  preview = false,
+}: {
+  compact?: boolean;
+  preview?: boolean;
+}) {
+  const learning = usePersonalization();
+  const [example, setExample] = useState(emptyLearning);
+  const state = preview ? example : learning.state;
+  const ready = preview || learning.ready;
+  const configure = (enabled: boolean) =>
+    preview ? setExample((old) => ({ ...old, enabled })) : learning.configure(enabled);
+  const configureContent = (contentEnabled: boolean) =>
+    preview
+      ? setExample((old) => ({ ...old, contentEnabled }))
+      : learning.configureContent(contentEnabled);
+  const configurePush = (pushEnabled: boolean) =>
+    preview ? setExample((old) => ({ ...old, pushEnabled })) : learning.configurePush(pushEnabled);
   return (
     <div className="learning-choices">
       <label className="alert-option">
@@ -293,6 +312,97 @@ export function PersonalizationChoices({ compact = false }: { compact?: boolean 
         </p>
       )}
     </div>
+  );
+}
+export function PersonalizationEntry() {
+  const { state, ready, configure, storageError } = usePersonalization();
+  const [open, setOpen] = useState(false);
+  const id = useId();
+  const trigger = useRef<HTMLButtonElement>(null);
+  const options = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (open)
+      options.current?.querySelector<HTMLInputElement>('input')?.focus({ preventScroll: true });
+  }, [open]);
+  function close() {
+    setOpen(false);
+    trigger.current?.focus({ preventScroll: true });
+  }
+  return (
+    <section
+      className="personalization-entry"
+      id="personalizar"
+      aria-label="Personalize sua experiência"
+    >
+      <div className="personalization-entry-heading">
+        <SlidersHorizontal size={23} aria-hidden="true" />
+        <div>
+          <span className="eyebrow">SEU OBSERVATÓRIO, DO SEU JEITO</span>
+          <h2>
+            {!ready || !state.decided
+              ? 'Quer uma experiência que acompanhe seus interesses?'
+              : state.enabled
+                ? 'Sua experiência está personalizada.'
+                : 'Você está na visão padrão.'}
+          </h2>
+          <p>
+            {!ready || !state.decided
+              ? 'Com sua autorização, o app aprende com suas consultas para sugerir assuntos e ajustar os detalhes. Notícias e alertas têm escolhas próprias.'
+              : 'Reveja suas escolhas de sugestões, notícias e alertas aqui, sem precisar procurar no Perfil.'}
+          </p>
+        </div>
+      </div>
+      <div className="personalization-entry-actions">
+        {!state.decided ? (
+          <>
+            <button
+              ref={trigger}
+              className="button primary"
+              disabled={!ready}
+              aria-expanded={open}
+              aria-controls={id}
+              onClick={() => {
+                configure(true);
+                setOpen(true);
+              }}
+            >
+              Quero personalizar
+            </button>
+            <button
+              className="button secondary"
+              disabled={!ready}
+              onClick={() => {
+                configure(false);
+                setOpen(false);
+              }}
+            >
+              Prefiro a visão padrão
+            </button>
+          </>
+        ) : (
+          <button
+            ref={trigger}
+            className="button secondary"
+            aria-expanded={open}
+            aria-controls={id}
+            onClick={() => (open ? close() : setOpen(true))}
+          >
+            {open ? 'Fechar escolhas' : 'Escolher minha experiência'}
+          </button>
+        )}
+      </div>
+      <div id={id} ref={options} hidden={!open} className="personalization-entry-options">
+        <PersonalizationChoices />
+        <button className="button primary" onClick={close}>
+          Concluir escolhas
+        </button>
+      </div>
+      {storageError && (
+        <p className="fine" role="status">
+          Não foi possível salvar a decisão no aparelho. Ela pode valer somente nesta visita.
+        </p>
+      )}
+    </section>
   );
 }
 export function PersonalizationSettings() {

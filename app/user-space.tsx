@@ -128,6 +128,7 @@ export function Profile({
           <ArrowUpRight size={15} />
         </button>
       </div>
+      <PersonalizationSettings />
       <div className="dashboard-grid equal">
         <section className="panel or-profile-identity">
           <span className="section-index">IDENTIDADE LOCAL</span>
@@ -228,7 +229,6 @@ export function Profile({
         </section>
       </div>
       <AnalysisPreference />
-      <PersonalizationSettings />
       {observatory ? (
         <div className="or-profile-privacy">
           <Disclosure

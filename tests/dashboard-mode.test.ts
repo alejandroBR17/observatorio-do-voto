@@ -10,6 +10,13 @@ test('the observatory design can render independently of preview-only behavior',
   assert.ok(production.includes('control-room'));
   assert.ok(production.includes('pela Presidência.'));
   assert.ok(!production.includes('Prévia para revisão'));
+  assert.ok(production.includes('Quero personalizar'));
+  assert.ok(production.includes('Prefiro a visão padrão'));
+  assert.ok(production.indexOf('id="personalizar"') >= 0);
+  assert.ok(
+    production.indexOf('id="personalizar"') < production.indexOf('id="territorio"'),
+    'the personalization decision is visible before the entire map',
+  );
   const preview = renderToStaticMarkup(createElement(Dashboard, { reviewOnly: true }));
   assert.ok(preview.includes('control-room'));
   assert.ok(preview.includes('Prévia para revisão'));

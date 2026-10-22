@@ -35,6 +35,7 @@ test('content learning needs its own opt-in and classifies subjects without cand
   assert.deepEqual(readLearning({ ...emptyLearning(), enabled: true }).contentEnabled, false);
   assert.equal(readLearning({ ...emptyLearning(), enabled: true }).pushEnabled, false);
   assert.equal(readLearning({ ...emptyLearning(), contentOrder: 'recent' }).contentOrder, 'recent');
+  assert.equal(readLearning({ ...emptyLearning(), enabled: false, decided: true }).decided, true);
 });
 test('ranking learns autonomously, reduces opened headlines and keeps chronology, all stories and source variety', () => {
   const now = Date.now();
@@ -86,6 +87,11 @@ test('remote summary requires separate permission and sufficient recent evidence
   assert.equal(learnedAlertSummary(state, now), undefined);
   state = { ...state, pushEnabled: true, pushAcceptedAt: now };
   const summary = learnedAlertSummary(state, now)!;
+  assert.equal(
+    adaptiveAlerts({ ...summary, subjects: ['polls', 'proposals', 'debates', 'context'] }, now)
+      ?.subjects.length,
+    3,
+  );
   assert.deepEqual(summary.subjects, ['debates']);
   let byPage = {
     ...emptyLearning(),

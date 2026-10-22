@@ -151,7 +151,9 @@ export function adaptiveAlerts(value: unknown, now = Date.now()): AdaptiveAlerts
     !Array.isArray(input.subjects)
   )
     return;
-  const subjects = contentSubjects.filter((subject) => input.subjects.includes(subject));
+  const subjects = contentSubjects
+    .filter((subject) => input.subjects.includes(subject))
+    .slice(0, 3);
   if (!subjects.length) return;
   return {
     version: adaptiveNoticeVersion,

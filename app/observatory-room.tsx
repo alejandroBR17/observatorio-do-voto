@@ -36,6 +36,7 @@ import { overviewResults } from '@/lib/overview-results';
 import { historySelection } from '@/lib/history-selection';
 import { RegionalResults, electoralRegions } from './regional-results';
 import { SmartDiscoveries } from './smart-discoveries';
+import { PersonalizationEntry } from './personalization';
 import type { Discovery } from '@/lib/personalization';
 
 export function ObservatoryRoom({
@@ -163,6 +164,7 @@ export function ObservatoryRoom({
         </span>
       </nav>
       <VisitHighlights polls={polling} live={live} onGo={onGo} />
+      <PersonalizationEntry />
       <div className="or-primary">
         <section className="or-atlas" id="territorio">
           <div className="or-section-head">

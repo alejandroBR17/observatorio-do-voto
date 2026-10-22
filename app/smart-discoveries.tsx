@@ -19,13 +19,8 @@ export function SmartDiscoveries({
 }) {
   const { state, ready } = usePersonalization();
   const [choosing, setChoosing] = useState(false);
-  if (!ready)
-    return (
-      <aside className="learning-offer" aria-busy="true">
-        <p>Preparando seu espaço de exploração…</p>
-      </aside>
-    );
-  if (!state.enabled || choosing)
+  if (!ready || !state.enabled) return null;
+  if (choosing)
     return (
       <aside className="learning-offer">
         <div>

@@ -1,4 +1,55 @@
 /* Preview identity: warm light, obsidian dark, amber reserved for observation. */
+.personalization-entry {
+  padding: 22px;
+  border: 1px solid var(--or-amber);
+  border-radius: 16px;
+  background: var(--surface);
+  min-width: 0;
+}
+.personalization-entry-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.personalization-entry-heading > svg {
+  flex-shrink: 0;
+  color: var(--or-amber);
+  margin-top: 4px;
+}
+.personalization-entry h2 {
+  font-size: clamp(20px, 2.3vw, 26px);
+  line-height: 1.3;
+  margin: 8px 0;
+}
+.personalization-entry p {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+  margin: 0;
+}
+.personalization-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+.personalization-entry-options {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 20px;
+}
+.personalization-entry-options > .button {
+  margin-top: 16px;
+}
+@media (max-width: 420px) {
+  .personalization-entry {
+    padding: 16px;
+  }
+  .personalization-entry-actions > .button {
+    width: 100%;
+    justify-content: center;
+  }
+}
 .learning-offer {
   display: flex;
   align-items: center;
