@@ -1,12 +1,11 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MotionConfig, motion } from 'motion/react';
-import { ArrowUpRight, BookmarkPlus, Check, Radio, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, BookmarkPlus, Check, Radio } from 'lucide-react';
 import { debateCoverage, debatePublicationTime, type DebatePhase } from '@/lib/debate';
 import type { MediaArticle } from '@/lib/media-types';
-import type { DebateContext, DebateVideo } from '@/lib/debate-context';
+import type { DebateVideo } from '@/lib/debate-context';
 import type { DebateEditorial } from '@/lib/debate-editorial';
-import { Source } from './components/source-link';
 import { DataFreshness } from './components/data-freshness';
 
 const EMPTY: MediaArticle[] = [];
@@ -51,7 +50,6 @@ export function DebatePlayer({ video }: { video: DebateVideo }) {
 
 export function DebateCompanion({
   articles = EMPTY,
-  context,
   phase,
   loading,
   checkedAt,
@@ -62,7 +60,6 @@ export function DebateCompanion({
   liveAlertsActive,
 }: {
   articles?: MediaArticle[];
-  context?: Partial<DebateContext> | null;
   phase: DebatePhase;
   loading: boolean;
   checkedAt?: string | null;
@@ -297,45 +294,9 @@ export function DebateCompanion({
           fontes a cada minuto durante a faixa do debate e a cada cinco minutos fora dela. O veículo
           pode publicar com atraso. Horários de Brasília.
         </p>
-        <details className="debate-disclosure debate-verified-claims">
-          <summary>
-            <ShieldCheck size={18} />
-            Checagens publicadas pelas fontes<span aria-hidden="true">+</span>
-          </summary>
-          <div>
-            {context?.checks?.length ? (
-              context.checks.map((check) => (
-                <article className="debate-claim" key={check.url + check.claim}>
-                  <span>
-                    {check.source} · {time(debatePublicationTime(check.publishedAt))}
-                  </span>
-                  <h3>{check.claim}</h3>
-                  <p>
-                    <strong>Conclusão da fonte: {check.verdict}</strong>
-                  </p>
-                  <Source href={check.url}>Ler evidências e conclusão original</Source>
-                </article>
-              ))
-            ) : (
-              <p>
-                Ainda não há checagens estruturadas deste encontro identificadas nesta consulta. Uma
-                fala sem checagem não é automaticamente verdadeira nem falsa.
-              </p>
-            )}
-            <p>
-              O Observatório mostra a conclusão do veículo quando ela vem identificada na
-              publicação. Não produz vereditos automáticos sobre as falas.
-            </p>
-            <Source href="https://g1.globo.com/fato-ou-fake/">Fato ou Fake · g1</Source>
-            <Source href="https://noticias.uol.com.br/confere/">UOL Confere</Source>
-            {context?.status !== 'ready' && (
-              <p className="fine">
-                A consulta de checagens está temporariamente limitada. Os links das fontes continuam
-                disponíveis.
-              </p>
-            )}
-          </div>
-        </details>
+        <a className="button secondary" href="#debate-checagens">
+          Consultar checagens do debate
+        </a>
       </section>
     </MotionConfig>
   );

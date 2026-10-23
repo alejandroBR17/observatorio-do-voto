@@ -11,7 +11,6 @@ import {
   CalendarDays,
   MessagesSquare,
   PenLine,
-  ShieldCheck,
   Tv,
 } from 'lucide-react';
 import {
@@ -35,6 +34,7 @@ import { scrollBehavior } from './motion';
 import { DataFreshness } from './components/data-freshness';
 import { ShareButton } from './components/share-button';
 import { DebateAlerts } from './debate-alerts';
+import { DebateChecks } from './debate-checks';
 import { Source } from './components/source-link';
 import { NewsVisual } from './news-visual';
 import { DebateCompanion, DebatePlayer } from './debate-companion';
@@ -85,7 +85,7 @@ export function DebateObservatory({
   onPrefs,
   onRetry,
   serviceMessage,
-  alertsOpen,
+  alertsRequest,
   onAlertsOpen,
   syncMessage,
   onGo,
@@ -101,7 +101,7 @@ export function DebateObservatory({
   onPrefs: (prefs: AlertPreferences) => Promise<void>;
   onRetry: () => void;
   serviceMessage?: string;
-  alertsOpen: boolean;
+  alertsRequest: number;
   onAlertsOpen: (open: boolean) => void;
   syncMessage?: string;
   onGo: (tab: string) => void;
@@ -137,7 +137,7 @@ export function DebateObservatory({
     .filter((poll) => poll.scope === 'Brasil' && poll.turn === 2)
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
   useEffect(() => {
-    if (!alertsOpen) return;
+    if (!alertsRequest) return;
     const frame = requestAnimationFrame(() => {
       document
         .getElementById('debate-reminder')
@@ -145,7 +145,7 @@ export function DebateObservatory({
       document.getElementById('debate-alerts-title')?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
-  }, [alertsOpen]);
+  }, [alertsRequest]);
   function openReminder() {
     onAlertsOpen(true);
   }
@@ -320,7 +320,6 @@ export function DebateObservatory({
       </div>
       <DebateCompanion
         articles={media?.articles}
-        context={context}
         phase={phase}
         editorial={editorial}
         onAlerts={openReminder}
@@ -340,7 +339,7 @@ export function DebateObservatory({
           )
         }
       />
-      {alertsOpen && (
+      {alertsRequest > 0 && (
         <DebateAlerts
           prefs={prefs}
           notification={notification}
@@ -414,11 +413,11 @@ export function DebateObservatory({
                 <h4>{row.label}</h4>
                 <div>
                   <p>
-                    <span className="sr-only">Flávio Bolsonaro: </span>
+                    <span className="sr-only debate-comparison-candidate">Flávio Bolsonaro: </span>
                     {row.flavio}
                   </p>
                   <p>
-                    <span className="sr-only">Lula: </span>
+                    <span className="sr-only debate-comparison-candidate">Lula: </span>
                     {row.lula}
                   </p>
                 </div>
@@ -583,32 +582,7 @@ export function DebateObservatory({
             </p>
           </div>
         )}
-        <div className="debate-checks">
-          <div>
-            <ShieldCheck size={25} />
-            <h3>Checagens, com autoria.</h3>
-            <p>
-              Uma reportagem sobre checagem não é um veredito do Observatório. Abra a fonte para
-              conhecer a afirmação, a evidência e a conclusão.
-            </p>
-          </div>
-          <div>
-            {checks.length ? (
-              checks.slice(0, 4).map((article) => (
-                <Source href={article.url} key={article.url}>
-                  {article.source} · {article.title}
-                </Source>
-              ))
-            ) : (
-              <p>
-                {phase === 'before'
-                  ? 'As checagens do encontro entram quando forem publicadas e identificadas nas fontes acompanhadas.'
-                  : 'Ainda não identificamos checagens específicas deste encontro nas fontes consultadas.'}
-              </p>
-            )}
-            <Source href="https://g1.globo.com/fato-ou-fake/">Consultar Fato ou Fake · g1</Source>
-          </div>
-        </div>
+        <DebateChecks context={context} articles={checks} phase={phase} />
       </section>
       <section
         className="debate-panel debate-research"

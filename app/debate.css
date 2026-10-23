@@ -1109,6 +1109,29 @@
 .debate-entry .button svg {
   flex-shrink: 0;
 }
+.debate-page :is(h1, h2, h3, h4, p, summary) {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.debate-page .debate-poll-method p {
+  overflow-wrap: anywhere;
+}
+.debate-checks {
+  scroll-margin-top: 100px;
+}
+.debate-checks > div {
+  min-width: 0;
+}
+.debate-check-sources,
+.debate-check-publications {
+  display: grid;
+  gap: 12px;
+}
+.debate-claim h4 {
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 8px 0;
+}
 @media (max-width: 1000px) {
   .debate-contenders {
     max-height: 320px;
@@ -1881,6 +1904,28 @@
   .debate-comparison-sources {
     padding: 14px 12px;
     gap: 12px;
+  }
+}
+/* Keep each candidate's full statement readable on narrow phones. */
+@media (max-width: 420px) {
+  .debate-comparison-row > div,
+  .debate-comparison-sources {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .debate-comparison-row p + p {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .debate-comparison .debate-comparison-candidate {
+    position: static;
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 0 0 6px;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    font-weight: 700;
   }
 }
 /* Editorial invitation follows the panorama title; it is not a warning banner. */

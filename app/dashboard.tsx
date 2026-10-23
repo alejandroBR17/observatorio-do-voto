@@ -141,7 +141,10 @@ function DashboardContent({
   const { setReading } = useReading();
   const { ready: learningReady, state: learningState, visit: learnVisit } = usePersonalization();
   const learningEnabled = learningState.enabled;
-  const [debateAlertsOpen, setDebateAlertsOpen] = useState(false);
+  const [debateAlertsRequest, setDebateAlertsRequest] = useState(0);
+  function requestDebateAlerts(open: boolean) {
+    setDebateAlertsRequest((current) => (open ? current + 1 : 0));
+  }
   const [welcome, setWelcome] = useState(false),
     [welcomeDismissible, setWelcomeDismissible] = useState(false),
     [termsReviewOnly, setTermsReviewOnly] = useState(false),
@@ -1106,7 +1109,7 @@ function DashboardContent({
             <button
               className="header-alerts"
               aria-label={tab === 'debate' ? 'Escolher avisos deste debate' : 'Abrir alertas'}
-              onClick={() => (tab === 'debate' ? setDebateAlertsOpen(true) : go('alerts'))}
+              onClick={() => (tab === 'debate' ? requestDebateAlerts(true) : go('alerts'))}
             >
               <Bell size={19} />
               <span>Alertas</span>
@@ -1486,8 +1489,8 @@ function DashboardContent({
                 onPrefs={updateAlerts}
                 onRetry={checkPush}
                 serviceMessage={pushMessage}
-                alertsOpen={debateAlertsOpen}
-                onAlertsOpen={setDebateAlertsOpen}
+                alertsRequest={debateAlertsRequest}
+                onAlertsOpen={requestDebateAlerts}
                 syncMessage={deliverySync}
                 onGo={go}
                 onNote={contextNote}
