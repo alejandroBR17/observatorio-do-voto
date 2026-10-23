@@ -1115,13 +1115,12 @@ function DashboardContent({
             className={`page-view${observatory && tab === 'history' ? ' or-history-page' : ''}`}
             key={tab}
           >
-            <div className="page-heading">
-              <div>
-                <div className="eyebrow">{sectionKickers[tab] || 'OBSERVATÓRIO DO VOTO'}</div>
-                <h1 tabIndex={-1} data-page-title>
-                  {tab === 'debate'
-                    ? 'Entenda o debate na Globo.'
-                    : observatory && tab === 'polls'
+            {tab !== 'debate' && (
+              <div className="page-heading">
+                <div>
+                  <div className="eyebrow">{sectionKickers[tab] || 'OBSERVATÓRIO DO VOTO'}</div>
+                  <h1 tabIndex={-1} data-page-title>
+                    {observatory && tab === 'polls'
                       ? 'O pulso da disputa.'
                       : observatory && tab === 'candidates'
                         ? 'Quem disputa a Presidência.'
@@ -1144,11 +1143,9 @@ function DashboardContent({
                                         : tab === 'overview'
                                           ? 'O país em perspectiva.'
                                           : nav.find((n) => n[0] === tab)?.[1]}
-                </h1>
-                <p>
-                  {tab === 'debate'
-                    ? 'Propostas, fontes e contexto para acompanhar Lula e Flávio Bolsonaro.'
-                    : tab === 'overview'
+                  </h1>
+                  <p>
+                    {tab === 'overview'
                       ? 'Resultados, pesquisas e contexto para observar a eleição de perto.'
                       : tab === 'live'
                         ? 'A evolução dos votos, direto da fonte oficial.'
@@ -1171,24 +1168,25 @@ function DashboardContent({
                                       : tab === 'app'
                                         ? 'Instale, prepare seus atalhos e leve o Observatório com você.'
                                         : 'Conheça as trajetórias dos dois candidatos à Presidência.'}
-                </p>
+                  </p>
+                </div>
+                {['overview', 'history', 'live'].includes(tab) && (
+                  <ShareButton
+                    title={`Resultado presidencial · ${tab === 'history' ? year : 2026} · ${uf === 'BR' ? region : uf}`}
+                    label="Compartilhar resultado"
+                    url={() =>
+                      resultLink(location.origin, {
+                        tab,
+                        uf,
+                        region,
+                        year: tab === 'history' ? year : 2026,
+                        turn: tab === 'history' ? turn : tab === 'live' ? 2 : 1,
+                      })
+                    }
+                  />
+                )}
               </div>
-              {['overview', 'history', 'live'].includes(tab) && (
-                <ShareButton
-                  title={`Resultado presidencial · ${tab === 'history' ? year : 2026} · ${uf === 'BR' ? region : uf}`}
-                  label="Compartilhar resultado"
-                  url={() =>
-                    resultLink(location.origin, {
-                      tab,
-                      uf,
-                      region,
-                      year: tab === 'history' ? year : 2026,
-                      turn: tab === 'history' ? turn : tab === 'live' ? 2 : 1,
-                    })
-                  }
-                />
-              )}
-            </div>
+            )}
             {reviewOnly && (
               <div className="preview-note">
                 Prévia para revisão · o site em produção permanece inalterado.

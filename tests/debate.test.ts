@@ -13,6 +13,7 @@ test('debate uses Brasília schedule and never declares a broadcast live or fini
   assert.equal(debatePhase(Date.parse(debate.startsAt) - 1), 'before');
   assert.equal(debatePhase(Date.parse(debate.startsAt)), 'scheduled');
   assert.equal(debatePhase(Date.parse(debate.recapFrom)), 'after');
+  assert.equal(debate.watchUrl, null, 'never label a generic news page as the debate video');
   assert.equal(alertPreferences({}).debate, false);
   assert.equal(
     priorityAlert(['debate'], alertPreferences({ debate: true, frequency: 'daily' })),

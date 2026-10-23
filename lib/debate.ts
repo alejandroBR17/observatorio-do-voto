@@ -9,7 +9,7 @@ export const debate = {
   reminderExpiresAt: '2026-10-23T21:35:00-03:00',
   // This switches the presentation, not a claim that the broadcast actually ended.
   recapFrom: '2026-10-24T06:00:00-03:00',
-  watchUrl: 'https://g1.globo.com/politica/eleicoes/2026/',
+  watchUrl: null as string | null,
   scheduleSource:
     'https://noticias.uol.com.br/eleicoes/2026/10/19/quando-sera-o-debate-presidencial-da-globo-veja-data-e-horario.ghtm',
 } as const;

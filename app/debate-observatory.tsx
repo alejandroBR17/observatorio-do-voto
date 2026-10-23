@@ -8,6 +8,9 @@ import {
   BookOpen,
   Check,
   Clock3,
+  CalendarDays,
+  Eye,
+  Sparkles,
   MessagesSquare,
   PenLine,
   ShieldCheck,
@@ -135,70 +138,145 @@ export function DebateObservatory({
   }
   return (
     <div className="debate-page">
-      <section className="debate-hero" aria-labelledby="debate-hero-title">
-        <div className="debate-hero-copy">
-          <span className="or-overline">23 OUT / SEXTA-FEIRA / 21H20 · BRASÍLIA</span>
-          <h2 id="debate-hero-title">
-            Duas candidaturas.
-            <br />
-            Mais contexto para a sua escolha.
-          </h2>
-          <p>
-            Compare propostas, entenda os assuntos e acompanhe o que as fontes publicam sobre o
-            último debate na Globo antes do segundo turno.
-          </p>
-          <span className="debate-phase">
-            <Clock3 size={16} aria-hidden="true" />
-            {phase === 'before'
-              ? 'Prepare-se para o encontro'
-              : phase === 'scheduled'
-                ? 'Horário previsto do debate chegou'
-                : 'Reveja o encontro e suas repercussões'}
+      <section className="debate-showcase" aria-labelledby="debate-hero-title">
+        <div className="debate-showcase-top">
+          <span className="debate-signature">
+            <img src="/favicon.svg" alt="" width="20" height="20" /> OBSERVATÓRIO DO VOTO
           </span>
-          {phase === 'before' && <DebateClock now={now} />}
-          <div className="debate-actions">
-            <a className="button primary" href={debate.watchUrl} target="_blank" rel="noreferrer">
-              <Tv size={18} />
-              {phase === 'after' ? 'Cobertura oficial no g1' : 'Assistir pela fonte oficial'}
-              <ArrowUpRight size={16} />
-            </a>
-            {!reminderExpired && (
-              <button
-                className="button secondary"
-                onClick={() => {
-                  setReminderOpen(true);
-                  requestAnimationFrame(() =>
-                    document.getElementById('debate-reminder')?.scrollIntoView({
-                      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-                        ? 'auto'
-                        : 'smooth',
-                      block: 'center',
-                    }),
-                  );
-                }}
-              >
-                <Bell size={17} />
-                {reminderActive ? 'Meu lembrete' : 'Quero ser lembrado'}
-              </button>
-            )}
-          </div>
-          <p className="debate-small">
-            O link abre o g1. A transmissão e seu horário são definidos pela emissora.
-          </p>
-          <Source href={debate.scheduleSource}>Data e horário divulgados · UOL</Source>
+          <span className="debate-ad-free">
+            <Sparkles size={14} />
+            Sem anúncios. Mais clareza.
+          </span>
         </div>
-        <div className="debate-contenders" aria-label="Candidatos ao debate">
-          {candidates.map((candidate) => (
-            <div className={`debate-person person-${candidate.number}`} key={candidate.number}>
-              <img src={candidate.photo} alt={candidate.name} width="240" height="300" />
+        <div className="debate-showcase-main">
+          <div className="debate-showcase-copy">
+            <span className="debate-edition">ESPECIAL / SEGUNDO TURNO 2026</span>
+            <h1 id="debate-hero-title" data-page-title tabIndex={-1}>
+              O debate na Globo.
+              <br />
+              <em>Seu olhar vai além.</em>
+            </h1>
+            <p>
+              Compare o que Lula e Flávio propõem, confira as fontes e guarde suas dúvidas. O debate
+              fica mais fácil de acompanhar quando o contexto está ao lado.
+            </p>
+            <div className="debate-event-time">
+              <CalendarDays size={21} />
               <div>
+                <strong>Sexta-feira, 23 de outubro</strong>
                 <span>
-                  {candidate.party} · {candidate.number}
+                  Início previsto às <b>21h20</b> · horário de Brasília
                 </span>
-                <strong>{candidate.name}</strong>
               </div>
             </div>
-          ))}
+            <div className="debate-actions">
+              {!reminderExpired && (
+                <button
+                  className="button primary"
+                  onClick={() => {
+                    setReminderOpen(true);
+                    requestAnimationFrame(() =>
+                      document.getElementById('debate-reminder')?.scrollIntoView({
+                        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                          ? 'auto'
+                          : 'smooth',
+                        block: 'center',
+                      }),
+                    );
+                  }}
+                >
+                  <Bell size={17} />
+                  {reminderActive ? 'Ver meu lembrete' : 'Lembrar 15 minutos antes'}
+                </button>
+              )}
+              <a className="debate-showcase-link" href="#debate-propostas">
+                Começar pelas propostas <ArrowRight size={17} />
+              </a>
+            </div>
+            <p className="debate-reminder-caption">
+              Debate: <strong>21h20</strong> <span aria-hidden="true">/</span> Lembrete opcional:{' '}
+              <strong>21h05</strong>
+            </p>
+          </div>
+          <div className="debate-stage">
+            <div className="debate-stage-label">
+              <span aria-hidden="true" />
+              23 OUT · 21H20 · BRASÍLIA
+            </div>
+            <div className="debate-contenders" aria-label="Candidatos ao debate">
+              {candidates.map((candidate) => (
+                <div className={`debate-person person-${candidate.number}`} key={candidate.number}>
+                  <img src={candidate.photo} alt={candidate.name} width="240" height="300" />
+                  <div>
+                    <span>
+                      {candidate.party} · {candidate.number}
+                    </span>
+                    <strong>{candidate.name}</strong>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="debate-stage-clock">
+              {phase === 'before' ? (
+                <>
+                  <span>ATÉ O HORÁRIO PREVISTO</span>
+                  <DebateClock now={now} />
+                </>
+              ) : (
+                <span>
+                  <Clock3 size={16} />
+                  {phase === 'scheduled'
+                    ? 'Horário previsto do encontro chegou'
+                    : 'Explore o que ficou do encontro'}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="debate-broadcast">
+          <div className="debate-broadcast-icon">
+            <Tv size={23} />
+          </div>
+          <div>
+            <strong>
+              {debate.watchUrl ? 'A transmissão oficial está disponível' : 'Transmissão em breve'}
+            </strong>
+            <p>
+              {debate.watchUrl
+                ? 'Assista no link direto do evento, na fonte oficial.'
+                : 'O link direto do debate aparecerá aqui quando estiver confirmado.'}
+            </p>
+          </div>
+          {debate.watchUrl ? (
+            <a className="button secondary" href={debate.watchUrl} target="_blank" rel="noreferrer">
+              Assistir ao debate <ArrowUpRight size={16} />
+            </a>
+          ) : (
+            <span className="debate-pending">Aguardando link oficial</span>
+          )}
+        </div>
+        <div className="debate-program-source">
+          <Source href={debate.scheduleSource}>Data e horário divulgados · UOL</Source>
+        </div>
+      </section>
+      <section className="debate-welcome" aria-label="Conheça o Observatório do Voto">
+        <div className="debate-welcome-intro">
+          <span className="or-overline">CHEGOU AGORA? ESTE É O SEU OBSERVATÓRIO.</span>
+          <h2>Entender a eleição pode ser mais simples.</h2>
+          <p>
+            Uma central independente para explorar o voto. Você escolhe o assunto e até onde quer se
+            aprofundar.
+          </p>
+        </div>
+        <div className="debate-value">
+          <Eye size={22} />
+          <strong>Visual para entender.</strong>
+          <p>Compare propostas lado a lado e abra os detalhes quando quiser.</p>
+        </div>
+        <div className="debate-value">
+          <ShieldCheck size={22} />
+          <strong>Fontes para conferir.</strong>
+          <p>Veja de onde vem cada informação. A sua conclusão continua sendo sua.</p>
         </div>
       </section>
       <div className="debate-tools">
@@ -220,8 +298,9 @@ export function DebateObservatory({
             <span className="or-overline">UM AVISO / SUA ESCOLHA</span>
             <h2 id="reminder-title">Lembre de acompanhar.</h2>
             <p>
-              Um único lembrete próximo das 21h05 de 23/10. Não depende de deixar o app aberto; a
-              entrega depende da conexão e da permissão do aparelho.
+              O debate tem início previsto às 21h20 de 23/10. O lembrete sai próximo das 21h05,
+              quinze minutos antes. Você não precisa deixar o app aberto; a entrega depende da
+              conexão e da permissão do aparelho.
             </p>
           </div>
           {reviewOnly ? (
@@ -490,57 +569,128 @@ export function DebateObservatory({
           </div>
         </div>
       </section>
-      <section className="debate-panel" id="debate-pesquisas" aria-labelledby="debate-polls-title">
+      <section
+        className="debate-panel debate-research"
+        id="debate-pesquisas"
+        aria-labelledby="debate-polls-title"
+      >
         <header>
           <div>
-            <span className="or-overline">03 / A COLETA IMPORTA</span>
-            <h2 id="debate-polls-title">Essa pesquisa ouviu as pessoas quando?</h2>
+            <span className="or-overline">03 / ANTES OU DEPOIS DO ENCONTRO?</span>
+            <h2 id="debate-polls-title">Quando as pessoas foram ouvidas?</h2>
             <p>
-              Uma publicação depois do encontro pode ter entrevistas feitas antes dele. A data da
-              coleta ajuda a comparar.
+              Uma pesquisa divulgada depois do debate pode ter entrevistado as pessoas antes dele.
+              Por isso, olhe primeiro para o período das entrevistas.
             </p>
           </div>
           <button className="button secondary" onClick={() => onGo('polls')}>
-            Explorar pesquisas <ArrowRight size={16} />
+            Ver números das pesquisas <ArrowRight size={16} />
           </button>
         </header>
+        <ol className="debate-research-timeline" aria-label="Como situar as pesquisas no tempo">
+          <li>
+            <span className="debate-timeline-dot" />
+            <strong>Antes do debate</strong>
+            <p>Entrevistas encerradas até 22/10.</p>
+          </li>
+          <li className="debate-timeline-event">
+            <span className="debate-timeline-dot" />
+            <strong>O encontro na Globo</strong>
+            <p>23/10 · início previsto às 21h20.</p>
+          </li>
+          <li>
+            <span className="debate-timeline-dot" />
+            <strong>Depois do debate</strong>
+            <p>Entrevistas iniciadas a partir de 24/10.</p>
+          </li>
+        </ol>
         {pollsLoading ? (
           <p role="status">Consultando pesquisas verificadas…</p>
         ) : eligiblePolls.length ? (
-          <div className="debate-poll-list">
-            {eligiblePolls.slice(0, 3).map((poll) => (
-              <article key={poll.id}>
-                <div>
-                  <h3>{poll.institute}</h3>
-                  <p>{poll.fieldwork}</p>
-                </div>
-                <span className="debate-period">
-                  {
-                    {
-                      before: 'Coleta anterior ao debate',
-                      mixed: 'Coleta inclui o dia do debate',
-                      after: 'Coleta posterior ao debate',
-                      unknown: 'Confira o período na fonte',
-                    }[debatePollPeriod(poll)]
-                  }
-                </span>
-                <Source href={poll.source}>Ver levantamento</Source>
-              </article>
-            ))}
-          </div>
+          <>
+            <div className="debate-research-explainer">
+              <Clock3 size={20} />
+              <p>
+                {eligiblePolls.some((poll) => debatePollPeriod(poll) === 'after')
+                  ? 'Já existem levantamentos com entrevistas posteriores ao encontro. A identificação abaixo ajuda a separar os períodos.'
+                  : 'Ainda não há, entre os levantamentos conferidos, uma pesquisa feita inteiramente após esse debate. As pesquisas anteriores mostram como a disputa estava antes do encontro.'}
+              </p>
+            </div>
+            <div className="debate-poll-list">
+              {eligiblePolls.slice(0, 3).map((poll) => {
+                const period = debatePollPeriod(poll);
+                return (
+                  <article className={`debate-research-card period-${period}`} key={poll.id}>
+                    <div className="debate-research-card-title">
+                      <h3>{poll.institute}</h3>
+                      <span className="debate-period">
+                        {
+                          {
+                            before: 'Antes do debate',
+                            mixed: 'Inclui o dia do debate',
+                            after: 'Depois do debate',
+                            unknown: 'Período a conferir',
+                          }[period]
+                        }
+                      </span>
+                    </div>
+                    <dl>
+                      <div>
+                        <dt>Pessoas entrevistadas entre</dt>
+                        <dd>{poll.fieldwork.split(' · ')[0]}</dd>
+                      </div>
+                      <div>
+                        <dt>Resultado divulgado em</dt>
+                        <dd>
+                          {new Date(poll.publishedAt).toLocaleDateString('pt-BR', {
+                            timeZone: 'America/Sao_Paulo',
+                          })}
+                        </dd>
+                      </div>
+                    </dl>
+                    <p className="debate-research-card-note">
+                      {
+                        {
+                          before: 'Estas entrevistas não mostram a reação a esse debate.',
+                          mixed:
+                            'Parte das entrevistas pode ter ocorrido antes do encontro. Não é uma pesquisa inteiramente posterior.',
+                          after:
+                            'As entrevistas aconteceram após o dia do encontro. Isso não prova que o debate causou uma mudança.',
+                          unknown: 'Consulte a metodologia antes de comparar com o debate.',
+                        }[period]
+                      }
+                    </p>
+                    <Source href={poll.source}>Consultar a pesquisa na fonte</Source>
+                  </article>
+                );
+              })}
+            </div>
+          </>
         ) : (
-          <p>Os levantamentos aparecem após a conferência dos dados e da metodologia.</p>
+          <p>As pesquisas aparecem após a conferência dos números e da metodologia.</p>
         )}
-        <p className="debate-small">
-          Entrevistas no dia 23 podem ter ocorrido antes da transmissão. Mudanças entre pesquisas
-          não demonstram, por si só, efeito do debate.
-        </p>
+        <details className="debate-disclosure">
+          <summary>
+            Por que o dia 23 pede cuidado?<span aria-hidden="true">+</span>
+          </summary>
+          <div>
+            <p className="fine">
+              O encontro está previsto para a noite. Uma entrevista feita durante o dia 23 ainda
+              pode refletir uma opinião anterior ao debate. Sem o horário de cada entrevista, não
+              classificamos todo esse dia como “depois”. Mesmo entre pesquisas posteriores,
+              diferenças de amostra, método e outros acontecimentos também importam.
+            </p>
+          </div>
+        </details>
       </section>
       <section className="debate-next">
         <div>
           <span className="or-overline">DO DEBATE À DECISÃO</span>
-          <h2>Continue olhando além do placar.</h2>
-          <p>Explore o território, o histórico e as pesquisas do Observatório do Voto.</p>
+          <h2>O debate é só o começo.</h2>
+          <p>
+            Explore mapas, resultados do seu município, pesquisas e a história do voto. Sem anúncios
+            e com as fontes sempre por perto.
+          </p>
         </div>
         <button className="button primary" onClick={() => onGo('overview')}>
           Conhecer o Panorama <ArrowRight size={17} />
