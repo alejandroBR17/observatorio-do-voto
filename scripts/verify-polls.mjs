@@ -116,7 +116,22 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 35);
+assert.equal(pollSnapshots.length, 36);
+const realTimeOctober23 = pollSnapshots.find((poll) => poll.registration === 'BR-09670/2026');
+assert.deepEqual([realTimeOctober23.flavio, realTimeOctober23.lula], [52, 48]);
+assert.deepEqual(realTimeOctober23.totalVotes, {
+  flavio: 49,
+  lula: 45,
+  blankNull: 5,
+  undecided: 1,
+});
+assert.match(realTimeOctober23.fieldwork, /^19 a 22\/10\/2026/);
+assert.match(realTimeOctober23.publishedAt, /^2026-10-23T/);
+assert.equal(realTimeOctober23.sample, 2000);
+assert.equal(realTimeOctober23.margin, 2);
+assert.equal(realTimeOctober23.confidence, 95);
+assert.equal(realTimeOctober23.basis, 'valid');
+assert.match(realTimeOctober23.note, /registro do TSE prevê método misto/);
 // October 22 verification: preserve published bases and rounding, never infer valid votes.
 for (const [registration, sample, basis, flavio, lula, totals] of [
   ['BR-09709/2026', 2520, 'valid', 50, 50, [47, 46]],

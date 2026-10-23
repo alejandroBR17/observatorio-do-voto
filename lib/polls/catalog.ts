@@ -2,6 +2,30 @@ import type { PollSnapshot, Publication } from './types';
 
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-09670/2026',
+    institute: 'Real Time Big Data',
+    publishedAt: '2026-10-23T07:00:21-03:00',
+    fieldwork:
+      '19 a 22/10/2026 · telefone na divulgação; registro prevê abordagens telefônicas e digitais',
+    sample: 2000,
+    margin: 2,
+    confidence: 95,
+    contractor: 'Real Time Mídia Ltda. — contratante e pagante no TSE (pesquisa própria)',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-23T10:34:00.000Z',
+    registration: 'BR-09670/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 52,
+    lula: 48,
+    source:
+      'https://www.cnnbrasil.com.br/eleicoes/real-time-flavio-tem-52-dos-votos-validos-no-2o-turno-lula-48/',
+    mode: 'snapshot',
+    totalVotes: { flavio: 49, lula: 45, blankNull: 5, undecided: 1 },
+    note: 'Válidos transcritos da CNN Brasil e confirmados na divulgação do Metrópoles de 23/10; totais (49%, 45%, 5% branco/nulo e 1% não sabe/não quis responder) conforme o Metrópoles: https://www.metropoles.com/brasil/real-time-flavio-bolsonaro-tem-52-e-lula-48-dos-votos-validos. Percentuais preservados sem recalcular válidos. A CNN descreve entrevistas telefônicas; o registro do TSE prevê método misto, com abordagens telefônicas e digitais e entrevistadores humanos e recursos de IA. Cadastro nacional, coleta, amostra, confiança, margem, contratante e pagante conferidos nos arquivos oficiais do TSE gerados em 22/10/2026 às 05h46; campo de origem dos recursos não preenchido. Pesquisa própria e recursos próprios também informados pela CNN. Relatório integral desta rodada não localizado; não foram importados dados de rejeição nem outros recortes.',
+  },
+  {
     id: 'BR-09709/2026',
     institute: 'Datafolha',
     publishedAt: '2026-10-22T19:05:00-03:00',
