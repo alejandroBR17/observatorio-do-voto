@@ -139,6 +139,20 @@ assert.equal(live.status, 200);
 assert.ok(['waiting', 'live', 'loading', 'unavailable'].includes((await live.json()).status));
 for (const path of ['/api/polls', '/api/media', '/api/events'])
   assert.equal((await fetch(base + path)).status, 200, path);
+const debateContextResponse = await fetch(base + '/api/debate');
+assert.equal(debateContextResponse.status, 200, 'debate context responds');
+const debateContext = await debateContextResponse.json();
+assert.ok(['ready', 'stale', 'unavailable'].includes(debateContext.status));
+assert.ok(Array.isArray(debateContext.checks));
+if (debateContext.video) {
+  assert.ok(
+    ['player.globo.com', 'globoplay.globo.com'].includes(
+      new URL(debateContext.video.watchUrl).hostname,
+    ),
+  );
+  if (debateContext.video.embedUrl)
+    assert.equal(new URL(debateContext.video.embedUrl).hostname, 'player.globo.com');
+}
 assert.equal(
   (
     await fetch(base + '/api/push', {

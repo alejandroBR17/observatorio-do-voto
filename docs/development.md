@@ -281,3 +281,11 @@ Para outro endereço, use `npm run test:smoke -- http://localhost:3003` ou defin
 - Na Vercel, conferir WebSocket e fallback HTTP, monitor agendado e banco separado nas prévias.
 
 Testes de servidor não comprovam entrega push pelo sistema operacional. Desktop, Android e iPhone precisam de verificação nos aparelhos e navegadores suportados; no iPhone, verificar a instalação na tela inicial.
+
+### Acompanhamento do debate
+
+A página `/debate` usa o horário previsto de Brasília para alternar preparação, acompanhamento e retrospectiva. A fase não confirma início ou término da transmissão. O navegador consulta notícias e contexto a cada 30 segundos enquanto a página está visível; os dados de imprensa têm cache compartilhado de um minuto entre 30 minutos antes do início e o começo da retrospectiva, e cinco minutos fora dessa faixa. Pesquisas são consultadas a cada minuto, preservando o cache e a conferência editorial existentes.
+
+`/api/debate` consulta metadados públicos de até quatro publicações pertinentes do g1 e UOL Confere, com cache de dois minutos e trava compartilhada. Somente URLs oficiais de vídeo identificadas em `VideoObject` e conclusões explícitas em `ClaimReview` são aceitas. Não há transcrição, API privada da Globo, extração de sinal ou classificação por IA. A ausência de metadados, bloqueios ou atraso dos veículos pode deixar essas áreas vazias; os links das fontes permanecem disponíveis. Um iframe só é carregado por ação do usuário, a partir de `player.globo.com`, com alternativa para abrir na fonte.
+
+O acompanhamento sinaliza novas publicações sem inserir itens no meio da leitura. O horário da última visita à página fica somente no aparelho; o resumo é uma seleção de manchetes publicadas, não uma síntese automática do vídeo. Marcações no caderno usam o relógio do aparelho e não uma posição sincronizada da transmissão. O gráfico Recharts é carregado apenas ao expandir e compara votos válidos publicados de um instituto por vez, com tabela acessível e sem atribuir causalidade ao debate. Motion respeita a preferência por movimento reduzido.

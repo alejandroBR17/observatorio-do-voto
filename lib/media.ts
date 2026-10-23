@@ -3,6 +3,7 @@ import { queueContentAlerts } from './content-alerts';
 import { plainText } from './polls';
 import { imageUrl } from './article-image';
 import { newsPublishers, newsPublisher, newsKey } from './news-sources';
+import { debateUpdateInterval } from './debate-context';
 const BASE = 'https://eleicoes2026.sapienslabs.com.br/api/v1';
 export const newsSources = newsPublishers
   .filter((p) => p.feed)
@@ -108,7 +109,8 @@ export async function media(db: Database) {
         .prepare('SELECT value,updated FROM cache WHERE key=?')
         .bind('media:v2')
         .first<{ value: string; updated: number }>());
-  if (stored && Date.now() - stored.updated < 300000) return JSON.parse(stored.value);
+  if (stored && Date.now() - stored.updated < debateUpdateInterval())
+    return JSON.parse(stored.value);
   const lease = await db
     .prepare(
       'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?',

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -39,6 +40,11 @@ import { ShareButton } from './components/share-button';
 import { PushConsent } from './components/privacy-consent';
 import { Source } from './components/source-link';
 import { NewsVisual } from './news-visual';
+import { DebateCompanion, DebatePlayer } from './debate-companion';
+import type { DebateContext } from '@/lib/debate-context';
+const DebatePollChart = dynamic(() => import('./debate-poll-chart'), {
+  loading: () => <p>Preparando o gráfico…</p>,
+});
 
 function useDebateClock() {
   const [now, setNow] = useState<number | null>(null);
@@ -94,14 +100,18 @@ export function DebateObservatory({
   onRemoveReminder: () => void;
   onAlerts: () => void;
   onGo: (tab: string) => void;
-  onNote: (note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>) => void;
+  onNote: (note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>, stay?: boolean) => void;
   syncMessage?: string;
   reviewOnly?: boolean;
 }) {
   const now = useDebateClock();
   const phase = now === null ? 'before' : debatePhase(now);
-  const { data: media, loading: mediaLoading } = useRemote<MediaResponse>('/api/media', 300000);
-  const { data: polls, loading: pollsLoading } = useRemote<PollResponse>('/api/polls', 300000);
+  const { data: media, loading: mediaLoading } = useRemote<MediaResponse>('/api/media', 30000);
+  const { data: polls, loading: pollsLoading } = useRemote<PollResponse>('/api/polls', 60000);
+  const { data: context } = useRemote<DebateContext>('/api/debate', 30000);
+  const [chartOpen, setChartOpen] = useState(false);
+  const video = context?.video;
+  const watchUrl = video?.watchUrl || debate.watchUrl;
   const [topic, setTopic] = useState<DebateTopic>('economia');
   const [morePolls, setMorePolls] = useState(false);
   const [more, setMore] = useState(false),
@@ -147,7 +157,7 @@ export function DebateObservatory({
     }
   }
   return (
-    <div className="debate-page">
+    <div className={`debate-page debate-phase-${phase}`}>
       <section className="debate-showcase" aria-labelledby="debate-hero-title">
         <div className="debate-showcase-top">
           <span className="debate-signature">
@@ -159,17 +169,34 @@ export function DebateObservatory({
           <div className="debate-showcase-copy">
             <span className="debate-edition">ESPECIAL / SEGUNDO TURNO 2026</span>
             <h1 id="debate-hero-title" data-page-title tabIndex={-1}>
-              O debate na Globo.
+              {phase === 'before'
+                ? 'O debate na Globo.'
+                : phase === 'scheduled'
+                  ? 'Assista. Compare.'
+                  : 'Reveja o encontro.'}
               <br />
-              <em>Seu olhar vai além.</em>
+              <em>
+                {phase === 'before'
+                  ? 'Seu olhar vai além.'
+                  : phase === 'scheduled'
+                    ? 'O contexto está aqui.'
+                    : 'Confira as fontes.'}
+              </em>
             </h1>
             <p>
               <span className="debate-copy-full">
-                Compare o que Lula e Flávio propõem, confira as fontes e guarde suas dúvidas. O
-                debate fica mais fácil de acompanhar quando o contexto está ao lado.
+                {phase === 'before'
+                  ? 'Compare o que Lula e Flávio propõem, confira as fontes e guarde suas dúvidas. O debate fica mais fácil de acompanhar quando o contexto está ao lado.'
+                  : phase === 'scheduled'
+                    ? 'Acompanhe as publicações, consulte as propostas e marque o que quer conferir. As novidades chegam sem recarregar a página.'
+                    : 'Explore a cobertura publicada, as checagens identificadas e as suas anotações. As fontes e as datas continuam ao lado de cada informação.'}
               </span>
               <span className="debate-copy-short">
-                Compare propostas e acompanhe as fontes, sem anúncios.
+                {phase === 'before'
+                  ? 'Compare propostas e acompanhe as fontes, sem anúncios.'
+                  : phase === 'scheduled'
+                    ? 'Publicações, propostas e suas marcações, sem recarregar.'
+                    : 'Cobertura, checagens e contexto para rever o encontro.'}
               </span>
             </p>
             <div className="debate-event-time">
@@ -234,35 +261,40 @@ export function DebateObservatory({
         </div>
         <section className="debate-broadcast" aria-labelledby="debate-broadcast-title">
           <div className="debate-broadcast-screen">
-            <span className="debate-broadcast-kicker">TRANSMISSÃO OFICIAL</span>
-            <Tv size={42} strokeWidth={1.25} aria-hidden="true" />
-            <strong>
-              23 OUT <span>21h20</span>
-            </strong>
-            <span>Sexta-feira · horário de Brasília</span>
+            {video ? (
+              <DebatePlayer key={video.watchUrl} video={video} />
+            ) : (
+              <>
+                <span className="debate-broadcast-kicker">TRANSMISSÃO OFICIAL</span>
+                <Tv size={42} strokeWidth={1.25} aria-hidden="true" />
+                <strong>
+                  23 OUT <span>21h20</span>
+                </strong>
+                <span>Sexta-feira · horário de Brasília</span>
+              </>
+            )}
           </div>
           <div className="debate-broadcast-info">
             <span className="debate-pending">
-              {debate.watchUrl ? 'Link oficial confirmado' : 'Aguardando link oficial'}
+              {watchUrl ? 'Vídeo identificado na fonte oficial' : 'Aguardando link oficial'}
             </span>
             <h2 id="debate-broadcast-title">
-              {debate.watchUrl ? 'A transmissão oficial está disponível' : 'Transmissão em breve'}
+              {watchUrl
+                ? 'Acesse o vídeo oficial'
+                : phase === 'after'
+                  ? 'Íntegra oficial a confirmar'
+                  : 'Transmissão em breve'}
             </h2>
             <p>
-              {debate.watchUrl
+              {watchUrl
                 ? 'Abra a transmissão na fonte oficial e volte para comparar as propostas e conferir o contexto.'
                 : 'Este será o seu ponto de partida para assistir. O link direto do debate aparecerá aqui quando estiver confirmado.'}
             </p>
-            {debate.watchUrl ? (
-              <a
-                className="button secondary"
-                href={debate.watchUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
+            {watchUrl && !video ? (
+              <a className="button secondary" href={watchUrl} target="_blank" rel="noreferrer">
                 Assistir ao debate <ArrowUpRight size={16} />
               </a>
-            ) : !reminderExpired ? (
+            ) : !watchUrl && !reminderExpired ? (
               <button className="button secondary" onClick={openReminder}>
                 <Bell size={16} /> {reminderActive ? 'Ver meu lembrete' : 'Quero ser lembrado'}
               </button>
@@ -302,6 +334,7 @@ export function DebateObservatory({
       </section>
       <div className="debate-tools">
         <nav aria-label="Nesta área">
+          <a href="#debate-acompanhar">Acompanhar novidades</a>
           <a href="#debate-propostas">Comparar propostas</a>
           <a href="#debate-cobertura">Cobertura e checagens</a>
           <a href="#debate-pesquisas">Pesquisas no tempo</a>
@@ -313,6 +346,25 @@ export function DebateObservatory({
           label="Compartilhar o debate"
         />
       </div>
+      <DebateCompanion
+        articles={media?.articles}
+        context={context}
+        phase={phase}
+        loading={mediaLoading}
+        checkedAt={media?.checkedAt}
+        stale={media?.status === 'stale' || media?.status === 'unavailable'}
+        onMark={() =>
+          onNote(
+            {
+              title: `Conferir · Debate da Globo · ${new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' })}`,
+              body: `Momento marcado em ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })} (Brasília).\nAssunto selecionado: ${current.name}.\n\nO horário é do aparelho, não uma posição sincronizada do vídeo. A transmissão pode ter atraso.\n\nO que quero conferir:`,
+              topic: 'Debate',
+              uf: 'BR',
+            },
+            true,
+          )
+        }
+      />
       {reminderOpen && !reminderExpired && (
         <section className="debate-reminder" id="debate-reminder" aria-labelledby="reminder-title">
           <div>
@@ -492,8 +544,8 @@ export function DebateObservatory({
                 : 'Acompanhe com a fonte ao lado.'}
             </h2>
             <p>
-              Links de veículos identificados, atualizados a cada cinco minutos. Não é uma
-              transcrição nem uma confirmação de cada fala.
+              Links de veículos identificados, consultados automaticamente. Não é uma transcrição
+              nem uma confirmação de cada fala.
             </p>
           </div>
           <DataFreshness
@@ -794,6 +846,15 @@ export function DebateObservatory({
               diferenças de amostra, método e outros acontecimentos também importam.
             </p>
           </div>
+        </details>
+        <details
+          className="debate-disclosure"
+          onToggle={(event) => setChartOpen(event.currentTarget.open)}
+        >
+          <summary>
+            Comparar a evolução de um instituto<span aria-hidden="true">+</span>
+          </summary>
+          <div>{chartOpen && <DebatePollChart polls={polls?.polls || []} />}</div>
         </details>
       </section>
       <section className="debate-next">

@@ -194,7 +194,7 @@ function DashboardContent({
       else if (region !== 'Brasil') learnVisit(`region:${region}`);
     }
   }, [tab, uf, region, learningReady, learningEnabled, learnVisit, welcome]);
-  function contextNote(note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>) {
+  function contextNote(note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>, stay = false) {
     try {
       const previous = readWatch(JSON.parse(localStorage.getItem('observatorio.watch') || '{}'));
       if (previous.entries.length >= 100) {
@@ -207,8 +207,12 @@ function DashboardContent({
         JSON.stringify({ version: 2, ...previous, entries: [entry, ...previous.entries] }),
       );
       setSelectedNote(entry.id);
-      go('watch');
-      notify('Contexto guardado no caderno. Acrescente sua observação.');
+      if (!stay) go('watch');
+      notify(
+        stay
+          ? 'Momento guardado no seu caderno, neste aparelho.'
+          : 'Contexto guardado no caderno. Acrescente sua observação.',
+      );
     } catch {
       notify('Não foi possível guardar a anotação neste navegador.');
     }
