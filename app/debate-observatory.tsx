@@ -34,6 +34,7 @@ import type { PollResponse } from '@/lib/polls/types';
 import type { NotebookEntry } from '@/lib/notebook';
 import type { AlertPreferences } from '@/lib/alerts';
 import { useRemote } from './hooks/use-remote';
+import { scrollBehavior } from './motion';
 import { DataFreshness } from './components/data-freshness';
 import { ShareButton } from './components/share-button';
 import { PushConsent } from './components/privacy-consent';
@@ -103,6 +104,7 @@ export function DebateObservatory({
   const { data: media, loading: mediaLoading } = useRemote<MediaResponse>('/api/media', 300000);
   const { data: polls, loading: pollsLoading } = useRemote<PollResponse>('/api/polls', 300000);
   const [topic, setTopic] = useState<DebateTopic>('economia');
+  const [morePolls, setMorePolls] = useState(false);
   const [more, setMore] = useState(false),
     [reminderOpen, setReminderOpen] = useState(false);
   const [busy, setBusy] = useState(false),
@@ -157,8 +159,13 @@ export function DebateObservatory({
               <em>Seu olhar vai além.</em>
             </h1>
             <p>
-              Compare o que Lula e Flávio propõem, confira as fontes e guarde suas dúvidas. O debate
-              fica mais fácil de acompanhar quando o contexto está ao lado.
+              <span className="debate-copy-full">
+                Compare o que Lula e Flávio propõem, confira as fontes e guarde suas dúvidas. O
+                debate fica mais fácil de acompanhar quando o contexto está ao lado.
+              </span>
+              <span className="debate-copy-short">
+                Compare propostas e acompanhe as fontes, sem anúncios.
+              </span>
             </p>
             <div className="debate-event-time">
               <CalendarDays size={21} />
@@ -268,16 +275,23 @@ export function DebateObservatory({
             aprofundar.
           </p>
         </div>
-        <div className="debate-value">
-          <Eye size={22} />
-          <strong>Visual para entender.</strong>
-          <p>Compare propostas lado a lado e abra os detalhes quando quiser.</p>
-        </div>
-        <div className="debate-value">
-          <ShieldCheck size={22} />
-          <strong>Fontes para conferir.</strong>
-          <p>Veja de onde vem cada informação. A sua conclusão continua sendo sua.</p>
-        </div>
+        <details className="debate-welcome-details">
+          <summary>
+            Conheça o Observatório <ArrowRight size={16} />
+          </summary>
+          <div className="debate-welcome-values">
+            <div className="debate-value">
+              <Eye size={22} />
+              <strong>Visual para entender.</strong>
+              <p>Compare propostas lado a lado e abra os detalhes quando quiser.</p>
+            </div>
+            <div className="debate-value">
+              <ShieldCheck size={22} />
+              <strong>Fontes para conferir.</strong>
+              <p>Veja de onde vem cada informação. A sua conclusão continua sendo sua.</p>
+            </div>
+          </div>
+        </details>
       </section>
       <div className="debate-tools">
         <nav aria-label="Nesta área">
@@ -486,7 +500,7 @@ export function DebateObservatory({
         ) : coverage.length ? (
           <>
             <div className="debate-articles">
-              {coverage.slice(0, more ? 24 : 4).map((article) => (
+              {coverage.slice(0, more ? 24 : 2).map((article) => (
                 <a
                   className="debate-article"
                   href={article.url}
@@ -522,13 +536,21 @@ export function DebateObservatory({
                 </a>
               ))}
             </div>
-            {coverage.length > 4 && (
+            {coverage.length > 2 && (
               <button
                 className="button secondary"
-                onClick={() => setMore(!more)}
+                onClick={() => {
+                  setMore(!more);
+                  if (more)
+                    requestAnimationFrame(() =>
+                      document
+                        .getElementById('debate-cobertura')
+                        ?.scrollIntoView({ block: 'start', behavior: scrollBehavior() }),
+                    );
+                }}
                 aria-expanded={more}
               >
-                {more ? 'Ver menos' : `Ver mais publicações (${coverage.length - 4})`}
+                {more ? 'Ver menos' : `Ver mais publicações (${coverage.length - 2})`}
               </button>
             )}
           </>
@@ -617,7 +639,7 @@ export function DebateObservatory({
               </p>
             </div>
             <div className="debate-poll-list">
-              {eligiblePolls.slice(0, 3).map((poll) => {
+              {eligiblePolls.slice(0, morePolls ? 3 : 1).map((poll) => {
                 const period = debatePollPeriod(poll);
                 return (
                   <article className={`debate-research-card period-${period}`} key={poll.id}>
@@ -665,6 +687,25 @@ export function DebateObservatory({
                 );
               })}
             </div>
+            {eligiblePolls.length > 1 && (
+              <button
+                className="button secondary debate-more-polls"
+                aria-expanded={morePolls}
+                onClick={() => {
+                  setMorePolls(!morePolls);
+                  if (morePolls)
+                    requestAnimationFrame(() =>
+                      document
+                        .getElementById('debate-pesquisas')
+                        ?.scrollIntoView({ block: 'start', behavior: scrollBehavior() }),
+                    );
+                }}
+              >
+                {morePolls
+                  ? 'Ver menos pesquisas'
+                  : `Ver mais pesquisas (${Math.min(eligiblePolls.length, 3) - 1})`}
+              </button>
+            )}
           </>
         ) : (
           <p>As pesquisas aparecem após a conferência dos números e da metodologia.</p>

@@ -73,6 +73,9 @@
   color: #e6bb73;
   font-style: normal;
 }
+.debate-copy-short {
+  display: none;
+}
 .debate-showcase-copy > p {
   color: #b6c2c2;
   font-size: 16px;
@@ -259,7 +262,7 @@
 }
 .debate-welcome {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(0, 0.75fr));
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   gap: 28px;
   padding: 6px 4px;
   align-items: start;
@@ -444,22 +447,22 @@
     order: 1;
   }
   .debate-stage {
-    order: 2;
+    order: 5;
     padding: 0;
   }
   .debate-showcase-copy > p:not(.debate-reminder-caption) {
-    order: 3;
+    order: 2;
     margin-top: 10px;
   }
   .debate-event-time {
-    order: 4;
+    order: 6;
   }
   .debate-showcase-copy > .debate-actions {
-    order: 5;
+    order: 3;
   }
   .debate-showcase-copy > .debate-reminder-caption {
-    order: 6;
-    padding-bottom: 24px;
+    order: 4;
+    padding-bottom: 16px;
   }
   .debate-program-source {
     padding: 0 22px 18px;
@@ -495,20 +498,21 @@
   }
   .debate-stage {
     padding: 0;
-    grid-template-rows: auto 240px auto;
+    grid-template-rows: auto 180px auto;
   }
   .debate-stage .debate-contenders {
     order: initial;
-    height: 240px;
+    height: 180px;
   }
   .debate-stage .debate-person img {
-    height: 240px;
+    height: 180px;
   }
   .debate-stage .debate-person strong {
     font-size: 22px;
   }
   .debate-stage-clock {
-    min-height: 88px;
+    min-height: 68px;
+    padding: 12px 4px;
   }
   .debate-stage-clock > span {
     max-width: 110px;
@@ -563,7 +567,7 @@
 @media (max-width: 380px) {
   .debate-stage-clock > span {
     max-width: 75px;
-    font-size: 9px;
+    font-size: 11px;
   }
   .debate-welcome {
     grid-template-columns: minmax(0, 1fr);
@@ -1197,5 +1201,130 @@
   .debate-page *,
   .debate-entry * {
     transition: none !important;
+  }
+}
+
+.debate-welcome-details {
+  min-width: 0;
+}
+.debate-welcome-details summary {
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 46px;
+  color: var(--or-amber);
+  font-size: 14px;
+  font-weight: 600;
+}
+.debate-welcome-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+.debate-more-polls {
+  margin-top: 18px;
+}
+@media (max-width: 700px) {
+  .debate-copy-full {
+    display: none;
+  }
+  .debate-copy-short {
+    display: inline;
+  }
+  .debate-event-time {
+    display: none;
+  }
+  .debate-showcase-copy > .debate-actions {
+    order: 3;
+  }
+  .debate-actions .debate-showcase-link {
+    display: none;
+  }
+  .debate-showcase-copy > .debate-reminder-caption {
+    order: 4;
+  }
+  .debate-showcase-copy > p:not(.debate-reminder-caption) {
+    margin: 0 0 16px;
+  }
+  .debate-stage-label {
+    margin-bottom: 10px;
+  }
+  .debate-showcase-top {
+    padding: 14px 20px;
+  }
+  .debate-broadcast {
+    padding: 18px 20px;
+  }
+  .debate-broadcast-icon {
+    display: none;
+  }
+  .debate-broadcast > div:nth-child(2) {
+    flex-basis: 100%;
+  }
+  .debate-pending {
+    display: none;
+  }
+  .debate-welcome {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .debate-welcome-intro {
+    grid-column: auto;
+  }
+  .debate-welcome h2 {
+    font-size: 23px;
+  }
+  .debate-welcome-values {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .debate-articles {
+    gap: 12px;
+  }
+  .debate-article {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .debate-article .news-visual {
+    width: 64px;
+    height: 100%;
+    min-height: 100px;
+    aspect-ratio: auto;
+  }
+  .debate-article .news-visual span,
+  .debate-article .news-visual small {
+    display: none;
+  }
+  .debate-article .news-visual {
+    display: grid;
+    place-items: center;
+    padding: 8px;
+  }
+  .debate-article .news-visual svg {
+    width: 28px;
+    height: 28px;
+  }
+  .debate-article > div:last-child {
+    padding: 14px;
+  }
+  .debate-article h3 {
+    font-size: 16px;
+    margin: 8px 0 12px;
+  }
+  .debate-research-card dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .debate-panel > header {
+    margin-bottom: 18px;
+    gap: 12px;
+  }
+  .debate-panel > header p {
+    margin-bottom: 0;
+  }
+  .debate-research-timeline {
+    margin: 24px 0;
   }
 }
