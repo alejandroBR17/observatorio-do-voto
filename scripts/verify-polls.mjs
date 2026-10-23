@@ -116,7 +116,31 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 31);
+assert.equal(pollSnapshots.length, 35);
+// October 22 verification: preserve published bases and rounding, never infer valid votes.
+for (const [registration, sample, basis, flavio, lula, totals] of [
+  ['BR-09709/2026', 2520, 'valid', 50, 50, [47, 46]],
+  ['BR-02348/2026', 2000, 'valid', 50.6, 49.4, [45.2, 44.1]],
+  ['BR-07926/2026', 4000, 'valid', 51, 49, [49, 48]],
+  ['BR-08535/2026', 2154, 'total', 45, 44, [45, 44]],
+]) {
+  const snapshot = pollSnapshots.find((poll) => poll.registration === registration);
+  assert.ok(snapshot, registration);
+  assert.equal(snapshot.sample, sample);
+  assert.equal(snapshot.basis, basis);
+  assert.deepEqual([snapshot.flavio, snapshot.lula], [flavio, lula]);
+  assert.deepEqual([snapshot.totalVotes.flavio, snapshot.totalVotes.lula], totals);
+  assert.match(snapshot.registryCheckedAt, /^2026-10-23T/);
+}
+const quaestOctober21 = pollSnapshots.find((poll) => poll.registration === 'BR-08535/2026');
+assert.match(quaestOctober21.publishedAt, /^2026-10-21T/);
+assert.match(quaestOctober21.fieldwork, /^17 a 20\/10\/2026/);
+assert.equal(quaestOctober21.totalVotes.other, 9);
+const poderDataOctober22 = pollSnapshots.find((poll) => poll.registration === 'BR-07926/2026');
+assert.equal(poderDataOctober22.totalVotes.blankNull, 3);
+assert.equal(poderDataOctober22.totalVotes.undecided, 1);
+assert.match(poderDataOctober22.note, /101%/);
+
 // October 21: preserve published bases and the digital survey's rounding.
 for (const [registration, sample, basis, flavio, lula, totals] of [
   ['BR-06614/2026', 2000, 'valid', 51.1, 48.9, [48.9, 46.8]],
@@ -137,7 +161,7 @@ const palverOctober21 = pollSnapshots.find((poll) => poll.registration === 'BR-0
 assert.match(palverOctober21.fieldwork, /^18 a 20\/10\/2026/);
 assert.equal(palverOctober21.totalVotes.other, 1);
 assert.equal(palverOctober21.totalVotes.undecided, 0);
-for (const pending of ['BR-03835/2026', 'BR-06396/2026', 'BR-08535/2026']) {
+for (const pending of ['BR-03835/2026', 'BR-06396/2026']) {
   assert.ok(!pollSnapshots.some((poll) => poll.registration === pending));
 }
 // October 20: keep the original reports' precision and the effective fieldwork.
