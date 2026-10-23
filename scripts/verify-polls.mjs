@@ -116,7 +116,23 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 36);
+assert.equal(pollSnapshots.length, 38);
+// October 23 originals: keep published valid votes distinct from rounded totals.
+for (const [registration, flavio, lula, sample, confidence, grouped] of [
+  ['BR-04350/2026', 50.5, 49.5, 1500, 95.45, 3],
+  ['BR-03259/2026', 49.4, 50.6, 2100, 95, 6],
+]) {
+  const poll = pollSnapshots.find((item) => item.registration === registration);
+  assert.ok(poll, registration);
+  assert.deepEqual([poll.flavio, poll.lula], [flavio, lula]);
+  assert.equal(poll.sample, sample);
+  assert.equal(poll.confidence, confidence);
+  assert.equal(poll.basis, 'valid');
+  assert.equal(poll.scope, 'Brasil');
+  assert.match(poll.fieldwork, /^20 a 22\/10\/2026/);
+  assert.equal(poll.totalVotes.other, grouped);
+  assert.match(poll.totalVotes.otherLabel, /branco\/nulo/);
+}
 const realTimeOctober23 = pollSnapshots.find((poll) => poll.registration === 'BR-09670/2026');
 assert.deepEqual([realTimeOctober23.flavio, realTimeOctober23.lula], [52, 48]);
 assert.deepEqual(realTimeOctober23.totalVotes, {

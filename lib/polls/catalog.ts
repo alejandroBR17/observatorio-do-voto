@@ -2,6 +2,66 @@ import type { PollSnapshot, Publication } from './types';
 
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-04350/2026',
+    institute: 'Ipespe/ABRAPEL',
+    publishedAt: '2026-10-23T10:14:32-03:00',
+    fieldwork: '20 a 22/10/2026 · entrevistas telefônicas CATI, com equipe de pesquisadores',
+    sample: 1500,
+    margin: 2.6,
+    confidence: 95.45,
+    contractor:
+      'Ipespe — contratante e pagante no TSE; pesquisa própria, em parceria com a ABRAPEL',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-23T23:29:00.463Z',
+    registration: 'BR-04350/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 50.5,
+    lula: 49.5,
+    source:
+      'https://ipespe.org.br/pesquisa-ipespe-abrapel-3o-turno-tracking-da-campanha-weekly-tracking-rodada-03-20-a-22-de-outubro-de-2026/',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 48,
+      lula: 47,
+      other: 3,
+      otherLabel: 'Ninguém/branco/nulo',
+      undecided: 2,
+    },
+    note: 'Terceira rodada: percentuais nacionais estimulados e válidos conferidos na página 5 e metodologia na página 39 do relatório original do Ipespe. A página de divulgação tem um erro no título (3º Turno); o relatório identifica o segundo turno presidencial. Válidos publicados pelo instituto, sem conversão dos totais arredondados; o relatório ressalva que a exclusão dos indecisos não presume seu comportamento. Cadastro, coleta prevista, amostra, contratante e pagante conferidos nos arquivos do TSE gerados em 22/10/2026 às 05h46. Origem dos recursos não preenchida no arquivo de contratantes; recursos próprios informados pelo Poder360. Não foram importados o recorte de máxima intenção de comparecimento, rejeição ou expectativa sobre o debate.',
+  },
+  {
+    id: 'BR-03259/2026',
+    institute: 'Vox Brasil',
+    publishedAt: '2026-10-23T08:21:00-03:00',
+    fieldwork: '20 a 22/10/2026 · entrevistas presenciais domiciliares',
+    sample: 2100,
+    margin: 2.15,
+    confidence: 95,
+    contractor:
+      'Instituto Vox Brasil Opinião e Pesquisas Ltda. — contratante e pagante; recursos próprios',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-23T23:29:00.463Z',
+    registration: 'BR-03259/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 49.4,
+    lula: 50.6,
+    source:
+      'https://noticias.uol.com.br/ultimas-noticias/agencia-estado/2026/10/23/em-votos-validos-lula-tem-506-contra-494-de-flavio-mostra-pesquisa-vox-brasil.htm',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 44.3,
+      lula: 45.4,
+      other: 6,
+      otherLabel: 'Nenhum/branco/nulo',
+      undecided: 4.3,
+    },
+    note: 'Estimulada nacional e válidos conferidos na página 13 do relatório original: https://static.poder360.com.br/uploads/2026/10/RELATORIO-VOX-BRASIL-NACIONAL-11-2-TURNO-23-10-2026.pdf. Ficha técnica, coleta efetiva, amostra, confiança, margem, contratante e pagante na página 2, compatíveis com o cadastro do TSE gerado em 22/10/2026 às 05h46. Recursos próprios confirmados na ficha técnica; campo de origem dos recursos não preenchido no CSV do TSE. Horário da divulgação conforme Agência Estado/UOL. Mantidos os percentuais publicados, sem estimar válidos; não confundir com os números espontâneos apresentados antes no PDF.',
+  },
+  {
     id: 'BR-09670/2026',
     institute: 'Real Time Big Data',
     publishedAt: '2026-10-23T07:00:21-03:00',
@@ -955,6 +1015,26 @@ export const pollSnapshots: PollSnapshot[] = [
 // Newly located reporting stays in publications until the original numeric
 // report and its methodology have been checked. Never infer totals from a headline.
 export const verifiedPublications: Publication[] = [
+  {
+    institute: 'Veritá',
+    title: 'Veritá divulga rodada de 23/10; coleta efetiva ainda em conferência',
+    url: 'https://ultimosegundo.ig.com.br/eleicoes/2026-10-23/verita--flavio-tem-51-3--e-lula--48-7--dos-votos-validos.html.amp',
+    publishedAt: '2026-10-23T16:55:00-03:00',
+    source:
+      'https://ultimosegundo.ig.com.br/eleicoes/2026-10-23/verita--flavio-tem-51-3--e-lula--48-7--dos-votos-validos.html.amp',
+    kind: 'publication',
+    publisher: 'iG',
+  },
+  {
+    institute: 'Alfa Inteligência',
+    title: 'Alfa: nova divulgação de 23/10; divergência de amostra ainda em conferência',
+    url: 'https://www.poder360.com.br/poder-eleicoes-2026/4-pesquisas-desta-6a-mostram-cenario-indefinido-entre-flavio-e-lula/',
+    publishedAt: '2026-10-23T16:29:00-03:00',
+    source:
+      'https://www.poder360.com.br/poder-eleicoes-2026/4-pesquisas-desta-6a-mostram-cenario-indefinido-entre-flavio-e-lula/',
+    kind: 'publication',
+    publisher: 'Poder360',
+  },
   {
     institute: 'Datafolha',
     title: 'Datafolha: nova pesquisa nacional de segundo turno, divulgada em 22/10',
