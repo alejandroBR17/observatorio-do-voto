@@ -10,7 +10,6 @@ import {
   Clock3,
   CalendarDays,
   Eye,
-  Sparkles,
   MessagesSquare,
   PenLine,
   ShieldCheck,
@@ -124,6 +123,15 @@ export function DebateObservatory({
   const eligiblePolls = (polls?.polls || [])
     .filter((poll) => poll.scope === 'Brasil' && poll.turn === 2)
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+  function openReminder() {
+    setReminderOpen(true);
+    requestAnimationFrame(() =>
+      document.getElementById('debate-reminder')?.scrollIntoView({
+        behavior: scrollBehavior(),
+        block: 'center',
+      }),
+    );
+  }
   async function enableReminder() {
     if (busy || reviewOnly) return;
     setBusy(true);
@@ -145,10 +153,7 @@ export function DebateObservatory({
           <span className="debate-signature">
             <img src="/favicon.svg" alt="" width="20" height="20" /> OBSERVATÓRIO DO VOTO
           </span>
-          <span className="debate-ad-free">
-            <Sparkles size={14} />
-            Sem anúncios. Mais clareza.
-          </span>
+          <span className="debate-top-label">DEBATE PRESIDENCIAL · GLOBO</span>
         </div>
         <div className="debate-showcase-main">
           <div className="debate-showcase-copy">
@@ -178,20 +183,7 @@ export function DebateObservatory({
             </div>
             <div className="debate-actions">
               {!reminderExpired && (
-                <button
-                  className="button primary"
-                  onClick={() => {
-                    setReminderOpen(true);
-                    requestAnimationFrame(() =>
-                      document.getElementById('debate-reminder')?.scrollIntoView({
-                        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-                          ? 'auto'
-                          : 'smooth',
-                        block: 'center',
-                      }),
-                    );
-                  }}
-                >
+                <button className="button primary" onClick={openReminder}>
                   <Bell size={17} />
                   {reminderActive ? 'Ver meu lembrete' : 'Lembrar 15 minutos antes'}
                 </button>
@@ -240,28 +232,43 @@ export function DebateObservatory({
             </div>
           </div>
         </div>
-        <div className="debate-broadcast">
-          <div className="debate-broadcast-icon">
-            <Tv size={23} />
-          </div>
-          <div>
+        <section className="debate-broadcast" aria-labelledby="debate-broadcast-title">
+          <div className="debate-broadcast-screen">
+            <span className="debate-broadcast-kicker">TRANSMISSÃO OFICIAL</span>
+            <Tv size={42} strokeWidth={1.25} aria-hidden="true" />
             <strong>
-              {debate.watchUrl ? 'A transmissão oficial está disponível' : 'Transmissão em breve'}
+              23 OUT <span>21h20</span>
             </strong>
+            <span>Sexta-feira · horário de Brasília</span>
+          </div>
+          <div className="debate-broadcast-info">
+            <span className="debate-pending">
+              {debate.watchUrl ? 'Link oficial confirmado' : 'Aguardando link oficial'}
+            </span>
+            <h2 id="debate-broadcast-title">
+              {debate.watchUrl ? 'A transmissão oficial está disponível' : 'Transmissão em breve'}
+            </h2>
             <p>
               {debate.watchUrl
-                ? 'Assista no link direto do evento, na fonte oficial.'
-                : 'O link direto do debate aparecerá aqui quando estiver confirmado.'}
+                ? 'Abra a transmissão na fonte oficial e volte para comparar as propostas e conferir o contexto.'
+                : 'Este será o seu ponto de partida para assistir. O link direto do debate aparecerá aqui quando estiver confirmado.'}
             </p>
+            {debate.watchUrl ? (
+              <a
+                className="button secondary"
+                href={debate.watchUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Assistir ao debate <ArrowUpRight size={16} />
+              </a>
+            ) : !reminderExpired ? (
+              <button className="button secondary" onClick={openReminder}>
+                <Bell size={16} /> {reminderActive ? 'Ver meu lembrete' : 'Quero ser lembrado'}
+              </button>
+            ) : null}
           </div>
-          {debate.watchUrl ? (
-            <a className="button secondary" href={debate.watchUrl} target="_blank" rel="noreferrer">
-              Assistir ao debate <ArrowUpRight size={16} />
-            </a>
-          ) : (
-            <span className="debate-pending">Aguardando link oficial</span>
-          )}
-        </div>
+        </section>
         <div className="debate-program-source">
           <Source href={debate.scheduleSource}>Data e horário divulgados · UOL</Source>
         </div>
@@ -606,7 +613,7 @@ export function DebateObservatory({
             </p>
           </div>
           <button className="button secondary" onClick={() => onGo('polls')}>
-            Ver números das pesquisas <ArrowRight size={16} />
+            Explorar todas as pesquisas <ArrowRight size={16} />
           </button>
         </header>
         <ol className="debate-research-timeline" aria-label="Como situar as pesquisas no tempo">
@@ -638,7 +645,7 @@ export function DebateObservatory({
                   : 'Ainda não há, entre os levantamentos conferidos, uma pesquisa feita inteiramente após esse debate. As pesquisas anteriores mostram como a disputa estava antes do encontro.'}
               </p>
             </div>
-            <div className="debate-poll-list">
+            <div className={`debate-poll-list${morePolls ? ' is-expanded' : ''}`}>
               {eligiblePolls.slice(0, morePolls ? 3 : 1).map((poll) => {
                 const period = debatePollPeriod(poll);
                 return (
@@ -656,6 +663,39 @@ export function DebateObservatory({
                         }
                       </span>
                     </div>
+                    <p className="debate-poll-basis">
+                      {poll.basis === 'valid'
+                        ? 'Votos válidos · somente os candidatos'
+                        : 'Votos totais · todas as respostas'}
+                    </p>
+                    <div className="debate-poll-results" aria-label="Intenção de voto">
+                      {candidates.map((candidate) => {
+                        const value = candidate.number === '22' ? poll.flavio : poll.lula;
+                        return (
+                          <div
+                            className={`debate-poll-result person-${candidate.number}`}
+                            key={candidate.number}
+                          >
+                            <img src={candidate.photo} alt="" width="40" height="48" />
+                            <div>
+                              <div className="debate-poll-value">
+                                <span>{candidate.name}</span>
+                                <strong>{value.toLocaleString('pt-BR')}%</strong>
+                              </div>
+                              <div className="debate-poll-track" aria-hidden="true">
+                                <span style={{ width: `${value}%` }} />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {poll.basis === 'total' && (
+                      <p className="debate-poll-other">
+                        Os demais percentuais incluem outras respostas, como branco, nulo ou
+                        indecisão. Não foram convertidos em votos válidos.
+                      </p>
+                    )}
                     <dl>
                       <div>
                         <dt>Pessoas entrevistadas entre</dt>
@@ -682,7 +722,39 @@ export function DebateObservatory({
                         }[period]
                       }
                     </p>
-                    <Source href={poll.source}>Consultar a pesquisa na fonte</Source>
+                    <details className="debate-poll-method">
+                      <summary>Detalhes da pesquisa</summary>
+                      <dl>
+                        <div>
+                          <dt>Amostra</dt>
+                          <dd>{poll.sample.toLocaleString('pt-BR')} pessoas</dd>
+                        </div>
+                        <div>
+                          <dt>Margem de erro</dt>
+                          <dd>±{poll.margin.toLocaleString('pt-BR')} pontos percentuais</dd>
+                        </div>
+                        <div>
+                          <dt>Confiança</dt>
+                          <dd>
+                            {poll.confidence === null
+                              ? 'Não informada'
+                              : `${poll.confidence.toLocaleString('pt-BR')}%`}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Registro</dt>
+                          <dd>{poll.registration}</dd>
+                        </div>
+                        {poll.contractor && (
+                          <div>
+                            <dt>Contratante</dt>
+                            <dd>{poll.contractor}</dd>
+                          </div>
+                        )}
+                      </dl>
+                      {poll.note && <p>{poll.note}</p>}
+                      <Source href={poll.source}>Conferir publicação original</Source>
+                    </details>
                   </article>
                 );
               })}

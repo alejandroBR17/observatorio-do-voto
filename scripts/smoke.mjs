@@ -62,7 +62,7 @@ const debateHtml = await debateResponse.text();
 assert.ok(debateHtml.includes('O debate na Globo.'));
 assert.ok(debateHtml.includes('Transmissão em breve'));
 assert.ok(debateHtml.includes('Quando as pessoas foram ouvidas?'));
-assert.ok(debateHtml.includes('Sem anúncios. Mais clareza.'));
+assert.ok(debateHtml.includes('TRANSMISSÃO OFICIAL'));
 assert.ok(debateHtml.includes('O que cada um propõe?'));
 assert.ok(debateHtml.includes('debate-propostas') && debateHtml.includes('debate-pesquisas'));
 assert.ok(!debateHtml.includes('Prévia para revisão'));
