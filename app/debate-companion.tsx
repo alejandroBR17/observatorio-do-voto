@@ -5,6 +5,7 @@ import { ArrowUpRight, BookmarkPlus, Check, Radio, ShieldCheck } from 'lucide-re
 import { debateCoverage, debatePublicationTime, type DebatePhase } from '@/lib/debate';
 import type { MediaArticle } from '@/lib/media-types';
 import type { DebateContext, DebateVideo } from '@/lib/debate-context';
+import type { DebateEditorial } from '@/lib/debate-editorial';
 import { Source } from './components/source-link';
 import { DataFreshness } from './components/data-freshness';
 
@@ -56,6 +57,9 @@ export function DebateCompanion({
   checkedAt,
   stale,
   onMark,
+  editorial,
+  onAlerts,
+  liveAlertsActive,
 }: {
   articles?: MediaArticle[];
   context?: Partial<DebateContext> | null;
@@ -64,6 +68,9 @@ export function DebateCompanion({
   checkedAt?: string | null;
   stale?: boolean;
   onMark: () => void;
+  editorial: DebateEditorial;
+  onAlerts: () => void;
+  liveAlertsActive: boolean;
 }) {
   const items = useMemo(() => debateCoverage(articles), [articles]);
   const [feed, setFeed] = useState<MediaArticle[] | null>(null);
@@ -151,14 +158,21 @@ export function DebateCompanion({
             </span>
           ))}
         </div>
-        <p className="debate-small">
-          {phase === 'scheduled'
-            ? 'A página está no modo de acompanhamento pelo horário previsto. Isso não confirma que o vídeo já começou.'
-            : phase === 'after'
-              ? 'Este é o modo de retrospectiva da programação. Os horários e as conclusões continuam atribuídos às fontes.'
-              : 'A página muda de apresentação automaticamente no horário previsto; o início do vídeo depende da emissora.'}
+        <p className="debate-small" role="status">
+          {editorial.state !== 'planned' && editorial.confirmedAt
+            ? `${editorial.state === 'live' ? 'Início informado' : 'Encerramento informado'} pelo acompanhamento do Observatório às ${time(editorial.confirmedAt)} (Brasília). A transmissão no seu aparelho pode ter atraso.`
+            : phase === 'scheduled'
+              ? 'A página está no modo de acompanhamento pelo horário previsto. Isso não confirma que o vídeo já começou.'
+              : phase === 'after'
+                ? 'Este é o modo de retrospectiva da programação. Os horários e as conclusões continuam atribuídos às fontes.'
+                : 'A página muda de apresentação automaticamente no horário previsto; o início do vídeo depende da emissora.'}
         </p>
         <div className="debate-companion-actions">
+          <button className="button primary" onClick={onAlerts}>
+            {liveAlertsActive
+              ? 'Gerenciar meus avisos ao vivo'
+              : 'Escolher avisos ao vivo do debate'}
+          </button>
           <button
             className="button secondary"
             aria-pressed={recap}
@@ -180,6 +194,29 @@ export function DebateCompanion({
             </button>
           )}
         </div>
+        {editorial.updates.length > 0 && (
+          <section
+            className="debate-editorial-updates"
+            aria-label="Atualizações do acompanhamento"
+            aria-live="polite"
+          >
+            <span className="or-overline">DIRETO DO ACOMPANHAMENTO</span>
+            {[...editorial.updates]
+              .reverse()
+              .slice(0, 4)
+              .map((update) => (
+                <article key={update.id}>
+                  <span>{time(update.publishedAt)} · Observatório do Voto</span>
+                  <h3>{update.title}</h3>
+                  <p>{update.body}</p>
+                </article>
+              ))}
+            <p className="debate-small">
+              Avisos editoriais do acompanhamento. As checagens dos veículos aparecem separadamente,
+              com sua autoria.
+            </p>
+          </section>
+        )}
         {recap && (
           <p className="debate-small">
             {returning

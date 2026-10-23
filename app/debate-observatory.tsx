@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import {
   debate,
-  debatePhase,
   debateTopics,
   debatePlans,
   debateCoverage,
@@ -42,6 +41,7 @@ import { Source } from './components/source-link';
 import { NewsVisual } from './news-visual';
 import { DebateCompanion, DebatePlayer } from './debate-companion';
 import type { DebateContext } from '@/lib/debate-context';
+import { editorialPhase, initialDebateEditorial } from '@/lib/debate-editorial';
 const DebatePollChart = dynamic(() => import('./debate-poll-chart'), {
   loading: () => <p>Preparando o gráfico…</p>,
 });
@@ -105,10 +105,11 @@ export function DebateObservatory({
   reviewOnly?: boolean;
 }) {
   const now = useDebateClock();
-  const phase = now === null ? 'before' : debatePhase(now);
   const { data: media, loading: mediaLoading } = useRemote<MediaResponse>('/api/media', 30000);
   const { data: polls, loading: pollsLoading } = useRemote<PollResponse>('/api/polls', 60000);
   const { data: context } = useRemote<DebateContext>('/api/debate', 30000);
+  const editorial = context?.editorial || initialDebateEditorial;
+  const phase = now === null ? 'before' : editorialPhase(editorial, now);
   const [chartOpen, setChartOpen] = useState(false);
   const video = context?.video;
   const watchUrl = video?.watchUrl || debate.watchUrl;
@@ -129,7 +130,8 @@ export function DebateObservatory({
   const checks = debateChecks(media?.articles || [], now || Date.now());
   const topicCoverage = coverage.filter((article) => debateTopic(article.title) === topic);
   const reminderActive = notification === 'Ativadas' && prefs.debate;
-  const reminderExpired = now !== null && now >= Date.parse(debate.reminderExpiresAt);
+  const reminderExpired =
+    editorial.state !== 'planned' || (now !== null && now >= Date.parse(debate.reminderExpiresAt));
   const eligiblePolls = (polls?.polls || [])
     .filter((poll) => poll.scope === 'Brasil' && poll.turn === 2)
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
@@ -219,10 +221,12 @@ export function DebateObservatory({
                 Começar pelas propostas <ArrowRight size={17} />
               </a>
             </div>
-            <p className="debate-reminder-caption">
-              Debate: <strong>21h20</strong> <span aria-hidden="true">/</span> Lembrete opcional:{' '}
-              <strong>21h05</strong>
-            </p>
+            {!reminderExpired && (
+              <p className="debate-reminder-caption">
+                Debate: <strong>21h20</strong> <span aria-hidden="true">/</span> Lembrete opcional:{' '}
+                <strong>21h05</strong>
+              </p>
+            )}
           </div>
           <div className="debate-stage">
             <div className="debate-stage-label">
@@ -252,8 +256,12 @@ export function DebateObservatory({
                 <span>
                   <Clock3 size={16} />
                   {phase === 'scheduled'
-                    ? 'Horário previsto do encontro chegou'
-                    : 'Explore o que ficou do encontro'}
+                    ? editorial.state === 'live'
+                      ? 'Debate em andamento · acompanhamento confirmado'
+                      : 'Horário previsto do encontro chegou'
+                    : editorial.state === 'ended'
+                      ? 'Encontro encerrado · acompanhamento confirmado'
+                      : 'Explore o que ficou do encontro'}
                 </span>
               )}
             </div>
@@ -350,6 +358,9 @@ export function DebateObservatory({
         articles={media?.articles}
         context={context}
         phase={phase}
+        editorial={editorial}
+        onAlerts={onAlerts}
+        liveAlertsActive={notification === 'Ativadas' && prefs.debateLive}
         loading={mediaLoading}
         checkedAt={media?.checkedAt}
         stale={media?.status === 'stale' || media?.status === 'unavailable'}
@@ -451,37 +462,61 @@ export function DebateObservatory({
           ))}
         </div>
         <div className="debate-topic-content" key={topic}>
-          <div className="debate-question">
-            <MessagesSquare size={23} aria-hidden="true" />
+          <div
+            className="debate-comparison"
+            aria-label={`Comparação de propostas: ${current.name}`}
+          >
+            <div className="debate-comparison-head">
+              {candidates.map((candidate) => {
+                const number = candidate.number as '22' | '13';
+                return (
+                  <div className={`person-${number}`} key={number}>
+                    <div className="debate-proposal-identity">
+                      <img src={candidate.photo} alt="" width="48" height="58" />
+                      <h3>
+                        {candidate.name}
+                        <small>
+                          {candidate.party} · {candidate.number}
+                        </small>
+                      </h3>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {editorial.proposals[topic].map((row) => (
+              <section className="debate-comparison-row" key={row.label}>
+                <h4>{row.label}</h4>
+                <div>
+                  <p>
+                    <span className="sr-only">Flávio Bolsonaro: </span>
+                    {row.flavio}
+                  </p>
+                  <p>
+                    <span className="sr-only">Lula: </span>
+                    {row.lula}
+                  </p>
+                </div>
+              </section>
+            ))}
+            <div className="debate-comparison-sources">
+              <Source href={debatePlans['22']}>Plano de Flávio · pp. {current.pages['22']}</Source>
+              <Source href={debatePlans['13']}>Plano de Lula · pp. {current.pages['13']}</Source>
+            </div>
+          </div>
+          <details className="debate-disclosure">
+            <summary>
+              O que observar neste tema<span aria-hidden="true">+</span>
+            </summary>
             <div>
-              <span>PARA PRESTAR ATENÇÃO</span>
               <h3>{current.question}</h3>
               <p>{current.meaning}</p>
             </div>
-          </div>
-          <div className="debate-proposals">
-            {candidates.map((candidate) => {
-              const number = candidate.number as '22' | '13';
-              return (
-                <article className={`debate-proposal person-${number}`} key={number}>
-                  <div className="debate-proposal-identity">
-                    <img src={candidate.photo} alt="" width="48" height="58" />
-                    <h3>
-                      {candidate.name}
-                      <small>{candidate.party} · Plano registrado</small>
-                    </h3>
-                  </div>
-                  <p>{current.proposals[number]}</p>
-                  <Source href={debatePlans[number]}>
-                    Índice do TSE · páginas {current.pages[number]}
-                  </Source>
-                </article>
-              );
-            })}
-          </div>
+          </details>
           <p className="debate-small">
-            Síntese do índice temático do TSE, conferido em 22/10/2026. São propostas de campanha;
-            sua presença no plano não significa execução ou resultado comprovado.
+            Recortes dos planos no TSE, conferidos em 23/10/2026. As linhas comparam os mesmos
+            assuntos; propostas semelhantes aparecem como semelhantes. Não é uma lista completa nem
+            uma avaliação de execução. Abra o plano para ver condições e detalhes.
           </p>
           <details className="debate-disclosure">
             <summary>

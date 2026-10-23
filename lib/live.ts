@@ -105,6 +105,7 @@ export async function live(db: Database, uf = 'BR') {
       polls: 'Nova pesquisa',
       coverage: 'Noticiário',
       debate: 'Lembrete do debate',
+      debateLive: 'Avisos ao vivo do debate',
     };
     const title = labels[types[0]],
       body =

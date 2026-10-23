@@ -1,5 +1,6 @@
 import { debate, debateCoverage, debatePublicationTime } from './debate';
 import type { MediaArticle } from './media-types';
+import type { DebateEditorial } from './debate-editorial';
 
 export type DebateVideo = {
   watchUrl: string;
@@ -19,6 +20,7 @@ export type DebateContext = {
   checkedAt: string;
   video: DebateVideo | null;
   checks: DebateCheck[];
+  editorial?: DebateEditorial;
 };
 const clean = (value: unknown, max = 400) =>
   typeof value === 'string'

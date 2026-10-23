@@ -38,6 +38,7 @@ import { RegionalResults, electoralRegions } from './regional-results';
 import { SmartDiscoveries } from './smart-discoveries';
 import { PersonalizationEntry } from './personalization';
 import type { Discovery } from '@/lib/personalization';
+import { DebateEntry } from './debate-entry';
 
 export function ObservatoryRoom({
   results,
@@ -73,22 +74,42 @@ export function ObservatoryRoom({
   useEffect(() => {
     if (year === 2026) return;
     const controller = new AbortController();
+    let active = false,
+      hasSnapshot = false;
     setArchiveState('loading');
     setArchive([]);
-    fetch(`/data/history-${year}.json`, { signal: controller.signal })
-      .then((response) => {
-        if (!response.ok) throw Error();
-        return response.json();
-      })
-      .then((data: Result[]) => {
-        if (controller.signal.aborted) return;
-        setArchive(data);
-        setArchiveState('ready');
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setArchiveState('error');
-      });
-    return () => controller.abort();
+    const refresh = () => {
+      if (controller.signal.aborted || active) return;
+      active = true;
+      fetch(`/data/history-${year}.json`, { signal: controller.signal, cache: 'no-cache' })
+        .then((response) => {
+          if (!response.ok) throw Error();
+          return response.json();
+        })
+        .then((data: Result[]) => {
+          if (controller.signal.aborted) return;
+          setArchive(data);
+          setArchiveState('ready');
+          hasSnapshot = true;
+        })
+        .catch(() => {
+          if (!controller.signal.aborted && !hasSnapshot) setArchiveState('error');
+        })
+        .finally(() => {
+          active = false;
+        });
+    };
+    const resume = () => {
+      if (document.visibilityState === 'visible') refresh();
+    };
+    refresh();
+    const interval = setInterval(resume, 300000);
+    document.addEventListener('visibilitychange', resume);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', resume);
+    };
   }, [year]);
   const secondTurn = year === 2026 && turn === 2;
   const data = overviewResults(year, turn, results, liveResults, archive);
@@ -149,6 +170,7 @@ export function ObservatoryRoom({
           </div>
         </div>
       </div>
+      <DebateEntry onOpen={() => onGo('debate')} />
       <nav className="or-quicknav" aria-label="Explorar o panorama">
         <a href="#territorio">
           Território <ChevronRight size={13} />

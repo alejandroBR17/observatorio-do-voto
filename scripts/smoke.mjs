@@ -144,6 +144,9 @@ assert.equal(debateContextResponse.status, 200, 'debate context responds');
 const debateContext = await debateContextResponse.json();
 assert.ok(['ready', 'stale', 'unavailable'].includes(debateContext.status));
 assert.ok(Array.isArray(debateContext.checks));
+assert.ok(Number.isSafeInteger(debateContext.editorial?.revision));
+assert.ok(['planned', 'live', 'ended'].includes(debateContext.editorial?.state));
+assert.ok(Array.isArray(debateContext.editorial?.proposals?.economia));
 if (debateContext.video) {
   assert.ok(
     ['player.globo.com', 'globoplay.globo.com'].includes(

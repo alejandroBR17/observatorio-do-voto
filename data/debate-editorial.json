@@ -1,0 +1,57 @@
+{
+  "revision": 1,
+  "state": "planned",
+  "confirmedAt": null,
+  "updatedAt": "2026-10-23T13:35:00.000Z",
+  "updates": [],
+  "proposals": {
+    "economia": [
+      {
+        "label": "Contas públicas",
+        "flavio": "Reformular as regras fiscais.",
+        "lula": "Manter o arcabouço fiscal e a responsabilidade fiscal."
+      },
+      {
+        "label": "Trabalho",
+        "flavio": "Reduzir impostos e custos do trabalho.",
+        "lula": "Reduzir a jornada para 40 horas e encerrar a escala 6x1."
+      }
+    ],
+    "saude": [
+      {
+        "label": "Acesso ao atendimento",
+        "flavio": "Ampliar a telessaúde e aproveitar horários ociosos da rede privada.",
+        "lula": "Reduzir filas de atendimento especializado com o Agora tem Especialistas."
+      },
+      {
+        "label": "Outras medidas destacadas",
+        "flavio": "Digitalizar o SUS e integrar o prontuário eletrônico.",
+        "lula": "Fortalecer Mais Médicos e Farmácia Popular."
+      }
+    ],
+    "seguranca": [
+      {
+        "label": "Crime organizado",
+        "flavio": "Combater facções e reforçar fronteiras.",
+        "lula": "Combater o financiamento do crime organizado."
+      },
+      {
+        "label": "Outras medidas destacadas",
+        "flavio": "Alterar regras de penas e progressão para crimes hediondos.",
+        "lula": "Criar o Ministério da Segurança Pública."
+      }
+    ],
+    "educacao": [
+      {
+        "label": "Jornada escolar",
+        "flavio": "Ampliar escolas em tempo integral.",
+        "lula": "Expandir a escola em tempo integral."
+      },
+      {
+        "label": "Formação e permanência",
+        "flavio": "Ampliar ensino técnico e formação contínua de professores.",
+        "lula": "Expandir Institutos Federais e manter o Pé-de-Meia."
+      }
+    ]
+  }
+}

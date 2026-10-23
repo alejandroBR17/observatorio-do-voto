@@ -1720,3 +1720,184 @@
   outline: 2px solid var(--or-amber);
   outline-offset: 3px;
 }
+.debate-comparison {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.debate-comparison-head,
+.debate-comparison-row > div,
+.debate-comparison-sources {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.debate-comparison-head > div {
+  padding: 20px;
+  min-width: 0;
+  background: var(--soft);
+}
+.debate-comparison-head > div + div,
+.debate-comparison-row p + p {
+  border-left: 1px solid var(--line);
+}
+.debate-comparison .debate-proposal-identity {
+  margin: 0;
+}
+.debate-comparison .debate-proposal-identity h3 {
+  font-size: 18px;
+  line-height: 1.35;
+}
+.debate-comparison .debate-proposal-identity small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.debate-comparison-row h4 {
+  font-size: 14px;
+  padding: 12px 20px;
+  margin: 0;
+  background: var(--or-glow);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.debate-comparison-row p {
+  padding: 20px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.75;
+}
+.debate-comparison-sources {
+  padding: 16px 20px;
+  gap: 20px;
+  border-top: 1px solid var(--line);
+}
+.debate-editorial-updates {
+  padding: 20px;
+  border: 1px solid var(--or-amber);
+  border-radius: 14px;
+  background: var(--or-glow);
+  margin: 20px 0;
+}
+.debate-editorial-updates article {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.debate-editorial-updates article > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.debate-editorial-updates h3 {
+  font-size: 19px;
+  line-height: 1.4;
+  margin: 10px 0;
+}
+.debate-editorial-updates p {
+  font-size: 15px;
+  line-height: 1.75;
+}
+@media (max-width: 600px) {
+  .debate-comparison-head > div,
+  .debate-comparison-row p {
+    padding: 14px 12px;
+  }
+  .debate-comparison .debate-proposal-identity {
+    display: grid;
+    gap: 10px;
+  }
+  .debate-comparison .debate-proposal-identity img {
+    width: 48px;
+    height: 58px;
+  }
+  .debate-comparison .debate-proposal-identity h3 {
+    font-size: 16px;
+  }
+  .debate-comparison-row p {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .debate-comparison-row h4 {
+    padding: 12px;
+  }
+  .debate-comparison-sources {
+    padding: 14px 12px;
+    gap: 12px;
+  }
+}
+/* Editorial invitation follows the panorama title; it is not a warning banner. */
+.debate-entry.debate-event-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+  padding: 24px 28px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--or-amber);
+  border-radius: 16px;
+  background: linear-gradient(110deg, var(--or-glow), transparent 65%), var(--surface);
+}
+.debate-event-card-portraits {
+  display: flex;
+  gap: 6px;
+  align-self: center;
+}
+.debate-event-card-portraits img {
+  width: 48px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 9px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+}
+.debate-event-card-copy {
+  min-width: 0;
+}
+.debate-event-card h2 {
+  font-size: clamp(21px, 2vw, 27px);
+  margin: 9px 0;
+  letter-spacing: -0.025em;
+}
+.debate-event-card p {
+  font-size: 15px;
+}
+.debate-event-card-time {
+  display: block;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+@media (max-width: 800px) {
+  .debate-entry.debate-event-card {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 20px;
+    gap: 18px;
+  }
+  .debate-event-card-portraits {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    gap: 4px;
+  }
+  .debate-event-card-portraits img {
+    width: 35px;
+    height: 50px;
+  }
+  .debate-event-card .or-overline,
+  .debate-event-card h2 {
+    max-width: calc(100% - 86px);
+  }
+  .debate-event-card .or-overline {
+    display: block;
+    font-size: 10px;
+    line-height: 1.6;
+  }
+  .debate-event-card p {
+    margin-top: 15px;
+  }
+  .debate-event-card > .button {
+    width: 100%;
+    justify-content: center;
+  }
+}

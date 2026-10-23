@@ -311,6 +311,11 @@ export function Alerts({
 }) {
   const labels: [Exclude<keyof Prefs, 'frequency' | 'adaptive'>, string, string][] = [
     [
+      'debateLive',
+      'Avisos ao vivo do debate',
+      'Início e encerramento confirmados pelo acompanhamento do Observatório e avisos editoriais selecionados. Ative separadamente do lembrete.',
+    ],
+    [
       'debate',
       'Lembrete do debate na Globo',
       'Um único aviso em 23/10, próximo das 21h05 (Brasília). Não acompanha o intervalo de notícias.',

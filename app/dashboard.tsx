@@ -607,24 +607,45 @@ function DashboardContent({
   }, [theme, hydrated]);
   useEffect(() => {
     let canceled = false;
+    let active = false,
+      hasSnapshot = false;
     setHist([]);
     setHistoryError('');
-    fetch(`/data/history-${year}.json`)
-      .then((r) => {
-        if (!r.ok)
-          throw new Error(
-            'Este ano está disponível no acervo do TSE, mas não foi importado nesta versão.',
-          );
-        return readJson(r);
-      })
-      .then((d) => {
-        if (!canceled) setHist(d as Result[]);
-      })
-      .catch((e) => {
-        if (!canceled) setHistoryError(e.message);
-      });
+    const refresh = () => {
+      if (canceled || active) return;
+      active = true;
+      fetch(`/data/history-${year}.json`, { cache: 'no-cache', signal: AbortSignal.timeout(30000) })
+        .then((r) => {
+          if (!r.ok)
+            throw new Error(
+              'Este ano está disponível no acervo do TSE, mas não foi importado nesta versão.',
+            );
+          return readJson(r);
+        })
+        .then((d) => {
+          if (!canceled) {
+            setHist(d as Result[]);
+            setHistoryError('');
+            hasSnapshot = true;
+          }
+        })
+        .catch((e) => {
+          if (!canceled && !hasSnapshot) setHistoryError(e.message);
+        })
+        .finally(() => {
+          active = false;
+        });
+    };
+    const resume = () => {
+      if (document.visibilityState === 'visible') refresh();
+    };
+    refresh();
+    const interval = setInterval(resume, 300000);
+    document.addEventListener('visibilitychange', resume);
     return () => {
       canceled = true;
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', resume);
     };
   }, [year]);
   useEffect(() => {
@@ -1210,7 +1231,7 @@ function DashboardContent({
                 incluídos.
               </div>
             )}
-            {tab === 'overview' && <DebateEntry onOpen={() => go('debate')} />}
+            {tab === 'overview' && !observatory && <DebateEntry onOpen={() => go('debate')} />}
             {tab === 'overview' && observatory && (
               <ObservatoryRoom
                 results={all}
