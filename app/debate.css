@@ -1710,3 +1710,13 @@
     font-size: 30px;
   }
 }
+.debate-chart-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border-radius: 10px;
+}
+.debate-chart-scroll:focus-visible {
+  outline: 2px solid var(--or-amber);
+  outline-offset: 3px;
+}

@@ -8,8 +8,44 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  LabelList,
+  Legend,
+  type LabelProps,
 } from 'recharts';
 import type { PollSnapshot } from '@/lib/polls/types';
+type PollPoint = { id: string; date: string; Flávio: number; Lula: number };
+function PollPointLabel({
+  x,
+  y,
+  index,
+  candidate,
+  seriesPoints,
+}: LabelProps & { candidate: 'Flávio' | 'Lula'; seriesPoints: PollPoint[] }) {
+  const point = index === undefined ? undefined : seriesPoints[index];
+  const px = Number(x),
+    py = Number(y);
+  if (!point || !Number.isFinite(px) || !Number.isFinite(py)) return null;
+  const other = candidate === 'Flávio' ? 'Lula' : 'Flávio';
+  const above =
+    point[candidate] > point[other] ||
+    (point[candidate] === point[other] && candidate === 'Flávio');
+  return (
+    <text
+      x={px}
+      y={py + (above ? -15 : 24)}
+      textAnchor="middle"
+      fill={`var(--data-${candidate === 'Flávio' ? 'flavio' : 'lula'})`}
+      fontSize={14}
+      fontWeight={700}
+      stroke="var(--surface)"
+      strokeWidth={4}
+      paintOrder="stroke"
+      aria-hidden="true"
+    >
+      {point[candidate].toLocaleString('pt-BR')}%
+    </text>
+  );
+}
 export default function DebatePollChart({ polls }: { polls: PollSnapshot[] }) {
   const valid = useMemo(
     () =>
@@ -59,47 +95,79 @@ export default function DebatePollChart({ polls }: { polls: PollSnapshot[] }) {
         conversão. Mudanças não podem ser atribuídas somente ao debate.
       </p>
       {points.length > 1 ? (
-        <div className="debate-chart-canvas">
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart
-              data={points}
-              accessibilityLayer
-              margin={{ top: 15, right: 20, bottom: 10, left: 0 }}
-            >
-              <CartesianGrid stroke="var(--line)" vertical={false} />
-              <XAxis dataKey="date" tick={{ fill: 'var(--muted)', fontSize: 12 }} />
-              <YAxis
-                domain={[0, 100]}
-                tick={{ fill: 'var(--muted)', fontSize: 12 }}
-                width={36}
-                unit="%"
-              />
-              <Tooltip
-                contentStyle={{
-                  background: 'var(--surface)',
-                  border: '1px solid var(--line)',
-                  color: 'var(--ink)',
-                  borderRadius: 10,
-                }}
-              />
-              <Line
-                dataKey="Flávio"
-                stroke="var(--data-flavio)"
-                strokeWidth={3}
-                isAnimationActive={false}
-              />
-              <Line
-                dataKey="Lula"
-                stroke="var(--data-lula)"
-                strokeWidth={3}
-                isAnimationActive={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+        <div
+          className="debate-chart-scroll"
+          role="region"
+          aria-label="Evolução com percentuais em cada ponto. Em telas pequenas, deslize para ver todas as datas."
+          tabIndex={0}
+        >
+          <div
+            className="debate-chart-canvas"
+            style={{ minWidth: Math.max(290, points.length * 76) }}
+          >
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart
+                data={points}
+                accessibilityLayer
+                margin={{ top: 32, right: 28, bottom: 20, left: 8 }}
+              >
+                <CartesianGrid stroke="var(--line)" vertical={false} />
+                <XAxis dataKey="date" tick={{ fill: 'var(--muted)', fontSize: 12 }} interval={0} />
+                <YAxis
+                  domain={[0, 100]}
+                  tick={{ fill: 'var(--muted)', fontSize: 12 }}
+                  width={36}
+                  unit="%"
+                />
+                <Tooltip
+                  formatter={(value) => `${Number(value).toLocaleString('pt-BR')}%`}
+                  contentStyle={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--line)',
+                    color: 'var(--ink)',
+                    borderRadius: 10,
+                  }}
+                />
+                <Legend verticalAlign="top" height={36} />
+                <Line
+                  dataKey="Flávio"
+                  stroke="var(--data-flavio)"
+                  strokeWidth={3}
+                  isAnimationActive={false}
+                  dot={{ r: 4 }}
+                >
+                  <LabelList
+                    content={(props) => (
+                      <PollPointLabel {...props} candidate="Flávio" seriesPoints={points} />
+                    )}
+                  />
+                </Line>
+                <Line
+                  dataKey="Lula"
+                  stroke="var(--data-lula)"
+                  strokeWidth={3}
+                  isAnimationActive={false}
+                  dot={{ r: 4 }}
+                >
+                  <LabelList
+                    content={(props) => (
+                      <PollPointLabel {...props} candidate="Lula" seriesPoints={points} />
+                    )}
+                  />
+                </Line>
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       ) : (
         <p className="debate-small">
           Há apenas uma rodada deste instituto no período. A tabela mantém os números disponíveis.
+        </p>
+      )}
+      {points.length > 1 && (
+        <p className="debate-small">
+          Os números junto aos pontos são os percentuais publicados. No celular, deslize somente o
+          gráfico para ver todas as datas. A tabela abaixo mantém todos os valores.
         </p>
       )}
       <table>
