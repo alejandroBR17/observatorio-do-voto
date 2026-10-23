@@ -88,6 +88,7 @@ export type PushEvent = {
   image?: string;
   icon?: string;
   urgent?: boolean;
+  expiresAt?: number;
   subjects?: ContentSubject[];
 };
 function notificationAsset(value: string | undefined) {
@@ -108,6 +109,7 @@ export function pushPayload(event: PushEvent) {
     body: event.body.slice(0, 500),
     url: event.url,
     types: event.types,
+    ...(event.expiresAt ? { expiresAt: event.expiresAt } : {}),
     image: notificationAsset(event.image),
     icon: notificationAsset(event.icon),
   };
@@ -139,7 +141,9 @@ export async function sendPush(
       publicKey: keys.public,
       privateKey: keys.private.d,
     },
-    TTL: 3600,
+    TTL: event.expiresAt
+      ? Math.max(0, Math.min(3600, Math.floor((event.expiresAt - Date.now()) / 1000)))
+      : 3600,
     urgency: event.urgent ? 'high' : 'normal',
     timeout: 10000,
   });
@@ -158,7 +162,7 @@ export async function dispatchPush(db: Database, send = sendPush) {
   try {
     const events = await db
       .prepare(
-        "SELECT e.id,e.value,e.created FROM push_events e WHERE e.created>? AND EXISTS(SELECT 1 FROM subscriptions s JOIN subscription_keys k ON k.endpoint=s.endpoint LEFT JOIN push_deliveries d ON d.endpoint=s.endpoint AND d.event_id=e.id WHERE k.created<=e.created AND (d.event_id IS NULL OR (d.status IN ('retry','deferred') AND d.updated<? AND (d.status='deferred' OR d.attempts<3)))) ORDER BY json_extract(e.value,'$.urgent') DESC,e.created DESC LIMIT 10",
+        "SELECT e.id,e.value,e.created FROM push_events e WHERE e.created>? AND EXISTS(SELECT 1 FROM subscriptions s JOIN subscription_keys k ON k.endpoint=s.endpoint LEFT JOIN push_deliveries d ON d.endpoint=s.endpoint AND d.event_id=e.id WHERE (k.created<=e.created OR (json_extract(e.value,'$.types[0]')='debate' AND k.created<json_extract(e.value,'$.expiresAt'))) AND (json_extract(e.value,'$.types[0]')!='debate' OR json_extract(s.preferences,'$.debate')=1) AND (d.event_id IS NULL OR (d.status IN ('retry','deferred') AND d.updated<? AND (d.status='deferred' OR d.attempts<3)))) ORDER BY json_extract(e.value,'$.urgent') DESC,e.created DESC LIMIT 10",
       )
       .bind(now - 172800000, now - 60000)
       .all<{ id: string; value: string; created: number }>();
@@ -168,16 +172,25 @@ export async function dispatchPush(db: Database, send = sendPush) {
       const event = JSON.parse(row.value) as PushEvent;
       const subs = await db
         .prepare(
-          "SELECT s.endpoint,s.preferences,k.value FROM subscriptions s JOIN subscription_keys k ON k.endpoint=s.endpoint LEFT JOIN push_deliveries d ON d.endpoint=s.endpoint AND d.event_id=? WHERE k.created<=? AND (d.event_id IS NULL OR (d.status IN ('retry','deferred') AND d.updated<? AND (d.status='deferred' OR d.attempts<3))) ORDER BY s.endpoint LIMIT ?",
+          "SELECT s.endpoint,s.preferences,k.value FROM subscriptions s JOIN subscription_keys k ON k.endpoint=s.endpoint LEFT JOIN push_deliveries d ON d.endpoint=s.endpoint AND d.event_id=? WHERE k.created<=? AND (?=0 OR json_extract(s.preferences,'$.debate')=1) AND (d.event_id IS NULL OR (d.status IN ('retry','deferred') AND d.updated<? AND (d.status='deferred' OR d.attempts<3))) ORDER BY s.endpoint LIMIT ?",
         )
-        .bind(row.id, row.created, now - 60000, budget)
+        .bind(
+          row.id,
+          event.types.includes('debate')
+            ? Math.max(row.created, event.expiresAt || row.created)
+            : row.created,
+          event.types.includes('debate') ? 1 : 0,
+          now - 60000,
+          budget,
+        )
         .all<{ endpoint: string; preferences: string; value: string }>();
       budget -= subs.results.length;
       for (let start = 0; start < subs.results.length; start += 20)
         await Promise.allSettled(
           subs.results.slice(start, start + 20).map(async (sub) => {
             const prefs = alertPreferences(JSON.parse(sub.preferences)),
-              wanted = event.types.some((t) => prefs[t]);
+              wanted =
+                (!event.expiresAt || event.expiresAt > now) && event.types.some((t) => prefs[t]);
             let status = 'skipped',
               nextCheck = Date.now();
             if (wanted) {
@@ -218,13 +231,14 @@ export async function dispatchPush(db: Database, send = sendPush) {
                   } else {
                     const pending = await db
                       .prepare(
-                        "SELECT e.id,e.value FROM push_events e JOIN subscription_keys k ON k.endpoint=? LEFT JOIN push_deliveries d ON d.event_id=e.id AND d.endpoint=k.endpoint WHERE e.created>? AND k.created<=e.created AND (d.event_id IS NULL OR d.status='deferred' OR (d.status='retry' AND d.attempts<3)) ORDER BY e.created DESC LIMIT 100",
+                        "SELECT e.id,e.value FROM push_events e JOIN subscription_keys k ON k.endpoint=? LEFT JOIN push_deliveries d ON d.event_id=e.id AND d.endpoint=k.endpoint WHERE e.created>? AND (k.created<=e.created OR (json_extract(e.value,'$.types[0]')='debate' AND k.created<json_extract(e.value,'$.expiresAt'))) AND (d.event_id IS NULL OR d.status='deferred' OR (d.status='retry' AND d.attempts<3)) ORDER BY e.created DESC LIMIT 100",
                       )
                       .bind(sub.endpoint, now - 172800000)
                       .all<{ id: string; value: string }>();
                     const common = pending.results.filter((r) => {
                       const e = JSON.parse(r.value) as PushEvent;
                       return (
+                        (!e.expiresAt || e.expiresAt > now) &&
                         e.types.some((t) => prefs[t]) &&
                         !priorityAlert(e.types, prefs) &&
                         adaptiveWindow(prefs, e, now) === window

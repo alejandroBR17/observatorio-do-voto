@@ -4,6 +4,7 @@ import { live } from './live';
 import { polls } from './polls';
 import { media } from './media';
 import { dispatchPush } from './push';
+import { queueDebateReminder } from './debate-reminder';
 
 export function monitorAuthorized(actual: string | null, secret: string) {
   const wanted = `Bearer ${secret}`;
@@ -64,6 +65,7 @@ export async function runMonitor(
   });
   let push = 'ok';
   try {
+    await queueDebateReminder(db);
     await dependencies.dispatchPush(db);
   } catch {
     push = 'unavailable';

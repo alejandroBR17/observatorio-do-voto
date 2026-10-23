@@ -55,7 +55,9 @@ self.addEventListener('push', (event) =>
           /* History availability must not block a real alert. */
         }
       }
+      if (typeof data.expiresAt === 'number' && data.expiresAt <= Date.now()) return;
       const labels = {
+        debate: 'Lembrete do debate na Globo',
         winner: 'Resultado confirmado pelo TSE',
         mathematical: 'Vantagem numericamente irreversível',
         lead: 'Mudança na liderança',

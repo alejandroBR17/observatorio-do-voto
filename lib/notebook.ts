@@ -7,7 +7,7 @@ export type NotebookEntry = {
   uf: string;
   updated: string | null;
 };
-export const noteTopics = ['Observações', 'Pesquisas', 'Apuração', 'Histórico'];
+export const noteTopics = ['Observações', 'Pesquisas', 'Apuração', 'Histórico', 'Debate'];
 export function readWatch(value: unknown): { states: string[]; entries: NotebookEntry[] } {
   const v = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
   const followed = Array.isArray(v.states)

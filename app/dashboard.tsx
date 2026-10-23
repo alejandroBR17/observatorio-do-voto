@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
+  MessagesSquare,
   Activity,
   ArrowUpRight,
   Bell,
@@ -29,6 +30,11 @@ import {
 } from 'lucide-react';
 import { normalize, states, Result } from '@/lib/elections';
 import { candidates, bioSource, years } from '@/lib/content';
+import dynamic from 'next/dynamic';
+import { DebateEntry } from './debate-entry';
+const DebateObservatory = dynamic(() =>
+  import('./debate-observatory').then((m) => m.DebateObservatory),
+);
 import { PollOverview, PollExplorer } from './features/polls';
 import { MediaExplorer } from './features/coverage';
 import { Watchboard } from './features/watchboard';
@@ -78,6 +84,7 @@ const regions = ['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'
 const nav = [
   ['overview', 'Panorama', Globe2],
   ['live', 'Apuração ao vivo', Radio],
+  ['debate', 'Debate na Globo', MessagesSquare],
   ['history', 'Histórico eleitoral', BookOpen],
   ['municipality', 'Seu município', MapPin],
   ['polls', 'Pesquisas e cenários', TrendingUp],
@@ -89,6 +96,7 @@ const nav = [
   ['app', 'Meu app', Smartphone],
 ] as const;
 const sectionKickers: Record<string, string> = {
+  debate: 'ESPECIAL / OBSERVATÓRIO DO DEBATE',
   live: 'CONTAGEM / APURAÇÃO OFICIAL',
   overview: 'OBSERVATÓRIO DO VOTO / PANORAMA',
   history: 'ACERVO / ELEIÇÕES PRESIDENCIAIS',
@@ -286,7 +294,13 @@ function DashboardContent({
       return;
     }
     const u = new URL(location.href);
-    u.searchParams.set('tab', next);
+    if (next === 'debate' && !reviewOnly) {
+      u.pathname = '/debate';
+      u.search = '';
+    } else {
+      if (u.pathname === '/debate') u.pathname = '/';
+      u.searchParams.set('tab', next);
+    }
     history.pushState({}, '', u);
     transitionPage(() => {
       setTab(next);
@@ -449,7 +463,13 @@ function DashboardContent({
       const p = new URLSearchParams(location.search);
       setMobile(false);
       transitionPage(() => {
-        setTab(nav.some((n) => n[0] === p.get('tab')) ? p.get('tab')! : 'overview');
+        setTab(
+          nav.some((n) => n[0] === p.get('tab'))
+            ? p.get('tab')!
+            : location.pathname === '/debate'
+              ? 'debate'
+              : 'overview',
+        );
         setUf(states.some((s) => s[1] === p.get('uf')) ? p.get('uf')! : 'BR');
         setRegion(regions.includes(p.get('region') || '') ? p.get('region')! : 'Brasil');
         const y = years.includes(Number(p.get('year'))) ? Number(p.get('year')) : 2022;
@@ -471,6 +491,13 @@ function DashboardContent({
   useEffect(() => {
     if (!hydrated) return;
     const u = new URL(location.href);
+    if (tab === 'debate' && !reviewOnly) {
+      u.pathname = '/debate';
+      u.search = '';
+      history.replaceState({}, '', u);
+      return;
+    }
+    if (u.pathname === '/debate') u.pathname = '/';
     u.searchParams.set('tab', tab);
     u.searchParams.set('uf', uf);
     u.searchParams.set('region', region);
@@ -479,7 +506,7 @@ function DashboardContent({
       u.searchParams.set('turn', String(turn));
     }
     history.replaceState({}, '', u);
-  }, [tab, uf, region, year, turn, hydrated]);
+  }, [tab, uf, region, year, turn, hydrated, reviewOnly]);
 
   useEffect(() => {
     try {
@@ -762,7 +789,7 @@ function DashboardContent({
   const f = national?.candidates.find((c) => c.number === '22'),
     l = national?.candidates.find((c) => c.number === '13'),
     others = Math.max(0, (national?.valid || 0) - (f?.votes || 0) - (l?.votes || 0));
-  async function pushEnable() {
+  async function pushEnable(nextPrefs = prefs) {
     try {
       if (!pushConsentAccepted) {
         if (tab !== 'alerts') go('alerts');
@@ -795,7 +822,7 @@ function DashboardContent({
         body: JSON.stringify({
           endpoint: sub.endpoint,
           subscription: sub.toJSON(),
-          preferences: JSON.parse(deliveryPreferences),
+          preferences: { ...nextPrefs, adaptive: learnedAlertSummary(learningState) || null },
           authorization: pushAuthorization,
         }),
       });
@@ -806,7 +833,8 @@ function DashboardContent({
         notify('A autorização foi registrada no servidor, mas não pôde ser salva neste aparelho.');
       }
       setNotification('Ativadas');
-      save();
+      setPrefs(nextPrefs);
+      save(favorite, nextPrefs);
       notify('Notificações ativadas para as próximas atualizações.');
       return { ok: true, message: 'Notificações ativadas neste aparelho.' };
     } catch (e) {
@@ -1091,54 +1119,58 @@ function DashboardContent({
               <div>
                 <div className="eyebrow">{sectionKickers[tab] || 'OBSERVATÓRIO DO VOTO'}</div>
                 <h1 tabIndex={-1} data-page-title>
-                  {observatory && tab === 'polls'
-                    ? 'O pulso da disputa.'
-                    : observatory && tab === 'candidates'
-                      ? 'Quem disputa a Presidência.'
-                      : observatory && tab === 'social'
-                        ? 'A eleição em debate.'
-                        : observatory && tab === 'watch'
-                          ? 'Seu olhar sobre a eleição.'
-                          : observatory && tab === 'profile'
-                            ? 'Seu espaço no observatório.'
-                            : observatory && tab === 'alerts'
-                              ? 'A eleição, no seu ritmo.'
-                              : observatory && tab === 'app'
-                                ? 'O observatório no seu aparelho.'
-                                : observatory && tab === 'history'
-                                  ? 'As eleições, ano a ano.'
-                                  : observatory && tab === 'municipality'
-                                    ? 'O voto, perto de você.'
-                                    : observatory && tab === 'live'
-                                      ? 'A disputa, voto a voto.'
-                                      : tab === 'overview'
-                                        ? 'O país em perspectiva.'
-                                        : nav.find((n) => n[0] === tab)?.[1]}
+                  {tab === 'debate'
+                    ? 'Entenda o debate na Globo.'
+                    : observatory && tab === 'polls'
+                      ? 'O pulso da disputa.'
+                      : observatory && tab === 'candidates'
+                        ? 'Quem disputa a Presidência.'
+                        : observatory && tab === 'social'
+                          ? 'A eleição em debate.'
+                          : observatory && tab === 'watch'
+                            ? 'Seu olhar sobre a eleição.'
+                            : observatory && tab === 'profile'
+                              ? 'Seu espaço no observatório.'
+                              : observatory && tab === 'alerts'
+                                ? 'A eleição, no seu ritmo.'
+                                : observatory && tab === 'app'
+                                  ? 'O observatório no seu aparelho.'
+                                  : observatory && tab === 'history'
+                                    ? 'As eleições, ano a ano.'
+                                    : observatory && tab === 'municipality'
+                                      ? 'O voto, perto de você.'
+                                      : observatory && tab === 'live'
+                                        ? 'A disputa, voto a voto.'
+                                        : tab === 'overview'
+                                          ? 'O país em perspectiva.'
+                                          : nav.find((n) => n[0] === tab)?.[1]}
                 </h1>
                 <p>
-                  {tab === 'overview'
-                    ? 'Resultados, pesquisas e contexto para observar a eleição de perto.'
-                    : tab === 'live'
-                      ? 'A evolução dos votos, direto da fonte oficial.'
-                      : tab === 'history'
-                        ? observatory
-                          ? 'Percorra os anos, explore o mapa e veja o resultado de cada disputa.'
-                          : 'O país que votou ontem ajuda a entender o país de hoje.'
-                        : tab === 'municipality'
-                          ? 'Da cidade à sua seção: descubra os votos perto de você.'
-                          : tab === 'polls'
-                            ? 'Pesquisas mostram um momento. Cenários exploram possibilidades.'
-                            : tab === 'watch'
-                              ? 'Seus lugares, suas perguntas e seus registros. Um recorte pessoal da eleição.'
-                              : tab === 'social'
-                                ? 'Cobertura pública, atualização automática e fontes transparentes.'
-                                : tab === 'profile'
-                                  ? 'Seu nome e suas preferências, em um espaço pessoal.'
-                                  : tab === 'alerts'
-                                    ? 'Escolha os eventos que quer receber.'
-                                    : tab === 'app'
-                                      ? 'Instale, prepare seus atalhos e leve o Observatório com você.'
-                                      : 'Conheça as trajetórias dos dois candidatos à Presidência.'}
+                  {tab === 'debate'
+                    ? 'Propostas, fontes e contexto para acompanhar Lula e Flávio Bolsonaro.'
+                    : tab === 'overview'
+                      ? 'Resultados, pesquisas e contexto para observar a eleição de perto.'
+                      : tab === 'live'
+                        ? 'A evolução dos votos, direto da fonte oficial.'
+                        : tab === 'history'
+                          ? observatory
+                            ? 'Percorra os anos, explore o mapa e veja o resultado de cada disputa.'
+                            : 'O país que votou ontem ajuda a entender o país de hoje.'
+                          : tab === 'municipality'
+                            ? 'Da cidade à sua seção: descubra os votos perto de você.'
+                            : tab === 'polls'
+                              ? 'Pesquisas mostram um momento. Cenários exploram possibilidades.'
+                              : tab === 'watch'
+                                ? 'Seus lugares, suas perguntas e seus registros. Um recorte pessoal da eleição.'
+                                : tab === 'social'
+                                  ? 'Cobertura pública, atualização automática e fontes transparentes.'
+                                  : tab === 'profile'
+                                    ? 'Seu nome e suas preferências, em um espaço pessoal.'
+                                    : tab === 'alerts'
+                                      ? 'Escolha os eventos que quer receber.'
+                                      : tab === 'app'
+                                        ? 'Instale, prepare seus atalhos e leve o Observatório com você.'
+                                        : 'Conheça as trajetórias dos dois candidatos à Presidência.'}
                 </p>
               </div>
               {['overview', 'history', 'live'].includes(tab) && (
@@ -1176,6 +1208,7 @@ function DashboardContent({
                 incluídos.
               </div>
             )}
+            {tab === 'overview' && <DebateEntry onOpen={() => go('debate')} />}
             {tab === 'overview' && observatory && (
               <ObservatoryRoom
                 results={all}
@@ -1418,7 +1451,23 @@ function DashboardContent({
                 />
               </>
             )}
-            {['profile', 'alerts', 'app'].includes(tab) ||
+            {tab === 'debate' && (
+              <DebateObservatory
+                prefs={prefs}
+                notification={notification}
+                serviceReady={!!pushKey}
+                consentAccepted={pushConsentAccepted}
+                onConsent={setPushConsentAccepted}
+                onEnable={() => pushEnable({ ...prefs, debate: true })}
+                onRemoveReminder={() => void updateAlerts({ ...prefs, debate: false })}
+                onAlerts={() => go('alerts')}
+                onGo={go}
+                onNote={contextNote}
+                syncMessage={deliverySync}
+                reviewOnly={reviewOnly}
+              />
+            )}
+            {['profile', 'alerts', 'app', 'debate'].includes(tab) ||
             (observatory && tab === 'overview') ? null : busy ? (
               <div className="loading large">
                 <RefreshCw size={20} />

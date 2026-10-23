@@ -35,6 +35,7 @@ import './night-observatory.css';
 import './welcome-observatory.css';
 import './documents.css';
 import './recovery.css';
+import './debate.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),

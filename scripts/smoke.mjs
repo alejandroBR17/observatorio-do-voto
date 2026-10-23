@@ -56,6 +56,19 @@ for (const path of [
 }
 const filterPage = await (await fetch(base + '/?tab=polls&uf=SP&region=Sudeste')).text();
 assert.ok(filterPage.includes(`<link rel="canonical" href="${canonical}"`));
+const debateResponse = await fetch(base + '/debate');
+assert.equal(debateResponse.status, 200, 'debate has its own public link');
+const debateHtml = await debateResponse.text();
+assert.ok(debateHtml.includes('Entenda o debate na Globo.'));
+assert.ok(debateHtml.includes('O que cada um propõe?'));
+assert.ok(debateHtml.includes('debate-propostas') && debateHtml.includes('debate-pesquisas'));
+assert.ok(!debateHtml.includes('Prévia para revisão'));
+assert.ok(
+  debateHtml.includes(`<link rel="canonical" href="${new URL('/debate', canonical).href}"`),
+);
+assert.ok(
+  debateHtml.includes('property="og:title" content="Debate na Globo: acompanhe com contexto"'),
+);
 const robots = await fetch(base + '/robots.txt');
 assert.equal(robots.status, 200);
 const robotsText = await robots.text();

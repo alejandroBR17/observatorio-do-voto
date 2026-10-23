@@ -310,6 +310,11 @@ export function Alerts({
   onConsent: (accepted: boolean) => void;
 }) {
   const labels: [Exclude<keyof Prefs, 'frequency' | 'adaptive'>, string, string][] = [
+    [
+      'debate',
+      'Lembrete do debate na Globo',
+      'Um único aviso em 23/10, próximo das 21h05 (Brasília). Não acompanha o intervalo de notícias.',
+    ],
     ['winner', 'Resultado confirmado', 'Quando o TSE informar o candidato eleito.'],
     [
       'mathematical',

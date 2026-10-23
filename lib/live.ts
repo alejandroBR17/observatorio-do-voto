@@ -104,6 +104,7 @@ export async function live(db: Database, uf = 'BR') {
       progress: 'Atualização da apuração',
       polls: 'Nova pesquisa',
       coverage: 'Noticiário',
+      debate: 'Lembrete do debate',
     };
     const title = labels[types[0]],
       body =
