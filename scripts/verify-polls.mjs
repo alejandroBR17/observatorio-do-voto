@@ -116,7 +116,16 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 38);
+assert.equal(pollSnapshots.length, 40);
+const veritaFinal = pollSnapshots.find((p) => p.registration === 'BR-06070/2026');
+assert.deepEqual([veritaFinal.flavio, veritaFinal.lula, veritaFinal.sample], [51.3, 48.7, 15554]);
+assert.match(veritaFinal.fieldwork, /^18 a 22/);
+const trendsFinal = pollSnapshots.find((p) => p.registration === 'BR-03365/2026');
+assert.deepEqual([trendsFinal.flavio, trendsFinal.lula], [51.9, 48.1]);
+assert.equal(
+  Object.values(trendsFinal.totalVotes).reduce((sum, n) => sum + n, 0),
+  101,
+);
 // October 23 originals: keep published valid votes distinct from rounded totals.
 for (const [registration, flavio, lula, sample, confidence, grouped] of [
   ['BR-04350/2026', 50.5, 49.5, 1500, 95.45, 3],
@@ -277,7 +286,7 @@ for (const omitted of ['O intervalo de confiança é de 95%.', 'com recursos pr�
 const atlasSnapshot = pollSnapshots.find((p) => p.registration === 'BR-03663/2026');
 const ipespeSnapshot = pollSnapshots.find((p) => p.registration === 'BR-00933/2026');
 const voxSnapshot = pollSnapshots.find((p) => p.registration === 'BR-09623/2026');
-const dataTrendsSnapshot = pollSnapshots.find((p) => p.institute === 'DataTrends');
+const dataTrendsSnapshot = pollSnapshots.find((p) => p.registration === 'BR-03576/2026');
 assert.equal(dataTrendsSnapshot.registration, 'BR-03576/2026');
 assert.equal(dataTrendsSnapshot.flavio, 53.1);
 assert.equal(dataTrendsSnapshot.lula, 46.9);

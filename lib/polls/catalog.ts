@@ -2,6 +2,63 @@ import type { PollSnapshot, Publication } from './types';
 
 export const pollSnapshots: PollSnapshot[] = [
   {
+    id: 'BR-06070/2026',
+    institute: 'Veritá',
+    publishedAt: '2026-10-23T16:17:00-03:00',
+    fieldwork:
+      '18 a 22/10/2026 · entrevistas por unidade automatizada de respostas, em telefones celulares',
+    sample: 15554,
+    margin: 1,
+    confidence: 95,
+    contractor: 'Instituto Veritá Ltda. — contratante e pagante no TSE; pesquisa própria',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-23T23:47:01.225Z',
+    registration: 'BR-06070/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 51.3,
+    lula: 48.7,
+    source:
+      'https://exame.com/brasil/pesquisa-verita-flavio-bolsonaro-tem-513-e-lula-487-dos-votos-validos/',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 50.2,
+      lula: 47.5,
+      blankNull: 1.4,
+      undecided: 0.9,
+    },
+    note: 'Resultados nacionais válidos e totais, coleta efetiva e metodologia conforme a reportagem da Exame de 23/10. Registro correto BR-06070/2026: coleta de 18 a 22/10, 15.554 entrevistas, margem de 1 p.p. e confiança de 95%, compatíveis com o TSE. A divulgação do iG cita BR-06396/2026, que no cadastro corresponde à coleta de 15 a 19/10; esse protocolo não foi usado para a rodada atual. Contratante, pagante e condição de pesquisa própria conferidos nos arquivos oficiais gerados em 22/10 às 05h46; origem dos recursos não preenchida. Relatório integral original não localizado nesta revisão. Mantidos os válidos publicados, sem conversão dos totais arredondados. Expectativa de vitória e demais recortes não foram importados.',
+  },
+  {
+    id: 'BR-03365/2026',
+    institute: 'DataTrends',
+    publishedAt: '2026-10-23T12:00:00-03:00',
+    fieldwork: '19 a 21/10/2026 · contatos telefônicos fixos e móveis, com coleta automatizada',
+    sample: 2000,
+    margin: 2.19,
+    confidence: 95,
+    contractor: 'Instituto DataTrends Ltda. — contratante e pagante no TSE; pesquisa própria',
+    metadataSource: 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026',
+    registryCheckedAt: '2026-10-23T23:47:01.225Z',
+    registration: 'BR-03365/2026',
+    scope: 'Brasil',
+    turn: 2,
+    basis: 'valid',
+    flavio: 51.9,
+    lula: 48.1,
+    source:
+      'https://www.edmarlyra.com/datatrends-flavio-bolsonaro-amplia-vantagem-sobre-lula-e-chega-a-519-dos-votos-validos-2/',
+    mode: 'snapshot',
+    totalVotes: {
+      flavio: 50,
+      lula: 46,
+      blankNull: 4,
+      undecided: 1,
+    },
+    note: 'Divulgação no site de Edmar Lyra, identificado na própria página como CEO do instituto, confirmada por outros veículos. Nacional, segundo turno, coleta efetiva, amostra, margem e confiança constam da divulgação; método, contratante, pagante e condição de pesquisa própria conferidos no cadastro do TSE gerado em 22/10 às 05h46. Origem dos recursos não preenchida. Mantidos os válidos publicados e os totais arredondados, que somam 101%; nenhuma categoria foi ajustada. Algumas reproduções informam 3% em branco/nulo; foi preservado o 4% da divulgação do CEO. Relatório integral original não localizado. Não foram importados dados regionais ou de avaliação do governo.',
+  },
+  {
     id: 'BR-04350/2026',
     institute: 'Ipespe/ABRAPEL',
     publishedAt: '2026-10-23T10:14:32-03:00',
@@ -1017,7 +1074,7 @@ export const pollSnapshots: PollSnapshot[] = [
 export const verifiedPublications: Publication[] = [
   {
     institute: 'Veritá',
-    title: 'Veritá divulga rodada de 23/10; coleta efetiva ainda em conferência',
+    title: 'Veritá: rodada de 23/10 conferida; protocolo correto identificado na Exame',
     url: 'https://ultimosegundo.ig.com.br/eleicoes/2026-10-23/verita--flavio-tem-51-3--e-lula--48-7--dos-votos-validos.html.amp',
     publishedAt: '2026-10-23T16:55:00-03:00',
     source:
