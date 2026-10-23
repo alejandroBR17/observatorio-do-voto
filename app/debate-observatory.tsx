@@ -7,10 +7,8 @@ import {
   ArrowUpRight,
   Bell,
   BookOpen,
-  Check,
   Clock3,
   CalendarDays,
-  Eye,
   MessagesSquare,
   PenLine,
   ShieldCheck,
@@ -36,7 +34,7 @@ import { useRemote } from './hooks/use-remote';
 import { scrollBehavior } from './motion';
 import { DataFreshness } from './components/data-freshness';
 import { ShareButton } from './components/share-button';
-import { PushConsent } from './components/privacy-consent';
+import { DebateAlerts } from './debate-alerts';
 import { Source } from './components/source-link';
 import { NewsVisual } from './news-visual';
 import { DebateCompanion, DebatePlayer } from './debate-companion';
@@ -84,11 +82,14 @@ export function DebateObservatory({
   consentAccepted,
   onConsent,
   onEnable,
-  onRemoveReminder,
-  onAlerts,
+  onPrefs,
+  onRetry,
+  serviceMessage,
+  alertsOpen,
+  onAlertsOpen,
+  syncMessage,
   onGo,
   onNote,
-  syncMessage,
   reviewOnly = false,
 }: {
   prefs: AlertPreferences;
@@ -96,12 +97,15 @@ export function DebateObservatory({
   serviceReady: boolean;
   consentAccepted: boolean;
   onConsent: (value: boolean) => void;
-  onEnable: () => Promise<{ ok: boolean; message: string }>;
-  onRemoveReminder: () => void;
-  onAlerts: () => void;
+  onEnable: (prefs: AlertPreferences) => Promise<{ ok: boolean; message: string }>;
+  onPrefs: (prefs: AlertPreferences) => Promise<void>;
+  onRetry: () => void;
+  serviceMessage?: string;
+  alertsOpen: boolean;
+  onAlertsOpen: (open: boolean) => void;
+  syncMessage?: string;
   onGo: (tab: string) => void;
   onNote: (note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>, stay?: boolean) => void;
-  syncMessage?: string;
   reviewOnly?: boolean;
 }) {
   const now = useDebateClock();
@@ -115,11 +119,8 @@ export function DebateObservatory({
   const watchUrl = video?.watchUrl || debate.watchUrl;
   const [topic, setTopic] = useState<DebateTopic>('economia');
   const [morePolls, setMorePolls] = useState(false);
-  const [more, setMore] = useState(false),
-    [reminderOpen, setReminderOpen] = useState(false);
-  const [busy, setBusy] = useState(false),
-    [feedback, setFeedback] = useState(''),
-    [notes, setNotes] = useState<Partial<Record<DebateTopic, string>>>({});
+  const [more, setMore] = useState(false);
+  const [notes, setNotes] = useState<Partial<Record<DebateTopic, string>>>({});
   const note = notes[topic] || '';
   const current = debateTopics.find((item) => item.id === topic)!;
   const coverage = debateCoverage(media?.articles || [], now || Date.now()).filter(
@@ -135,28 +136,18 @@ export function DebateObservatory({
   const eligiblePolls = (polls?.polls || [])
     .filter((poll) => poll.scope === 'Brasil' && poll.turn === 2)
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+  useEffect(() => {
+    if (!alertsOpen) return;
+    const frame = requestAnimationFrame(() => {
+      document
+        .getElementById('debate-reminder')
+        ?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
+      document.getElementById('debate-alerts-title')?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [alertsOpen]);
   function openReminder() {
-    setReminderOpen(true);
-    requestAnimationFrame(() =>
-      document.getElementById('debate-reminder')?.scrollIntoView({
-        behavior: scrollBehavior(),
-        block: 'center',
-      }),
-    );
-  }
-  async function enableReminder() {
-    if (busy || reviewOnly) return;
-    setBusy(true);
-    try {
-      const result = await onEnable();
-      setFeedback(
-        result.ok
-          ? 'Lembrete confirmado neste aparelho. Você pode desativá-lo aqui ou em Alertas.'
-          : result.message,
-      );
-    } finally {
-      setBusy(false);
-    }
+    onAlertsOpen(true);
   }
   return (
     <div className={`debate-page debate-phase-${phase}`}>
@@ -313,33 +304,6 @@ export function DebateObservatory({
           <Source href={debate.scheduleSource}>Data e horário divulgados · UOL</Source>
         </div>
       </section>
-      <section className="debate-welcome" aria-label="Conheça o Observatório do Voto">
-        <div className="debate-welcome-intro">
-          <span className="or-overline">CHEGOU AGORA? ESTE É O SEU OBSERVATÓRIO.</span>
-          <h2>Entender a eleição pode ser mais simples.</h2>
-          <p>
-            Uma central independente para explorar o voto. Você escolhe o assunto e até onde quer se
-            aprofundar.
-          </p>
-        </div>
-        <details className="debate-welcome-details">
-          <summary>
-            Conheça o Observatório <ArrowRight size={16} />
-          </summary>
-          <div className="debate-welcome-values">
-            <div className="debate-value">
-              <Eye size={22} />
-              <strong>Visual para entender.</strong>
-              <p>Compare propostas lado a lado e abra os detalhes quando quiser.</p>
-            </div>
-            <div className="debate-value">
-              <ShieldCheck size={22} />
-              <strong>Fontes para conferir.</strong>
-              <p>Veja de onde vem cada informação. A sua conclusão continua sendo sua.</p>
-            </div>
-          </div>
-        </details>
-      </section>
       <div className="debate-tools">
         <nav aria-label="Nesta área">
           <a href="#debate-acompanhar">Acompanhar novidades</a>
@@ -359,7 +323,7 @@ export function DebateObservatory({
         context={context}
         phase={phase}
         editorial={editorial}
-        onAlerts={onAlerts}
+        onAlerts={openReminder}
         liveAlertsActive={notification === 'Ativadas' && prefs.debateLive}
         loading={mediaLoading}
         checkedAt={media?.checkedAt}
@@ -376,64 +340,25 @@ export function DebateObservatory({
           )
         }
       />
-      {reminderOpen && !reminderExpired && (
-        <section className="debate-reminder" id="debate-reminder" aria-labelledby="reminder-title">
-          <div>
-            <span className="or-overline">UM AVISO / SUA ESCOLHA</span>
-            <h2 id="reminder-title">Lembre de acompanhar.</h2>
-            <p>
-              O debate tem início previsto às 21h20 de 23/10. O lembrete sai próximo das 21h05,
-              quinze minutos antes. Você não precisa deixar o app aberto; a entrega depende da
-              conexão e da permissão do aparelho.
-            </p>
-          </div>
-          {reviewOnly ? (
-            <p>Prévia: o envio real não está disponível neste modo.</p>
-          ) : reminderActive ? (
-            <div>
-              <p className="debate-confirmed">
-                <Check size={18} />
-                Lembrete ativado neste aparelho.
-              </p>
-              <button
-                className="button secondary"
-                onClick={() => {
-                  onRemoveReminder();
-                  setFeedback(
-                    'Lembrete desmarcado. As outras escolhas de alertas continuam iguais.',
-                  );
-                }}
-              >
-                Desativar este lembrete
-              </button>
-            </div>
-          ) : (
-            <div>
-              {!consentAccepted && <PushConsent checked={consentAccepted} onChange={onConsent} />}
-              <button
-                className="button primary"
-                onClick={() => void enableReminder()}
-                disabled={busy || !serviceReady || !consentAccepted}
-              >
-                <Bell size={17} />
-                {busy ? 'Confirmando…' : 'Ativar lembrete neste aparelho'}
-              </button>
-              {!serviceReady && (
-                <p className="fine">
-                  Serviço de notificações ainda indisponível.{' '}
-                  <button className="text-button" onClick={onAlerts}>
-                    Verificar em Alertas
-                  </button>
-                </p>
-              )}
-            </div>
-          )}
-          {(feedback || syncMessage) && (
-            <p className="debate-feedback" role="status">
-              {feedback || syncMessage}
-            </p>
-          )}
-        </section>
+      {alertsOpen && (
+        <DebateAlerts
+          prefs={prefs}
+          notification={notification}
+          consentAccepted={consentAccepted}
+          onConsent={onConsent}
+          onEnable={onEnable}
+          onPrefs={onPrefs}
+          serviceReady={serviceReady}
+          serviceMessage={serviceMessage}
+          onRetry={onRetry}
+          reminderExpired={reminderExpired}
+          syncMessage={syncMessage}
+          onClose={() => {
+            onAlertsOpen(false);
+            requestAnimationFrame(() => document.getElementById('debate-alerts-trigger')?.focus());
+          }}
+          reviewOnly={reviewOnly}
+        />
       )}
       <section className="debate-panel" id="debate-propostas" aria-labelledby="proposals-title">
         <header>

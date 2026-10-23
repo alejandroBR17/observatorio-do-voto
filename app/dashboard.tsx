@@ -141,6 +141,7 @@ function DashboardContent({
   const { setReading } = useReading();
   const { ready: learningReady, state: learningState, visit: learnVisit } = usePersonalization();
   const learningEnabled = learningState.enabled;
+  const [debateAlertsOpen, setDebateAlertsOpen] = useState(false);
   const [welcome, setWelcome] = useState(false),
     [welcomeDismissible, setWelcomeDismissible] = useState(false),
     [termsReviewOnly, setTermsReviewOnly] = useState(false),
@@ -817,8 +818,8 @@ function DashboardContent({
   async function pushEnable(nextPrefs = prefs) {
     try {
       if (!pushConsentAccepted) {
-        if (tab !== 'alerts') go('alerts');
-        throw Error('Revise e marque a autorização de notificações em Alertas.');
+        if (!['alerts', 'debate'].includes(tab)) go('alerts');
+        throw Error('Revise e marque a autorização de notificações antes de ativar.');
       }
       if (
         !('Notification' in window) ||
@@ -1104,8 +1105,8 @@ function DashboardContent({
             />
             <button
               className="header-alerts"
-              aria-label="Abrir alertas"
-              onClick={() => go('alerts')}
+              aria-label={tab === 'debate' ? 'Escolher avisos deste debate' : 'Abrir alertas'}
+              onClick={() => (tab === 'debate' ? setDebateAlertsOpen(true) : go('alerts'))}
             >
               <Bell size={19} />
               <span>Alertas</span>
@@ -1481,12 +1482,15 @@ function DashboardContent({
                 serviceReady={!!pushKey}
                 consentAccepted={pushConsentAccepted}
                 onConsent={setPushConsentAccepted}
-                onEnable={() => pushEnable({ ...prefs, debate: true })}
-                onRemoveReminder={() => void updateAlerts({ ...prefs, debate: false })}
-                onAlerts={() => go('alerts')}
+                onEnable={pushEnable}
+                onPrefs={updateAlerts}
+                onRetry={checkPush}
+                serviceMessage={pushMessage}
+                alertsOpen={debateAlertsOpen}
+                onAlertsOpen={setDebateAlertsOpen}
+                syncMessage={deliverySync}
                 onGo={go}
                 onNote={contextNote}
-                syncMessage={deliverySync}
                 reviewOnly={reviewOnly}
               />
             )}
@@ -2416,7 +2420,7 @@ function DashboardContent({
           </button>
         </div>
       )}
-      {welcome && (
+      {welcome && tab !== 'debate' && (
         <Onboarding
           observatory={observatory}
           reviewOnly={reviewOnly}
@@ -2434,8 +2438,8 @@ function DashboardContent({
           serviceMessage={pushMessage}
         />
       )}
-      {!welcome && !mobile && !night && <AppDock tab={tab} onGo={go} />}
-      {showTop && !welcome && !mobile && !night && (
+      {!welcome && tab !== 'debate' && !mobile && !night && <AppDock tab={tab} onGo={go} />}
+      {showTop && (!welcome || tab === 'debate') && !mobile && !night && (
         <button
           className="back-to-top"
           aria-label="Voltar ao topo"

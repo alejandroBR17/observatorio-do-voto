@@ -168,7 +168,7 @@ export function DebateCompanion({
                 : 'A página muda de apresentação automaticamente no horário previsto; o início do vídeo depende da emissora.'}
         </p>
         <div className="debate-companion-actions">
-          <button className="button primary" onClick={onAlerts}>
+          <button id="debate-alerts-trigger" className="button primary" onClick={onAlerts}>
             {liveAlertsActive
               ? 'Gerenciar meus avisos ao vivo'
               : 'Escolher avisos ao vivo do debate'}
