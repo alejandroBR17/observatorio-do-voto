@@ -10,6 +10,8 @@ export const debate = {
   // This switches the presentation, not a claim that the broadcast actually ended.
   recapFrom: '2026-10-24T06:00:00-03:00',
   watchUrl: null as string | null,
+  // Continuous channel signal, not a claim that the debate has started.
+  liveTvUrl: 'https://globoplay.globo.com/tv-globo/ao-vivo/7832875/',
   // Verified official event coverage; distinct from a confirmed video/player URL.
   coverageUrl:
     'https://g1.globo.com/politica/eleicoes/2026/ao-vivo/debate-globo-segundo-turno.ghtml',

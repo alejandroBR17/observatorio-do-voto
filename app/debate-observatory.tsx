@@ -314,6 +314,14 @@ export function DebateObservatory({
                 Assistir ao debate <ArrowUpRight size={16} />
               </a>
             ) : null}
+            <a
+              className="button secondary"
+              href={debate.liveTvUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Tv size={16} /> TV Globo ao vivo · Globoplay <ArrowUpRight size={16} />
+            </a>
             <details className="debate-disclosure">
               <summary>
                 Onde mais assistir?<span aria-hidden="true">+</span>
@@ -322,6 +330,10 @@ export function DebateObservatory({
                 <p>
                   Na TV: TV Globo e GloboNews. Na internet: g1 e o sinal da TV Globo no Globoplay,
                   conforme as condições de acesso da emissora.
+                </p>
+                <p>
+                  O botão da TV Globo abre o sinal contínuo do canal, conforme sua programação e a
+                  disponibilidade na região. Ele não indica, por si só, que o debate já começou.
                 </p>
                 <p>
                   Transmissão oficial do debate no YouTube ainda não confirmada por aqui. Lives de

@@ -61,6 +61,7 @@ assert.equal(debateResponse.status, 200, 'debate has its own public link');
 const debateHtml = await debateResponse.text();
 assert.ok(debateHtml.includes('O debate na Globo.'));
 assert.ok(debateHtml.includes('id="debate-broadcast-title"'));
+assert.ok(debateHtml.includes('href="https://globoplay.globo.com/tv-globo/ao-vivo/7832875/"'));
 assert.ok(
   debateHtml.includes(
     'href="https://g1.globo.com/politica/eleicoes/2026/ao-vivo/debate-globo-segundo-turno.ghtml"',

@@ -15,6 +15,8 @@ test('debate uses Brasília schedule and never declares a broadcast live or fini
   assert.equal(debatePhase(Date.parse(debate.recapFrom)), 'after');
   assert.equal(debate.watchUrl, null, 'never label a generic news page as the debate video');
   assert.equal(new URL(debate.coverageUrl).hostname, 'g1.globo.com');
+  assert.equal(new URL(debate.liveTvUrl).hostname, 'globoplay.globo.com');
+  assert.match(new URL(debate.liveTvUrl).pathname, /^\/tv-globo\/ao-vivo\/\d+\/$/);
   assert.match(
     new URL(debate.coverageUrl).pathname,
     /\/2026\/ao-vivo\/debate-globo-segundo-turno\.ghtml$/,
