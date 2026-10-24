@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import Dashboard from '../dashboard';
 import { sharingMetadata } from '@/lib/site-metadata';
 
-const title = 'Debate na Globo: acompanhe com contexto';
+const title = 'Debate da Globo: íntegra, checagens e propostas';
 const description =
-  '23 de outubro, às 21h20 (Brasília). Compare propostas de Lula e Flávio Bolsonaro, consulte fontes, acompanhe a cobertura e escolha seu lembrete.';
+  'Reveja o debate de 23 de outubro entre Lula e Flávio Bolsonaro. Acesse a íntegra, as checagens do Fato ou Fake e de outros veículos e compare as propostas.';
 export const metadata: Metadata = {
   title,
   description,

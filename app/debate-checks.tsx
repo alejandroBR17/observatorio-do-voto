@@ -1,6 +1,6 @@
 import { ShieldCheck } from 'lucide-react';
 import type { DebateContext } from '@/lib/debate-context';
-import type { DebatePhase } from '@/lib/debate';
+import { debateVerificationSources, type DebatePhase } from '@/lib/debate';
 import type { MediaArticle } from '@/lib/media-types';
 import { Source } from './components/source-link';
 
@@ -27,6 +27,19 @@ export function DebateChecks({
           O Observatório não escuta o vídeo nem decide automaticamente se uma fala é verdadeira ou
           falsa. A ausência de checagem não confirma nem refuta uma afirmação.
         </p>
+        <div className="debate-check-sources" aria-label="Checagens completas deste debate">
+          {debateVerificationSources.map((source) => (
+            <a
+              key={source.url}
+              className="button secondary"
+              href={source.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {source.source}
+            </a>
+          ))}
+        </div>
       </div>
       <div>
         {context?.checks?.length ? (
@@ -52,7 +65,7 @@ export function DebateChecks({
           <p>
             {phase === 'before'
               ? 'Aguardando as falas e as verificações deste debate. Quando uma checagem identificada chegar, ela aparecerá aqui sem recarregar a página.'
-              : 'Nenhuma conclusão estruturada deste encontro foi identificada nesta consulta. Isso não significa que os veículos não estejam checando as falas.'}
+              : 'As checagens completas estão nos veículos acima, com as conclusões e as evidências. As verificações podem receber complementos e correções dos próprios veículos.'}
           </p>
         )}
         {articles.length > 0 && (
@@ -66,10 +79,6 @@ export function DebateChecks({
             ))}
           </div>
         )}
-        <div className="debate-check-sources">
-          <Source href="https://g1.globo.com/fato-ou-fake/">Fato ou Fake · g1</Source>
-          <Source href="https://noticias.uol.com.br/confere/">UOL Confere</Source>
-        </div>
         {context?.status && context.status !== 'ready' && (
           <p className="fine">
             A consulta de checagens está temporariamente limitada. Você pode consultar as fontes

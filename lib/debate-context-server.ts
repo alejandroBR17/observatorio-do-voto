@@ -1,6 +1,6 @@
 import type { Database } from './database';
 import type { MediaArticle } from './media-types';
-import { debateCoverage } from './debate';
+import { debateCoverage, debateVerificationSources } from './debate';
 import { debateContextSource, parseDebateContext, type DebateContext } from './debate-context';
 
 async function sourceHtml(url: string) {
@@ -68,9 +68,14 @@ export async function debateContext(
         checks: [],
       }
     );
-  const sources = debateCoverage(articles, now)
-    .filter((a) => debateContextSource(a.url))
-    .slice(0, 4);
+  // Check pages must not be crowded out by newer clips in the general news feed.
+  const sources = [
+    ...new Map(
+      [...debateCoverage(debateVerificationSources, now), ...debateCoverage(articles, now)]
+        .filter((article) => debateContextSource(article.url))
+        .map((article) => [article.url, article]),
+    ).values(),
+  ].slice(0, 6);
   const fetched = await Promise.allSettled(
     sources.map(async (article) => parseDebateContext(await sourceHtml(article.url), article, now)),
   );

@@ -3,6 +3,7 @@ import { media } from '@/lib/media';
 import { debateContext } from '@/lib/debate-context-server';
 import { syncDebateEditorial } from '@/lib/debate-editorial-server';
 import { initialDebateEditorial } from '@/lib/debate-editorial';
+import { debateReplay } from '@/lib/debate';
 import { dispatchPush } from '@/lib/push';
 import { after } from 'next/server';
 export const runtime = 'nodejs';
@@ -30,7 +31,10 @@ export async function GET() {
       )
     )
       after(() => dispatchPush(db).catch(() => {}));
-    return Response.json({ ...context, editorial }, { headers: { 'Cache-Control': 'no-store' } });
+    return Response.json(
+      { ...context, ...(editorial.state === 'ended' ? { video: debateReplay } : {}), editorial },
+      { headers: { 'Cache-Control': 'no-store' } },
+    );
   } catch {
     return Response.json({ status: 'unavailable', video: null, checks: [] }, { status: 503 });
   }

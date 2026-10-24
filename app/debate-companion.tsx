@@ -41,8 +41,9 @@ export function DebatePlayer({ video }: { video: DebateVideo }) {
         Abrir vídeo na Globo <ArrowUpRight size={16} />
       </a>
       <p>
-        Ao carregar, você se conecta à Globo. O player pode exibir anúncios ou exigir cadastro,
-        conforme as condições da emissora. Se não carregar aqui, abra na fonte.
+        {video.embedUrl
+          ? 'Ao carregar, você se conecta à Globo. O player pode exibir anúncios ou exigir cadastro, conforme as condições da emissora. Se não carregar aqui, abra na fonte.'
+          : 'A íntegra abre na página oficial da Globo, com os trechos do encontro. O acesso segue as condições da emissora e pode exigir cadastro ou exibir anúncios.'}
       </p>
     </div>
   );
@@ -157,7 +158,9 @@ export function DebateCompanion({
         </div>
         <p className="debate-small" role="status">
           {editorial.state !== 'planned' && editorial.confirmedAt
-            ? `${editorial.state === 'live' ? 'Início informado' : 'Encerramento informado'} pelo acompanhamento do Observatório às ${time(editorial.confirmedAt)} (Brasília). A transmissão no seu aparelho pode ter atraso.`
+            ? editorial.state === 'ended'
+              ? `Página de pós-debate atualizada pelo Observatório às ${time(editorial.confirmedAt)} (Brasília).`
+              : `Início informado pelo acompanhamento do Observatório às ${time(editorial.confirmedAt)} (Brasília). A transmissão no seu aparelho pode ter atraso.`
             : phase === 'scheduled'
               ? 'A página está no modo de acompanhamento pelo horário previsto. Isso não confirma que o vídeo já começou.'
               : phase === 'after'
@@ -165,11 +168,13 @@ export function DebateCompanion({
                 : 'A página muda de apresentação automaticamente no horário previsto; o início do vídeo depende da emissora.'}
         </p>
         <div className="debate-companion-actions">
-          <button id="debate-alerts-trigger" className="button primary" onClick={onAlerts}>
-            {liveAlertsActive
-              ? 'Gerenciar meus avisos ao vivo'
-              : 'Escolher avisos ao vivo do debate'}
-          </button>
+          {(phase !== 'after' || liveAlertsActive) && (
+            <button id="debate-alerts-trigger" className="button primary" onClick={onAlerts}>
+              {liveAlertsActive
+                ? 'Gerenciar meus avisos do debate'
+                : 'Escolher avisos ao vivo do debate'}
+            </button>
+          )}
           <button
             className="button secondary"
             aria-pressed={recap}

@@ -125,16 +125,20 @@ test('shared collection caches official metadata and preserves it during an outa
   const client = createClient({ url: 'file::memory:' });
   const db = createDatabase(client);
   let requests = 0;
-  t.mock.method(globalThis, 'fetch', async () => {
+  const requested: string[] = [];
+  t.mock.method(globalThis, 'fetch', async (url: Parameters<typeof fetch>[0]) => {
     requests++;
+    requested.push(String(url));
     return new Response(markup(video), { headers: { 'content-type': 'text/html' } });
   });
   try {
     const first = await debateContext(db, [article], now);
     assert.equal(first.status, 'ready');
     assert.ok(first.video);
+    const firstCount = requests;
+    assert.ok(requested.some((url) => url.includes('/fato-ou-fake/')));
     assert.deepEqual(await debateContext(db, [article], now + 1000), first);
-    assert.equal(requests, 1);
+    assert.equal(requests, firstCount);
     t.mock.method(globalThis, 'fetch', async () => {
       requests++;
       return new Response(null, {
@@ -145,7 +149,7 @@ test('shared collection caches official metadata and preserves it during an outa
     const stale = await debateContext(db, [article], now + 121000);
     assert.equal(stale.status, 'stale');
     assert.deepEqual(stale.video, first.video);
-    assert.equal(requests, 2, 'foreign redirect must not be requested');
+    assert.equal(requests, firstCount * 2, 'foreign redirect must not be requested');
     assert.equal((await db.prepare('SELECT id FROM push_events').all()).results.length, 0);
   } finally {
     client.close();

@@ -12,12 +12,44 @@ export const debate = {
   watchUrl: null as string | null,
   // Continuous channel signal, not a claim that the debate has started.
   liveTvUrl: 'https://globoplay.globo.com/tv-globo/ao-vivo/7832875/',
+  replayUrl:
+    'https://g1.globo.com/politica/eleicoes/2026/noticia/2026/10/24/debate-presidencial-na-globo-entre-lula-pt-e-flavio-bolsonaro-pl-veja-a-integra-e-trechos.ghtml',
   // Verified official event coverage; distinct from a confirmed video/player URL.
   coverageUrl:
     'https://g1.globo.com/politica/eleicoes/2026/ao-vivo/debate-globo-segundo-turno.ghtml',
   scheduleSource:
     'https://noticias.uol.com.br/eleicoes/2026/10/19/quando-sera-o-debate-presidencial-da-globo-veja-data-e-horario.ghtm',
 } as const;
+/** Verified event-specific publications, independent of the publishers' general news feeds. */
+export const debateVerificationSources: MediaArticle[] = [
+  {
+    id: 'debate-g1-checks',
+    title: 'Fato ou Fake: checagem das falas de Lula e Flávio no debate da Globo',
+    source: 'Fato ou Fake · g1',
+    url: 'https://g1.globo.com/fato-ou-fake/eleicoes/noticia/2026/10/23/veja-o-que-e-fato-ou-fake-nas-falas-de-flavio-bolsonaro-e-lula-no-debate-da-globo-no-2o-turno-das-eleicoes-2026.ghtml',
+    publishedAt: '2026-10-23T22:15:31.944-03:00',
+  },
+  {
+    id: 'debate-uol-checks',
+    title: 'UOL Confere: checagem das declarações de Lula e Flávio no debate da Globo',
+    source: 'UOL Confere',
+    url: 'https://noticias.uol.com.br/confere/ultimas-noticias/2026/10/24/debate-globo-checagem-flavio-lula.ghtm',
+    publishedAt: '2026-10-24T04:59:00.000Z',
+  },
+  {
+    id: 'debate-aos-fatos-checks',
+    title: 'Aos Fatos: checagem de Lula e Flávio no debate da Globo',
+    source: 'Aos Fatos',
+    url: 'https://www.aosfatos.org/noticias/checamos-flavio-bolsonaro-lula-debate-globo/',
+    publishedAt: '2026-10-23T21:18:00-03:00',
+  },
+];
+export const debateReplay = {
+  title: 'Íntegra e trechos do debate da Globo de 23/10',
+  watchUrl: debate.replayUrl,
+  sourceUrl: debate.replayUrl,
+  embedUrl: null,
+};
 const planBase =
   'https://www.tse.jus.br/eleicoes/eleicoes-2026-content/propostas-de-governo-dos-candidatos-ao-cargo-de-presidente-da-republica-eleicoes-2026/';
 export const debatePlans = {

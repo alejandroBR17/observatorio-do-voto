@@ -1,8 +1,8 @@
 {
-  "revision": 4,
-  "state": "live",
-  "confirmedAt": "2026-10-24T00:41:06.623Z",
-  "updatedAt": "2026-10-24T00:41:06.623Z",
+  "revision": 5,
+  "state": "ended",
+  "confirmedAt": "2026-10-24T10:50:26.515Z",
+  "updatedAt": "2026-10-24T10:50:26.515Z",
   "updates": [
     {
       "id": "preparacao-23-outubro",
@@ -27,6 +27,14 @@
       "body": "Lula e Flávio Bolsonaro estão no debate da Globo. Abra o Observatório para acompanhar as publicações, comparar propostas e consultar as checagens identificadas.",
       "publishedAt": "2026-10-24T00:41:06.623Z",
       "notify": true
+    },
+    {
+      "id": "encerramento-confirmado",
+      "kind": "end",
+      "title": "Debate encerrado: reveja e confira as checagens",
+      "body": "O encontro de 23/10 já terminou. A íntegra e os trechos estão disponíveis no g1. A página reúne os acessos diretos ao Fato ou Fake, UOL Confere e Aos Fatos. As pesquisas anteriores não medem a reação a este debate: confira sempre as datas das entrevistas.",
+      "publishedAt": "2026-10-24T10:50:26.515Z",
+      "notify": false
     }
   ],
   "proposals": {

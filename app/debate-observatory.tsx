@@ -22,6 +22,7 @@ import {
   debateChecks,
   debateTopic,
   debatePollPeriod,
+  debateReplay,
   type DebateTopic,
 } from '@/lib/debate';
 import { candidates } from '@/lib/content';
@@ -113,9 +114,9 @@ export function DebateObservatory({
   const { data: polls, loading: pollsLoading } = useRemote<PollResponse>('/api/polls', 60000);
   const { data: context } = useRemote<DebateContext>('/api/debate', 30000);
   const editorial = context?.editorial || initialDebateEditorial;
-  const phase = now === null ? 'before' : editorialPhase(editorial, now);
+  const phase = editorialPhase(editorial, now ?? Date.parse(editorial.updatedAt));
   const [chartOpen, setChartOpen] = useState(false);
-  const video = context?.video;
+  const video = phase === 'after' ? debateReplay : context?.video;
   const watchUrl = video?.watchUrl || debate.watchUrl;
   const [topic, setTopic] = useState<DebateTopic>('economia');
   const [morePolls, setMorePolls] = useState(false);
@@ -197,25 +198,37 @@ export function DebateObservatory({
               <div>
                 <strong>Sexta-feira, 23 de outubro</strong>
                 <span>
-                  Início previsto às <b>21h20</b> · horário de Brasília
+                  {phase === 'after' ? (
+                    'Encontro encerrado · reveja a íntegra e as checagens'
+                  ) : (
+                    <>
+                      Início previsto às <b>21h20</b> · horário de Brasília
+                    </>
+                  )}
                 </span>
               </div>
             </div>
             <div className="debate-actions">
-              <button className="button primary" onClick={openReminder}>
-                <Bell size={17} />
-                {reminderExpired
-                  ? notification === 'Ativadas' && prefs.debateLive
-                    ? 'Gerenciar avisos do debate'
-                    : editorial.state === 'planned'
-                      ? 'Avise quando começar'
-                      : 'Escolher avisos do debate'
-                  : reminderActive
-                    ? 'Ver meu lembrete'
-                    : 'Lembrar 15 minutos antes'}
-              </button>
+              {phase === 'after' ? (
+                <a className="button primary" href="#debate-checagens">
+                  Conferir checagens do debate
+                </a>
+              ) : (
+                <button className="button primary" onClick={openReminder}>
+                  <Bell size={17} />
+                  {reminderExpired
+                    ? notification === 'Ativadas' && prefs.debateLive
+                      ? 'Gerenciar avisos do debate'
+                      : editorial.state === 'planned'
+                        ? 'Avise quando começar'
+                        : 'Escolher avisos do debate'
+                    : reminderActive
+                      ? 'Ver meu lembrete'
+                      : 'Lembrar 15 minutos antes'}
+                </button>
+              )}
               <a className="debate-showcase-link" href="#debate-propostas">
-                Começar pelas propostas <ArrowRight size={17} />
+                Comparar propostas <ArrowRight size={17} />
               </a>
             </div>
             {!reminderExpired && (
@@ -228,7 +241,7 @@ export function DebateObservatory({
           <div className="debate-stage">
             <div className="debate-stage-label">
               <span aria-hidden="true" />
-              23 OUT · 21H20 · BRASÍLIA
+              {phase === 'after' ? '23 OUT · DEBATE ENCERRADO' : '23 OUT · 21H20 · BRASÍLIA'}
             </div>
             <div className="debate-contenders" aria-label="Candidatos ao debate">
               {candidates.map((candidate) => (
@@ -285,14 +298,18 @@ export function DebateObservatory({
             </span>
             <h2 id="debate-broadcast-title">
               {watchUrl
-                ? 'Acesse o vídeo oficial'
+                ? phase === 'after'
+                  ? 'Reveja o debate na Globo'
+                  : 'Acesse o vídeo oficial'
                 : phase === 'after'
                   ? 'Íntegra oficial a confirmar'
                   : 'Acompanhe pela Globo'}
             </h2>
             <p>
               {watchUrl
-                ? 'Abra a transmissão na fonte oficial e volte para comparar as propostas e conferir o contexto.'
+                ? phase === 'after'
+                  ? 'A íntegra e os trechos por assunto estão na página oficial do g1. Compare as propostas e consulte as checagens publicadas abaixo.'
+                  : 'Abra a transmissão na fonte oficial e volte para comparar as propostas e conferir o contexto.'
                 : 'A página oficial do g1 reúne a cobertura do encontro. O vídeo direto ainda está em verificação e aparecerá aqui quando for identificado.'}
             </p>
             <p>
@@ -314,36 +331,40 @@ export function DebateObservatory({
                 Assistir ao debate <ArrowUpRight size={16} />
               </a>
             ) : null}
-            <a
-              className="button secondary"
-              href={debate.liveTvUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Tv size={16} /> TV Globo ao vivo · Globoplay <ArrowUpRight size={16} />
-            </a>
-            <details className="debate-disclosure">
-              <summary>
-                Onde mais assistir?<span aria-hidden="true">+</span>
-              </summary>
-              <div>
-                <p>
-                  Na TV: TV Globo e GloboNews. Na internet: g1 e o sinal da TV Globo no Globoplay,
-                  conforme as condições de acesso da emissora.
-                </p>
-                <p>
-                  O botão da TV Globo abre o sinal contínuo do canal, conforme sua programação e a
-                  disponibilidade na região. Ele não indica, por si só, que o debate já começou.
-                </p>
-                <p>
-                  Transmissão oficial do debate no YouTube ainda não confirmada por aqui. Lives de
-                  comentários e checagem não são a transmissão do debate.
-                </p>
-                <Source href="https://redeglobo.globo.com/redebahia/noticia/eleicoes-2026-veja-quando-sera-o-debate-da-tv-globo-entre-os-candidatos-a-presidencia-da-republica.ghtml">
-                  Canais divulgados pela Globo
-                </Source>
-              </div>
-            </details>
+            {phase !== 'after' && (
+              <a
+                className="button secondary"
+                href={debate.liveTvUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Tv size={16} /> TV Globo ao vivo · Globoplay <ArrowUpRight size={16} />
+              </a>
+            )}
+            {phase !== 'after' && (
+              <details className="debate-disclosure">
+                <summary>
+                  Onde mais assistir?<span aria-hidden="true">+</span>
+                </summary>
+                <div>
+                  <p>
+                    Na TV: TV Globo e GloboNews. Na internet: g1 e o sinal da TV Globo no Globoplay,
+                    conforme as condições de acesso da emissora.
+                  </p>
+                  <p>
+                    O botão da TV Globo abre o sinal contínuo do canal, conforme sua programação e a
+                    disponibilidade na região. Ele não indica, por si só, que o debate já começou.
+                  </p>
+                  <p>
+                    Transmissão oficial do debate no YouTube ainda não confirmada por aqui. Lives de
+                    comentários e checagem não são a transmissão do debate.
+                  </p>
+                  <Source href="https://redeglobo.globo.com/redebahia/noticia/eleicoes-2026-veja-quando-sera-o-debate-da-tv-globo-entre-os-candidatos-a-presidencia-da-republica.ghtml">
+                    Canais divulgados pela Globo
+                  </Source>
+                </div>
+              </details>
+            )}
           </div>
         </section>
         <div className="debate-program-source">
@@ -359,7 +380,11 @@ export function DebateObservatory({
         </nav>
         <ShareButton
           title="Observatório do Debate · Globo, 23/10"
-          text="Compare propostas, acompanhe as fontes e prepare seu olhar para o debate."
+          text={
+            phase === 'after'
+              ? 'Reveja o debate da Globo, compare propostas e consulte as checagens publicadas.'
+              : 'Compare propostas, acompanhe as fontes e prepare seu olhar para o debate.'
+          }
           url={() => new URL('/debate', location.origin).href}
           label="Compartilhar o debate"
         />
@@ -408,7 +433,7 @@ export function DebateObservatory({
       <section className="debate-panel" id="debate-propostas" aria-labelledby="proposals-title">
         <header>
           <div>
-            <span className="or-overline">01 / ANTES DE OUVIR, COMPARE</span>
+            <span className="or-overline">01 / COMPARE AS PROPOSTAS</span>
             <h2 id="proposals-title">O que cada um propõe?</h2>
             <p>
               Um recorte dos planos registrados no TSE, para consultar antes, durante e depois do

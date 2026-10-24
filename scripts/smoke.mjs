@@ -59,17 +59,23 @@ assert.ok(filterPage.includes(`<link rel="canonical" href="${canonical}"`));
 const debateResponse = await fetch(base + '/debate');
 assert.equal(debateResponse.status, 200, 'debate has its own public link');
 const debateHtml = await debateResponse.text();
-assert.ok(debateHtml.includes('O debate na Globo.'));
+assert.ok(debateHtml.includes('id="debate-hero-title"'));
 assert.ok(debateHtml.includes('id="debate-broadcast-title"'));
-assert.ok(debateHtml.includes('href="https://globoplay.globo.com/tv-globo/ao-vivo/7832875/"'));
+const replayUrl =
+  'https://g1.globo.com/politica/eleicoes/2026/noticia/2026/10/24/debate-presidencial-na-globo-entre-lula-pt-e-flavio-bolsonaro-pl-veja-a-integra-e-trechos.ghtml';
+const hasReplay = debateHtml.includes(`href="${replayUrl}"`);
+if (!hasReplay)
+  assert.ok(debateHtml.includes('href="https://globoplay.globo.com/tv-globo/ao-vivo/7832875/"'));
 assert.ok(
-  debateHtml.includes(
-    'href="https://g1.globo.com/politica/eleicoes/2026/ao-vivo/debate-globo-segundo-turno.ghtml"',
-  ),
+  hasReplay ||
+    debateHtml.includes(
+      'href="https://g1.globo.com/politica/eleicoes/2026/ao-vivo/debate-globo-segundo-turno.ghtml"',
+    ),
   'official coverage is accessible without being presented as a video URL',
 );
 assert.ok(debateHtml.includes('Quando as pessoas foram ouvidas?'));
-assert.ok(debateHtml.includes('TRANSMISSÃO OFICIAL'));
+assert.ok(debateHtml.includes('debate-broadcast'));
+assert.ok(debateHtml.includes('Checagens completas deste debate'));
 assert.ok(debateHtml.includes('O que cada um propõe?'));
 assert.ok(debateHtml.includes('debate-propostas') && debateHtml.includes('debate-pesquisas'));
 assert.ok(!debateHtml.includes('Prévia para revisão'));
@@ -77,7 +83,9 @@ assert.ok(
   debateHtml.includes(`<link rel="canonical" href="${new URL('/debate', canonical).href}"`),
 );
 assert.ok(
-  debateHtml.includes('property="og:title" content="Debate na Globo: acompanhe com contexto"'),
+  debateHtml.includes(
+    'property="og:title" content="Debate da Globo: íntegra, checagens e propostas"',
+  ),
 );
 const robots = await fetch(base + '/robots.txt');
 assert.equal(robots.status, 200);
@@ -161,9 +169,11 @@ if (debateContext.video) {
     ),
   );
   if (new URL(debateContext.video.watchUrl).hostname === 'g1.globo.com')
-    assert.equal(
-      debateContext.video.watchUrl,
-      'https://g1.globo.com/politica/eleicoes/2026/ao-vivo/debate-globo-segundo-turno.ghtml',
+    assert.ok(
+      [
+        replayUrl,
+        'https://g1.globo.com/politica/eleicoes/2026/ao-vivo/debate-globo-segundo-turno.ghtml',
+      ].includes(debateContext.video.watchUrl),
     );
   if (debateContext.video.embedUrl) {
     const player = new URL(debateContext.video.embedUrl);
