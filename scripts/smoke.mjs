@@ -60,7 +60,13 @@ const debateResponse = await fetch(base + '/debate');
 assert.equal(debateResponse.status, 200, 'debate has its own public link');
 const debateHtml = await debateResponse.text();
 assert.ok(debateHtml.includes('O debate na Globo.'));
-assert.ok(debateHtml.includes('Transmissão em breve'));
+assert.ok(debateHtml.includes('id="debate-broadcast-title"'));
+assert.ok(
+  debateHtml.includes(
+    'href="https://g1.globo.com/politica/eleicoes/2026/ao-vivo/debate-globo-segundo-turno.ghtml"',
+  ),
+  'official coverage is accessible without being presented as a video URL',
+);
 assert.ok(debateHtml.includes('Quando as pessoas foram ouvidas?'));
 assert.ok(debateHtml.includes('TRANSMISSÃO OFICIAL'));
 assert.ok(debateHtml.includes('O que cada um propõe?'));
