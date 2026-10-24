@@ -156,12 +156,26 @@ assert.ok(['planned', 'live', 'ended'].includes(debateContext.editorial?.state))
 assert.ok(Array.isArray(debateContext.editorial?.proposals?.economia));
 if (debateContext.video) {
   assert.ok(
-    ['player.globo.com', 'globoplay.globo.com'].includes(
+    ['player.globo.com', 'globoplay.globo.com', 'g1.globo.com'].includes(
       new URL(debateContext.video.watchUrl).hostname,
     ),
   );
-  if (debateContext.video.embedUrl)
-    assert.equal(new URL(debateContext.video.embedUrl).hostname, 'player.globo.com');
+  if (new URL(debateContext.video.watchUrl).hostname === 'g1.globo.com')
+    assert.equal(
+      debateContext.video.watchUrl,
+      'https://g1.globo.com/politica/eleicoes/2026/ao-vivo/debate-globo-segundo-turno.ghtml',
+    );
+  if (debateContext.video.embedUrl) {
+    const player = new URL(debateContext.video.embedUrl);
+    if (player.hostname === 's3.glbimg.com') {
+      assert.equal(
+        player.pathname,
+        '/v1/AUTH_e1b09a2d222b4900a437a46914be81e5/static/amp/index.html',
+      );
+      assert.match(player.searchParams.get('videosids') || '', /^\d+$/);
+      assert.equal(player.searchParams.get('domain'), 'g1.globo.com');
+    } else assert.equal(player.hostname, 'player.globo.com');
+  }
 }
 assert.equal(
   (
