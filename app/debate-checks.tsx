@@ -27,6 +27,8 @@ export function DebateChecks({
           O Observatório não escuta o vídeo nem decide automaticamente se uma fala é verdadeira ou
           falsa. A ausência de checagem não confirma nem refuta uma afirmação.
         </p>
+      </div>
+      <div>
         <div className="debate-check-sources" aria-label="Checagens completas deste debate">
           {debateVerificationSources.map((source) => (
             <a
@@ -40,8 +42,6 @@ export function DebateChecks({
             </a>
           ))}
         </div>
-      </div>
-      <div>
         {context?.checks?.length ? (
           context.checks.map((check) => (
             <article className="debate-claim" key={check.url + check.claim}>
