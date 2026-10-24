@@ -90,6 +90,37 @@ test('verdicts require publisher ClaimReview metadata after the encounter starts
   );
 });
 
+test('the scheduled g1 event accepts its official AMP player prepared the previous day, never arrival clips or foreign players', () => {
+  const event = { ...article, url: debate.coverageUrl };
+  const amp = {
+    ...video,
+    name: 'LOGO MAIS: Globo realiza debate entre Flávio Bolsonaro (PL) e Lula (PT)',
+    uploadDate: '2026-10-22T21:38:18.486Z',
+    embedUrl:
+      'https://s3.glbimg.com/v1/AUTH_e1b09a2d222b4900a437a46914be81e5/static/amp/index.html?videosids=8427307&domain=g1.globo.com&adunit=tvg_G1',
+    url: '',
+  };
+  assert.equal(parseDebateContext(markup(amp), event, now).video?.embedUrl, amp.embedUrl);
+  assert.equal(parseDebateContext(markup(amp), event, now).video?.watchUrl, debate.coverageUrl);
+  assert.equal(
+    parseDebateContext(
+      markup({ ...amp, name: amp.name.replace('LOGO MAIS:', 'AO VIVO:') }),
+      event,
+      now,
+    ).video?.embedUrl,
+    amp.embedUrl,
+  );
+  assert.equal(parseDebateContext(markup(amp), article, now).video, null);
+  for (const candidate of [
+    { ...amp, name: 'Lula chega para debate na Globo' },
+    { ...amp, uploadDate: '2026-10-21T21:00:00Z' },
+    { ...amp, embedUrl: amp.embedUrl.replace('s3.glbimg.com/', 's3.glbimg.com.evil.example/') },
+    { ...amp, embedUrl: amp.embedUrl.replace('static/amp/index.html', 'other.html') },
+    { ...amp, embedUrl: amp.embedUrl.replace('domain=g1.globo.com', 'domain=evil.example') },
+  ])
+    assert.equal(parseDebateContext(markup(candidate), event, now).video, null);
+});
+
 test('shared collection caches official metadata and preserves it during an outage without following foreign redirects', async (t) => {
   const client = createClient({ url: 'file::memory:' });
   const db = createDatabase(client);
@@ -127,6 +158,6 @@ test('collection cadence and iframe policy remain bounded', () => {
   assert.equal(debateUpdateInterval(start - 1800000), 60000);
   assert.equal(debateUpdateInterval(Date.parse(debate.recapFrom)), 300000);
   const csp = contentSecurityPolicy('test', 'https://observatorio-voto.vercel.app');
-  assert.match(csp, /frame-src https:\/\/player\.globo\.com(?:;|$)/);
+  assert.match(csp, /frame-src https:\/\/player\.globo\.com https:\/\/s3\.glbimg\.com(?:;|$)/);
   assert.ok(csp.includes("frame-ancestors 'none'"));
 });

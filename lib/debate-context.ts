@@ -65,24 +65,38 @@ export function parseDebateContext(html: string, article: MediaArticle, now = Da
       const title = clean(node.name);
       const date = Date.parse(node.uploadDate || '');
       const embedCandidate = safeUrl(node.embedUrl, ['player.globo.com']);
+      const ampCandidate = safeUrl(node.embedUrl, ['s3.glbimg.com']);
+      // Exact official AMP player observed in the g1 event metadata. Preserve its parameters.
+      const amp =
+        ampCandidate &&
+        ampCandidate.pathname ===
+          '/v1/AUTH_e1b09a2d222b4900a437a46914be81e5/static/amp/index.html' &&
+        /^\d+$/.test(ampCandidate.searchParams.get('videosids') || '') &&
+        ampCandidate.searchParams.get('domain') === 'g1.globo.com'
+          ? ampCandidate
+          : null;
+      const preparedEvent =
+        source.href === debate.coverageUrl && !!amp && /^(?:LOGO MAIS|AO VIVO):/i.test(title);
       const watchCandidate = safeUrl(node.url, ['globoplay.globo.com']);
       const embed =
-        embedCandidate && /^\/v\/\d+\/?$/.test(embedCandidate.pathname) ? embedCandidate : null;
+        embedCandidate && /^\/v\/\d+\/?$/.test(embedCandidate.pathname) ? embedCandidate : amp;
       const watch =
         watchCandidate && /^\/v\/\d+\/?$/.test(watchCandidate.pathname) ? watchCandidate : null;
       if (
         /debate/i.test(title) &&
-        /[ií]ntegra|completo|ao vivo|assista/i.test(title) &&
+        (/[ií]ntegra|completo|ao vivo|assista/i.test(title) || preparedEvent) &&
         /lula/i.test(title) &&
         /fl[aá]vio/i.test(title) &&
         Number.isFinite(date) &&
-        date >= Date.parse('2026-10-23T00:00:00-03:00') &&
+        date >=
+          Date.parse(preparedEvent ? '2026-10-22T00:00:00-03:00' : '2026-10-23T00:00:00-03:00') &&
         date <= now &&
         (embed || watch)
       ) {
         result.video = {
           title,
-          watchUrl: watch?.href || embed!.href,
+          // The g1 page provides the login flow when its embedded AMP player requires it.
+          watchUrl: watch?.href || (amp ? source.href : embed!.href),
           embedUrl: embed?.href || null,
           sourceUrl: source.href,
         };

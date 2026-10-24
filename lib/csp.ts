@@ -21,7 +21,7 @@ export function contentSecurityPolicy(nonce: string | null, origin: string, deve
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    'frame-src https://player.globo.com',
+    'frame-src https://player.globo.com https://s3.glbimg.com',
     ...(!development ? ['upgrade-insecure-requests'] : []),
   ].join('; ');
 }
