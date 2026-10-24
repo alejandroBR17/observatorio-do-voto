@@ -1383,6 +1383,13 @@
 .debate-broadcast-info {
   min-width: 0;
 }
+.debate-broadcast .debate-disclosure {
+  border-color: #44525a;
+  color: #f2f2ec;
+}
+.debate-broadcast .debate-disclosure .source {
+  color: #e6bb73;
+}
 .debate-broadcast-info h2 {
   font-size: clamp(23px, 2.6vw, 30px);
   line-height: 1.2;

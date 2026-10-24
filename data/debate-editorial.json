@@ -1,8 +1,8 @@
 {
-  "revision": 2,
+  "revision": 3,
   "state": "planned",
   "confirmedAt": null,
-  "updatedAt": "2026-10-23T23:59:07.866Z",
+  "updatedAt": "2026-10-24T00:08:56.819Z",
   "updates": [
     {
       "id": "preparacao-23-outubro",
@@ -10,6 +10,14 @@
       "title": "Tudo pronto para acompanhar o debate",
       "body": "A cobertura oficial do g1 já está disponível. As novas pesquisas Veritá e DataTrends estão na comparação abaixo, com coleta anterior ao debate. Publicações e checagens identificadas chegam automaticamente; o início do encontro ainda aguarda confirmação.",
       "publishedAt": "2026-10-23T23:59:07.866Z",
+      "notify": false
+    },
+    {
+      "id": "onde-assistir-23-outubro",
+      "kind": "note",
+      "title": "Onde assistir: canais e acesso",
+      "body": "A Globo divulgou transmissão na TV Globo, GloboNews, g1 e Globoplay. O vídeo externo pode exigir cadastro e exibir anúncios da emissora; nosso acompanhamento continua sem anúncios. Ainda não confirmamos uma transmissão oficial do debate no YouTube. Lives de comentários não são a transmissão do encontro.",
+      "publishedAt": "2026-10-24T00:08:56.819Z",
       "notify": false
     }
   ],

@@ -41,8 +41,8 @@ export function DebatePlayer({ video }: { video: DebateVideo }) {
         Abrir vídeo na Globo <ArrowUpRight size={16} />
       </a>
       <p>
-        Ao carregar, você se conecta à Globo. O vídeo segue as condições da emissora. Se não
-        carregar aqui, abra na fonte.
+        Ao carregar, você se conecta à Globo. O player pode exibir anúncios ou exigir cadastro,
+        conforme as condições da emissora. Se não carregar aqui, abra na fonte.
       </p>
     </div>
   );

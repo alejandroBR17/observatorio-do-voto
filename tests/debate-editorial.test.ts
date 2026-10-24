@@ -12,11 +12,14 @@ import { syncDebateEditorial } from '../lib/debate-editorial-server';
 import { alertPreferences } from '../lib/alerts';
 import { queueDebateReminder } from '../lib/debate-reminder';
 
-const start = Date.parse('2026-10-23T21:08:00-03:00');
+const start = Math.max(
+  Date.parse('2026-10-23T21:08:00-03:00'),
+  Date.parse(bundledEditorial.updatedAt) + 1000,
+);
 // A fixed baseline lets queue/clock tests survive later real editorial releases.
 const initialDebateEditorial: DebateEditorial = {
   ...structuredClone(bundledEditorial),
-  revision: 1,
+  revision: bundledEditorial.revision,
   state: 'planned',
   confirmedAt: null,
   updatedAt: '2026-10-23T13:35:00.000Z',
@@ -24,7 +27,7 @@ const initialDebateEditorial: DebateEditorial = {
 };
 const live = (): DebateEditorial => ({
   ...structuredClone(initialDebateEditorial),
-  revision: 2,
+  revision: initialDebateEditorial.revision + 1,
   state: 'live',
   confirmedAt: new Date(start).toISOString(),
   updatedAt: new Date(start).toISOString(),
@@ -41,7 +44,7 @@ const live = (): DebateEditorial => ({
 });
 
 test('editorial confirmation differs from scheduled time and rejects malformed/future content', () => {
-  assert.equal(editorialPhase(initialDebateEditorial, start), 'before');
+  assert.equal(editorialPhase(initialDebateEditorial, start), editorialPhase(null, start));
   assert.equal(editorialPhase(live(), start), 'scheduled');
   assert.equal(editorialPhase({ ...live(), state: 'ended' }, start), 'after');
   assert.equal(parseDebateEditorial(live(), start)?.state, 'live');
@@ -72,8 +75,11 @@ test('trusted revisions persist centrally, reject older releases and queue a con
     assert.equal((await db.prepare('SELECT id FROM push_events').all()).results.length, 0);
     const updated = await syncDebateEditorial(db, live(), start);
     assert.equal(updated.state, 'live');
-    assert.equal((await syncDebateEditorial(db, initialDebateEditorial, start)).revision, 2);
-    await syncDebateEditorial(db, { ...live(), revision: 3 }, start);
+    assert.equal(
+      (await syncDebateEditorial(db, initialDebateEditorial, start)).revision,
+      live().revision,
+    );
+    await syncDebateEditorial(db, { ...live(), revision: live().revision + 1 }, start);
     const events = await db.prepare('SELECT value FROM push_events').all<{ value: string }>();
     assert.equal(events.results.length, 1);
     assert.deepEqual(JSON.parse(events.results[0].value).types, ['debateLive']);
@@ -95,12 +101,16 @@ test('expired notices and silent corrections never queue a late notification', a
   try {
     await syncDebateEditorial(db, live(), start + 600001);
     assert.equal((await db.prepare('SELECT id FROM push_events').all()).results.length, 0);
-    const silent = { ...live(), revision: 3, updates: [{ ...live().updates[0], notify: false }] };
+    const silent = {
+      ...live(),
+      revision: live().revision + 1,
+      updates: [{ ...live().updates[0], notify: false }],
+    };
     await syncDebateEditorial(db, silent, start + 600001);
     assert.equal((await db.prepare('SELECT id FROM push_events').all()).results.length, 0);
     assert.equal(
       (await syncDebateEditorial(db, initialDebateEditorial, start + 600001)).revision,
-      3,
+      silent.revision,
     );
   } finally {
     client.close();

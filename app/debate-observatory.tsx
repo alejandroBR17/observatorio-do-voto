@@ -295,6 +295,10 @@ export function DebateObservatory({
                 ? 'Abra a transmissão na fonte oficial e volte para comparar as propostas e conferir o contexto.'
                 : 'A página oficial do g1 reúne a cobertura do encontro. O vídeo direto ainda está em verificação e aparecerá aqui quando for identificado.'}
             </p>
+            <p>
+              O vídeo é um serviço da Globo e pode exigir cadastro ou exibir anúncios, inclusive
+              quando aberto no player desta página. Nosso acompanhamento continua sem anúncios.
+            </p>
             {!video && (
               <a
                 className="button primary"
@@ -310,6 +314,24 @@ export function DebateObservatory({
                 Assistir ao debate <ArrowUpRight size={16} />
               </a>
             ) : null}
+            <details className="debate-disclosure">
+              <summary>
+                Onde mais assistir?<span aria-hidden="true">+</span>
+              </summary>
+              <div>
+                <p>
+                  Na TV: TV Globo e GloboNews. Na internet: g1 e o sinal da TV Globo no Globoplay,
+                  conforme as condições de acesso da emissora.
+                </p>
+                <p>
+                  Transmissão oficial do debate no YouTube ainda não confirmada por aqui. Lives de
+                  comentários e checagem não são a transmissão do debate.
+                </p>
+                <Source href="https://redeglobo.globo.com/redebahia/noticia/eleicoes-2026-veja-quando-sera-o-debate-da-tv-globo-entre-os-candidatos-a-presidencia-da-republica.ghtml">
+                  Canais divulgados pela Globo
+                </Source>
+              </div>
+            </details>
           </div>
         </section>
         <div className="debate-program-source">
