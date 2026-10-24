@@ -207,7 +207,9 @@ export function DebateObservatory({
                 {reminderExpired
                   ? notification === 'Ativadas' && prefs.debateLive
                     ? 'Gerenciar avisos do debate'
-                    : 'Avise quando começar'
+                    : editorial.state === 'planned'
+                      ? 'Avise quando começar'
+                      : 'Escolher avisos do debate'
                   : reminderActive
                     ? 'Ver meu lembrete'
                     : 'Lembrar 15 minutos antes'}
