@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createClient } from '@libsql/client';
 import { createDatabase } from '../lib/database';
 import {
-  initialDebateEditorial,
+  initialDebateEditorial as bundledEditorial,
   parseDebateEditorial,
   editorialPhase,
   type DebateEditorial,
@@ -13,6 +13,15 @@ import { alertPreferences } from '../lib/alerts';
 import { queueDebateReminder } from '../lib/debate-reminder';
 
 const start = Date.parse('2026-10-23T21:08:00-03:00');
+// A fixed baseline lets queue/clock tests survive later real editorial releases.
+const initialDebateEditorial: DebateEditorial = {
+  ...structuredClone(bundledEditorial),
+  revision: 1,
+  state: 'planned',
+  confirmedAt: null,
+  updatedAt: '2026-10-23T13:35:00.000Z',
+  updates: [],
+};
 const live = (): DebateEditorial => ({
   ...structuredClone(initialDebateEditorial),
   revision: 2,

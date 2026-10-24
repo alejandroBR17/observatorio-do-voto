@@ -10,6 +10,9 @@ export const debate = {
   // This switches the presentation, not a claim that the broadcast actually ended.
   recapFrom: '2026-10-24T06:00:00-03:00',
   watchUrl: null as string | null,
+  // Verified official event coverage; distinct from a confirmed video/player URL.
+  coverageUrl:
+    'https://g1.globo.com/politica/eleicoes/2026/ao-vivo/debate-globo-segundo-turno.ghtml',
   scheduleSource:
     'https://noticias.uol.com.br/eleicoes/2026/10/19/quando-sera-o-debate-presidencial-da-globo-veja-data-e-horario.ghtm',
 } as const;

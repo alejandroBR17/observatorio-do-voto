@@ -132,7 +132,7 @@ export function DebateObservatory({
   const topicCoverage = coverage.filter((article) => debateTopic(article.title) === topic);
   const reminderActive = notification === 'Ativadas' && prefs.debate;
   const reminderExpired =
-    editorial.state !== 'planned' || (now !== null && now >= Date.parse(debate.reminderExpiresAt));
+    editorial.state !== 'planned' || (now !== null && now >= Date.parse(debate.reminderAt));
   const eligiblePolls = (polls?.polls || [])
     .filter((poll) => poll.scope === 'Brasil' && poll.turn === 2)
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
@@ -202,12 +202,16 @@ export function DebateObservatory({
               </div>
             </div>
             <div className="debate-actions">
-              {!reminderExpired && (
-                <button className="button primary" onClick={openReminder}>
-                  <Bell size={17} />
-                  {reminderActive ? 'Ver meu lembrete' : 'Lembrar 15 minutos antes'}
-                </button>
-              )}
+              <button className="button primary" onClick={openReminder}>
+                <Bell size={17} />
+                {reminderExpired
+                  ? notification === 'Ativadas' && prefs.debateLive
+                    ? 'Gerenciar avisos do debate'
+                    : 'Avise quando começar'
+                  : reminderActive
+                    ? 'Ver meu lembrete'
+                    : 'Lembrar 15 minutos antes'}
+              </button>
               <a className="debate-showcase-link" href="#debate-propostas">
                 Começar pelas propostas <ArrowRight size={17} />
               </a>
@@ -275,28 +279,34 @@ export function DebateObservatory({
           </div>
           <div className="debate-broadcast-info">
             <span className="debate-pending">
-              {watchUrl ? 'Vídeo identificado na fonte oficial' : 'Aguardando link oficial'}
+              {watchUrl ? 'Vídeo identificado na fonte oficial' : 'Cobertura oficial disponível'}
             </span>
             <h2 id="debate-broadcast-title">
               {watchUrl
                 ? 'Acesse o vídeo oficial'
                 : phase === 'after'
                   ? 'Íntegra oficial a confirmar'
-                  : 'Transmissão em breve'}
+                  : 'Acompanhe pela Globo'}
             </h2>
             <p>
               {watchUrl
                 ? 'Abra a transmissão na fonte oficial e volte para comparar as propostas e conferir o contexto.'
-                : 'Este será o seu ponto de partida para assistir. O link direto do debate aparecerá aqui quando estiver confirmado.'}
+                : 'A página oficial do g1 reúne a cobertura do encontro. O vídeo direto ainda está em verificação e aparecerá aqui quando for identificado.'}
             </p>
+            {!video && (
+              <a
+                className="button primary"
+                href={debate.coverageUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Abrir cobertura oficial no g1 <ArrowUpRight size={16} />
+              </a>
+            )}
             {watchUrl && !video ? (
               <a className="button secondary" href={watchUrl} target="_blank" rel="noreferrer">
                 Assistir ao debate <ArrowUpRight size={16} />
               </a>
-            ) : !watchUrl && !reminderExpired ? (
-              <button className="button secondary" onClick={openReminder}>
-                <Bell size={16} /> {reminderActive ? 'Ver meu lembrete' : 'Quero ser lembrado'}
-              </button>
             ) : null}
           </div>
         </section>

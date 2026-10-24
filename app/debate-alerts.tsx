@@ -110,10 +110,11 @@ export function DebateAlerts({
         <label className="debate-alert-option">
           <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} />
           <span>
-            <strong>Início, encerramento e avisos importantes</strong>
+            <strong>Início, atualizações e encerramento</strong>
             <small>
-              Confirmações do acompanhamento e atualizações selecionadas. Cada notícia não vira uma
-              notificação.
+              Receba o aviso quando o início for confirmado, os destaques publicados durante o
+              debate e a confirmação do encerramento. São avisos do acompanhamento do Observatório,
+              não de cada notícia nem disparos pelo horário previsto.
             </small>
           </span>
         </label>
