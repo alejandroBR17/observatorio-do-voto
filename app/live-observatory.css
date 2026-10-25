@@ -8,9 +8,8 @@
 }
 .or-live-pulse {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
-  gap: 22px 32px;
-  padding: 28px;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 22px 28px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--or-amber);
   border-radius: 16px;
@@ -22,16 +21,6 @@
 .or-live-pulse p {
   margin: 0;
 }
-.or-live-pulse-progress {
-  display: grid;
-  gap: 10px;
-  align-content: center;
-}
-.or-live-pulse-progress > strong {
-  font-size: 38px;
-  font-variant-numeric: tabular-nums;
-}
-.or-live-pulse-progress > span,
 .or-live-bulletin {
   color: var(--muted);
   font-size: 13px;
@@ -43,7 +32,6 @@
   font-size: 13px;
   line-height: 1.7;
 }
-.or-live-pulse .bar-track > div,
 .or-state-progress .bar-track > span {
   display: block;
   height: 100%;
@@ -401,6 +389,11 @@
   line-height: 1.2;
   margin: 10px 0;
 }
+.or-live-contenders .or-vote-basis {
+  display: block;
+  font-size: 13px;
+  margin: -4px 0 10px;
+}
 .or-live-contenders small {
   font-size: 14px;
   line-height: 1.6;
@@ -440,19 +433,11 @@
   padding: 10px 12px;
 }
 .or-live-total {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 14px;
   margin: 20px 0;
+  line-height: 1.7;
 }
 .or-live-total strong {
-  font-size: 40px;
-  line-height: 1.2;
-}
-.or-live-total span {
-  font-size: 14px;
-  color: var(--muted);
+  font-size: inherit;
 }
 .or-live-tally .bar-track > div {
   height: 100%;
@@ -529,7 +514,6 @@
   .or-live-command:has(.or-live-countdown) {
     grid-template-columns: minmax(0, 1fr);
   }
-  .or-live-contenders,
   .or-live-preparation {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -564,17 +548,30 @@
     font-size: 12px;
   }
   .or-live-contenders article {
-    padding: 22px 18px;
-    gap: 16px;
-    grid-template-columns: 62px minmax(0, 1fr);
+    padding: 16px 12px;
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+  }
+  .or-live-contenders {
+    gap: 10px;
   }
   .or-live-contenders .candidate-portrait,
   .or-live-contenders .candidate-portrait-fallback {
-    width: 62px;
-    height: 80px;
+    width: 44px;
+    height: 56px;
   }
   .or-live-contenders h2 {
-    font-size: 25px;
+    font-size: 19px;
+    min-height: 48px;
+    margin: 8px 0;
+  }
+  .or-live-contenders strong {
+    font-size: 30px;
+  }
+  .or-live-contenders small,
+  .or-live-contenders .or-vote-basis {
+    font-size: 12px;
   }
   .or-live .live-wait-actions .button {
     width: 100%;

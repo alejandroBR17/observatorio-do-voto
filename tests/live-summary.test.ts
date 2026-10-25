@@ -58,6 +58,12 @@ test('live page shows retained counts and an outage warning without returning to
   assert.ok(html.includes('Boletim do TSE:'));
   assert.ok(html.includes('Votos válidos'));
   assert.ok(!html.includes('Um ensaio antes da contagem.'));
+  assert.equal((html.match(/O TSE já apurou/g) || []).length, 1);
+  assert.ok(
+    html.indexOf('dos votos válidos apurados') < html.indexOf('DIFERENÇA ENTRE OS CANDIDATOS'),
+  );
+  assert.ok(html.includes('pontos percentuais'));
+  assert.ok(!html.includes('or-live-pulse-progress'));
 });
 
 test('state list excludes past elections and identifies missing records without assigning a leader', () => {

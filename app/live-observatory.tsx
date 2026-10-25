@@ -90,52 +90,6 @@ export function LiveObservatory({
         </span>
         <span>Presidência · 2026 · 2º turno</span>
       </div>
-      {result && (
-        <section className="or-live-pulse" aria-label={`Resumo da apuração de ${place}`}>
-          <div>
-            <span className="eyebrow">
-              {place} · {result.final ? 'CONTAGEM CONCLUÍDA' : 'RESULTADO PARCIAL'}
-            </span>
-            <h2>
-              {margin
-                ? margin.votes === 0
-                  ? 'Empate em votos'
-                  : `${candidateName(margin.leader.name)} ${result.final ? 'mais votado' : 'na liderança'}`
-                : 'Aguardando votos neste recorte'}
-            </h2>
-            <p>
-              {margin ? (
-                <>
-                  Diferença de <strong>{formatVotes(margin.votes)} votos</strong> ·{' '}
-                  {formatPercent(margin.points).replace('%', ' p.p.')}
-                </>
-              ) : (
-                'O boletim ainda não registra votos válidos.'
-              )}
-            </p>
-          </div>
-          <div className="or-live-pulse-progress">
-            <strong>{formatPercent(result.counted)}</strong>
-            <span>das seções totalizadas</span>
-            <div
-              className="bar-track"
-              role="progressbar"
-              aria-label="Seções totalizadas"
-              aria-valuenow={result.counted}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            >
-              <div style={{ width: `${result.counted}%` }} />
-            </div>
-          </div>
-          <p className="or-live-bulletin">
-            Boletim do TSE: <strong>{result.generated}</strong>.{' '}
-            {unavailable
-              ? 'Exibindo a última parcial recebida. Tentaremos consultar novamente.'
-              : 'Consulta automática a cada 30 segundos; o TSE pode manter o mesmo boletim.'}
-          </p>
-        </section>
-      )}
       <div className="or-live-command">
         {!result && (
           <section className="panel or-live-countdown">
@@ -183,6 +137,7 @@ export function LiveObservatory({
                   {tally ? (
                     <>
                       <strong>{formatPercent(tally.percent)}</strong>
+                      <span className="or-vote-basis">dos votos válidos apurados</span>
                       <small>
                         {formatVotes(tally.votes)} votos válidos · {place}
                       </small>
@@ -201,11 +156,50 @@ export function LiveObservatory({
       </div>
       {result && (
         <>
+          <section
+            className="or-live-pulse"
+            aria-label={`Diferença entre os candidatos em ${place}`}
+          >
+            <div>
+              <span className="eyebrow">DIFERENÇA ENTRE OS CANDIDATOS · {place}</span>
+              <h2>
+                {margin
+                  ? margin.votes === 0
+                    ? 'Empate em votos'
+                    : `${candidateName(margin.leader.name)} ${result.final ? 'mais votado' : 'está à frente'}`
+                  : 'Aguardando votos neste recorte'}
+              </h2>
+              <p>
+                {margin ? (
+                  <>
+                    <strong>{formatVotes(margin.votes)} votos</strong> de diferença
+                  </>
+                ) : (
+                  'O boletim ainda não registra votos válidos.'
+                )}
+              </p>
+              {margin && (
+                <p className="fine">
+                  Diferença nos percentuais dos candidatos:{' '}
+                  {margin.points.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}{' '}
+                  pontos percentuais.
+                </p>
+              )}
+              {!result.final && (
+                <p className="fine">
+                  Resultado parcial. A liderança pode mudar durante a contagem.
+                </p>
+              )}
+            </div>
+          </section>
           <section className="panel or-live-tally">
             <div className="or-live-heading">
               <div>
-                <span className="eyebrow">RECORTE ATUAL</span>
-                <h2>{place}</h2>
+                <span className="eyebrow">ANDAMENTO DA CONTAGEM · {place}</span>
+                <h2>Quanto já foi apurado?</h2>
               </div>
               <label>
                 Consultar estado
@@ -223,13 +217,29 @@ export function LiveObservatory({
                 </select>
               </label>
             </div>
-            <div className="or-live-total">
-              <strong>{formatPercent(result.counted)}</strong>
-              <span>das seções totalizadas</span>
-            </div>
-            <div className="bar-track" aria-hidden="true">
+            <p className="or-live-total">
+              O TSE já apurou <strong>{formatPercent(result.counted)} das seções de votação</strong>
+              {uf === 'BR' ? ' do Brasil.' : ` de ${place}.`}
+            </p>
+            <div
+              className="bar-track"
+              role="progressbar"
+              aria-label={`Seções de votação apuradas em ${place}`}
+              aria-valuenow={result.counted}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
               <div style={{ width: `${result.counted}%` }} />
             </div>
+            <p className="fine">
+              Cada seção reúne um grupo de eleitores. Esse percentual mostra o avanço da contagem.
+            </p>
+            <p className="or-live-bulletin">
+              Boletim do TSE: <strong>{result.generated}</strong>.{' '}
+              {unavailable
+                ? 'Exibindo a última parcial recebida. Tentaremos consultar novamente.'
+                : 'Consulta automática a cada 30 segundos; o TSE pode manter o mesmo boletim.'}
+            </p>
             <dl className="or-live-metrics">
               <div>
                 <dt>Votos válidos</dt>
