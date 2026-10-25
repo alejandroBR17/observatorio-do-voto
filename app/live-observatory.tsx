@@ -3,7 +3,9 @@ import { Bell, Expand, Radio, ShieldCheck } from 'lucide-react';
 import { candidates } from '@/lib/content';
 import { states, type Result } from '@/lib/elections';
 import { candidateColor, formatVotes, formatPercent } from '@/lib/presentation';
-import { electionNightAvailable } from '@/lib/election-night';
+import { currentLiveResult, liveMargin } from '@/lib/live-summary';
+import { candidateName } from '@/lib/presentation';
+import { LiveStateList } from './components/live-state-list';
 import { CandidatePortrait } from './components/candidate-portrait';
 import { DataFreshness } from './components/data-freshness';
 import { Source } from './components/source-link';
@@ -13,9 +15,13 @@ import { Disclosure } from './disclosure';
 import { Map } from './geo-map';
 import { RegionalResults } from './regional-results';
 
+const countLabel = (value: number) =>
+  Number.isFinite(value) ? formatVotes(value) : 'Não informado';
+
 type LiveState = {
   status: string;
   result?: Result;
+  lastGood?: Result;
   victory?: { message: string };
   message?: string;
   checkedAt?: string;
@@ -48,12 +54,9 @@ export function LiveObservatory({
   onNight: () => void;
   onHistory: () => void;
 }) {
-  const result =
-    live.result?.year === 2026 &&
-    live.result.uf === uf &&
-    electionNightAvailable(live.status, live.result.turn)
-      ? live.result
-      : undefined;
+  const result = currentLiveResult(live, uf);
+  const margin = result ? liveMargin(result) : null;
+  const unavailable = live.status === 'unavailable' || live.status === 'stale';
   const place = uf === 'BR' ? 'Brasil' : states.find((state) => state[1] === uf)?.[2] || uf;
   if (live.status === 'live' && live.result && live.result.uf !== uf) {
     return (
@@ -74,15 +77,65 @@ export function LiveObservatory({
         <span>
           <Radio size={16} aria-hidden="true" />
           {result
-            ? result.final
-              ? 'Resultado concluído'
-              : 'Apuração em andamento'
+            ? unavailable
+              ? 'Última parcial disponível · consulta indisponível'
+              : result.final
+                ? 'Resultado concluído'
+                : 'Apuração em andamento'
             : live.status === 'unavailable'
               ? 'Consulta à fonte indisponível'
-              : 'Aguardando o 2º turno'}
+              : live.status === 'loading'
+                ? 'Consultando a fonte oficial'
+                : 'Aguardando os primeiros resultados'}
         </span>
         <span>Presidência · 2026 · 2º turno</span>
       </div>
+      {result && (
+        <section className="or-live-pulse" aria-label={`Resumo da apuração de ${place}`}>
+          <div>
+            <span className="eyebrow">
+              {place} · {result.final ? 'CONTAGEM CONCLUÍDA' : 'RESULTADO PARCIAL'}
+            </span>
+            <h2>
+              {margin
+                ? margin.votes === 0
+                  ? 'Empate em votos'
+                  : `${candidateName(margin.leader.name)} ${result.final ? 'mais votado' : 'na liderança'}`
+                : 'Aguardando votos neste recorte'}
+            </h2>
+            <p>
+              {margin ? (
+                <>
+                  Diferença de <strong>{formatVotes(margin.votes)} votos</strong> ·{' '}
+                  {formatPercent(margin.points).replace('%', ' p.p.')}
+                </>
+              ) : (
+                'O boletim ainda não registra votos válidos.'
+              )}
+            </p>
+          </div>
+          <div className="or-live-pulse-progress">
+            <strong>{formatPercent(result.counted)}</strong>
+            <span>das seções totalizadas</span>
+            <div
+              className="bar-track"
+              role="progressbar"
+              aria-label="Seções totalizadas"
+              aria-valuenow={result.counted}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div style={{ width: `${result.counted}%` }} />
+            </div>
+          </div>
+          <p className="or-live-bulletin">
+            Boletim do TSE: <strong>{result.generated}</strong>.{' '}
+            {unavailable
+              ? 'Exibindo a última parcial recebida. Tentaremos consultar novamente.'
+              : 'Consulta automática a cada 30 segundos; o TSE pode manter o mesmo boletim.'}
+          </p>
+        </section>
+      )}
       <div className="or-live-command">
         {!result && (
           <section className="panel or-live-countdown">
@@ -133,6 +186,9 @@ export function LiveObservatory({
                       <small>
                         {formatVotes(tally.votes)} votos válidos · {place}
                       </small>
+                      <div className="or-contender-track" aria-hidden="true">
+                        <span style={{ width: `${tally.percent}%` }} />
+                      </div>
                     </>
                   ) : (
                     <p>Aguardando os primeiros resultados oficiais.</p>
@@ -174,17 +230,41 @@ export function LiveObservatory({
             <div className="bar-track" aria-hidden="true">
               <div style={{ width: `${result.counted}%` }} />
             </div>
+            <dl className="or-live-metrics">
+              <div>
+                <dt>Votos válidos</dt>
+                <dd>{countLabel(result.valid)}</dd>
+              </div>
+              <div>
+                <dt>Votos brancos</dt>
+                <dd>{countLabel(result.blank)}</dd>
+              </div>
+              <div>
+                <dt>Votos nulos</dt>
+                <dd>{countLabel(result.nullVotes)}</dd>
+              </div>
+              <div>
+                <dt>Eleitores em seções pendentes</dt>
+                <dd>{countLabel(result.remaining)}</dd>
+              </div>
+            </dl>
+            <p className="fine">
+              Eleitores em seções pendentes não equivalem a votos válidos restantes.
+            </p>
             <p className="notice">
-              {live.victory?.message || 'Consulte a situação no arquivo oficial.'}
+              {unavailable
+                ? 'Consulta temporariamente indisponível. Estes números pertencem ao último boletim recebido.'
+                : live.victory?.message || 'Consulte a situação no arquivo oficial.'}
             </p>
             <DataFreshness
               checkedAt={live.checkedAt}
               generated={result.generated}
               stale={live.stale}
+              unavailable={unavailable}
             />
             <Source href={result.source}>Consultar resultado no TSE</Source>
             <div className="or-live-actions">
-              <button className="button primary" onClick={onNight}>
+              <button className="button primary" onClick={onNight} disabled={unavailable}>
                 <Expand size={17} aria-hidden="true" />
                 Abrir noite da apuração
               </button>
@@ -230,6 +310,7 @@ export function LiveObservatory({
               </label>
             </div>
             <Map data={stateResults} region={region} selected={uf} onSelect={onState} />
+            <LiveStateList data={stateResults} region={region} selected={uf} onSelect={onState} />
             <RegionalResults data={stateResults} turn={2} region={region} onRegion={onRegion} />
             <p className="fine">
               Os estados são consultados separadamente. A atualização de um estado pode ocorrer em

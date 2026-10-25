@@ -721,7 +721,11 @@ function DashboardContent({
         })
         .catch(() => {
           if (!stopped)
-            setLive({ status: 'unavailable', message: 'Sem conexão. Tentaremos novamente.' });
+            setLive((previous: { result?: Result; lastGood?: Result }) => ({
+              status: 'unavailable',
+              lastGood: [previous.result, previous.lastGood].find((row) => row?.uf === uf),
+              message: 'Sem conexão. Tentaremos novamente.',
+            }));
         });
     refresh();
     const t = setInterval(refresh, 30000);
