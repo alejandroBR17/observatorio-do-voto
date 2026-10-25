@@ -62,6 +62,7 @@ import { alertPreferences, defaultAlerts } from '@/lib/alerts';
 import { Source } from './components/source-link';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
 import { DataFreshness } from './components/data-freshness';
+import { ElectionStatusNotice } from './components/election-status-notice';
 import { MunicipalityExplorer } from './municipality-explorer';
 import { ShareButton } from './components/share-button';
 import { resultLink } from '@/lib/sharing';
@@ -1233,6 +1234,11 @@ function DashboardContent({
                 O total de 1994 nesta base soma os votos no país; os votos no exterior não estão
                 incluídos.
               </div>
+            )}
+            {(tab === 'overview' || tab === 'live') && (
+              <ElectionStatusNotice
+                result={live.result?.uf === 'BR' ? live.result : overviewNational}
+              />
             )}
             {tab === 'overview' && observatory && (
               <ObservatoryRoom

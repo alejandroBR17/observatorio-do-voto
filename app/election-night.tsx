@@ -8,6 +8,7 @@ import { nightResult } from '@/lib/election-night';
 import { candidateName, candidateColor, formatPercent, formatVotes } from '@/lib/presentation';
 import { Map } from './geo-map';
 import { DataFreshness } from './components/data-freshness';
+import { ElectionStatusNotice } from './components/election-status-notice';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
 import { Source } from './components/source-link';
 import { ScreenAwakeButton } from './pwa';
@@ -168,6 +169,7 @@ export function ElectionNight({
           </button>
         </div>
       </header>
+      {!preview && <ElectionStatusNotice result={result} />}
       {observatory && (
         <div className="or-night-scope" role="status">
           <div>
