@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  MessagesSquare,
   Activity,
   ArrowUpRight,
   Bell,
@@ -31,7 +30,6 @@ import {
 import { normalize, states, Result } from '@/lib/elections';
 import { candidates, bioSource, years } from '@/lib/content';
 import dynamic from 'next/dynamic';
-import { DebateEntry } from './debate-entry';
 const DebateObservatory = dynamic(() =>
   import('./debate-observatory').then((m) => m.DebateObservatory),
 );
@@ -84,7 +82,6 @@ const regions = ['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'
 const nav = [
   ['overview', 'Panorama', Globe2],
   ['live', 'Apuração ao vivo', Radio],
-  ['debate', 'Debate na Globo', MessagesSquare],
   ['history', 'Histórico eleitoral', BookOpen],
   ['municipality', 'Seu município', MapPin],
   ['polls', 'Pesquisas e cenários', TrendingUp],
@@ -168,7 +165,9 @@ function DashboardContent({
   useEffect(() => {
     void checkPush();
   }, []);
-  const [tab, setTab] = useState(nav.some(([id]) => id === initialTab) ? initialTab : 'overview'),
+  const [tab, setTab] = useState(
+      initialTab === 'debate' || nav.some(([id]) => id === initialTab) ? initialTab : 'overview',
+    ),
     [mobile, setMobile] = useState(false),
     [region, setRegion] = useState('Brasil'),
     [uf, setUf] = useState('BR'),
@@ -1235,7 +1234,6 @@ function DashboardContent({
                 incluídos.
               </div>
             )}
-            {tab === 'overview' && !observatory && <DebateEntry onOpen={() => go('debate')} />}
             {tab === 'overview' && observatory && (
               <ObservatoryRoom
                 results={all}

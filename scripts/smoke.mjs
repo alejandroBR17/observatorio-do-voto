@@ -28,6 +28,14 @@ for (const path of [
       .find((directive) => directive.trim().startsWith('script-src'));
     assert.ok(!scriptPolicy?.includes('unsafe-inline') && !scriptPolicy?.includes('unsafe-eval'));
     const html = await response.text();
+    assert.ok(
+      !html.includes('Debate na Globo'),
+      'the retired debate is absent from main navigation',
+    );
+    assert.ok(
+      !html.includes('debate-event-card'),
+      'the homepage no longer promotes the ended debate',
+    );
     for (const [script] of html.matchAll(/<script\b[^>]*>/g))
       assert.ok(
         script.includes(`nonce="${nonce}"`),

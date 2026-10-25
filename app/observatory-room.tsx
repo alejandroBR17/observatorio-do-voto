@@ -38,7 +38,6 @@ import { RegionalResults, electoralRegions } from './regional-results';
 import { SmartDiscoveries } from './smart-discoveries';
 import { PersonalizationEntry } from './personalization';
 import type { Discovery } from '@/lib/personalization';
-import { DebateEntry } from './debate-entry';
 
 export function ObservatoryRoom({
   results,
@@ -64,7 +63,7 @@ export function ObservatoryRoom({
   liveResults: Result[];
 }) {
   const [year, setYear] = useState(2026);
-  const [turn, setTurn] = useState(1);
+  const [turn, setTurn] = useState(2);
   const [archive, setArchive] = useState<Result[]>([]);
   const [archiveState, setArchiveState] = useState<'ready' | 'loading' | 'error'>('ready');
   const [focus, setFocus] = useState('');
@@ -161,16 +160,17 @@ export function ObservatoryRoom({
         <div className="or-phase">
           <Radio size={17} />
           <div>
-            <strong>{liveStatus === 'live' ? 'Apuração em andamento' : 'Entre dois turnos'}</strong>
+            <strong>
+              {liveStatus === 'live' ? 'Apuração em andamento' : '2º turno · 25 de outubro'}
+            </strong>
             <span>
               {liveStatus === 'live'
                 ? 'Consulte os resultados oficiais'
-                : 'O próximo capítulo · 25 de outubro'}
+                : 'Resultados após o fim da votação'}
             </span>
           </div>
         </div>
       </div>
-      <DebateEntry onOpen={() => onGo('debate')} />
       <nav className="or-quicknav" aria-label="Explorar o panorama">
         <a href="#territorio">
           Território <ChevronRight size={13} />

@@ -116,7 +116,21 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 40);
+assert.equal(pollSnapshots.length, 49);
+const finalWave = (registration) => pollSnapshots.find((p) => p.registration === registration);
+assert.deepEqual(
+  [finalWave('BR-08234/2026').flavio, finalWave('BR-08234/2026').lula],
+  [50.5, 49.5],
+  'Nexus uses the whole sample, not its likely-voter model',
+);
+assert.equal(finalWave('BR-01794/2026').basis, 'total', 'Palver valid votes must not be estimated');
+assert.equal(
+  finalWave('BR-02136/2026').sample,
+  2032,
+  'MDA reports its actual sample separately from planned interviews',
+);
+assert.match(finalWave('BR-09327/2026').fieldwork, /^22 a 24/);
+assert.deepEqual([finalWave('BR-09540/2026').flavio, finalWave('BR-09540/2026').lula], [51, 49]);
 const veritaFinal = pollSnapshots.find((p) => p.registration === 'BR-06070/2026');
 assert.deepEqual([veritaFinal.flavio, veritaFinal.lula, veritaFinal.sample], [51.3, 48.7, 15554]);
 assert.match(veritaFinal.fieldwork, /^18 a 22/);
