@@ -118,6 +118,9 @@ export function ObservatoryRoom({
       : data.find((r) => r.uf === uf);
   const waiting = secondTurn && !current;
   const national = data.find((r) => r.uf === 'BR');
+  const finished = liveResults.some(
+    (row) => row.uf === 'BR' && row.year === 2026 && row.turn === 2 && row.final,
+  );
   const palette = electionPalette(national?.candidates || []);
   const resultColor = (number: string) =>
     palette.find((candidate) => candidate.number === number)?.color || '#87999b';
@@ -153,7 +156,15 @@ export function ObservatoryRoom({
             <span className="or-beacon" /> ELEIÇÕES PRESIDENCIAIS · 2026
           </span>
           <h1 tabIndex={-1} data-page-title>
-            Acompanhe a disputa <span>pela Presidência.</span>
+            {finished ? (
+              <>
+                O resultado <span>da eleição presidencial.</span>
+              </>
+            ) : (
+              <>
+                Acompanhe a disputa <span>pela Presidência.</span>
+              </>
+            )}
           </h1>
           <p>Veja os resultados por estado, compare pesquisas e explore eleições anteriores.</p>
         </div>
@@ -161,12 +172,18 @@ export function ObservatoryRoom({
           <Radio size={17} />
           <div>
             <strong>
-              {liveStatus === 'live' ? 'Apuração em andamento' : '2º turno · 25 de outubro'}
+              {finished
+                ? 'Apuração concluída'
+                : liveStatus === 'live'
+                  ? 'Apuração em andamento'
+                  : '2º turno · 25 de outubro'}
             </strong>
             <span>
-              {liveStatus === 'live'
-                ? 'Consulte os resultados oficiais'
-                : 'Resultados após o fim da votação'}
+              {finished
+                ? 'Resultado oficial do TSE'
+                : liveStatus === 'live'
+                  ? 'Consulte os resultados oficiais'
+                  : 'Resultados após o fim da votação'}
             </span>
           </div>
         </div>
@@ -483,11 +500,16 @@ export function ObservatoryRoom({
             ))}
           </div>
           <p className="or-caption">
-            Votação das 8h às 17h, no horário de Brasília. A apuração aparece quando os dados
-            oficiais forem divulgados.
+            {finished
+              ? 'Consulte o resultado oficial e a cobertura dos desdobramentos após a eleição.'
+              : 'Acompanhe os resultados conforme a divulgação oficial do TSE.'}
           </p>
           <button className="or-action or-action-primary" onClick={() => onGo('live')}>
-            {liveStatus === 'live' ? 'Abrir a apuração' : 'Preparar meu acompanhamento'}
+            {finished
+              ? 'Ver resultado oficial'
+              : liveStatus === 'live'
+                ? 'Abrir a apuração'
+                : 'Preparar meu acompanhamento'}
             <ArrowRight size={16} />
           </button>
           <button className="or-action" onClick={() => onGo('alerts')}>

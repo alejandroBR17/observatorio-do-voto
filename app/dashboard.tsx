@@ -1172,7 +1172,11 @@ function DashboardContent({
                                     : observatory && tab === 'municipality'
                                       ? 'O voto, perto de você.'
                                       : observatory && tab === 'live'
-                                        ? 'A disputa, voto a voto.'
+                                        ? live.result?.year === 2026 &&
+                                          live.result?.turn === 2 &&
+                                          live.result?.final
+                                          ? 'O resultado da eleição.'
+                                          : 'A disputa, voto a voto.'
                                         : tab === 'overview'
                                           ? 'O país em perspectiva.'
                                           : nav.find((n) => n[0] === tab)?.[1]}

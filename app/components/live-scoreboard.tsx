@@ -32,6 +32,8 @@ export function LiveScoreboard({
   const margin = liveMargin(result);
   const stamp = result.generated.match(/\d{2}:\d{2}:\d{2}/)?.[0] || result.generated;
   const decisive = victory?.kind === 'official' || victory?.kind === 'mathematical';
+  const elected =
+    result.uf === 'BR' ? result.candidates.find((candidate) => candidate.elected) : undefined;
   const count = (value: number) => (Number.isFinite(value) ? formatVotes(value) : 'Não informado');
   return (
     <section className="vote-board" aria-label={`Placar presidencial de ${place}`}>
@@ -81,6 +83,7 @@ export function LiveScoreboard({
                 <div>
                   <span className="vote-party">{candidate.party}</span>
                   <h2>{candidate.name}</h2>
+                  {tally?.elected && <span className="vote-elected">Eleito · TSE</span>}
                 </div>
               </div>
               <strong className="vote-percent">{tally ? formatPercent(tally.percent) : '—'}</strong>
@@ -111,8 +114,13 @@ export function LiveScoreboard({
               'Empate em votos'
             ) : (
               <>
-                <strong>{candidateName(margin.leader.name)}</strong> ·{' '}
-                <strong>{formatVotes(margin.votes)}</strong> votos à frente
+                <strong>
+                  {elected
+                    ? `${candidateName(elected.name)} eleito`
+                    : candidateName(margin.leader.name)}
+                </strong>{' '}
+                · <strong>{formatVotes(margin.votes)}</strong> votos{' '}
+                {result.final ? 'de diferença' : 'à frente'}
               </>
             )
           ) : (
@@ -126,14 +134,14 @@ export function LiveScoreboard({
           A consulta falhou. Mantemos o último boletim e tentaremos novamente.
         </p>
       )}
-      {decisive && !unavailable && (
+      {decisive && !unavailable && !elected && (
         <p className="vote-board-warning" role="status">
           {victory.message}
         </p>
       )}
       <div className="vote-counting">
         <div className="vote-counting-label">
-          <span>Andamento da contagem</span>
+          <span>{result.final ? 'Apuração concluída' : 'Andamento da contagem'}</span>
           <strong>
             {formatPercent(result.counted)} <span>das seções apuradas</span>
           </strong>
@@ -159,7 +167,7 @@ export function LiveScoreboard({
             Detalhes e fonte <ChevronDown size={15} aria-hidden="true" />
           </summary>
           <div className="vote-details-body">
-            <h3>Sobre esta parcial</h3>
+            <h3>{result.final ? 'Sobre o resultado' : 'Sobre esta parcial'}</h3>
             <p>
               Boletim do TSE: <strong>{result.generated}</strong>. Consulta a cada 30 segundos.
             </p>

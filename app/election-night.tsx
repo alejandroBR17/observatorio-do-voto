@@ -151,7 +151,11 @@ export function ElectionNight({
         <div>
           <span className="eyebrow">OBSERVATÓRIO DO VOTO</span>
           <h2 id="night-title">
-            {preview ? 'Prévia da noite da apuração' : 'A noite da apuração'}
+            {preview
+              ? 'Prévia da noite da apuração'
+              : result.final
+                ? 'O resultado da eleição'
+                : 'A noite da apuração'}
           </h2>
         </div>
         <div className="night-controls">
@@ -208,7 +212,9 @@ export function ElectionNight({
           </div>
         ) : (
           <p className="night-live-label">
-            2º turno · Atualização automática enquanto esta tela estiver aberta
+            {result.final
+              ? '2º turno · Apuração concluída · Resultado oficial do TSE'
+              : '2º turno · Atualização automática enquanto esta tela estiver aberta'}
           </p>
         )}
         {fullError && (
