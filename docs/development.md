@@ -132,12 +132,13 @@ Ao adicionar uma pesquisa, confira o relatório original, preserve a base public
 
 ### Municípios, locais e seções
 
-`/api/local-results` consulta o acervo presidencial do primeiro turno de 2026. `uf` é obrigatório. Sem município, retorna os nomes das cidades; `municipality` seleciona o município; `place` seleciona um local; `zone` e `section` selecionam um recorte eleitoral. Códigos são validados antes de qualquer acesso ao disco. O app não consulta títulos, identidades de eleitores ou votos individuais.
+`/api/local-results` aceita `turn=1` ou `turn=2`. A ausência de `turn` preserva o primeiro turno para compatibilidade com links antigos; a interface nova abre no segundo. `uf` é obrigatório. O primeiro turno usa o acervo por seção; o segundo usa um acervo próprio em `data/local-results/2/` quando importado ou consulta o EA20 oficial de município/zona na eleição 6258. O catálogo reaproveita somente nomes e códigos municipais, com origem separada; votos e locais do primeiro turno nunca substituem dados do segundo. Recortes por colégio/seção indisponíveis no segundo retornam 409. Códigos são validados antes de acessar arquivos ou fontes remotas. O app não consulta títulos, identidades ou votos individuais.
 
 O CSV nacional de votos por seção contém nome/endereço do local, zona e seção. Ele é importado explicitamente, nunca durante um build nem em uma requisição de usuário:
 
 ```sh
 python scripts/import-local-results.py --zip caminho/votacao_secao_2026_BR.zip
+python scripts/import-local-results.py --turn 2 --zip caminho/votacao_secao_2026_BR.zip
 ```
 
 Os índices em `data/local-results` são comprimidos por UF, totalizam cerca de 9 MB e são incluídos na função pela configuração `outputFileTracingIncludes`. O servidor mantém até três UFs na memória; clientes recebem somente a lista de cidades ou o município solicitado. O ZIP/CSV original permanece fora do Git. `manifest.json` registra origem, geração e importação. A fonte é o [Portal de Dados Abertos do TSE](https://dadosabertos.tse.jus.br/dataset/resultados-2026), com atribuição na interface.

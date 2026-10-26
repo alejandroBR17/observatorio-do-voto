@@ -19,6 +19,7 @@ export function MunicipalityExplorer({
   observatory?: boolean;
 }) {
   const [uf, setUf] = useState(states.some((s) => s[1] === initialUf) ? initialUf : 'SP');
+  const [turn, setTurn] = useState(2);
   const [index, setIndex] = useState<LocalResponse | null>(null);
   const [city, setCity] = useState<LocalResponse | null>(null);
   const [detail, setDetail] = useState<LocalResponse | null>(null);
@@ -43,6 +44,7 @@ export function MunicipalityExplorer({
   const resultHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    if (['1', '2'].includes(params.get('turn') || '')) setTurn(Number(params.get('turn')));
     const linked = rememberedCity(
       JSON.stringify({
         version: 1,
@@ -52,6 +54,7 @@ export function MunicipalityExplorer({
       }),
     );
     if (linked) {
+      if (!params.has('turn')) setTurn(1);
       shared.current = params;
       restore.current = linked;
       setUf(linked.uf);
@@ -80,10 +83,12 @@ export function MunicipalityExplorer({
     setBusy(false);
     setShowSectionPicker(false);
     request.current?.abort();
-    fetch(`/api/local-results?uf=${uf}`, { signal: controller.signal })
+    fetch(`/api/local-results?uf=${uf}&turn=${turn}`, { signal: controller.signal })
       .then(async (r) => {
         const d = await r.json();
         if (!r.ok) throw Error(d.error);
+        if (d.year !== 2026 || d.turn !== turn)
+          throw Error('A fonte retornou um turno diferente do solicitado.');
         return d as LocalResponse;
       })
       .then(async (d) => {
@@ -96,29 +101,33 @@ export function MunicipalityExplorer({
         request.current = controller;
         setBusy(true);
         const response = await fetch(
-          `/api/local-results?${new URLSearchParams({ uf, municipality: saved.code })}`,
+          `/api/local-results?${new URLSearchParams({ uf, municipality: saved.code, turn: String(turn) })}`,
           { signal: controller.signal },
         );
         const cityData = await response.json();
         if (!response.ok) throw Error(cityData.error || 'Não foi possível retomar seu município.');
+        if (cityData.year !== 2026 || cityData.turn !== turn)
+          throw Error('Resultado incompatível com o turno selecionado.');
         if (!controller.signal.aborted) {
           setCity(cityData);
           setStorageStatus(shared.current ? '' : 'saved');
           const link = shared.current;
           if (link) {
             shared.current = null;
-            const scope = new URLSearchParams({ uf, municipality: saved.code });
+            const scope = new URLSearchParams({ uf, municipality: saved.code, turn: String(turn) });
             for (const key of ['place', 'zone', 'section']) {
               const value = link.get(key);
               if (value) scope.set(key, value);
             }
-            if (scope.size > 2) {
+            if (scope.size > 3) {
               const response = await fetch('/api/local-results?' + scope, {
                 signal: controller.signal,
               });
               const detailData = await response.json();
               if (!response.ok)
                 throw Error(detailData.error || 'Não foi possível abrir este local.');
+              if (detailData.year !== 2026 || detailData.turn !== turn)
+                throw Error('Recorte incompatível com o turno selecionado.');
               if (!controller.signal.aborted) setDetail(detailData);
             }
           }
@@ -135,7 +144,29 @@ export function MunicipalityExplorer({
       controller.abort();
       request.current?.abort();
     };
-  }, [uf, retry, ready]);
+  }, [uf, turn, retry, ready]);
+  function changeTurn(next: number) {
+    if (next === turn) return;
+    request.current?.abort();
+    restore.current = city?.municipality
+      ? { version: 1, uf, code: city.municipality.code, name: city.municipality.name }
+      : null;
+    shared.current = null;
+    setIndex(null);
+    setCity(null);
+    setDetail(null);
+    setZone('');
+    setSection('');
+    setLocalQuery('');
+    setSectionQuery('');
+    setShowSectionPicker(false);
+    setError('');
+    setTurn(next);
+    const url = new URL(location.href);
+    url.searchParams.set('turn', String(next));
+    for (const key of ['place', 'zone', 'section']) url.searchParams.delete(key);
+    history.replaceState({}, '', url);
+  }
   async function load(
     code: string,
     place?: PlaceSummary,
@@ -149,7 +180,7 @@ export function MunicipalityExplorer({
     setBusy(true);
     setError('');
     if (!keepPosition) setShowCandidates(false);
-    const params = new URLSearchParams({ uf, municipality: code });
+    const params = new URLSearchParams({ uf, municipality: code, turn: String(turn) });
     if (place) params.set('place', place.id);
     if (bySection) {
       params.set('zone', (explicitSection?.zone || zone).padStart(4, '0'));
@@ -160,9 +191,12 @@ export function MunicipalityExplorer({
       const r = await fetch(`/api/local-results?${params}`, { signal: controller.signal });
       const d = await r.json();
       if (!r.ok) throw Error(d.error || 'Não foi possível consultar o local.');
+      if (d.year !== 2026 || d.turn !== turn)
+        throw Error('Resultado incompatível com o turno selecionado.');
       if (!controller.signal.aborted) {
         if (!place && !bySection) {
           const page = new URL(location.href);
+          page.searchParams.set('turn', String(turn));
           for (const key of ['municipality', 'place', 'zone', 'section'])
             page.searchParams.delete(key);
           history.replaceState({}, '', page);
@@ -244,8 +278,14 @@ export function MunicipalityExplorer({
           <li aria-current={city && !detail ? 'step' : undefined}>
             <span>02</span>
             <div>
-              <strong>Local e seção</strong>
-              <small>Explore onde você votou</small>
+              <strong>
+                {turn === 2 && !city?.capabilities?.places ? 'Zona eleitoral' : 'Local e seção'}
+              </strong>
+              <small>
+                {turn === 2 && !city?.capabilities?.places
+                  ? 'Consulte o resultado da zona'
+                  : 'Explore onde você votou'}
+              </small>
             </div>
           </li>
           <li aria-current={detail ? 'step' : undefined}>
@@ -258,7 +298,27 @@ export function MunicipalityExplorer({
         </ol>
       )}
       <section className="panel municipality-search" id="buscar-municipio">
-        <span className="eyebrow">PRESIDÊNCIA · 2026 · 1º TURNO</span>
+        <span className="eyebrow">PRESIDÊNCIA · 2026 · {turn}º TURNO</span>
+        <div
+          className="segmented local-turn-picker"
+          role="group"
+          aria-label="Turno da eleição municipal"
+        >
+          <button
+            className={turn === 1 ? 'active' : ''}
+            aria-pressed={turn === 1}
+            onClick={() => changeTurn(1)}
+          >
+            1º turno
+          </button>
+          <button
+            className={turn === 2 ? 'active' : ''}
+            aria-pressed={turn === 2}
+            onClick={() => changeTurn(2)}
+          >
+            2º turno
+          </button>
+        </div>
         <h2>
           {observatory && city?.municipality
             ? `${city.municipality.name} · ${uf}`
@@ -373,13 +433,15 @@ export function MunicipalityExplorer({
             )}
           </>
         )}
-        {index && (
+        {index?.generated && (
           <DataFreshness archived checkedAt={index.importedAt} generated={index.generated} />
         )}
       </section>
       {observatory && city?.municipality && (
         <nav className="or-local-nav" aria-label="Explorar este município">
-          <a href="#locais-votacao">Locais e seções</a>
+          <a href="#locais-votacao">
+            {turn === 2 && !city.capabilities?.places ? 'Zonas eleitorais' : 'Locais e seções'}
+          </a>
           <a href="#votos-locais">Ver resultado em números</a>
         </nav>
       )}
@@ -402,7 +464,7 @@ export function MunicipalityExplorer({
         </p>
       )}
       <div className="local-workspace">
-        {city?.municipality && (
+        {city?.municipality && (turn === 1 || city.capabilities?.places) && (
           <section className="panel local-places" id="locais-votacao">
             <div className="panel-head">
               <div>
@@ -525,6 +587,42 @@ export function MunicipalityExplorer({
             )}
           </section>
         )}
+        {city?.municipality && turn === 2 && city.capabilities?.places === false && (
+          <section className="panel local-second-turn-scope" id="locais-votacao">
+            <span className="eyebrow">2º TURNO · ZONA ELEITORAL</span>
+            <h2>Consulte uma zona do município</h2>
+            <form
+              className="local-section-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void load(city.municipality!.code, undefined, true, { zone, section: '' });
+              }}
+            >
+              <label>
+                Zona eleitoral
+                <input
+                  required
+                  inputMode="numeric"
+                  pattern="[0-9]{1,4}"
+                  maxLength={4}
+                  value={zone}
+                  onChange={(event) => setZone(event.target.value.replace(/\D/g, ''))}
+                  placeholder="Ex.: 1"
+                />
+              </label>
+              <button className="button primary" type="submit" disabled={busy}>
+                Consultar zona
+              </button>
+            </form>
+            <p className="fine">
+              O segundo turno está disponível por município e zona. Colégios e seções ainda não
+              estão disponíveis neste acervo; seus votos do primeiro turno continuam separados.
+            </p>
+            <button className="text-button" onClick={() => changeTurn(1)}>
+              Ver colégios e seções do 1º turno
+            </button>
+          </section>
+        )}
         {!error && tally && (
           <section
             className="panel local-tally"
@@ -539,18 +637,20 @@ export function MunicipalityExplorer({
               </button>
             )}
             <span className="eyebrow">
-              {detail ? 'RESULTADO DO LOCAL SELECIONADO' : 'RESULTADO DO MUNICÍPIO'} · 1º TURNO
+              {detail ? 'RESULTADO DO RECORTE SELECIONADO' : 'RESULTADO DO MUNICÍPIO'} ·{' '}
+              {active?.turn}º TURNO
             </span>
             <h2 id="local-result-title" ref={resultHeading} tabIndex={-1}>
               {title}
             </h2>
             <ShareButton
-              title={`${title} · votação presidencial de 2026 · 1º turno`}
+              title={`${title} · votação presidencial de 2026 · ${active?.turn}º turno`}
               label="Compartilhar resultado"
               url={() =>
                 resultLink(location.origin, {
                   tab: 'municipality',
                   uf,
+                  turn: active?.turn,
                   municipality: city?.municipality?.code,
                   place: selectedPlace?.id,
                   zone: detail?.selection?.zone,
@@ -661,7 +761,13 @@ export function MunicipalityExplorer({
               </div>
               <div>
                 <strong>{formatVotes(tally.sections)}</strong>
-                <span>{tally.sections === 1 ? 'seção consultada' : 'seções consultadas'}</span>
+                <span>
+                  {active.turn === 2 && !active.capabilities?.places
+                    ? 'seções totalizadas'
+                    : tally.sections === 1
+                      ? 'seção consultada'
+                      : 'seções consultadas'}
+                </span>
               </div>
             </div>
             <p className="fine">
@@ -699,8 +805,16 @@ export function MunicipalityExplorer({
             <p className="fine">
               Brancos: {formatVotes(tally.blank)} · Nulos: {formatVotes(tally.nullVotes)}.
             </p>
-            <DataFreshness archived checkedAt={active.importedAt} generated={active.generated} />
-            <Source href={active.source}>Fonte: votos por seção do TSE</Source>
+            <DataFreshness
+              archived={active.capabilities?.places !== false}
+              checkedAt={active.importedAt}
+              generated={active.generated}
+            />
+            <Source href={active.source}>
+              {active.turn === 2 && !active.capabilities?.places
+                ? 'Fonte: totalização oficial do TSE'
+                : 'Fonte: votos por seção do TSE'}
+            </Source>
             <p className="fine local-privacy">
               Os números são coletivos. Não é possível identificar em quem uma pessoa votou. Locais
               e seções correspondem a esta eleição e podem mudar entre turnos.

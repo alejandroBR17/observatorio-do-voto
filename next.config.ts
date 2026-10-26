@@ -6,7 +6,7 @@ const config: NextConfig = {
   outputFileTracingRoot: process.cwd(),
   serverExternalPackages: ['@libsql/client'],
   outputFileTracingIncludes: {
-    '/api/local-results': ['./data/local-results/*.json.gz'],
+    '/api/local-results': ['./data/local-results/*.json.gz', './data/local-results/2/*.json.gz'],
   },
   async headers() {
     return [

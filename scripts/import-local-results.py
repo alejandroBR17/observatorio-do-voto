@@ -21,9 +21,15 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--zip", type=Path, required=True)
+    parser.add_argument("--turn", type=int, choices=(1, 2), default=1)
     args = parser.parse_args()
-    national = json.loads((ROOT / "public" / "data" / "2026-br.json").read_text(encoding="utf-8"))
-    ballot = {str(c["n"]): c["nmu"] for a in national["carg"][0]["agr"] for p in a["par"] for c in p.get("cand", [])}
+    final_results = json.loads((ROOT / "public" / "data" / "history-2026.json").read_text(encoding="utf-8")) if args.turn == 2 else []
+    if args.turn == 2:
+        national = next(row for row in final_results if row["turn"] == 2 and row["uf"] == "BR")
+        ballot = {str(c["number"]): c["name"] for c in national["candidates"]}
+    else:
+        national = json.loads((ROOT / "public" / "data" / "2026-br.json").read_text(encoding="utf-8"))
+        ballot = {str(c["n"]): c["nmu"] for a in national["carg"][0]["agr"] for p in a["par"] for c in p.get("cand", [])}
     regions, names, totals = {}, {}, {}
     generated = None
     with zipfile.ZipFile(args.zip) as archive:
@@ -33,7 +39,7 @@ def main():
         with archive.open(members[0]) as binary:
             reader = csv.DictReader(io.TextIOWrapper(binary, encoding="latin-1"), delimiter=";")
             for row in reader:
-                if row["ANO_ELEICAO"] != "2026" or row["NR_TURNO"] != "1" or row["CD_CARGO"] != "1":
+                if row["ANO_ELEICAO"] != "2026" or row["NR_TURNO"] != str(args.turn) or row["CD_CARGO"] != "1":
                     continue
                 uf, code = row["SG_UF"], row["CD_MUNICIPIO"].zfill(5)
                 if uf == "ZZ":
@@ -67,18 +73,23 @@ def main():
         raise ValueError("Expected all 27 Brazilian states; refusing partial import")
     # Stop rather than publish an incomplete or misclassified import.
     for uf, votes in totals.items():
-        official = json.loads((ROOT / "public" / "data" / f"2026-{uf.lower()}.json").read_text(encoding="utf-8"))
-        if sum(votes.get(n, 0) for n in candidates) != int(official["v"]["vv"]):
+        official = next(row for row in final_results if row["turn"] == 2 and row["uf"] == uf) if args.turn == 2 else json.loads((ROOT / "public" / "data" / f"2026-{uf.lower()}.json").read_text(encoding="utf-8"))
+        valid = official["valid"] if args.turn == 2 else int(official["v"]["vv"])
+        if sum(votes.get(n, 0) for n in candidates) != valid:
             raise ValueError(f"Candidate totals differ from official state result: {uf}")
-        official_candidates = {str(c["n"]): int(c["vap"]) for a in official["carg"][0]["agr"] for p in a["par"] for c in p.get("cand", [])}
+        official_candidates = {str(c["number"]): c["votes"] for c in official["candidates"]} if args.turn == 2 else {str(c["n"]): int(c["vap"]) for a in official["carg"][0]["agr"] for p in a["par"] for c in p.get("cand", [])}
         if any(votes.get(n, 0) != v for n, v in official_candidates.items()):
             raise ValueError(f"Individual candidate totals differ: {uf}")
-        if votes.get("95", 0) != int(official["v"]["vb"]) or votes.get("96", 0) != int(official["v"]["tvn"]):
+        blank = official["blank"] if args.turn == 2 else int(official["v"]["vb"])
+        null_votes = official["nullVotes"] if args.turn == 2 else int(official["v"]["tvn"])
+        if votes.get("95", 0) != blank or votes.get("96", 0) != null_votes:
             raise ValueError(f"Blank/null totals differ from official state result: {uf}")
     output = ROOT / "data" / "local-results"
+    if args.turn == 2:
+        output = output / "2"
     output.mkdir(parents=True, exist_ok=True)
     imported_at = datetime.now(timezone.utc).isoformat()
-    summary = {"source": SOURCE, "year": 2026, "turn": 1, "generated": generated,
+    summary = {"source": SOURCE, "year": 2026, "turn": args.turn, "generated": generated,
                "importedAt": imported_at, "states": [], "municipalities": 0, "places": 0, "sections": 0}
     for uf, municipalities in sorted(regions.items()):
         for municipality in municipalities.values():
@@ -90,7 +101,7 @@ def main():
             summary["places"] += len(municipality["places"])
         summary["municipalities"] += len(municipalities)
         summary["states"].append(uf)
-        payload = {"source": SOURCE, "year": 2026, "turn": 1, "generated": generated,
+        payload = {"source": SOURCE, "year": 2026, "turn": args.turn, "generated": generated,
                    "importedAt": imported_at,
                    "candidates": [{"number": n, "name": names[n]} for n in candidates],
                    "municipalities": sorted(municipalities.values(), key=lambda m: m["name"])}
