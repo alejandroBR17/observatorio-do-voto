@@ -1,7 +1,7 @@
 import { normalize } from './elections';
 import type { LocalIndex, LocalResponse } from './local-results';
 
-export const secondTurnCapabilities = { places: false, sections: false, zones: true };
+export const secondTurnCapabilities = { places: false, sections: true, zones: true };
 const BASE = 'https://resultados.tse.jus.br/oficial/ele2026/6258/dados';
 
 export function secondTurnCatalog(index: LocalIndex): LocalResponse {

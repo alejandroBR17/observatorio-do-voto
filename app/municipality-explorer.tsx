@@ -279,11 +279,11 @@ export function MunicipalityExplorer({
             <span>02</span>
             <div>
               <strong>
-                {turn === 2 && !city?.capabilities?.places ? 'Zona eleitoral' : 'Local e seção'}
+                {turn === 2 && !city?.capabilities?.places ? 'Zona e seção' : 'Local e seção'}
               </strong>
               <small>
                 {turn === 2 && !city?.capabilities?.places
-                  ? 'Consulte o resultado da zona'
+                  ? 'Consulte sua zona ou seção'
                   : 'Explore onde você votou'}
               </small>
             </div>
@@ -440,7 +440,7 @@ export function MunicipalityExplorer({
       {observatory && city?.municipality && (
         <nav className="or-local-nav" aria-label="Explorar este município">
           <a href="#locais-votacao">
-            {turn === 2 && !city.capabilities?.places ? 'Zonas eleitorais' : 'Locais e seções'}
+            {turn === 2 && !city.capabilities?.places ? 'Zonas e seções' : 'Locais e seções'}
           </a>
           <a href="#votos-locais">Ver resultado em números</a>
         </nav>
@@ -589,13 +589,13 @@ export function MunicipalityExplorer({
         )}
         {city?.municipality && turn === 2 && city.capabilities?.places === false && (
           <section className="panel local-second-turn-scope" id="locais-votacao">
-            <span className="eyebrow">2º TURNO · ZONA ELEITORAL</span>
-            <h2>Consulte uma zona do município</h2>
+            <span className="eyebrow">2º TURNO · ZONA E SEÇÃO</span>
+            <h2>Consulte sua zona ou seção</h2>
             <form
               className="local-section-form"
               onSubmit={(event) => {
                 event.preventDefault();
-                void load(city.municipality!.code, undefined, true, { zone, section: '' });
+                void load(city.municipality!.code, undefined, true, { zone, section });
               }}
             >
               <label>
@@ -610,14 +610,33 @@ export function MunicipalityExplorer({
                   placeholder="Ex.: 1"
                 />
               </label>
+              <label>
+                Seção (opcional)
+                <input
+                  inputMode="numeric"
+                  pattern="[0-9]{1,4}"
+                  maxLength={4}
+                  value={section}
+                  onChange={(event) => setSection(event.target.value.replace(/\D/g, ''))}
+                  placeholder="Ex.: 1"
+                />
+              </label>
               <button className="button primary" type="submit" disabled={busy}>
-                Consultar zona
+                Consultar votos
               </button>
             </form>
             <p className="fine">
-              O segundo turno está disponível por município e zona. Colégios e seções ainda não
-              estão disponíveis neste acervo; seus votos do primeiro turno continuam separados.
+              Informe a zona e a seção do seu comprovante ou e-Título. Sem seção, mostramos a zona
+              inteira.
             </p>
+            <details className="fine">
+              <summary>Por que não há busca por colégio no segundo turno?</summary>
+              <p>
+                As seções já podem ser consultadas pelos boletins oficiais. A busca pelo nome e o
+                total por colégio ainda dependem de um cadastro completo do segundo turno. Os dados
+                do primeiro turno continuam disponíveis separadamente.
+              </p>
+            </details>
             <button className="text-button" onClick={() => changeTurn(1)}>
               Ver colégios e seções do 1º turno
             </button>
@@ -662,6 +681,26 @@ export function MunicipalityExplorer({
               <p className="fine">
                 {detail.selection.place.address} · Zona {Number(detail.selection.place.zone)}
               </p>
+            )}
+            {active?.ballot && (
+              <div className="local-ballot-note" role="note">
+                <p>
+                  Boletim da seção {Number(active.ballot.principal)} · local de votação nº{' '}
+                  {active.ballot.placeNumber}. Situação no TSE: {active.ballot.status.toLowerCase()}
+                  .
+                </p>
+                {active.ballot.aggregated.length > 0 && (
+                  <p>
+                    Este boletim reúne a seção principal e as agregadas{' '}
+                    {active.ballot.aggregated.map(Number).join(', ')}. Os votos não estão separados
+                    por seção agregada.
+                  </p>
+                )}
+                <p>A leitura do boletim não substitui a totalização da zona ou do município.</p>
+                <a href={active.ballot.auxSource} target="_blank" rel="noreferrer">
+                  Conferir situação e arquivos no TSE
+                </a>
+              </div>
             )}
             {selectedPlace && (
               <div
@@ -762,7 +801,7 @@ export function MunicipalityExplorer({
               <div>
                 <strong>{formatVotes(tally.sections)}</strong>
                 <span>
-                  {active.turn === 2 && !active.capabilities?.places
+                  {active.turn === 2 && !active.capabilities?.places && !active.ballot
                     ? 'seções totalizadas'
                     : tally.sections === 1
                       ? 'seção consultada'
@@ -811,9 +850,11 @@ export function MunicipalityExplorer({
               generated={active.generated}
             />
             <Source href={active.source}>
-              {active.turn === 2 && !active.capabilities?.places
-                ? 'Fonte: totalização oficial do TSE'
-                : 'Fonte: votos por seção do TSE'}
+              {active.ballot
+                ? 'Fonte: boletim de urna do TSE (arquivo BU)'
+                : active.turn === 2 && !active.capabilities?.places
+                  ? 'Fonte: totalização oficial do TSE'
+                  : 'Fonte: votos por seção do TSE'}
             </Source>
             <p className="fine local-privacy">
               Os números são coletivos. Não é possível identificar em quem uma pessoa votou. Locais

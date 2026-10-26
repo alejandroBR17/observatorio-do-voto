@@ -15,7 +15,7 @@ test('second-turn municipal and zone totals preserve official scope and the sum 
   assert.equal(result.tally?.nullVotes, 216904);
   assert.equal(result.tally?.sections, 26683);
   assert.equal(result.tally?.total, 7284071);
-  assert.deepEqual(result.capabilities, { places: false, sections: false, zones: true });
+  assert.deepEqual(result.capabilities, { places: false, sections: true, zones: true });
   const selected = decodeSecondTurn(zone.raw, zone.source, '71072', 'SÃO PAULO', '0001');
   assert.equal(selected.selection?.zone, '0001');
   assert.equal(selected.tally?.valid, 107564);
@@ -59,9 +59,10 @@ test('the API separates turns, forwards the requested zone and never falls back 
   assert.equal((await selected.json()).tally.valid, 107564);
   assert.ok(requested.every((value) => value.includes('/6258/') && value.includes('e006258')));
   const calls = requested.length;
-  for (const extra of ['&place=0001-1015', '&zone=0001&section=0001'])
+  for (const extra of ['&place=0001-1015'])
     assert.equal((await GET(new Request(url + '&turn=2' + extra))).status, 409);
   assert.equal(requested.length, calls);
+  assert.equal((await GET(new Request(url + '&turn=2&section=0001'))).status, 400);
   t.mock.method(globalThis, 'fetch', async () => new Response('Unavailable', { status: 503 }));
   const failure = await GET(new Request(url + '&turn=2'));
   assert.equal(failure.status, 503);

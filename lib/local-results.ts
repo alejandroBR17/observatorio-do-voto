@@ -39,6 +39,13 @@ export type LocalResponse = {
   tally?: LocalTally;
   capabilities?: { places: boolean; sections: boolean; zones: boolean };
   catalogSource?: string;
+  ballot?: {
+    principal: string;
+    aggregated: string[];
+    placeNumber: string;
+    status: string;
+    auxSource: string;
+  };
 };
 
 export const searchText = (value: string) =>

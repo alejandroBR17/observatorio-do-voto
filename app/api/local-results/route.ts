@@ -2,6 +2,7 @@ import { localIndex } from '@/lib/local-index';
 import { selectLocal } from '@/lib/local-results';
 import { states } from '@/lib/elections';
 import { fetchSecondTurn, secondTurnCatalog } from '@/lib/local-second-turn';
+import { fetchSectionBallot } from '@/lib/section-ballot';
 export const runtime = 'nodejs';
 
 export async function GET(request: Request) {
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
     (place && !/^\d{4}-\d{1,6}$/.test(place)) ||
     (zone && !/^\d{4}$/.test(zone)) ||
     (section && !/^\d{4}$/.test(section)) ||
+    (section && !zone && !place) ||
     (!code && (place || zone || section))
   )
     return Response.json(
@@ -43,15 +45,17 @@ export async function GET(request: Request) {
             { error: 'Município não encontrado neste estado.' },
             { status: 404 },
           );
-        if (place || section)
+        if (place)
           return Response.json(
             {
               error:
-                'Colégios e seções do segundo turno ainda não estão disponíveis neste acervo. Consulte o município ou uma zona; o primeiro turno continua disponível.',
+                'O total por colégio do segundo turno ainda não está disponível neste acervo. Consulte uma seção informando zona e número, ou consulte o município e a zona.',
             },
             { status: 409 },
           );
-        const data = await fetchSecondTurn(uf, code, municipality.name, zone);
+        const data = section
+          ? await fetchSectionBallot(uf, code, municipality.name, zone!, section)
+          : await fetchSecondTurn(uf, code, municipality.name, zone);
         return Response.json(data, {
           headers: { 'Cache-Control': 'public, max-age=60, s-maxage=300' },
         });
