@@ -1,32 +1,34 @@
 'use client';
-import { Bell, Expand, Radio, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import { ChartNoAxesCombined, Expand, List, Map as MapIcon, PanelsTopLeft } from 'lucide-react';
 import { candidates } from '@/lib/content';
 import { states, type Result } from '@/lib/elections';
-import { candidateColor, formatVotes, formatPercent } from '@/lib/presentation';
-import { currentLiveResult, liveMargin } from '@/lib/live-summary';
-import { candidateName } from '@/lib/presentation';
+import { currentLiveResult } from '@/lib/live-summary';
 import { LiveStateList } from './components/live-state-list';
+import { LiveScoreboard } from './components/live-scoreboard';
 import { CandidatePortrait } from './components/candidate-portrait';
 import { DataFreshness } from './components/data-freshness';
-import { Source } from './components/source-link';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
 import { LiveCountdown } from './live-countdown';
-import { Disclosure } from './disclosure';
 import { Map } from './geo-map';
 import { RegionalResults } from './regional-results';
-
-const countLabel = (value: number) =>
-  Number.isFinite(value) ? formatVotes(value) : 'Não informado';
 
 type LiveState = {
   status: string;
   result?: Result;
   lastGood?: Result;
-  victory?: { message: string };
+  victory?: { kind?: string; message: string };
   message?: string;
   checkedAt?: string;
   stale?: boolean;
 };
+const views = [
+  { id: 'map', name: 'Mapa', icon: MapIcon },
+  { id: 'states', name: 'Estados', icon: List },
+  { id: 'regions', name: 'Regiões', icon: PanelsTopLeft },
+  { id: 'progress', name: 'Evolução', icon: ChartNoAxesCombined },
+] as const;
+
 export function LiveObservatory({
   live,
   uf,
@@ -54,79 +56,129 @@ export function LiveObservatory({
   onNight: () => void;
   onHistory: () => void;
 }) {
+  const [view, setView] = useState<(typeof views)[number]['id']>('map');
   const result = currentLiveResult(live, uf);
-  const margin = result ? liveMargin(result) : null;
   const unavailable = live.status === 'unavailable' || live.status === 'stale';
   const place = uf === 'BR' ? 'Brasil' : states.find((state) => state[1] === uf)?.[2] || uf;
-  if (live.status === 'live' && live.result && live.result.uf !== uf) {
+  if (live.status === 'live' && live.result && live.result.uf !== uf)
     return (
       <div className="or-live">
         <section className="panel" role="status">
           <h2>Consultando {place}…</h2>
-          <p>Os votos deste recorte aparecerão quando a consulta terminar.</p>
           <button className="button secondary" onClick={() => onState('BR')}>
             Voltar ao Brasil
           </button>
         </section>
       </div>
     );
-  }
   return (
     <div className="or-live">
-      <div className="or-live-status" role="status">
-        <span>
-          <Radio size={16} aria-hidden="true" />
-          {result
-            ? unavailable
-              ? 'Última parcial disponível · consulta indisponível'
-              : result.final
-                ? 'Resultado concluído'
-                : 'Apuração em andamento'
-            : live.status === 'unavailable'
-              ? 'Consulta à fonte indisponível'
-              : live.status === 'loading'
-                ? 'Consultando a fonte oficial'
-                : 'Aguardando os primeiros resultados'}
-        </span>
-        <span>Presidência · 2026 · 2º turno</span>
-      </div>
-      <div className="or-live-command">
-        {!result && (
+      {result ? (
+        <>
+          <LiveScoreboard
+            result={result}
+            place={place}
+            unavailable={unavailable}
+            stale={live.stale}
+            checkedAt={live.checkedAt}
+            victory={live.victory}
+            onState={onState}
+            onNight={onNight}
+            onAlerts={onAlerts}
+          />
+          <section className="panel or-live-explore" aria-label="Explorar a apuração">
+            <div className="or-explore-heading">
+              <div>
+                <span className="eyebrow">ALÉM DO PLACAR</span>
+                <h2>Explore a apuração</h2>
+              </div>
+              {view !== 'progress' && (
+                <select
+                  aria-label="Região da apuração"
+                  value={region}
+                  onChange={(event) => onRegion(event.target.value)}
+                >
+                  {['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'].map((name) => (
+                    <option key={name}>{name}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div className="or-explore-switch" role="group" aria-label="Visualização da apuração">
+              {views.map(({ id, name, icon: Icon }) => (
+                <button
+                  key={id}
+                  aria-pressed={view === id}
+                  aria-controls="live-explore-content"
+                  onClick={() => setView(id)}
+                >
+                  <Icon size={17} aria-hidden="true" />
+                  <span>{name}</span>
+                </button>
+              ))}
+            </div>
+            <div id="live-explore-content" className="or-explore-content">
+              {view === 'map' && (
+                <>
+                  <Map data={stateResults} region={region} selected={uf} onSelect={onState} />
+                  <p className="fine">As cores mostram quem lidera em cada estado.</p>
+                </>
+              )}
+              {view === 'states' && (
+                <LiveStateList
+                  data={stateResults}
+                  region={region}
+                  selected={uf}
+                  onSelect={onState}
+                />
+              )}
+              {view === 'regions' && (
+                <RegionalResults data={stateResults} turn={2} region={region} onRegion={onRegion} />
+              )}
+              {view === 'progress' && (
+                <>
+                  <Progression
+                    points={points}
+                    greenName="Flávio Bolsonaro"
+                    label={`Evolução da apuração nesta sessão · ${place}`}
+                  />
+                  <p className="fine">
+                    {place} · Parciais registradas desde a abertura desta tela.
+                  </p>
+                </>
+              )}
+            </div>
+          </section>
+        </>
+      ) : (
+        <>
           <section className="panel or-live-countdown">
             <LiveCountdown
               notification={notification}
               serviceReady={false}
               onEnable={async () => ({
                 ok: false,
-                message: 'Escolha os eventos e autorize os alertas na página de notificações.',
+                message: 'Escolha os eventos na página de alertas.',
               })}
               onAlerts={onAlerts}
               onPrepare={onAlerts}
             />
-            {live.status === 'unavailable' && (
-              <p className="notice">
-                Não foi possível consultar a fonte agora. A tela tentará novamente automaticamente.
+            {unavailable && (
+              <p role="status">
+                Não foi possível consultar a fonte. Tentaremos novamente automaticamente.
               </p>
             )}
             <DataFreshness
               checkedAt={live.checkedAt}
               stale={live.stale}
-              unavailable={live.status === 'unavailable'}
+              unavailable={unavailable}
             />
           </section>
-        )}
-        <section
-          className="or-live-contenders"
-          aria-label={result ? `Resultado de ${place}` : 'Candidatos no segundo turno'}
-        >
-          {candidates.map((candidate) => {
-            const tally = result?.candidates.find((item) => item.number === candidate.number);
-            return (
+          <section className="or-live-contenders" aria-label="Candidatos no segundo turno">
+            {candidates.map((candidate) => (
               <article
                 key={candidate.number}
-                style={
-                  { '--contender-color': candidateColor(candidate.number) } as React.CSSProperties
-                }
+                style={{ '--contender-color': candidate.color } as React.CSSProperties}
               >
                 <CandidatePortrait name={candidate.full} />
                 <div>
@@ -134,256 +186,43 @@ export function LiveObservatory({
                     {candidate.party} · {candidate.number}
                   </span>
                   <h2>{candidate.name}</h2>
-                  {tally ? (
-                    <>
-                      <strong>{formatPercent(tally.percent)}</strong>
-                      <span className="or-vote-basis">dos votos válidos apurados</span>
-                      <small>
-                        {formatVotes(tally.votes)} votos válidos · {place}
-                      </small>
-                      <div className="or-contender-track" aria-hidden="true">
-                        <span style={{ width: `${tally.percent}%` }} />
-                      </div>
-                    </>
-                  ) : (
-                    <p>Aguardando os primeiros resultados oficiais.</p>
-                  )}
+                  <p>Aguardando votos</p>
                 </div>
               </article>
-            );
-          })}
-        </section>
-      </div>
-      {result && (
-        <>
-          <section
-            className="or-live-pulse"
-            aria-label={`Diferença entre os candidatos em ${place}`}
-          >
-            <div>
-              <span className="eyebrow">DIFERENÇA ENTRE OS CANDIDATOS · {place}</span>
-              <h2>
-                {margin
-                  ? margin.votes === 0
-                    ? 'Empate em votos'
-                    : `${candidateName(margin.leader.name)} ${result.final ? 'mais votado' : 'está à frente'}`
-                  : 'Aguardando votos neste recorte'}
-              </h2>
-              <p>
-                {margin ? (
-                  <>
-                    <strong>{formatVotes(margin.votes)} votos</strong> de diferença
-                  </>
-                ) : (
-                  'O boletim ainda não registra votos válidos.'
-                )}
-              </p>
-              {margin && (
-                <p className="fine">
-                  Diferença nos percentuais dos candidatos:{' '}
-                  {margin.points.toLocaleString('pt-BR', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}{' '}
-                  pontos percentuais.
-                </p>
-              )}
-              {!result.final && (
-                <p className="fine">
-                  Resultado parcial. A liderança pode mudar durante a contagem.
-                </p>
-              )}
-            </div>
+            ))}
           </section>
-          <section className="panel or-live-tally">
-            <div className="or-live-heading">
-              <div>
-                <span className="eyebrow">ANDAMENTO DA CONTAGEM · {place}</span>
-                <h2>Quanto já foi apurado?</h2>
-              </div>
-              <label>
-                Consultar estado
-                <select
-                  aria-label="Apuração por estado"
-                  value={uf}
-                  onChange={(event) => onState(event.target.value)}
-                >
-                  <option value="BR">Brasil inteiro</option>
-                  {states.map((state) => (
-                    <option key={state[1]} value={state[1]}>
-                      {state[2]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <p className="or-live-total">
-              O TSE já apurou <strong>{formatPercent(result.counted)} das seções de votação</strong>
-              {uf === 'BR' ? ' do Brasil.' : ` de ${place}.`}
-            </p>
-            <div
-              className="bar-track"
-              role="progressbar"
-              aria-label={`Seções de votação apuradas em ${place}`}
-              aria-valuenow={result.counted}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            >
-              <div style={{ width: `${result.counted}%` }} />
-            </div>
-            <p className="fine">
-              Cada seção reúne um grupo de eleitores. Esse percentual mostra o avanço da contagem.
-            </p>
-            <p className="or-live-bulletin">
-              Boletim do TSE: <strong>{result.generated}</strong>.{' '}
-              {unavailable
-                ? 'Exibindo a última parcial recebida. Tentaremos consultar novamente.'
-                : 'Consulta automática a cada 30 segundos; o TSE pode manter o mesmo boletim.'}
-            </p>
-            <dl className="or-live-metrics">
-              <div>
-                <dt>Votos válidos</dt>
-                <dd>{countLabel(result.valid)}</dd>
-              </div>
-              <div>
-                <dt>Votos brancos</dt>
-                <dd>{countLabel(result.blank)}</dd>
-              </div>
-              <div>
-                <dt>Votos nulos</dt>
-                <dd>{countLabel(result.nullVotes)}</dd>
-              </div>
-              <div>
-                <dt>Eleitores em seções pendentes</dt>
-                <dd>{countLabel(result.remaining)}</dd>
-              </div>
-            </dl>
-            <p className="fine">
-              Eleitores em seções pendentes não equivalem a votos válidos restantes.
-            </p>
-            <p className="notice">
-              {unavailable
-                ? 'Consulta temporariamente indisponível. Estes números pertencem ao último boletim recebido.'
-                : live.victory?.message || 'Consulte a situação no arquivo oficial.'}
-            </p>
-            <DataFreshness
-              checkedAt={live.checkedAt}
-              generated={result.generated}
-              stale={live.stale}
-              unavailable={unavailable}
-            />
-            <Source href={result.source}>Consultar resultado no TSE</Source>
-            <div className="or-live-actions">
-              <button className="button primary" onClick={onNight} disabled={unavailable}>
-                <Expand size={17} aria-hidden="true" />
-                Abrir noite da apuração
-              </button>
-              <button className="button secondary" onClick={onAlerts}>
-                <Bell size={17} aria-hidden="true" />
-                Escolher meus alertas
-              </button>
-            </div>
-          </section>
-          <Disclosure
-            title="Como a contagem está evoluindo"
-            learnDetails
-            summary={`Resultados de ${place}, registrados desde que você abriu esta tela.`}
-          >
-            <Progression
-              points={points}
-              greenName="Flávio Bolsonaro"
-              label={`Evolução da apuração nesta sessão · ${place}`}
-            />
-            <p className="fine">
-              A sequência desta sessão não inclui atualizações anteriores à abertura da tela.
-            </p>
-          </Disclosure>
-          <section className="panel or-live-territory">
-            <div className="or-live-heading">
-              <div>
-                <span className="eyebrow">O VOTO NO TERRITÓRIO</span>
-                <h2>A apuração pelos estados</h2>
-              </div>
-              <label>
-                Região
-                <select
-                  aria-label="Região da apuração"
-                  value={region}
-                  onChange={(event) => onRegion(event.target.value)}
-                >
-                  {['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'].map(
-                    (value) => (
-                      <option key={value}>{value}</option>
-                    ),
-                  )}
-                </select>
-              </label>
-            </div>
-            <Map data={stateResults} region={region} selected={uf} onSelect={onState} />
-            <LiveStateList data={stateResults} region={region} selected={uf} onSelect={onState} />
-            <RegionalResults data={stateResults} turn={2} region={region} onRegion={onRegion} />
-            <p className="fine">
-              Os estados são consultados separadamente. A atualização de um estado pode ocorrer em
-              momento diferente da totalização nacional.
-            </p>
-          </section>
+          <div className="or-live-actions">
+            <button className="button secondary" disabled={!canPreview} onClick={onNight}>
+              <Expand size={16} aria-hidden="true" />
+              Prévia com o 1º turno
+            </button>
+            <button className="text-button" onClick={onHistory}>
+              Rever apuração de 2022
+            </button>
+          </div>
         </>
       )}
-      {!result && (
-        <div className="or-live-preparation">
-          <section className="panel">
-            <span className="eyebrow">CONHEÇA A TELA DA NOITE</span>
-            <h2>Um ensaio antes da contagem.</h2>
-            <p>
-              Explore o formato da cobertura com o resultado concluído do 1º turno. Essa prévia não
-              contém votos do 2º turno.
-            </p>
-            <button className="button secondary" disabled={!canPreview} onClick={onNight}>
-              <Expand size={17} aria-hidden="true" />
-              Ver prévia com o 1º turno
-            </button>
-          </section>
-          <section className="panel">
-            <span className="eyebrow">NO ACERVO</span>
-            <h2>Uma disputa que já aconteceu.</h2>
-            <p>Veja como os percentuais mudaram durante a apuração presidencial de 2022.</p>
-            <button className="button secondary" onClick={onHistory}>
-              Rever a apuração de 2022
-            </button>
-          </section>
+      <details className="or-live-help">
+        <summary>Como interpretar os resultados</summary>
+        <div>
+          <h3>Liderança parcial</h3>
+          <p>
+            Quem está à frente pode mudar à medida que novas seções são apuradas. A ordem de
+            apuração não é uma amostra aleatória.
+          </p>
+          <h3>Vantagem numericamente irreversível</h3>
+          <p>
+            A diferença supera o máximo de votos dos eleitores em seções pendentes, conforme os
+            dados atuais. Ainda depende da confirmação oficial.
+          </p>
+          <h3>Eleito pelo TSE</h3>
+          <p>O arquivo oficial informa a situação de eleito.</p>
+          <p>
+            Os estados têm horários de atualização próprios. Alertas dependem das permissões e da
+            conexão do aparelho.
+          </p>
         </div>
-      )}
-      <Disclosure
-        title="O que cada situação significa"
-        summary="Entenda a diferença entre liderança parcial, vantagem irreversível e confirmação oficial."
-      >
-        {[
-          [
-            'Resultado parcial',
-            'Estar à frente durante a contagem ainda não significa ter vencido. Os votos pendentes podem mudar a liderança.',
-          ],
-          [
-            'Vantagem numericamente irreversível',
-            'A diferença supera o máximo de votos que os eleitores das seções pendentes poderiam dar ao outro candidato. Essa leitura depende da integridade dos dados atuais e não substitui a confirmação do TSE.',
-          ],
-          [
-            'Eleito pelo TSE',
-            'O arquivo oficial informa a situação de eleito. O aplicativo identifica esse resultado como confirmação oficial.',
-          ],
-        ].map(([title, text]) => (
-          <div className="or-live-explanation" key={title}>
-            <ShieldCheck size={20} aria-hidden="true" />
-            <div>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </div>
-          </div>
-        ))}
-      </Disclosure>
-      <p className="fine or-live-footnote">
-        Consulta automática a cada 30 segundos com esta tela aberta. Os alertas dependem da coleta
-        do serviço, das suas escolhas, das permissões e da conexão do aparelho.
-      </p>
+      </details>
     </div>
   );
 }

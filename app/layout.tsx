@@ -31,6 +31,7 @@ import './app-experience.css';
 import './history.css';
 import './municipality.css';
 import './live-observatory.css';
+import './live-scoreboard.css';
 import './night-observatory.css';
 import './welcome-observatory.css';
 import './documents.css';
