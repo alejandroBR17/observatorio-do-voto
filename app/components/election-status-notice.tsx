@@ -1,6 +1,6 @@
 import type { Result } from '@/lib/elections';
 import { electionStatusNotice } from '@/lib/election-status-notice';
-import { postElectionContext } from '@/lib/post-election';
+import { postElectionContext, postElectionServices } from '@/lib/post-election';
 import { FileText } from 'lucide-react';
 
 export function ElectionStatusNotice({ result }: { result?: Result }) {
@@ -13,7 +13,7 @@ export function ElectionStatusNotice({ result }: { result?: Result }) {
         </div>
         <div className="post-election-content">
           <div className="post-election-meta">
-            <span>PÓS-ELEIÇÃO · CONTESTAÇÃO ANUNCIADA</span>
+            <span>{context.label}</span>
             <time dateTime={context.reviewedAt}>
               Checado em{' '}
               {new Date(context.reviewedAt).toLocaleString('pt-BR', {
@@ -31,16 +31,9 @@ export function ElectionStatusNotice({ result }: { result?: Result }) {
           <details>
             <summary>O que está confirmado e fontes</summary>
             <div>
-              <p>
-                A Rádio Senado registrou o anúncio de que Flávio recorrerá à Justiça. Protocolo do
-                pedido e decisão de anulação não foram confirmados pelas fontes consultadas nesta
-                checagem.
-              </p>
-              <p>
-                Em seu balanço, o presidente do TSE afirmou que a prorrogação não comprometeu a
-                apuração, segundo a Rádio Senado. Essa manifestação não é apresentada aqui como
-                julgamento de um pedido de anulação.
-              </p>
+              {context.confirmed.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
               <div className="post-election-sources">
                 {context.sources.map((source) => (
                   <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
@@ -50,6 +43,21 @@ export function ElectionStatusNotice({ result }: { result?: Result }) {
                 <a href="/?tab=social">Acompanhar cobertura ↗</a>
               </div>
             </div>
+          </details>
+          <details id="servicos-pos-eleicao">
+            <summary>Serviços ao eleitor e próximas etapas</summary>
+            <ul className="post-election-services">
+              {postElectionServices.map((service) => (
+                <li key={service.id}>
+                  <strong>{service.title}</strong>
+                  <p>{service.date}</p>
+                  <p>{service.text}</p>
+                  <a href={service.source} target="_blank" rel="noreferrer">
+                    {service.label} ↗
+                  </a>
+                </li>
+              ))}
+            </ul>
           </details>
         </div>
       </aside>

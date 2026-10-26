@@ -41,7 +41,9 @@ export function LiveScoreboard({
         <div className={`vote-board-status${unavailable ? ' is-unavailable' : ''}`} role="status">
           <Radio size={15} aria-hidden="true" />
           {unavailable
-            ? 'Última parcial disponível'
+            ? result.final
+              ? 'Último resultado oficial disponível'
+              : 'Última parcial disponível'
             : result.final
               ? 'Contagem concluída'
               : 'Apuração ao vivo'}
@@ -157,8 +159,10 @@ export function LiveScoreboard({
           <span style={{ width: `${result.counted}%` }} />
         </div>
         <div className="vote-counting-meta">
-          <span title={result.generated}>Boletim TSE · {stamp}</span>
-          <span>Atualização automática</span>
+          <span title={result.generated}>
+            Boletim TSE · {result.final ? result.generated : stamp}
+          </span>
+          <span>{result.final ? 'Consulta automática à fonte' : 'Atualização automática'}</span>
         </div>
       </div>
       <footer className="vote-board-footer">
@@ -169,7 +173,10 @@ export function LiveScoreboard({
           <div className="vote-details-body">
             <h3>{result.final ? 'Sobre o resultado' : 'Sobre esta parcial'}</h3>
             <p>
-              Boletim do TSE: <strong>{result.generated}</strong>. Consulta a cada 30 segundos.
+              Boletim do TSE: <strong>{result.generated}</strong>.{' '}
+              {result.final
+                ? 'O resultado está concluído. A consulta automática verifica se o TSE publicou uma nova versão; ela não altera a data do boletim.'
+                : 'Consulta a cada 30 segundos.'}
             </p>
             {margin && (
               <p>
@@ -203,10 +210,12 @@ export function LiveScoreboard({
                 <dd>{count(result.remaining)}</dd>
               </div>
             </dl>
-            <p>
-              Eleitores em seções pendentes não equivalem a votos válidos restantes. A liderança
-              parcial pode mudar.
-            </p>
+            {!result.final && (
+              <p>
+                Eleitores em seções pendentes não equivalem a votos válidos restantes. A liderança
+                parcial pode mudar.
+              </p>
+            )}
             {victory?.message && <p>{victory.message}</p>}
             <DataFreshness
               generated={result.generated}

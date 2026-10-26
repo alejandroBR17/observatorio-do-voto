@@ -39,6 +39,7 @@ import { SmartDiscoveries } from './smart-discoveries';
 import { PersonalizationEntry } from './personalization';
 import { ElectionComparison } from './components/election-comparison';
 import type { Discovery } from '@/lib/personalization';
+import { POST_ELECTION_DAY } from '@/lib/election-night';
 
 export function ObservatoryRoom({
   results,
@@ -123,6 +124,7 @@ export function ObservatoryRoom({
     (row) => row.uf === 'BR' && row.year === 2026 && row.turn === 2 && row.final,
   );
   const finished = !!finalNational;
+  const afterVoting = Date.now() >= POST_ELECTION_DAY;
   const elected = finalNational?.candidates.find((candidate) => candidate.elected);
   const palette = electionPalette(national?.candidates || []);
   const resultColor = (number: string) =>
@@ -156,12 +158,21 @@ export function ObservatoryRoom({
       <div className="or-masthead">
         <div>
           <span className="or-overline">
-            <span className="or-beacon" /> ELEIÇÕES PRESIDENCIAIS · 2026
+            {finished ? <Check size={14} aria-hidden="true" /> : <span className="or-beacon" />}{' '}
+            {finished
+              ? 'PÓS-ELEIÇÃO · 2026'
+              : afterVoting
+                ? 'RESULTADOS · 2026'
+                : 'ELEIÇÕES PRESIDENCIAIS · 2026'}
           </span>
           <h1 tabIndex={-1} data-page-title>
             {finished ? (
               <>
                 O resultado <span>da eleição presidencial.</span>
+              </>
+            ) : afterVoting ? (
+              <>
+                Consulte o resultado <span>da eleição presidencial.</span>
               </>
             ) : (
               <>
@@ -169,24 +180,32 @@ export function ObservatoryRoom({
               </>
             )}
           </h1>
-          <p>Veja os resultados por estado, compare pesquisas e explore eleições anteriores.</p>
+          <p>
+            {finished || afterVoting
+              ? 'Consulte o resultado oficial, encontre sua zona e acompanhe os desdobramentos.'
+              : 'Veja os resultados por estado, compare pesquisas e explore eleições anteriores.'}
+          </p>
         </div>
         <div className="or-phase">
-          <Radio size={17} />
+          {finished ? <Check size={17} aria-hidden="true" /> : <Radio size={17} />}
           <div>
             <strong>
               {finished
                 ? 'Apuração concluída'
-                : liveStatus === 'live'
-                  ? 'Apuração em andamento'
-                  : '2º turno · 25 de outubro'}
+                : afterVoting && !finalNational
+                  ? 'Consultando resultado'
+                  : liveStatus === 'live'
+                    ? 'Apuração em andamento'
+                    : '2º turno · 25 de outubro'}
             </strong>
             <span>
               {finished
                 ? 'Resultado oficial do TSE'
-                : liveStatus === 'live'
-                  ? 'Consulte os resultados oficiais'
-                  : 'Resultados após o fim da votação'}
+                : afterVoting
+                  ? 'Aguardando o boletim oficial'
+                  : liveStatus === 'live'
+                    ? 'Consulte os resultados oficiais'
+                    : 'Resultados após o fim da votação'}
             </span>
           </div>
         </div>
@@ -480,7 +499,13 @@ export function ObservatoryRoom({
           <div className="or-section-head">
             <div>
               <span className="or-overline">AGORA NO OBSERVATÓRIO</span>
-              <h2>{finished ? 'Depois da eleição.' : 'O próximo acontecimento.'}</h2>
+              <h2>
+                {finished
+                  ? 'Depois da eleição.'
+                  : afterVoting
+                    ? 'Resultado presidencial.'
+                    : 'O próximo acontecimento.'}
+              </h2>
             </div>
             <CalendarDays size={19} />
           </div>
@@ -501,12 +526,16 @@ export function ObservatoryRoom({
                 25<span>OUT</span>
               </strong>
               <div>
-                {finished ? 'Eleição concluída' : 'Domingo'}
+                {finished
+                  ? 'Eleição concluída'
+                  : afterVoting
+                    ? 'Votação em 25 de outubro'
+                    : 'Domingo'}
                 <small>Segundo turno presidencial</small>
               </div>
             </div>
           )}
-          {!finished && (
+          {!finished && !afterVoting && (
             <div className="or-finalists">
               {candidates.map((c) => (
                 <button key={c.number} onClick={() => onGo('candidates')}>
@@ -521,14 +550,18 @@ export function ObservatoryRoom({
           <p className="or-caption">
             {finished
               ? 'Consulte o resultado oficial e a cobertura dos desdobramentos após a eleição.'
-              : 'Acompanhe os resultados conforme a divulgação oficial do TSE.'}
+              : afterVoting
+                ? 'Consulte os boletins do segundo turno e a cobertura após a votação.'
+                : 'Acompanhe os resultados conforme a divulgação oficial do TSE.'}
           </p>
           <button className="or-action or-action-primary" onClick={() => onGo('live')}>
             {finished
               ? 'Ver resultado oficial'
-              : liveStatus === 'live'
-                ? 'Abrir a apuração'
-                : 'Preparar meu acompanhamento'}
+              : afterVoting
+                ? 'Consultar resultado oficial'
+                : liveStatus === 'live'
+                  ? 'Abrir a apuração'
+                  : 'Preparar meu acompanhamento'}
             <ArrowRight size={16} />
           </button>
           <button className="or-action" onClick={() => onGo('alerts')}>

@@ -31,10 +31,16 @@ test('a dated announcement is shown only with the matching final official nation
 
 test('post-election context distinguishes the announcement from a filing or annulment ruling and dates its sources', () => {
   const html = renderToStaticMarkup(createElement(ElectionStatusNotice, { result: national }));
-  assert.ok(html.includes('Flávio anuncia que pedirá'));
+  assert.ok(html.includes(postElectionReview.title));
   assert.ok(html.includes('Não foi confirmada decisão de anulação nesta checagem'));
   assert.ok(html.includes('Protocolo do pedido e decisão de anulação não foram confirmados'));
   assert.ok(html.includes(`dateTime="${postElectionReview.reviewedAt}"`));
   assert.ok(html.includes('www12.senado.leg.br'));
   assert.ok(!html.includes('eleição anulada'));
+  assert.ok(html.includes('ATUALIZAÇÃO DE 26/10'));
+  assert.ok(html.includes('03/12/2026'));
+  assert.ok(html.includes('08/01/2027'));
+  assert.ok(html.includes('Até 18/12/2026'));
+  assert.ok(html.includes('05/01/2027'));
+  assert.ok(html.includes('não é a confirmação da data de uma cerimônia'));
 });

@@ -289,6 +289,10 @@ Para outro endereço, use `npm run test:smoke -- http://localhost:3003` ou defin
 
 Testes de servidor não comprovam entrega push pelo sistema operacional. Desktop, Android e iPhone precisam de verificação nos aparelhos e navegadores suportados; no iPhone, verificar a instalação na tela inicial.
 
+### Pós-eleição · revisão de 26/10
+
+Na revisão de pós-eleição de 26/10/2026 às 17h59 de Brasília, foram conferidos o boletim final presidencial e as publicações de 26/10 da RadioAgência e TV Senado sobre a contestação anunciada e a manifestação do presidente do TSE. `lib/post-election.ts` separa a data dessa checagem do horário do boletim. Anúncio, protocolo e julgamento são estados distintos; ausência de confirmação nas fontes consultadas não é certidão processual. Os serviços recolhidos no aviso ligam as regras de justificativa e diplomação do TSE e as datas de posse informadas pelo Senado. O limite para diplomação não é data confirmada de cerimônia. Datas editoriais não avançam automaticamente com o relógio. No resultado final, a data completa do boletim fica visível. Durante o carregamento após 26/10, a interface informa a consulta ao TSE, sem antecipar uma conclusão nem voltar a anunciar a votação como futura.
+
 ### Acompanhamento do debate
 
 A página `/debate` usa o horário previsto de Brasília para alternar preparação, acompanhamento e retrospectiva. A fase não confirma início ou término da transmissão. O navegador consulta notícias e contexto a cada 30 segundos enquanto a página está visível; os dados de imprensa têm cache compartilhado de um minuto entre 30 minutos antes do início e o começo da retrospectiva, e cinco minutos fora dessa faixa. Pesquisas são consultadas a cada minuto, preservando o cache e a conferência editorial existentes.

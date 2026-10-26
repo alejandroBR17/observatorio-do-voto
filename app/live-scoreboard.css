@@ -192,6 +192,23 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.post-election-services {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 12px;
+  display: grid;
+  gap: 16px;
+}
+.post-election-services li {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  font-size: 13px;
+}
+.post-election-services a {
+  color: var(--or-amber);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 @media (max-width: 700px) {
   .post-election-card {
     padding: 18px;
