@@ -11,12 +11,14 @@ O Brasil, voto a voto. Explore as eleições presidenciais com resultados, pesqu
 - **Panorama e histórico:** consulte resultados por estado e região e compare eleições presidenciais de 1989 a 2022. Os dados indicam suas fontes e eventuais limitações.
 - **Seu município:** explore os resultados presidenciais do primeiro turno de 2026 por município, colégio, zona ou seção. A cidade escolhida fica lembrada neste navegador. Os números são coletivos e não revelam o voto de uma pessoa.
 - **Pesquisas:** compare levantamentos, datas e bases; abra os detalhes para conferir amostra, margem de erro, metodologia e relatório original.
-- **Apuração:** acompanhe os parciais quando o TSE divulgar o segundo turno. Até lá, veja a contagem regressiva e a prévia identificada com os resultados finais do primeiro turno.
+- **Resultados e pós-eleição:** veja o resultado oficial, o contexto datado dos desdobramentos e compare 2026 com segundos turnos anteriores ou entre os dois turnos de 2026. A comparação permite Brasil, regiões e UFs, identifica candidatos diferentes e calcula a variação agregada do PT.
 - **Cobertura:** leia manchetes de veículos brasileiros e acesse as matérias nos sites de origem.
 - **Meu acompanhamento:** siga estados e registre observações no caderno com salvamento automático no aparelho.
 - **Alertas:** escolha avisos de pesquisas, notícias, liderança e resultados; consulte as notificações recebidas neste dispositivo.
 
 O menu fica disponível durante a navegação. Seções extensas podem ser recolhidas; mapas e gráficos também oferecem consultas por texto ou tabela. O tema acompanha o sistema, com opções Claro e Escuro, e as animações respeitam a preferência por movimento reduzido.
+
+A evolução de 2026 mostra os boletins efetivamente registrados pelo serviço ou pela sessão. O app não preservou a sequência completa da noite antes desta atualização; um único boletim final não é apresentado como uma curva. O replay nacional de 2022 usa uma série real do TSE, identificada separadamente. Resultados finais de 2026 foram coletados nos dois turnos para Brasil e 27 UFs; fontes, horários e IDs estão em `public/data/final-2026-sources.json`, com coleta reproduzível por `npx tsx scripts/collect-final-2026.ts`.
 
 ## Comece a usar
 

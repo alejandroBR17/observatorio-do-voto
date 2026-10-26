@@ -1,6 +1,13 @@
 'use client';
 import { useState } from 'react';
-import { ChartNoAxesCombined, Expand, List, Map as MapIcon, PanelsTopLeft } from 'lucide-react';
+import {
+  ChartNoAxesCombined,
+  Expand,
+  List,
+  Map as MapIcon,
+  PanelsTopLeft,
+  GitCompareArrows,
+} from 'lucide-react';
 import { candidates } from '@/lib/content';
 import { states, type Result } from '@/lib/elections';
 import { currentLiveResult } from '@/lib/live-summary';
@@ -8,7 +15,9 @@ import { LiveStateList } from './components/live-state-list';
 import { LiveScoreboard } from './components/live-scoreboard';
 import { CandidatePortrait } from './components/candidate-portrait';
 import { DataFreshness } from './components/data-freshness';
-import { Progression, type ProgressionPoint } from './components/vote-progression';
+import type { ProgressionPoint } from './components/vote-progression';
+import { ElectionEvolution } from './components/election-evolution';
+import { ElectionComparison } from './components/election-comparison';
 import { LiveCountdown } from './live-countdown';
 import { Map } from './geo-map';
 import { RegionalResults } from './regional-results';
@@ -23,6 +32,7 @@ type LiveState = {
   stale?: boolean;
 };
 const views = [
+  { id: 'compare', name: 'Comparar', icon: GitCompareArrows },
   { id: 'map', name: 'Mapa', icon: MapIcon },
   { id: 'states', name: 'Estados', icon: List },
   { id: 'regions', name: 'Regiões', icon: PanelsTopLeft },
@@ -56,8 +66,9 @@ export function LiveObservatory({
   onNight: () => void;
   onHistory: () => void;
 }) {
-  const [view, setView] = useState<(typeof views)[number]['id']>('map');
+  const [chosenView, setView] = useState<(typeof views)[number]['id'] | null>(null);
   const result = currentLiveResult(live, uf);
+  const view = chosenView ?? (result?.final ? 'compare' : 'map');
   const unavailable = live.status === 'unavailable' || live.status === 'stale';
   const place = uf === 'BR' ? 'Brasil' : states.find((state) => state[1] === uf)?.[2] || uf;
   if (live.status === 'live' && live.result && live.result.uf !== uf)
@@ -90,7 +101,7 @@ export function LiveObservatory({
             <div className="or-explore-heading">
               <div>
                 <span className="eyebrow">ALÉM DO PLACAR</span>
-                <h2>Explore a apuração</h2>
+                <h2>{result.final ? 'Entenda o resultado' : 'Explore a apuração'}</h2>
               </div>
               {view !== 'progress' && (
                 <select
@@ -121,7 +132,10 @@ export function LiveObservatory({
               {view === 'map' && (
                 <>
                   <Map data={stateResults} region={region} selected={uf} onSelect={onState} />
-                  <p className="fine">As cores mostram quem lidera em cada estado.</p>
+                  <p className="fine">
+                    As cores mostram {result.final ? 'o candidato mais votado' : 'quem lidera'} em
+                    cada estado.
+                  </p>
                 </>
               )}
               {view === 'states' && (
@@ -136,16 +150,10 @@ export function LiveObservatory({
                 <RegionalResults data={stateResults} turn={2} region={region} onRegion={onRegion} />
               )}
               {view === 'progress' && (
-                <>
-                  <Progression
-                    points={points}
-                    greenName="Flávio Bolsonaro"
-                    label={`Evolução da apuração nesta sessão · ${place}`}
-                  />
-                  <p className="fine">
-                    {place} · Parciais registradas desde a abertura desta tela.
-                  </p>
-                </>
+                <ElectionEvolution result={result} points={points} place={place} />
+              )}
+              {view === 'compare' && (
+                <ElectionComparison uf={uf} region={region} onState={onState} />
               )}
             </div>
           </section>

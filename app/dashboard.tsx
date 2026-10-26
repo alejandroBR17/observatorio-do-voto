@@ -261,6 +261,7 @@ function DashboardContent({
                     ...previous,
                     {
                       id: result.id,
+                      time: result.generated,
                       counted: result.counted,
                       lula: result.candidates.find((c) => c.number === '13')?.percent || 0,
                       bolsonaro: result.candidates.find((c) => c.number === '22')?.percent || 0,
@@ -743,6 +744,7 @@ function DashboardContent({
             ...p,
             {
               id: live.result.id,
+              time: live.result.generated,
               counted: live.result.counted,
               lula: live.result.candidates.find((c: any) => c.number === '13')?.percent || 0,
               bolsonaro: live.result.candidates.find((c: any) => c.number === '22')?.percent || 0,
@@ -1052,7 +1054,11 @@ function DashboardContent({
                     className={'nav-item ' + (tab === id ? 'active' : '')}
                   >
                     <Icon size={19} />
-                    <span>{label}</span>
+                    <span>
+                      {id === 'live' && (live.result?.final || overviewNational?.final)
+                        ? 'Resultados e pós-eleição'
+                        : label}
+                    </span>
                     <ChevronRight size={14} />
                   </button>
                 </div>
@@ -1217,7 +1223,7 @@ function DashboardContent({
                         uf,
                         region,
                         year: tab === 'history' ? year : 2026,
-                        turn: tab === 'history' ? turn : tab === 'live' ? 2 : 1,
+                        turn: tab === 'history' ? turn : tab === 'live' || observatory ? 2 : 1,
                       })
                     }
                   />

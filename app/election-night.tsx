@@ -9,7 +9,8 @@ import { candidateName, candidateColor, formatPercent, formatVotes } from '@/lib
 import { Map } from './geo-map';
 import { DataFreshness } from './components/data-freshness';
 import { ElectionStatusNotice } from './components/election-status-notice';
-import { Progression, type ProgressionPoint } from './components/vote-progression';
+import type { ProgressionPoint } from './components/vote-progression';
+import { ElectionEvolution } from './components/election-evolution';
 import { Source } from './components/source-link';
 import { ScreenAwakeButton } from './pwa';
 import { RegionalResults } from './regional-results';
@@ -324,16 +325,8 @@ export function ElectionNight({
         </div>
         {!preview && (
           <section className="night-progression">
-            <h3>Brasil · desde que você abriu esta tela</h3>
-            {points.length > 1 ? (
-              <Progression
-                points={points}
-                greenName="Flávio Bolsonaro"
-                label="Progressão nacional do segundo turno durante esta sessão"
-              />
-            ) : (
-              <p>O gráfico aparecerá após duas atualizações oficiais.</p>
-            )}
+            <h3>Evolução da apuração</h3>
+            <ElectionEvolution result={result} points={points} place="Brasil" />
           </section>
         )}
         {!preview && (

@@ -3,6 +3,7 @@ import { normalize, victory } from './elections';
 import { resultAlertTypes, voteGap } from './alerts';
 import { queuePush, eventId } from './push';
 import { candidates } from './content';
+import { recordProgression } from './progression';
 const BASE = 'https://resultados.tse.jus.br/oficial';
 export async function live(db: Database, uf = 'BR') {
   const key = `live:${uf}`;
@@ -64,6 +65,13 @@ export async function live(db: Database, uf = 'BR') {
     };
   }
   payload.checkedAt = new Date().toISOString();
+  if (payload.result) {
+    try {
+      await recordProgression(db, payload.result);
+    } catch {
+      /* History storage must not suppress an official result. */
+    }
+  }
   await db
     .prepare(
       'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated=excluded.updated',

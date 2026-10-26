@@ -37,6 +37,7 @@ import { historySelection } from '@/lib/history-selection';
 import { RegionalResults, electoralRegions } from './regional-results';
 import { SmartDiscoveries } from './smart-discoveries';
 import { PersonalizationEntry } from './personalization';
+import { ElectionComparison } from './components/election-comparison';
 import type { Discovery } from '@/lib/personalization';
 
 export function ObservatoryRoom({
@@ -118,9 +119,11 @@ export function ObservatoryRoom({
       : data.find((r) => r.uf === uf);
   const waiting = secondTurn && !current;
   const national = data.find((r) => r.uf === 'BR');
-  const finished = liveResults.some(
+  const finalNational = liveResults.find(
     (row) => row.uf === 'BR' && row.year === 2026 && row.turn === 2 && row.final,
   );
+  const finished = !!finalNational;
+  const elected = finalNational?.candidates.find((candidate) => candidate.elected);
   const palette = electionPalette(national?.candidates || []);
   const resultColor = (number: string) =>
     palette.find((candidate) => candidate.number === number)?.color || '#87999b';
@@ -477,28 +480,44 @@ export function ObservatoryRoom({
           <div className="or-section-head">
             <div>
               <span className="or-overline">AGORA NO OBSERVATÓRIO</span>
-              <h2>O próximo acontecimento.</h2>
+              <h2>{finished ? 'Depois da eleição.' : 'O próximo acontecimento.'}</h2>
             </div>
             <CalendarDays size={19} />
           </div>
-          <div className="or-date">
-            <strong>
-              25<span>OUT</span>
-            </strong>
-            <div>
-              Domingo<small>Segundo turno presidencial</small>
+          {finished && elected ? (
+            <div className="post-result-winner">
+              <CandidatePortrait name={elected.name} />
+              <div>
+                <span>Eleito pelo TSE</span>
+                <strong>{candidateName(elected.name)}</strong>
+                <small>
+                  {pct(elected.percent)} · {formatVotes(elected.votes)} votos
+                </small>
+              </div>
             </div>
-          </div>
-          <div className="or-finalists">
-            {candidates.map((c) => (
-              <button key={c.number} onClick={() => onGo('candidates')}>
-                <span className="or-candidate-dot" style={{ background: c.color }} />
-                <strong>{c.name}</strong>
-                <span>{c.party}</span>
-                <ChevronRight size={13} />
-              </button>
-            ))}
-          </div>
+          ) : (
+            <div className="or-date">
+              <strong>
+                25<span>OUT</span>
+              </strong>
+              <div>
+                {finished ? 'Eleição concluída' : 'Domingo'}
+                <small>Segundo turno presidencial</small>
+              </div>
+            </div>
+          )}
+          {!finished && (
+            <div className="or-finalists">
+              {candidates.map((c) => (
+                <button key={c.number} onClick={() => onGo('candidates')}>
+                  <span className="or-candidate-dot" style={{ background: c.color }} />
+                  <strong>{c.name}</strong>
+                  <span>{c.party}</span>
+                  <ChevronRight size={13} />
+                </button>
+              ))}
+            </div>
+          )}
           <p className="or-caption">
             {finished
               ? 'Consulte o resultado oficial e a cobertura dos desdobramentos após a eleição.'
@@ -515,6 +534,11 @@ export function ObservatoryRoom({
           <button className="or-action" onClick={() => onGo('alerts')}>
             Escolher meus alertas <ChevronRight size={15} />
           </button>
+          {finished && (
+            <button className="or-action" onClick={() => onGo('social')}>
+              Desdobramentos e cobertura <ArrowUpRight size={15} />
+            </button>
+          )}
           <div className="or-local">
             <MapPin size={20} />
             <span className="or-overline">DO PAÍS À SUA SEÇÃO</span>
@@ -549,6 +573,17 @@ export function ObservatoryRoom({
           )}
         </aside>
       </div>
+      {finished && (
+        <section className="panel post-election-comparison">
+          <div className="or-section-head">
+            <div>
+              <span className="or-overline">PÓS-ELEIÇÃO / DADOS EM PERSPECTIVA</span>
+              <h2>O que mudou em relação aos outros anos?</h2>
+            </div>
+          </div>
+          <ElectionComparison uf={uf} region={region} onState={onState} />
+        </section>
+      )}
       <SmartDiscoveries
         onExplore={onExplore}
         publishedAt={polling?.latestPublishedAt || undefined}
@@ -558,7 +593,7 @@ export function ObservatoryRoom({
           <div className="or-section-head">
             <div>
               <span className="or-overline">02 / O PULSO DAS PESQUISAS</span>
-              <h2>Como estão as pesquisas.</h2>
+              <h2>{finished ? 'As pesquisas antes do resultado.' : 'Como estão as pesquisas.'}</h2>
             </div>
             <button className="or-link" onClick={() => onGo('polls')}>
               Comparar <ArrowUpRight size={15} />

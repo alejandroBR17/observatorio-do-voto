@@ -10,6 +10,7 @@ export interface Database {
   prepare(sql: string): Statement;
 }
 export const schema = [
+  'CREATE TABLE IF NOT EXISTS election_snapshots (year INTEGER NOT NULL, turn INTEGER NOT NULL, uf TEXT NOT NULL, id TEXT NOT NULL, value TEXT NOT NULL, observed INTEGER NOT NULL, PRIMARY KEY(year,turn,uf,id))',
   'CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL, updated INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS subscriptions (endpoint TEXT PRIMARY KEY NOT NULL, preferences TEXT NOT NULL, updated INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS subscription_keys (endpoint TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL, created INTEGER NOT NULL)',

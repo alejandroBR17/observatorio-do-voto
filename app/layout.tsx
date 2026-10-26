@@ -32,6 +32,7 @@ import './history.css';
 import './municipality.css';
 import './live-observatory.css';
 import './live-scoreboard.css';
+import './post-election-analysis.css';
 import './night-observatory.css';
 import './welcome-observatory.css';
 import './documents.css';

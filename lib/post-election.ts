@@ -2,7 +2,7 @@ import type { Result } from './elections';
 
 /** Editorial verification is dated; an announced challenge is never a court ruling. */
 export const postElectionReview = {
-  reviewedAt: '2026-10-26T02:42:43Z',
+  reviewedAt: '2026-10-26T03:25:36Z',
   status: 'announced',
   title: 'Flávio anuncia que pedirá anulação da eleição',
   summary:

@@ -34,7 +34,7 @@ test('post-election context distinguishes the announcement from a filing or annu
   assert.ok(html.includes('Flávio anuncia que pedirá'));
   assert.ok(html.includes('Não foi confirmada decisão de anulação nesta checagem'));
   assert.ok(html.includes('Protocolo do pedido e decisão de anulação não foram confirmados'));
-  assert.ok(html.includes('dateTime="2026-10-26T02:42:43Z"'));
+  assert.ok(html.includes(`dateTime="${postElectionReview.reviewedAt}"`));
   assert.ok(html.includes('www12.senado.leg.br'));
   assert.ok(!html.includes('eleição anulada'));
 });

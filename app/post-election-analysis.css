@@ -1,0 +1,369 @@
+.or-explore-switch {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.comparison-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.comparison-mode {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--bg);
+}
+.comparison-mode button {
+  padding: 11px 14px;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.comparison-mode button[aria-pressed='true'] {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--line);
+}
+.comparison-controls label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.comparison-controls select {
+  min-height: 44px;
+  padding: 8px 30px 8px 12px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+}
+.comparison-scope {
+  margin: 18px 0 !important;
+  color: var(--muted);
+  font-size: 13px !important;
+}
+.comparison-scorecards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.comparison-scorecard {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  background: var(--surface);
+  min-width: 0;
+}
+.comparison-scorecard header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+  margin-bottom: 8px;
+}
+.comparison-scorecard header strong {
+  font-size: 27px;
+  letter-spacing: -1px;
+}
+.comparison-scorecard header span,
+.comparison-scorecard > small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.comparison-candidate {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+}
+.comparison-candidate .candidate-portrait,
+.comparison-candidate .candidate-portrait-fallback {
+  width: 36px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.comparison-candidate > span {
+  font-size: 14px;
+  font-weight: 600;
+}
+.comparison-candidate small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+.comparison-candidate > strong {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.comparison-insights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+.comparison-insights > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--soft);
+  min-width: 0;
+}
+.comparison-insights > div > svg {
+  color: var(--or-amber);
+  flex-shrink: 0;
+}
+.comparison-insights span {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.comparison-insights strong {
+  display: block;
+  color: var(--ink);
+  font-size: 16px;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.comparison-insights strong svg {
+  vertical-align: middle;
+}
+.comparison-states {
+  margin-top: 28px;
+}
+.comparison-states h3 {
+  font-size: 19px;
+  margin: 0;
+}
+.comparison-state-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.comparison-state-grid button {
+  display: grid;
+  text-align: left;
+  gap: 8px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  min-width: 0;
+}
+.comparison-state-grid button[aria-pressed='true'],
+.comparison-state-grid button:hover {
+  border-color: var(--or-amber);
+}
+.comparison-state-grid button span {
+  font-size: 12px;
+}
+.comparison-state-grid button span b {
+  color: var(--or-amber);
+  margin-right: 4px;
+}
+.comparison-state-grid button strong {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.comparison-state-grid button small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.comparison-method {
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.comparison-method summary {
+  min-height: 44px;
+  padding: 12px 0;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+}
+.comparison-method p {
+  font-size: 13px !important;
+  line-height: 1.7;
+}
+.comparison-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  padding: 12px 0;
+}
+.comparison-sources a {
+  font-size: 12px;
+  color: var(--or-amber);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.post-election-comparison {
+  margin: 28px 0;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 28px;
+  background: var(--surface);
+}
+.post-election-comparison > .or-section-head {
+  margin-bottom: 24px;
+}
+.post-result-winner {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  margin: 20px 0;
+  background: var(--soft);
+}
+.post-result-winner .candidate-portrait {
+  width: 60px;
+  height: 76px;
+  object-fit: cover;
+  border-radius: 9px;
+}
+.post-result-winner div {
+  display: grid;
+  gap: 7px;
+}
+.post-result-winner div > span {
+  color: var(--or-amber);
+  font-size: 11px;
+}
+.post-result-winner strong {
+  font-size: 25px;
+}
+.post-result-winner small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.progression-empty {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--soft);
+  margin: 22px 0;
+}
+.progression-empty strong {
+  font-size: 17px;
+}
+.or-live .progression-empty p {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.progression-chart-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.progression-scroll-hint {
+  display: none;
+}
+.progression-chart-scroll .line-chart {
+  min-width: 560px;
+  display: block;
+  width: 100%;
+}
+.election-evolution > .comparison-mode {
+  margin-bottom: 18px;
+}
+.or-live .evolution-limit {
+  font-size: 14px;
+  padding: 15px;
+  border-left: 2px solid var(--or-amber);
+  background: var(--soft);
+  line-height: 1.7;
+}
+.election-comparison button:focus-visible,
+.comparison-method summary:focus-visible,
+.progression-chart-scroll:focus-visible {
+  outline: 2px solid var(--or-amber);
+  outline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .or-live .progression-scroll-hint {
+    display: block;
+    font-size: 11px;
+    text-align: right;
+    margin: 5px 0;
+  }
+  .comparison-scorecards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .comparison-scorecard {
+    padding: 16px;
+  }
+  .comparison-insights {
+    grid-template-columns: 1fr;
+  }
+  .comparison-insights > div {
+    padding: 14px;
+  }
+  .comparison-insights strong {
+    font-size: 17px;
+  }
+  .comparison-state-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .comparison-state-grid button {
+    padding: 12px;
+  }
+  .comparison-state-grid button span {
+    font-size: 11px;
+  }
+  .comparison-state-grid button strong {
+    font-size: 18px;
+  }
+  .comparison-controls label {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .comparison-controls select {
+    width: 110px;
+  }
+  .comparison-mode {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .comparison-mode button {
+    padding: 10px 7px;
+    font-size: 12px;
+  }
+  .post-election-comparison {
+    padding: 20px 16px;
+  }
+  .or-explore-switch button {
+    font-size: 10px;
+  }
+  .or-live .progression-empty p {
+    font-size: 13px;
+  }
+}
