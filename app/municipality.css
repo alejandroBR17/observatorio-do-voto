@@ -493,3 +493,33 @@
   font-size: 13px;
   line-height: 1.6;
 }
+.local-located-place {
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.local-located-place h3 {
+  margin: 0 0 10px;
+  scroll-margin-top: 90px;
+}
+.local-located-zone strong {
+  font-size: 28px;
+}
+.local-located-place form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+.local-located-place label {
+  display: grid;
+  gap: 8px;
+}
+.local-located-place select {
+  width: 100%;
+  min-height: 44px;
+  font-size: 16px;
+}
+.local-directory-source {
+  margin-top: 18px;
+}

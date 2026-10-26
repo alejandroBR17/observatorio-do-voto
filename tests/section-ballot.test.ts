@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { decodeSectionBallot, fetchSectionBallot } from '../lib/section-ballot';
+import {
+  decodeSectionBallot,
+  fetchSectionBallot,
+  secondTurnPlaceDirectory,
+} from '../lib/section-ballot';
+import { localIndex } from '../lib/local-index';
 import { GET } from '../app/api/local-results/route';
 
 const bytes = readFileSync('tests/fixtures/sao-paulo-section1-2026-2-bu.dat');
@@ -94,6 +99,69 @@ test('API resolves an aggregated section through the second-turn catalog and nev
   const calls = requested.length;
   await assert.rejects(fetchSectionBallot('SP', '71072', 'SÃO PAULO', '0001', '9999'));
   assert.equal(requested.length, calls);
+  const directoryUrl =
+    'https://example.com/api/local-results?uf=SP&turn=2&municipality=71072&directory=1';
+  const lookupResponse = await GET(new Request(directoryUrl));
+  assert.equal(lookupResponse.status, 200);
+  const lookup = await lookupResponse.json();
+  assert.equal(lookup.tally, undefined);
+  assert.equal(lookup.turn, 2);
+  assert.equal(lookup.placeDirectory.turn, 1);
+  assert.deepEqual(
+    lookup.places.find((place: { id: string }) => place.id === '0001-1015').sections,
+    ['0001', '0003'],
+  );
+  const selected = await GET(new Request(url + '&place=0001-1015'));
+  assert.equal(selected.status, 200);
+  assert.equal((await selected.json()).tally.total, 266);
+  const reference = await localIndex('SP');
+  const otherPlace = reference.municipalities
+    .find((city) => city.code === '71072')!
+    .places.find((place) => place.zone === '0001' && place.number !== '1015')!;
+  assert.equal((await GET(new Request(url + '&place=' + otherPlace.id))).status, 409);
+  const metadata = await secondTurnPlaceDirectory(
+    'SP',
+    {
+      code: '71072',
+      name: 'SÃO PAULO',
+      places: [
+        {
+          id: '0001-1015',
+          zone: '0001',
+          number: '1015',
+          name: 'Escola de referência',
+          address: 'Rua de referência',
+          sections: [
+            ['0001', [999999]],
+            ['9999', [999999]],
+          ],
+        },
+        {
+          id: '9999-1015',
+          zone: '9999',
+          number: '1015',
+          name: 'Zona ausente',
+          address: '',
+          sections: [['0001', [999999]]],
+        },
+      ],
+    },
+    reference,
+  );
+  assert.equal(metadata.tally, undefined);
+  assert.deepEqual(
+    metadata.places?.map((place) => ({ zone: place.zone, sections: place.sections })),
+    [{ zone: '0001', sections: ['0001'] }],
+  );
+  for (const extra of ['&directory=0', '&directory=1&section=0001', '&directory=1&turn=1'])
+    assert.equal(
+      (
+        await GET(
+          new Request('https://example.com/api/local-results?uf=SP&municipality=71072' + extra),
+        )
+      ).status,
+      400,
+    );
   currentAux = { ...aux, st: 'Anulada' };
   await assert.rejects(fetchSectionBallot('SP', '71072', 'SÃO PAULO', '0001', '0001'));
   currentAux = { ...aux, hashes: [...aux.hashes, ...aux.hashes] };

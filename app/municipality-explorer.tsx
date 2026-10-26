@@ -31,6 +31,14 @@ export function MunicipalityExplorer({
   const [sectionQuery, setSectionQuery] = useState('');
   const [showSectionPicker, setShowSectionPicker] = useState(false);
   const [showPlaces, setShowPlaces] = useState(false);
+  const [locatedPlace, setLocatedPlace] = useState<PlaceSummary | null>(null);
+  const [directory, setDirectory] = useState<{
+    uf: string;
+    code: string;
+    data: LocalResponse;
+  } | null>(null);
+  const [directoryError, setDirectoryError] = useState('');
+  const [directoryRetry, setDirectoryRetry] = useState(0);
   const [showCandidates, setShowCandidates] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -38,10 +46,12 @@ export function MunicipalityExplorer({
   const [ready, setReady] = useState(false);
   const [storageStatus, setStorageStatus] = useState<'saved' | 'unavailable' | ''>('');
   const restore = useRef<RememberedCity | null>(null);
+  const lastCity = useRef<RememberedCity | null>(null);
   const shared = useRef<URLSearchParams | null>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const request = useRef<AbortController | null>(null);
   const resultHeading = useRef<HTMLHeadingElement>(null);
+  const locatedHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (['1', '2'].includes(params.get('turn') || '')) setTurn(Number(params.get('turn')));
@@ -57,6 +67,7 @@ export function MunicipalityExplorer({
       if (!params.has('turn')) setTurn(1);
       shared.current = params;
       restore.current = linked;
+      lastCity.current = linked;
       setUf(linked.uf);
       setReady(true);
       return;
@@ -65,6 +76,7 @@ export function MunicipalityExplorer({
       const saved = rememberedCity(localStorage.getItem('observatorio.municipality'));
       if (saved) {
         restore.current = saved;
+        lastCity.current = saved;
         setUf(saved.uf);
       }
     } catch {
@@ -82,6 +94,7 @@ export function MunicipalityExplorer({
     setError('');
     setBusy(false);
     setShowSectionPicker(false);
+    setLocatedPlace(null);
     request.current?.abort();
     fetch(`/api/local-results?uf=${uf}&turn=${turn}`, { signal: controller.signal })
       .then(async (r) => {
@@ -110,6 +123,12 @@ export function MunicipalityExplorer({
           throw Error('Resultado incompatível com o turno selecionado.');
         if (!controller.signal.aborted) {
           setCity(cityData);
+          lastCity.current = {
+            version: 1,
+            uf,
+            code: cityData.municipality.code,
+            name: cityData.municipality.name,
+          };
           setStorageStatus(shared.current ? '' : 'saved');
           const link = shared.current;
           if (link) {
@@ -145,12 +164,43 @@ export function MunicipalityExplorer({
       request.current?.abort();
     };
   }, [uf, turn, retry, ready]);
+  const cityCode = city?.municipality?.code;
+  const needsDirectory = turn === 2 && city?.capabilities?.places === false;
+  useEffect(() => {
+    setDirectory(null);
+    setDirectoryError('');
+    setLocatedPlace(null);
+    if (!cityCode || !needsDirectory) return;
+    const controller = new AbortController();
+    fetch(
+      `/api/local-results?${new URLSearchParams({ uf, municipality: cityCode, turn: '2', directory: '1' })}`,
+      { signal: controller.signal },
+    )
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw Error('Não foi possível carregar a busca por colégio.');
+        if (
+          data.year !== 2026 ||
+          data.turn !== 2 ||
+          data.municipality?.code !== cityCode ||
+          !Array.isArray(data.places)
+        )
+          throw Error('Cadastro de locais incompatível.');
+        if (!controller.signal.aborted) setDirectory({ uf, code: cityCode, data });
+      })
+      .catch((error: Error) => {
+        if (!controller.signal.aborted) setDirectoryError(error.message);
+      });
+    return () => controller.abort();
+  }, [cityCode, needsDirectory, uf, directoryRetry]);
   function changeTurn(next: number) {
     if (next === turn) return;
     request.current?.abort();
     restore.current = city?.municipality
       ? { version: 1, uf, code: city.municipality.code, name: city.municipality.name }
-      : null;
+      : lastCity.current?.uf === uf
+        ? lastCity.current
+        : null;
     shared.current = null;
     setIndex(null);
     setCity(null);
@@ -184,7 +234,7 @@ export function MunicipalityExplorer({
     if (place) params.set('place', place.id);
     if (bySection) {
       params.set('zone', (explicitSection?.zone || zone).padStart(4, '0'));
-      const requestedSection = explicitSection?.section || section;
+      const requestedSection = explicitSection ? explicitSection.section : section;
       if (requestedSection) params.set('section', requestedSection.padStart(4, '0'));
     }
     try {
@@ -209,6 +259,12 @@ export function MunicipalityExplorer({
           setZone('');
           setSection('');
           if (d.municipality) {
+            lastCity.current = {
+              version: 1,
+              uf,
+              code: d.municipality.code,
+              name: d.municipality.name,
+            };
             try {
               localStorage.setItem(
                 'observatorio.municipality',
@@ -246,7 +302,12 @@ export function MunicipalityExplorer({
   const matches =
     index?.municipalities?.filter((m) => searchText(m.name).includes(searchText(query))) || [];
   const places =
-    city?.places?.filter((p) =>
+    (needsDirectory
+      ? directory?.uf === uf && directory.code === cityCode
+        ? directory.data.places
+        : []
+      : city?.places
+    )?.filter((p) =>
       searchText(`${p.name} ${p.address} ${p.number}`).includes(searchText(localQuery)),
     ) || [];
   const active = detail || city;
@@ -278,14 +339,8 @@ export function MunicipalityExplorer({
           <li aria-current={city && !detail ? 'step' : undefined}>
             <span>02</span>
             <div>
-              <strong>
-                {turn === 2 && !city?.capabilities?.places ? 'Zona e seção' : 'Local e seção'}
-              </strong>
-              <small>
-                {turn === 2 && !city?.capabilities?.places
-                  ? 'Consulte sua zona ou seção'
-                  : 'Explore onde você votou'}
-              </small>
+              <strong>Local e seção</strong>
+              <small>Explore onde você votou</small>
             </div>
           </li>
           <li aria-current={detail ? 'step' : undefined}>
@@ -439,9 +494,7 @@ export function MunicipalityExplorer({
       </section>
       {observatory && city?.municipality && (
         <nav className="or-local-nav" aria-label="Explorar este município">
-          <a href="#locais-votacao">
-            {turn === 2 && !city.capabilities?.places ? 'Zonas e seções' : 'Locais e seções'}
-          </a>
+          <a href="#locais-votacao">Locais e seções</a>
           <a href="#votos-locais">Ver resultado em números</a>
         </nav>
       )}
@@ -464,7 +517,7 @@ export function MunicipalityExplorer({
         </p>
       )}
       <div className="local-workspace">
-        {city?.municipality && (turn === 1 || city.capabilities?.places) && (
+        {city?.municipality && (
           <section className="panel local-places" id="locais-votacao">
             <div className="panel-head">
               <div>
@@ -509,15 +562,41 @@ export function MunicipalityExplorer({
                   />
                 </label>
                 <p className="fine" role="status">
-                  {places.length} locais encontrados no município.
+                  {needsDirectory && !directory && !directoryError
+                    ? 'Carregando locais de votação…'
+                    : places.length === 1
+                      ? '1 local encontrado no município.'
+                      : `${places.length} locais encontrados no município.`}
                 </p>
+                {directoryError && (
+                  <p role="status">
+                    {directoryError}{' '}
+                    <button
+                      className="text-button"
+                      onClick={() => setDirectoryRetry((value) => value + 1)}
+                    >
+                      Tentar novamente
+                    </button>
+                  </p>
+                )}
                 <ul className="local-search-results places-results">
                   {(showPlaces ? places : places.slice(0, 6)).map((p) => (
                     <li key={p.id}>
                       <button
                         disabled={busy}
-                        onClick={() => void load(city.municipality!.code, p)}
-                        aria-pressed={detail?.selection?.place?.id === p.id}
+                        onClick={() => {
+                          if (needsDirectory) {
+                            setLocatedPlace(p);
+                            setZone(p.zone);
+                            setSection('');
+                            requestAnimationFrame(() => locatedHeading.current?.focus());
+                          } else void load(city.municipality!.code, p);
+                        }}
+                        aria-pressed={
+                          needsDirectory
+                            ? locatedPlace?.id === p.id
+                            : detail?.selection?.place?.id === p.id
+                        }
                       >
                         <MapPin size={17} aria-hidden="true" />
                         <span>
@@ -525,6 +604,7 @@ export function MunicipalityExplorer({
                           <small>
                             {p.address} · Zona {Number(p.zone)} · {p.sections.length}{' '}
                             {p.sections.length === 1 ? 'seção' : 'seções'}
+                            {needsDirectory ? ' no cadastro' : ''}
                           </small>
                         </span>
                       </button>
@@ -539,6 +619,94 @@ export function MunicipalityExplorer({
                   >
                     {showPlaces ? 'Ver menos locais' : `Ver os ${places.length} locais`}
                   </button>
+                )}
+                {needsDirectory && locatedPlace && (
+                  <div
+                    className="local-located-place"
+                    role="region"
+                    aria-label="Zona do colégio selecionado"
+                  >
+                    <h3 ref={locatedHeading} tabIndex={-1}>
+                      {locatedPlace.name}
+                    </h3>
+                    <p className="local-located-zone">
+                      Zona eleitoral <strong>{Number(locatedPlace.zone)}</strong>
+                    </p>
+                    <button
+                      className="button secondary"
+                      disabled={busy}
+                      onClick={() =>
+                        void load(city.municipality!.code, undefined, true, {
+                          zone: locatedPlace.zone,
+                          section: '',
+                        })
+                      }
+                    >
+                      Ver votos desta zona
+                    </button>
+                    <form
+                      className="local-section-form"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        void load(city.municipality!.code, locatedPlace, true, {
+                          zone: locatedPlace.zone,
+                          section,
+                        });
+                      }}
+                    >
+                      <label htmlFor="local-located-section">Escolha sua seção</label>
+                      <select
+                        id="local-located-section"
+                        disabled={busy}
+                        required
+                        value={section}
+                        onChange={(event) => setSection(event.target.value)}
+                      >
+                        <option value="">Selecione a seção</option>
+                        {locatedPlace.sections.map((number) => (
+                          <option key={number} value={number}>
+                            Seção {Number(number)}
+                          </option>
+                        ))}
+                      </select>
+                      <button className="button primary" disabled={busy || !section} type="submit">
+                        Ver votos da seção
+                      </button>
+                    </form>
+                  </div>
+                )}
+                {needsDirectory && directory?.data.placeDirectory && (
+                  <details className="fine local-directory-source">
+                    <summary>Sobre o cadastro dos locais</summary>
+                    <p>
+                      Nomes e endereços vêm do cadastro de locais do primeiro turno de 2026. As
+                      zonas e os números das seções são conferidos no catálogo do segundo turno; a
+                      consulta do boletim confirma o número do local antes de mostrar os votos.
+                    </p>
+                    <p>
+                      Se houver mudança de local, consulte diretamente pela zona e seção do seu
+                      e-Título. O total do colégio inteiro ainda não está disponível no segundo
+                      turno.
+                    </p>
+                    <p>
+                      <a
+                        href={directory.data.placeDirectory.source}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Cadastro de nomes e endereços no TSE
+                      </a>
+                    </p>
+                    <p>
+                      <a
+                        href={directory.data.placeDirectory.sectionsSource}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Seções do segundo turno no TSE
+                      </a>
+                    </p>
+                  </details>
                 )}
               </>
             ) : (
@@ -585,61 +753,6 @@ export function MunicipalityExplorer({
                 </p>
               </form>
             )}
-          </section>
-        )}
-        {city?.municipality && turn === 2 && city.capabilities?.places === false && (
-          <section className="panel local-second-turn-scope" id="locais-votacao">
-            <span className="eyebrow">2º TURNO · ZONA E SEÇÃO</span>
-            <h2>Consulte sua zona ou seção</h2>
-            <form
-              className="local-section-form"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void load(city.municipality!.code, undefined, true, { zone, section });
-              }}
-            >
-              <label>
-                Zona eleitoral
-                <input
-                  required
-                  inputMode="numeric"
-                  pattern="[0-9]{1,4}"
-                  maxLength={4}
-                  value={zone}
-                  onChange={(event) => setZone(event.target.value.replace(/\D/g, ''))}
-                  placeholder="Ex.: 1"
-                />
-              </label>
-              <label>
-                Seção (opcional)
-                <input
-                  inputMode="numeric"
-                  pattern="[0-9]{1,4}"
-                  maxLength={4}
-                  value={section}
-                  onChange={(event) => setSection(event.target.value.replace(/\D/g, ''))}
-                  placeholder="Ex.: 1"
-                />
-              </label>
-              <button className="button primary" type="submit" disabled={busy}>
-                Consultar votos
-              </button>
-            </form>
-            <p className="fine">
-              Informe a zona e a seção do seu comprovante ou e-Título. Sem seção, mostramos a zona
-              inteira.
-            </p>
-            <details className="fine">
-              <summary>Por que não há busca por colégio no segundo turno?</summary>
-              <p>
-                As seções já podem ser consultadas pelos boletins oficiais. A busca pelo nome e o
-                total por colégio ainda dependem de um cadastro completo do segundo turno. Os dados
-                do primeiro turno continuam disponíveis separadamente.
-              </p>
-            </details>
-            <button className="text-button" onClick={() => changeTurn(1)}>
-              Ver colégios e seções do 1º turno
-            </button>
           </section>
         )}
         {!error && tally && (

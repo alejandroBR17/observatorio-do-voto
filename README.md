@@ -9,7 +9,7 @@ O Brasil, voto a voto. Explore as eleições presidenciais com resultados, pesqu
 ## O que você encontra
 
 - **Panorama e histórico:** consulte resultados por estado e região e compare eleições presidenciais de 1989 a 2022. Os dados indicam suas fontes e eventuais limitações.
-- **Seu município:** escolha o primeiro ou o segundo turno de 2026. O segundo permite consultar município e zona no TSE e ler o boletim oficial de uma seção, com indicação de seções agregadas. A busca pelo nome e o total por colégio continuam limitados ao acervo do primeiro turno. A cidade fica lembrada neste navegador; links preservam o turno. Os números são coletivos e não revelam o voto de uma pessoa.
+- **Seu município:** escolha o primeiro ou o segundo turno de 2026. Nos dois, pesquise o nome ou endereço do colégio para encontrar a zona. No segundo, o cadastro de nomes e endereços serve de referência, as seções são conferidas no catálogo do turno e o boletim confirma o número do local antes de exibir os votos. O total do colégio inteiro continua limitado ao primeiro turno. A cidade fica lembrada neste navegador; links preservam o turno. Os números são coletivos e não revelam o voto de uma pessoa.
 - **Pesquisas:** compare levantamentos, datas e bases; abra os detalhes para conferir amostra, margem de erro, metodologia e relatório original.
 - **Resultados e pós-eleição:** veja o resultado oficial, o contexto datado dos desdobramentos e compare 2026 com segundos turnos anteriores ou entre os dois turnos de 2026. A comparação permite Brasil, regiões e UFs, identifica candidatos diferentes e calcula a variação agregada do PT.
 - **Cobertura:** leia manchetes de veículos brasileiros e acesse as matérias nos sites de origem.

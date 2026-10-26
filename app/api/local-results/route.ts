@@ -2,7 +2,7 @@ import { localIndex } from '@/lib/local-index';
 import { selectLocal } from '@/lib/local-results';
 import { states } from '@/lib/elections';
 import { fetchSecondTurn, secondTurnCatalog } from '@/lib/local-second-turn';
-import { fetchSectionBallot } from '@/lib/section-ballot';
+import { fetchSectionBallot, secondTurnPlaceDirectory } from '@/lib/section-ballot';
 export const runtime = 'nodejs';
 
 export async function GET(request: Request) {
@@ -14,6 +14,7 @@ export async function GET(request: Request) {
   const place = params.get('place') || undefined;
   const zone = params.get('zone') || undefined;
   const section = params.get('section') || undefined;
+  const directory = params.get('directory');
   if (
     !states.some((s) => s[1] === uf) ||
     !['1', '2'].includes(turnValue) ||
@@ -22,6 +23,8 @@ export async function GET(request: Request) {
     (zone && !/^\d{4}$/.test(zone)) ||
     (section && !/^\d{4}$/.test(section)) ||
     (section && !zone && !place) ||
+    (directory !== null &&
+      (directory !== '1' || turn !== 2 || !code || place || zone || section)) ||
     (!code && (place || zone || section))
   )
     return Response.json(
@@ -45,7 +48,11 @@ export async function GET(request: Request) {
             { error: 'Município não encontrado neste estado.' },
             { status: 404 },
           );
-        if (place)
+        if (directory)
+          return Response.json(await secondTurnPlaceDirectory(uf, municipality, catalog), {
+            headers: { 'Cache-Control': 'public, max-age=60, s-maxage=300' },
+          });
+        if (place && !section)
           return Response.json(
             {
               error:
@@ -53,9 +60,20 @@ export async function GET(request: Request) {
             },
             { status: 409 },
           );
+        const located = place ? municipality.places.find((item) => item.id === place) : undefined;
+        if (place && (!located || (zone && located.zone !== zone)))
+          return Response.json({ error: 'Local não encontrado nesta zona.' }, { status: 404 });
         const data = section
-          ? await fetchSectionBallot(uf, code, municipality.name, zone!, section)
+          ? await fetchSectionBallot(uf, code, municipality.name, zone || located!.zone, section)
           : await fetchSecondTurn(uf, code, municipality.name, zone);
+        if (located && data.ballot?.placeNumber !== located.number)
+          return Response.json(
+            {
+              error:
+                'O boletim desta seção indica outro local de votação. Consulte pela zona e seção, ou confira seu e-Título.',
+            },
+            { status: 409 },
+          );
         return Response.json(data, {
           headers: { 'Cache-Control': 'public, max-age=60, s-maxage=300' },
         });
@@ -78,7 +96,9 @@ export async function GET(request: Request) {
     );
   }
   try {
-    return Response.json(selectLocal(index, code, place, zone, section), {
+    const data = selectLocal(index, code, place, zone, section);
+    if (directory) delete data.tally;
+    return Response.json(data, {
       headers: { 'Cache-Control': 'public, max-age=3600, s-maxage=86400' },
     });
   } catch (e) {

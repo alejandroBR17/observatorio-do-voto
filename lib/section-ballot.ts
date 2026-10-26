@@ -1,4 +1,4 @@
-import type { LocalResponse } from './local-results';
+import type { LocalResponse, LocalIndex, Municipality } from './local-results';
 
 // Restricted reader for the BU envelope and presidential fields of the TSE ASN.1 v2 layout.
 // Unknown layouts fail closed; no search for candidate numbers inside arbitrary bytes.
@@ -251,5 +251,46 @@ export async function fetchSectionBallot(
       total: parsed.attendance,
       sections: 1,
     },
+  };
+}
+
+// Names and addresses locate the polling place; they never supply second-turn votes.
+// Only section IDs still present in the official second-turn EA16 are offered.
+export async function secondTurnPlaceDirectory(
+  uf: string,
+  municipality: Municipality,
+  reference: Pick<LocalIndex, 'source' | 'generated' | 'turn'>,
+): Promise<LocalResponse> {
+  const index = await catalog(uf);
+  if (index.f.toLowerCase() !== 'o' || String(index.cdp) !== '3221')
+    throw Error('Catálogo de seções incompatível com o segundo turno.');
+  const current = index.abr
+    .find((area) => area.cd.toUpperCase() === uf)
+    ?.mu.find((city) => city.cd === municipality.code);
+  if (!current) throw Error('Município não encontrado no catálogo do segundo turno.');
+  const source = `${BASE}/config/${uf.toLowerCase()}/${uf.toLowerCase()}-p003221-cs.json`;
+  return {
+    year: 2026,
+    turn: 2,
+    source,
+    generated: '',
+    importedAt: new Date().toISOString(),
+    municipality: { code: municipality.code, name: municipality.name },
+    capabilities: { places: false, sections: true, zones: true },
+    placeDirectory: {
+      source: reference.source,
+      generated: reference.generated,
+      turn: reference.turn,
+      sectionsSource: source,
+    },
+    places: municipality.places.flatMap(({ sections, ...place }) => {
+      const allowed = new Set(
+        current.zon.find((zone) => zone.cd === place.zone)?.sec.map((section) => section.ns) || [],
+      );
+      const available = sections
+        .map(([section]) => section)
+        .filter((section) => allowed.has(section));
+      return available.length ? [{ ...place, sections: available }] : [];
+    }),
   };
 }

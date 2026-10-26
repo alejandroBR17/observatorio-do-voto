@@ -39,6 +39,7 @@ export type LocalResponse = {
   tally?: LocalTally;
   capabilities?: { places: boolean; sections: boolean; zones: boolean };
   catalogSource?: string;
+  placeDirectory?: { source: string; generated: string; turn: number; sectionsSource: string };
   ballot?: {
     principal: string;
     aggregated: string[];
