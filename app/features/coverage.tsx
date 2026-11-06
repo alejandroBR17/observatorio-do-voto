@@ -28,26 +28,33 @@ export function MediaExplorer({ observatory = false }: { observatory?: boolean }
   const currentVehicle = vehicles.includes(vehicle) ? vehicle : 'all';
   const visibleArticles =
     currentVehicle === 'all' ? articles : articles.filter((a) => a.source === currentVehicle);
+  const archiveDay = data?.stats?.lastDay;
   // The archive has its own collection schedule; it is not the current news feed.
   const archive = data?.stats && (
     <>
       <div className="notice">
         <ClockLabel value={data.stats.updated} />
         <span>
-          A fonte coleta às 7h, 10h, 13h, 16h e 21h (Brasília). Esse horário vale para o acervo de
-          estatísticas. Os feeds públicos dos veículos listados em Fontes e critérios são
-          consultados também a cada 5 minutos.
+          {archiveDay
+            ? `O acervo estatístico da fonte foi encerrado em ${date(archiveDay)}. Os números abaixo são o retrato histórico da última coleta.`
+            : 'Os dados estatísticos mostram a última coleta recebida e podem estar desatualizados.'}{' '}
+          As notícias recentes vêm dos feeds públicos, consultados a cada 5 minutos.
         </span>
       </div>
       <div className="stats-grid media-stats">
         {[
           ['MATÉRIAS DE IMPRENSA', data.stats.articles],
           ['FONTES DE IMPRENSA', data.stats.sources],
-          ['PUBLICADAS HOJE', data.stats.today],
+          [
+            archiveDay
+              ? `MATÉRIAS NO ÚLTIMO DIA COLETADO · ${date(archiveDay)}`
+              : 'MATÉRIAS NO ÚLTIMO DIA COLETADO',
+            data.stats.lastDayArticles ?? '—',
+          ],
         ].map(([l, v]) => (
           <div className="stat" key={l}>
             <span className="eyebrow">{l}</span>
-            <strong>{Number(v).toLocaleString('pt-BR')}</strong>
+            <strong>{typeof v === 'number' ? v.toLocaleString('pt-BR') : v}</strong>
             <small>Acervo monitorado pela fonte</small>
           </div>
         ))}

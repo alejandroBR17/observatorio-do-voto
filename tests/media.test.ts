@@ -25,7 +25,8 @@ test('media totals retain the press-only fields and exclude invalid outbound URL
       data: {
         total_articles_imprensa: 10,
         total_sources_imprensa: 2,
-        articles_today_imprensa: 1,
+        last_day: '2026-10-09',
+        articles_last_day_imprensa: 4,
         last_fetch_at: '2026-10-09T13:04:00',
         cutoff_date: '2026-03-25',
       },
@@ -41,6 +42,8 @@ test('media totals retain the press-only fields and exclude invalid outbound URL
     },
   );
   assert.equal(data.stats.articles, 10);
+  assert.equal(data.stats.lastDay, '2026-10-09');
+  assert.equal(data.stats.lastDayArticles, 4);
   assert.equal(data.articles.length, 1);
   assert.equal(data.articles[0].source, 'CNN Brasil');
 });
