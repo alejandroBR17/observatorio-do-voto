@@ -272,8 +272,11 @@ export function MediaExplorer({ observatory = false }: { observatory?: boolean }
             <div>
               <strong>SapiensLabs · imprensa</strong>
               <p>
-                Cobertura pública de imprensa, coletada cinco vezes ao dia. O app consulta o acervo
-                a cada 5 minutos. A coleta dos dados ocorre nos horários informados pela fonte.
+                {archiveDay
+                  ? `O acervo estatístico encerrou em ${date(archiveDay)}; os números são históricos.`
+                  : 'O acervo estatístico é histórico.'}{' '}
+                As notícias atuais vêm dos feeds públicos dos veículos, consultados pelo app a cada
+                5 minutos.
               </p>
               <Link iconSize={13} href="https://eleicoes2026.sapienslabs.com.br/api">
                 SapiensLabs — Eleições 2026 · CC BY 4.0

@@ -464,6 +464,7 @@ export function PollExplorer({
               <div className="news-copy">
                 <span className="eyebrow">
                   {p.institute}
+                  {p.category ? ' · ' + p.category : ''}
                   {p.publisher ? ' · ' + p.publisher : ''} ·{' '}
                   {p.dateOnly ? date(p.publishedAt) : time(p.publishedAt)}
                 </span>

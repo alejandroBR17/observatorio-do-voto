@@ -50,6 +50,12 @@ const sources = [
     domain: 'quaest.com.br',
   },
   {
+    name: 'Quaest · pós-eleição',
+    url: 'https://quaest.com.br/wp-json/wp/v2/relatorios?search=p%C3%B3s%20eleitoral&per_page=10',
+    format: 'wp',
+    domain: 'quaest.com.br',
+  },
+  {
     name: 'AtlasIntel',
     url: 'https://atlasintel.org/polls/exclusive-polls',
     format: 'atlas',
@@ -191,16 +197,21 @@ export function parseWordPress(
     .flatMap((p: any) => {
       const title = plainText(p?.title?.rendered || ''),
         url = safeUrl(p?.link || '', source.domain),
-        publishedAt = date(p?.date_gmt ? `${p.date_gmt}Z` : p?.date);
-      return url && publishedAt && /^2026-/.test(publishedAt) && /presiden/i.test(title)
+        publishedAt = date(p?.date_gmt ? `${p.date_gmt}Z` : p?.date),
+        postElection = /p[oó]s[- ]eleitoral/i.test(title);
+      return url &&
+        publishedAt &&
+        /^2026-/.test(publishedAt) &&
+        (/presiden/i.test(title) || postElection)
         ? [
             {
-              institute: source.name,
+              institute: source.name.startsWith('Quaest') ? 'Quaest' : source.name,
               title: title.slice(0, 240),
               url,
               publishedAt,
               source: source.url,
               kind: 'publication' as const,
+              ...(postElection ? { category: 'Pós-eleição · opinião pública' } : {}),
             },
           ]
         : [];

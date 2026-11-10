@@ -36,6 +36,7 @@ export type Publication = {
   kind: 'publication';
   dateOnly?: boolean;
   publisher?: string;
+  category?: string;
   stale?: boolean;
 };
 
