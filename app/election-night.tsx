@@ -8,7 +8,9 @@ import { nightResult } from '@/lib/election-night';
 import { candidateName, candidateColor, formatPercent, formatVotes } from '@/lib/presentation';
 import { Map } from './geo-map';
 import { DataFreshness } from './components/data-freshness';
-import { Progression, type ProgressionPoint } from './components/vote-progression';
+import { ElectionStatusNotice } from './components/election-status-notice';
+import type { ProgressionPoint } from './components/vote-progression';
+import { ElectionEvolution } from './components/election-evolution';
 import { Source } from './components/source-link';
 import { ScreenAwakeButton } from './pwa';
 import { RegionalResults } from './regional-results';
@@ -150,7 +152,11 @@ export function ElectionNight({
         <div>
           <span className="eyebrow">OBSERVATÓRIO DO VOTO</span>
           <h2 id="night-title">
-            {preview ? 'Prévia da noite da apuração' : 'A noite da apuração'}
+            {preview
+              ? 'Prévia da noite da apuração'
+              : result.final
+                ? 'O resultado da eleição'
+                : 'A noite da apuração'}
           </h2>
         </div>
         <div className="night-controls">
@@ -168,6 +174,7 @@ export function ElectionNight({
           </button>
         </div>
       </header>
+      {!preview && <ElectionStatusNotice result={result} />}
       {observatory && (
         <div className="or-night-scope" role="status">
           <div>
@@ -206,7 +213,9 @@ export function ElectionNight({
           </div>
         ) : (
           <p className="night-live-label">
-            2º turno · Atualização automática enquanto esta tela estiver aberta
+            {result.final
+              ? '2º turno · Apuração concluída · Resultado oficial do TSE'
+              : '2º turno · Atualização automática enquanto esta tela estiver aberta'}
           </p>
         )}
         {fullError && (
@@ -316,16 +325,8 @@ export function ElectionNight({
         </div>
         {!preview && (
           <section className="night-progression">
-            <h3>Brasil · desde que você abriu esta tela</h3>
-            {points.length > 1 ? (
-              <Progression
-                points={points}
-                greenName="Flávio Bolsonaro"
-                label="Progressão nacional do segundo turno durante esta sessão"
-              />
-            ) : (
-              <p>O gráfico aparecerá após duas atualizações oficiais.</p>
-            )}
+            <h3>Evolução da apuração</h3>
+            <ElectionEvolution result={result} points={points} place="Brasil" />
           </section>
         )}
         {!preview && (

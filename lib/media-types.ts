@@ -12,7 +12,8 @@ export type MediaResponse = {
   stats?: {
     articles: number;
     sources: number;
-    today: number;
+    lastDay?: string;
+    lastDayArticles?: number;
     updated: string;
     cutoff: string;
   };

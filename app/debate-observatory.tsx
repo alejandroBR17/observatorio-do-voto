@@ -7,18 +7,14 @@ import {
   ArrowUpRight,
   Bell,
   BookOpen,
-  Check,
   Clock3,
   CalendarDays,
-  Eye,
   MessagesSquare,
   PenLine,
-  ShieldCheck,
   Tv,
 } from 'lucide-react';
 import {
   debate,
-  debatePhase,
   debateTopics,
   debatePlans,
   debateCoverage,
@@ -26,6 +22,7 @@ import {
   debateChecks,
   debateTopic,
   debatePollPeriod,
+  debateReplay,
   type DebateTopic,
 } from '@/lib/debate';
 import { candidates } from '@/lib/content';
@@ -37,11 +34,13 @@ import { useRemote } from './hooks/use-remote';
 import { scrollBehavior } from './motion';
 import { DataFreshness } from './components/data-freshness';
 import { ShareButton } from './components/share-button';
-import { PushConsent } from './components/privacy-consent';
+import { DebateAlerts } from './debate-alerts';
+import { DebateChecks } from './debate-checks';
 import { Source } from './components/source-link';
 import { NewsVisual } from './news-visual';
 import { DebateCompanion, DebatePlayer } from './debate-companion';
 import type { DebateContext } from '@/lib/debate-context';
+import { editorialPhase, initialDebateEditorial } from '@/lib/debate-editorial';
 const DebatePollChart = dynamic(() => import('./debate-poll-chart'), {
   loading: () => <p>Preparando o gráfico…</p>,
 });
@@ -84,11 +83,14 @@ export function DebateObservatory({
   consentAccepted,
   onConsent,
   onEnable,
-  onRemoveReminder,
-  onAlerts,
+  onPrefs,
+  onRetry,
+  serviceMessage,
+  alertsRequest,
+  onAlertsOpen,
+  syncMessage,
   onGo,
   onNote,
-  syncMessage,
   reviewOnly = false,
 }: {
   prefs: AlertPreferences;
@@ -96,29 +98,30 @@ export function DebateObservatory({
   serviceReady: boolean;
   consentAccepted: boolean;
   onConsent: (value: boolean) => void;
-  onEnable: () => Promise<{ ok: boolean; message: string }>;
-  onRemoveReminder: () => void;
-  onAlerts: () => void;
+  onEnable: (prefs: AlertPreferences) => Promise<{ ok: boolean; message: string }>;
+  onPrefs: (prefs: AlertPreferences) => Promise<void>;
+  onRetry: () => void;
+  serviceMessage?: string;
+  alertsRequest: number;
+  onAlertsOpen: (open: boolean) => void;
+  syncMessage?: string;
   onGo: (tab: string) => void;
   onNote: (note: Pick<NotebookEntry, 'title' | 'body' | 'topic' | 'uf'>, stay?: boolean) => void;
-  syncMessage?: string;
   reviewOnly?: boolean;
 }) {
   const now = useDebateClock();
-  const phase = now === null ? 'before' : debatePhase(now);
   const { data: media, loading: mediaLoading } = useRemote<MediaResponse>('/api/media', 30000);
   const { data: polls, loading: pollsLoading } = useRemote<PollResponse>('/api/polls', 60000);
   const { data: context } = useRemote<DebateContext>('/api/debate', 30000);
+  const editorial = context?.editorial || initialDebateEditorial;
+  const phase = editorialPhase(editorial, now ?? Date.parse(editorial.updatedAt));
   const [chartOpen, setChartOpen] = useState(false);
-  const video = context?.video;
+  const video = phase === 'after' ? debateReplay : context?.video;
   const watchUrl = video?.watchUrl || debate.watchUrl;
   const [topic, setTopic] = useState<DebateTopic>('economia');
   const [morePolls, setMorePolls] = useState(false);
-  const [more, setMore] = useState(false),
-    [reminderOpen, setReminderOpen] = useState(false);
-  const [busy, setBusy] = useState(false),
-    [feedback, setFeedback] = useState(''),
-    [notes, setNotes] = useState<Partial<Record<DebateTopic, string>>>({});
+  const [more, setMore] = useState(false);
+  const [notes, setNotes] = useState<Partial<Record<DebateTopic, string>>>({});
   const note = notes[topic] || '';
   const current = debateTopics.find((item) => item.id === topic)!;
   const coverage = debateCoverage(media?.articles || [], now || Date.now()).filter(
@@ -129,32 +132,23 @@ export function DebateObservatory({
   const checks = debateChecks(media?.articles || [], now || Date.now());
   const topicCoverage = coverage.filter((article) => debateTopic(article.title) === topic);
   const reminderActive = notification === 'Ativadas' && prefs.debate;
-  const reminderExpired = now !== null && now >= Date.parse(debate.reminderExpiresAt);
+  const reminderExpired =
+    editorial.state !== 'planned' || (now !== null && now >= Date.parse(debate.reminderAt));
   const eligiblePolls = (polls?.polls || [])
     .filter((poll) => poll.scope === 'Brasil' && poll.turn === 2)
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+  useEffect(() => {
+    if (!alertsRequest) return;
+    const frame = requestAnimationFrame(() => {
+      document
+        .getElementById('debate-reminder')
+        ?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
+      document.getElementById('debate-alerts-title')?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [alertsRequest]);
   function openReminder() {
-    setReminderOpen(true);
-    requestAnimationFrame(() =>
-      document.getElementById('debate-reminder')?.scrollIntoView({
-        behavior: scrollBehavior(),
-        block: 'center',
-      }),
-    );
-  }
-  async function enableReminder() {
-    if (busy || reviewOnly) return;
-    setBusy(true);
-    try {
-      const result = await onEnable();
-      setFeedback(
-        result.ok
-          ? 'Lembrete confirmado neste aparelho. Você pode desativá-lo aqui ou em Alertas.'
-          : result.message,
-      );
-    } finally {
-      setBusy(false);
-    }
+    onAlertsOpen(true);
   }
   return (
     <div className={`debate-page debate-phase-${phase}`}>
@@ -204,30 +198,50 @@ export function DebateObservatory({
               <div>
                 <strong>Sexta-feira, 23 de outubro</strong>
                 <span>
-                  Início previsto às <b>21h20</b> · horário de Brasília
+                  {phase === 'after' ? (
+                    'Encontro encerrado · reveja a íntegra e as checagens'
+                  ) : (
+                    <>
+                      Início previsto às <b>21h20</b> · horário de Brasília
+                    </>
+                  )}
                 </span>
               </div>
             </div>
             <div className="debate-actions">
-              {!reminderExpired && (
+              {phase === 'after' ? (
+                <a className="button primary" href="#debate-checagens">
+                  Conferir checagens do debate
+                </a>
+              ) : (
                 <button className="button primary" onClick={openReminder}>
                   <Bell size={17} />
-                  {reminderActive ? 'Ver meu lembrete' : 'Lembrar 15 minutos antes'}
+                  {reminderExpired
+                    ? notification === 'Ativadas' && prefs.debateLive
+                      ? 'Gerenciar avisos do debate'
+                      : editorial.state === 'planned'
+                        ? 'Avise quando começar'
+                        : 'Escolher avisos do debate'
+                    : reminderActive
+                      ? 'Ver meu lembrete'
+                      : 'Lembrar 15 minutos antes'}
                 </button>
               )}
               <a className="debate-showcase-link" href="#debate-propostas">
-                Começar pelas propostas <ArrowRight size={17} />
+                Comparar propostas <ArrowRight size={17} />
               </a>
             </div>
-            <p className="debate-reminder-caption">
-              Debate: <strong>21h20</strong> <span aria-hidden="true">/</span> Lembrete opcional:{' '}
-              <strong>21h05</strong>
-            </p>
+            {!reminderExpired && (
+              <p className="debate-reminder-caption">
+                Debate: <strong>21h20</strong> <span aria-hidden="true">/</span> Lembrete opcional:{' '}
+                <strong>21h05</strong>
+              </p>
+            )}
           </div>
           <div className="debate-stage">
             <div className="debate-stage-label">
               <span aria-hidden="true" />
-              23 OUT · 21H20 · BRASÍLIA
+              {phase === 'after' ? '23 OUT · DEBATE ENCERRADO' : '23 OUT · 21H20 · BRASÍLIA'}
             </div>
             <div className="debate-contenders" aria-label="Candidatos ao debate">
               {candidates.map((candidate) => (
@@ -252,8 +266,12 @@ export function DebateObservatory({
                 <span>
                   <Clock3 size={16} />
                   {phase === 'scheduled'
-                    ? 'Horário previsto do encontro chegou'
-                    : 'Explore o que ficou do encontro'}
+                    ? editorial.state === 'live'
+                      ? 'Debate em andamento · acompanhamento confirmado'
+                      : 'Horário previsto do encontro chegou'
+                    : editorial.state === 'ended'
+                      ? 'Encontro encerrado · acompanhamento confirmado'
+                      : 'Explore o que ficou do encontro'}
                 </span>
               )}
             </div>
@@ -276,61 +294,82 @@ export function DebateObservatory({
           </div>
           <div className="debate-broadcast-info">
             <span className="debate-pending">
-              {watchUrl ? 'Vídeo identificado na fonte oficial' : 'Aguardando link oficial'}
+              {watchUrl ? 'Vídeo identificado na fonte oficial' : 'Cobertura oficial disponível'}
             </span>
             <h2 id="debate-broadcast-title">
               {watchUrl
-                ? 'Acesse o vídeo oficial'
+                ? phase === 'after'
+                  ? 'Reveja o debate na Globo'
+                  : 'Acesse o vídeo oficial'
                 : phase === 'after'
                   ? 'Íntegra oficial a confirmar'
-                  : 'Transmissão em breve'}
+                  : 'Acompanhe pela Globo'}
             </h2>
             <p>
               {watchUrl
-                ? 'Abra a transmissão na fonte oficial e volte para comparar as propostas e conferir o contexto.'
-                : 'Este será o seu ponto de partida para assistir. O link direto do debate aparecerá aqui quando estiver confirmado.'}
+                ? phase === 'after'
+                  ? 'A íntegra e os trechos por assunto estão na página oficial do g1. Compare as propostas e consulte as checagens publicadas abaixo.'
+                  : 'Abra a transmissão na fonte oficial e volte para comparar as propostas e conferir o contexto.'
+                : 'A página oficial do g1 reúne a cobertura do encontro. O vídeo direto ainda está em verificação e aparecerá aqui quando for identificado.'}
             </p>
+            <p>
+              O vídeo é um serviço da Globo e pode exigir cadastro ou exibir anúncios, inclusive
+              quando aberto no player desta página. Nosso acompanhamento continua sem anúncios.
+            </p>
+            {!video && (
+              <a
+                className="button primary"
+                href={debate.coverageUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Abrir cobertura oficial no g1 <ArrowUpRight size={16} />
+              </a>
+            )}
             {watchUrl && !video ? (
               <a className="button secondary" href={watchUrl} target="_blank" rel="noreferrer">
                 Assistir ao debate <ArrowUpRight size={16} />
               </a>
-            ) : !watchUrl && !reminderExpired ? (
-              <button className="button secondary" onClick={openReminder}>
-                <Bell size={16} /> {reminderActive ? 'Ver meu lembrete' : 'Quero ser lembrado'}
-              </button>
             ) : null}
+            {phase !== 'after' && (
+              <a
+                className="button secondary"
+                href={debate.liveTvUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Tv size={16} /> TV Globo ao vivo · Globoplay <ArrowUpRight size={16} />
+              </a>
+            )}
+            {phase !== 'after' && (
+              <details className="debate-disclosure">
+                <summary>
+                  Onde mais assistir?<span aria-hidden="true">+</span>
+                </summary>
+                <div>
+                  <p>
+                    Na TV: TV Globo e GloboNews. Na internet: g1 e o sinal da TV Globo no Globoplay,
+                    conforme as condições de acesso da emissora.
+                  </p>
+                  <p>
+                    O botão da TV Globo abre o sinal contínuo do canal, conforme sua programação e a
+                    disponibilidade na região. Ele não indica, por si só, que o debate já começou.
+                  </p>
+                  <p>
+                    Transmissão oficial do debate no YouTube ainda não confirmada por aqui. Lives de
+                    comentários e checagem não são a transmissão do debate.
+                  </p>
+                  <Source href="https://redeglobo.globo.com/redebahia/noticia/eleicoes-2026-veja-quando-sera-o-debate-da-tv-globo-entre-os-candidatos-a-presidencia-da-republica.ghtml">
+                    Canais divulgados pela Globo
+                  </Source>
+                </div>
+              </details>
+            )}
           </div>
         </section>
         <div className="debate-program-source">
           <Source href={debate.scheduleSource}>Data e horário divulgados · UOL</Source>
         </div>
-      </section>
-      <section className="debate-welcome" aria-label="Conheça o Observatório do Voto">
-        <div className="debate-welcome-intro">
-          <span className="or-overline">CHEGOU AGORA? ESTE É O SEU OBSERVATÓRIO.</span>
-          <h2>Entender a eleição pode ser mais simples.</h2>
-          <p>
-            Uma central independente para explorar o voto. Você escolhe o assunto e até onde quer se
-            aprofundar.
-          </p>
-        </div>
-        <details className="debate-welcome-details">
-          <summary>
-            Conheça o Observatório <ArrowRight size={16} />
-          </summary>
-          <div className="debate-welcome-values">
-            <div className="debate-value">
-              <Eye size={22} />
-              <strong>Visual para entender.</strong>
-              <p>Compare propostas lado a lado e abra os detalhes quando quiser.</p>
-            </div>
-            <div className="debate-value">
-              <ShieldCheck size={22} />
-              <strong>Fontes para conferir.</strong>
-              <p>Veja de onde vem cada informação. A sua conclusão continua sendo sua.</p>
-            </div>
-          </div>
-        </details>
       </section>
       <div className="debate-tools">
         <nav aria-label="Nesta área">
@@ -341,15 +380,21 @@ export function DebateObservatory({
         </nav>
         <ShareButton
           title="Observatório do Debate · Globo, 23/10"
-          text="Compare propostas, acompanhe as fontes e prepare seu olhar para o debate."
+          text={
+            phase === 'after'
+              ? 'Reveja o debate da Globo, compare propostas e consulte as checagens publicadas.'
+              : 'Compare propostas, acompanhe as fontes e prepare seu olhar para o debate.'
+          }
           url={() => new URL('/debate', location.origin).href}
           label="Compartilhar o debate"
         />
       </div>
       <DebateCompanion
         articles={media?.articles}
-        context={context}
         phase={phase}
+        editorial={editorial}
+        onAlerts={openReminder}
+        liveAlertsActive={notification === 'Ativadas' && prefs.debateLive}
         loading={mediaLoading}
         checkedAt={media?.checkedAt}
         stale={media?.status === 'stale' || media?.status === 'unavailable'}
@@ -365,69 +410,30 @@ export function DebateObservatory({
           )
         }
       />
-      {reminderOpen && !reminderExpired && (
-        <section className="debate-reminder" id="debate-reminder" aria-labelledby="reminder-title">
-          <div>
-            <span className="or-overline">UM AVISO / SUA ESCOLHA</span>
-            <h2 id="reminder-title">Lembre de acompanhar.</h2>
-            <p>
-              O debate tem início previsto às 21h20 de 23/10. O lembrete sai próximo das 21h05,
-              quinze minutos antes. Você não precisa deixar o app aberto; a entrega depende da
-              conexão e da permissão do aparelho.
-            </p>
-          </div>
-          {reviewOnly ? (
-            <p>Prévia: o envio real não está disponível neste modo.</p>
-          ) : reminderActive ? (
-            <div>
-              <p className="debate-confirmed">
-                <Check size={18} />
-                Lembrete ativado neste aparelho.
-              </p>
-              <button
-                className="button secondary"
-                onClick={() => {
-                  onRemoveReminder();
-                  setFeedback(
-                    'Lembrete desmarcado. As outras escolhas de alertas continuam iguais.',
-                  );
-                }}
-              >
-                Desativar este lembrete
-              </button>
-            </div>
-          ) : (
-            <div>
-              {!consentAccepted && <PushConsent checked={consentAccepted} onChange={onConsent} />}
-              <button
-                className="button primary"
-                onClick={() => void enableReminder()}
-                disabled={busy || !serviceReady || !consentAccepted}
-              >
-                <Bell size={17} />
-                {busy ? 'Confirmando…' : 'Ativar lembrete neste aparelho'}
-              </button>
-              {!serviceReady && (
-                <p className="fine">
-                  Serviço de notificações ainda indisponível.{' '}
-                  <button className="text-button" onClick={onAlerts}>
-                    Verificar em Alertas
-                  </button>
-                </p>
-              )}
-            </div>
-          )}
-          {(feedback || syncMessage) && (
-            <p className="debate-feedback" role="status">
-              {feedback || syncMessage}
-            </p>
-          )}
-        </section>
+      {alertsRequest > 0 && (
+        <DebateAlerts
+          prefs={prefs}
+          notification={notification}
+          consentAccepted={consentAccepted}
+          onConsent={onConsent}
+          onEnable={onEnable}
+          onPrefs={onPrefs}
+          serviceReady={serviceReady}
+          serviceMessage={serviceMessage}
+          onRetry={onRetry}
+          reminderExpired={reminderExpired}
+          syncMessage={syncMessage}
+          onClose={() => {
+            onAlertsOpen(false);
+            requestAnimationFrame(() => document.getElementById('debate-alerts-trigger')?.focus());
+          }}
+          reviewOnly={reviewOnly}
+        />
       )}
       <section className="debate-panel" id="debate-propostas" aria-labelledby="proposals-title">
         <header>
           <div>
-            <span className="or-overline">01 / ANTES DE OUVIR, COMPARE</span>
+            <span className="or-overline">01 / COMPARE AS PROPOSTAS</span>
             <h2 id="proposals-title">O que cada um propõe?</h2>
             <p>
               Um recorte dos planos registrados no TSE, para consultar antes, durante e depois do
@@ -451,37 +457,61 @@ export function DebateObservatory({
           ))}
         </div>
         <div className="debate-topic-content" key={topic}>
-          <div className="debate-question">
-            <MessagesSquare size={23} aria-hidden="true" />
+          <div
+            className="debate-comparison"
+            aria-label={`Comparação de propostas: ${current.name}`}
+          >
+            <div className="debate-comparison-head">
+              {candidates.map((candidate) => {
+                const number = candidate.number as '22' | '13';
+                return (
+                  <div className={`person-${number}`} key={number}>
+                    <div className="debate-proposal-identity">
+                      <img src={candidate.photo} alt="" width="48" height="58" />
+                      <h3>
+                        {candidate.name}
+                        <small>
+                          {candidate.party} · {candidate.number}
+                        </small>
+                      </h3>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {editorial.proposals[topic].map((row) => (
+              <section className="debate-comparison-row" key={row.label}>
+                <h4>{row.label}</h4>
+                <div>
+                  <p>
+                    <span className="sr-only debate-comparison-candidate">Flávio Bolsonaro: </span>
+                    {row.flavio}
+                  </p>
+                  <p>
+                    <span className="sr-only debate-comparison-candidate">Lula: </span>
+                    {row.lula}
+                  </p>
+                </div>
+              </section>
+            ))}
+            <div className="debate-comparison-sources">
+              <Source href={debatePlans['22']}>Plano de Flávio · pp. {current.pages['22']}</Source>
+              <Source href={debatePlans['13']}>Plano de Lula · pp. {current.pages['13']}</Source>
+            </div>
+          </div>
+          <details className="debate-disclosure">
+            <summary>
+              O que observar neste tema<span aria-hidden="true">+</span>
+            </summary>
             <div>
-              <span>PARA PRESTAR ATENÇÃO</span>
               <h3>{current.question}</h3>
               <p>{current.meaning}</p>
             </div>
-          </div>
-          <div className="debate-proposals">
-            {candidates.map((candidate) => {
-              const number = candidate.number as '22' | '13';
-              return (
-                <article className={`debate-proposal person-${number}`} key={number}>
-                  <div className="debate-proposal-identity">
-                    <img src={candidate.photo} alt="" width="48" height="58" />
-                    <h3>
-                      {candidate.name}
-                      <small>{candidate.party} · Plano registrado</small>
-                    </h3>
-                  </div>
-                  <p>{current.proposals[number]}</p>
-                  <Source href={debatePlans[number]}>
-                    Índice do TSE · páginas {current.pages[number]}
-                  </Source>
-                </article>
-              );
-            })}
-          </div>
+          </details>
           <p className="debate-small">
-            Síntese do índice temático do TSE, conferido em 22/10/2026. São propostas de campanha;
-            sua presença no plano não significa execução ou resultado comprovado.
+            Recortes dos planos no TSE, conferidos em 23/10/2026. As linhas comparam os mesmos
+            assuntos; propostas semelhantes aparecem como semelhantes. Não é uma lista completa nem
+            uma avaliação de execução. Abra o plano para ver condições e detalhes.
           </p>
           <details className="debate-disclosure">
             <summary>
@@ -623,32 +653,7 @@ export function DebateObservatory({
             </p>
           </div>
         )}
-        <div className="debate-checks">
-          <div>
-            <ShieldCheck size={25} />
-            <h3>Checagens, com autoria.</h3>
-            <p>
-              Uma reportagem sobre checagem não é um veredito do Observatório. Abra a fonte para
-              conhecer a afirmação, a evidência e a conclusão.
-            </p>
-          </div>
-          <div>
-            {checks.length ? (
-              checks.slice(0, 4).map((article) => (
-                <Source href={article.url} key={article.url}>
-                  {article.source} · {article.title}
-                </Source>
-              ))
-            ) : (
-              <p>
-                {phase === 'before'
-                  ? 'As checagens do encontro entram quando forem publicadas e identificadas nas fontes acompanhadas.'
-                  : 'Ainda não identificamos checagens específicas deste encontro nas fontes consultadas.'}
-              </p>
-            )}
-            <Source href="https://g1.globo.com/fato-ou-fake/">Consultar Fato ou Fake · g1</Source>
-          </div>
-        </div>
+        <DebateChecks context={context} articles={checks} phase={phase} />
       </section>
       <section
         className="debate-panel debate-research"

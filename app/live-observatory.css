@@ -6,6 +6,171 @@
   gap: 24px;
   min-width: 0;
 }
+.or-live-pulse {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 22px 28px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--or-amber);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.or-live-pulse h2 {
+  margin: 12px 0;
+}
+.or-live-pulse p {
+  margin: 0;
+}
+.or-live-bulletin {
+  color: var(--muted);
+  font-size: 13px;
+}
+.or-live .or-live-bulletin {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.or-state-progress .bar-track > span {
+  display: block;
+  height: 100%;
+  background: var(--or-amber);
+}
+.or-contender-track {
+  height: 5px;
+  background: var(--soft);
+  border-radius: 4px;
+  margin-top: 16px;
+  overflow: hidden;
+}
+.or-contender-track > span {
+  display: block;
+  height: 100%;
+  background: var(--contender-color);
+}
+.or-live-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 26px 0 12px;
+}
+.or-live-metrics > div {
+  padding: 16px;
+  background: var(--soft);
+  border-radius: 10px;
+}
+.or-live-metrics dt {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.or-live-metrics dd {
+  margin: 8px 0 0;
+  font-weight: 700;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.or-state-list {
+  margin: 30px 0;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+.or-state-list h3 {
+  font-size: 22px;
+  margin: 0;
+}
+.or-state-list .or-live-heading p {
+  margin: 8px 0 0;
+}
+.or-state-rows {
+  display: grid;
+  gap: 8px;
+  max-height: 620px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.or-state-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 150px;
+  gap: 18px;
+  align-items: center;
+  padding: 16px;
+  text-align: left;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  width: 100%;
+  cursor: pointer;
+  font: inherit;
+}
+.or-state-row:hover,
+.or-state-row[aria-pressed='true'] {
+  border-color: var(--or-amber);
+  background: var(--soft);
+}
+.or-state-name {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.or-state-name > b {
+  font-size: 13px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 9px;
+}
+.or-state-row small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 5px;
+}
+.or-state-progress {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.or-state-progress .bar-track {
+  display: block;
+  margin-top: 8px;
+  height: 4px;
+}
+@media (max-width: 700px) {
+  .or-live-pulse {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 18px;
+  }
+  .or-live-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .or-live-metrics > div {
+    padding: 12px;
+  }
+  .or-live-metrics dd {
+    font-size: 20px;
+  }
+  .or-state-row {
+    grid-template-columns: minmax(0, 1fr) 110px;
+    gap: 10px;
+    padding: 12px;
+  }
+  .or-state-row > span:nth-child(2) {
+    grid-column: 1;
+    font-size: 13px;
+  }
+  .or-state-progress {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  .or-state-name > b {
+    display: none;
+  }
+}
 .or-live .panel {
   margin: 0;
   min-width: 0;
@@ -224,6 +389,11 @@
   line-height: 1.2;
   margin: 10px 0;
 }
+.or-live-contenders .or-vote-basis {
+  display: block;
+  font-size: 13px;
+  margin: -4px 0 10px;
+}
 .or-live-contenders small {
   font-size: 14px;
   line-height: 1.6;
@@ -263,19 +433,11 @@
   padding: 10px 12px;
 }
 .or-live-total {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 14px;
   margin: 20px 0;
+  line-height: 1.7;
 }
 .or-live-total strong {
-  font-size: 40px;
-  line-height: 1.2;
-}
-.or-live-total span {
-  font-size: 14px;
-  color: var(--muted);
+  font-size: inherit;
 }
 .or-live-tally .bar-track > div {
   height: 100%;
@@ -352,7 +514,6 @@
   .or-live-command:has(.or-live-countdown) {
     grid-template-columns: minmax(0, 1fr);
   }
-  .or-live-contenders,
   .or-live-preparation {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -387,17 +548,30 @@
     font-size: 12px;
   }
   .or-live-contenders article {
-    padding: 22px 18px;
-    gap: 16px;
-    grid-template-columns: 62px minmax(0, 1fr);
+    padding: 16px 12px;
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+  }
+  .or-live-contenders {
+    gap: 10px;
   }
   .or-live-contenders .candidate-portrait,
   .or-live-contenders .candidate-portrait-fallback {
-    width: 62px;
-    height: 80px;
+    width: 44px;
+    height: 56px;
   }
   .or-live-contenders h2 {
-    font-size: 25px;
+    font-size: 19px;
+    min-height: 48px;
+    margin: 8px 0;
+  }
+  .or-live-contenders strong {
+    font-size: 30px;
+  }
+  .or-live-contenders small,
+  .or-live-contenders .or-vote-basis {
+    font-size: 12px;
   }
   .or-live .live-wait-actions .button {
     width: 100%;

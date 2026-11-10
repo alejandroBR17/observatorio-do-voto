@@ -998,6 +998,18 @@ tr:hover td {
   flex-shrink: 0;
   margin-top: 2px;
 }
+.election-status-notice {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+.election-status-notice p {
+  margin: 0.5rem 0 0.75rem;
+}
+.election-status-notice .button {
+  max-width: 100%;
+  white-space: normal;
+}
 .notice.error {
   color: #c96856;
 }

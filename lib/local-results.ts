@@ -37,6 +37,16 @@ export type LocalResponse = {
   places?: PlaceSummary[];
   selection?: { place?: PlaceSummary; section?: string; zone?: string };
   tally?: LocalTally;
+  capabilities?: { places: boolean; sections: boolean; zones: boolean };
+  catalogSource?: string;
+  placeDirectory?: { source: string; generated: string; turn: number; sectionsSource: string };
+  ballot?: {
+    principal: string;
+    aggregated: string[];
+    placeNumber: string;
+    status: string;
+    auxSource: string;
+  };
 };
 
 export const searchText = (value: string) =>
@@ -89,6 +99,7 @@ export function selectLocal(
     source: index.source,
     generated: index.generated,
     importedAt: index.importedAt,
+    capabilities: { places: true, sections: true, zones: true },
   };
   if (!code)
     return {

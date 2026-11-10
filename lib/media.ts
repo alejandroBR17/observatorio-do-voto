@@ -63,9 +63,10 @@ function rssImage(part: string, base: string) {
 }
 export function normalizeMedia(stats: any, candidates: any, articles: any) {
   if (
-    !['total_articles_imprensa', 'total_sources_imprensa', 'articles_today_imprensa'].every(
+    !['total_articles_imprensa', 'total_sources_imprensa', 'articles_last_day_imprensa'].every(
       (k) => Number.isSafeInteger(stats?.data?.[k]) && stats.data[k] >= 0,
     ) ||
+    typeof stats?.data?.last_day !== 'string' ||
     !Array.isArray(candidates?.data) ||
     !Array.isArray(articles?.data)
   )
@@ -74,7 +75,8 @@ export function normalizeMedia(stats: any, candidates: any, articles: any) {
     stats: {
       articles: stats.data.total_articles_imprensa,
       sources: stats.data.total_sources_imprensa,
-      today: stats.data.articles_today_imprensa,
+      lastDay: stats.data.last_day,
+      lastDayArticles: stats.data.articles_last_day_imprensa,
       updated: stats.data.last_fetch_at,
       cutoff: stats.data.cutoff_date,
     },
@@ -109,8 +111,10 @@ export async function media(db: Database) {
         .prepare('SELECT value,updated FROM cache WHERE key=?')
         .bind('media:v2')
         .first<{ value: string; updated: number }>());
-  if (stored && Date.now() - stored.updated < debateUpdateInterval())
-    return JSON.parse(stored.value);
+  if (stored && Date.now() - stored.updated < debateUpdateInterval()) {
+    const cached = JSON.parse(stored.value);
+    if (cached.stats?.lastDay && Number.isSafeInteger(cached.stats?.lastDayArticles)) return cached;
+  }
   const lease = await db
     .prepare(
       'INSERT INTO cache(key,value,updated) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET updated=excluded.updated WHERE cache.updated<?',

@@ -1,0 +1,90 @@
+{
+  "revision": 5,
+  "state": "ended",
+  "confirmedAt": "2026-10-24T10:50:26.515Z",
+  "updatedAt": "2026-10-24T10:50:26.515Z",
+  "updates": [
+    {
+      "id": "preparacao-23-outubro",
+      "kind": "note",
+      "title": "Tudo pronto para acompanhar o debate",
+      "body": "A cobertura oficial do g1 já está disponível. As novas pesquisas Veritá e DataTrends estão na comparação abaixo, com coleta anterior ao debate. Publicações e checagens identificadas chegam automaticamente; o início do encontro ainda aguarda confirmação.",
+      "publishedAt": "2026-10-23T23:59:07.866Z",
+      "notify": false
+    },
+    {
+      "id": "onde-assistir-23-outubro",
+      "kind": "note",
+      "title": "Onde assistir: canais e acesso",
+      "body": "A Globo divulgou transmissão na TV Globo, GloboNews, g1 e Globoplay. O vídeo externo pode exigir cadastro e exibir anúncios da emissora; nosso acompanhamento continua sem anúncios. Ainda não confirmamos uma transmissão oficial do debate no YouTube. Lives de comentários não são a transmissão do encontro.",
+      "publishedAt": "2026-10-24T00:08:56.819Z",
+      "notify": false
+    },
+    {
+      "id": "inicio-confirmado",
+      "kind": "start",
+      "title": "O debate na Globo começou",
+      "body": "Lula e Flávio Bolsonaro estão no debate da Globo. Abra o Observatório para acompanhar as publicações, comparar propostas e consultar as checagens identificadas.",
+      "publishedAt": "2026-10-24T00:41:06.623Z",
+      "notify": true
+    },
+    {
+      "id": "encerramento-confirmado",
+      "kind": "end",
+      "title": "Debate encerrado: reveja e confira as checagens",
+      "body": "O encontro de 23/10 já terminou. A íntegra e os trechos estão disponíveis no g1. A página reúne os acessos diretos ao Fato ou Fake, UOL Confere e Aos Fatos. As pesquisas anteriores não medem a reação a este debate: confira sempre as datas das entrevistas.",
+      "publishedAt": "2026-10-24T10:50:26.515Z",
+      "notify": false
+    }
+  ],
+  "proposals": {
+    "economia": [
+      {
+        "label": "Contas públicas",
+        "flavio": "Reformular as regras fiscais.",
+        "lula": "Manter o arcabouço fiscal e a responsabilidade fiscal."
+      },
+      {
+        "label": "Trabalho",
+        "flavio": "Reduzir impostos e custos do trabalho.",
+        "lula": "Reduzir a jornada para 40 horas e encerrar a escala 6x1."
+      }
+    ],
+    "saude": [
+      {
+        "label": "Acesso ao atendimento",
+        "flavio": "Ampliar a telessaúde e aproveitar horários ociosos da rede privada.",
+        "lula": "Reduzir filas de atendimento especializado com o Agora tem Especialistas."
+      },
+      {
+        "label": "Outras medidas destacadas",
+        "flavio": "Digitalizar o SUS e integrar o prontuário eletrônico.",
+        "lula": "Fortalecer Mais Médicos e Farmácia Popular."
+      }
+    ],
+    "seguranca": [
+      {
+        "label": "Crime organizado",
+        "flavio": "Combater facções e reforçar fronteiras.",
+        "lula": "Combater o financiamento do crime organizado."
+      },
+      {
+        "label": "Outras medidas destacadas",
+        "flavio": "Alterar regras de penas e progressão para crimes hediondos.",
+        "lula": "Criar o Ministério da Segurança Pública."
+      }
+    ],
+    "educacao": [
+      {
+        "label": "Jornada escolar",
+        "flavio": "Ampliar escolas em tempo integral.",
+        "lula": "Expandir a escola em tempo integral."
+      },
+      {
+        "label": "Formação e permanência",
+        "flavio": "Ampliar ensino técnico e formação contínua de professores.",
+        "lula": "Expandir Institutos Federais e manter o Pé-de-Meia."
+      }
+    ]
+  }
+}

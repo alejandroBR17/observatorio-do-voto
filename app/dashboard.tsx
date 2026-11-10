@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  MessagesSquare,
   Activity,
   ArrowUpRight,
   Bell,
@@ -31,7 +30,6 @@ import {
 import { normalize, states, Result } from '@/lib/elections';
 import { candidates, bioSource, years } from '@/lib/content';
 import dynamic from 'next/dynamic';
-import { DebateEntry } from './debate-entry';
 const DebateObservatory = dynamic(() =>
   import('./debate-observatory').then((m) => m.DebateObservatory),
 );
@@ -64,6 +62,7 @@ import { alertPreferences, defaultAlerts } from '@/lib/alerts';
 import { Source } from './components/source-link';
 import { Progression, type ProgressionPoint } from './components/vote-progression';
 import { DataFreshness } from './components/data-freshness';
+import { ElectionStatusNotice } from './components/election-status-notice';
 import { MunicipalityExplorer } from './municipality-explorer';
 import { ShareButton } from './components/share-button';
 import { resultLink } from '@/lib/sharing';
@@ -84,7 +83,6 @@ const regions = ['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'
 const nav = [
   ['overview', 'Panorama', Globe2],
   ['live', 'Apuração ao vivo', Radio],
-  ['debate', 'Debate na Globo', MessagesSquare],
   ['history', 'Histórico eleitoral', BookOpen],
   ['municipality', 'Seu município', MapPin],
   ['polls', 'Pesquisas e cenários', TrendingUp],
@@ -141,6 +139,10 @@ function DashboardContent({
   const { setReading } = useReading();
   const { ready: learningReady, state: learningState, visit: learnVisit } = usePersonalization();
   const learningEnabled = learningState.enabled;
+  const [debateAlertsRequest, setDebateAlertsRequest] = useState(0);
+  function requestDebateAlerts(open: boolean) {
+    setDebateAlertsRequest((current) => (open ? current + 1 : 0));
+  }
   const [welcome, setWelcome] = useState(false),
     [welcomeDismissible, setWelcomeDismissible] = useState(false),
     [termsReviewOnly, setTermsReviewOnly] = useState(false),
@@ -164,7 +166,9 @@ function DashboardContent({
   useEffect(() => {
     void checkPush();
   }, []);
-  const [tab, setTab] = useState(nav.some(([id]) => id === initialTab) ? initialTab : 'overview'),
+  const [tab, setTab] = useState(
+      initialTab === 'debate' || nav.some(([id]) => id === initialTab) ? initialTab : 'overview',
+    ),
     [mobile, setMobile] = useState(false),
     [region, setRegion] = useState('Brasil'),
     [uf, setUf] = useState('BR'),
@@ -257,6 +261,7 @@ function DashboardContent({
                     ...previous,
                     {
                       id: result.id,
+                      time: result.generated,
                       counted: result.counted,
                       lula: result.candidates.find((c) => c.number === '13')?.percent || 0,
                       bolsonaro: result.candidates.find((c) => c.number === '22')?.percent || 0,
@@ -607,24 +612,45 @@ function DashboardContent({
   }, [theme, hydrated]);
   useEffect(() => {
     let canceled = false;
+    let active = false,
+      hasSnapshot = false;
     setHist([]);
     setHistoryError('');
-    fetch(`/data/history-${year}.json`)
-      .then((r) => {
-        if (!r.ok)
-          throw new Error(
-            'Este ano está disponível no acervo do TSE, mas não foi importado nesta versão.',
-          );
-        return readJson(r);
-      })
-      .then((d) => {
-        if (!canceled) setHist(d as Result[]);
-      })
-      .catch((e) => {
-        if (!canceled) setHistoryError(e.message);
-      });
+    const refresh = () => {
+      if (canceled || active) return;
+      active = true;
+      fetch(`/data/history-${year}.json`, { cache: 'no-cache', signal: AbortSignal.timeout(30000) })
+        .then((r) => {
+          if (!r.ok)
+            throw new Error(
+              'Este ano está disponível no acervo do TSE, mas não foi importado nesta versão.',
+            );
+          return readJson(r);
+        })
+        .then((d) => {
+          if (!canceled) {
+            setHist(d as Result[]);
+            setHistoryError('');
+            hasSnapshot = true;
+          }
+        })
+        .catch((e) => {
+          if (!canceled && !hasSnapshot) setHistoryError(e.message);
+        })
+        .finally(() => {
+          active = false;
+        });
+    };
+    const resume = () => {
+      if (document.visibilityState === 'visible') refresh();
+    };
+    refresh();
+    const interval = setInterval(resume, 300000);
+    document.addEventListener('visibilitychange', resume);
     return () => {
       canceled = true;
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', resume);
     };
   }, [year]);
   useEffect(() => {
@@ -696,7 +722,11 @@ function DashboardContent({
         })
         .catch(() => {
           if (!stopped)
-            setLive({ status: 'unavailable', message: 'Sem conexão. Tentaremos novamente.' });
+            setLive((previous: { result?: Result; lastGood?: Result }) => ({
+              status: 'unavailable',
+              lastGood: [previous.result, previous.lastGood].find((row) => row?.uf === uf),
+              message: 'Sem conexão. Tentaremos novamente.',
+            }));
         });
     refresh();
     const t = setInterval(refresh, 30000);
@@ -714,6 +744,7 @@ function DashboardContent({
             ...p,
             {
               id: live.result.id,
+              time: live.result.generated,
               counted: live.result.counted,
               lula: live.result.candidates.find((c: any) => c.number === '13')?.percent || 0,
               bolsonaro: live.result.candidates.find((c: any) => c.number === '22')?.percent || 0,
@@ -796,8 +827,8 @@ function DashboardContent({
   async function pushEnable(nextPrefs = prefs) {
     try {
       if (!pushConsentAccepted) {
-        if (tab !== 'alerts') go('alerts');
-        throw Error('Revise e marque a autorização de notificações em Alertas.');
+        if (!['alerts', 'debate'].includes(tab)) go('alerts');
+        throw Error('Revise e marque a autorização de notificações antes de ativar.');
       }
       if (
         !('Notification' in window) ||
@@ -1023,7 +1054,11 @@ function DashboardContent({
                     className={'nav-item ' + (tab === id ? 'active' : '')}
                   >
                     <Icon size={19} />
-                    <span>{label}</span>
+                    <span>
+                      {id === 'live' && (live.result?.final || overviewNational?.final)
+                        ? 'Resultados e pós-eleição'
+                        : label}
+                    </span>
                     <ChevronRight size={14} />
                   </button>
                 </div>
@@ -1083,8 +1118,8 @@ function DashboardContent({
             />
             <button
               className="header-alerts"
-              aria-label="Abrir alertas"
-              onClick={() => go('alerts')}
+              aria-label={tab === 'debate' ? 'Escolher avisos deste debate' : 'Abrir alertas'}
+              onClick={() => (tab === 'debate' ? requestDebateAlerts(true) : go('alerts'))}
             >
               <Bell size={19} />
               <span>Alertas</span>
@@ -1143,7 +1178,11 @@ function DashboardContent({
                                     : observatory && tab === 'municipality'
                                       ? 'O voto, perto de você.'
                                       : observatory && tab === 'live'
-                                        ? 'A disputa, voto a voto.'
+                                        ? live.result?.year === 2026 &&
+                                          live.result?.turn === 2 &&
+                                          live.result?.final
+                                          ? 'O resultado da eleição.'
+                                          : 'A disputa, voto a voto.'
                                         : tab === 'overview'
                                           ? 'O país em perspectiva.'
                                           : nav.find((n) => n[0] === tab)?.[1]}
@@ -1184,7 +1223,7 @@ function DashboardContent({
                         uf,
                         region,
                         year: tab === 'history' ? year : 2026,
-                        turn: tab === 'history' ? turn : tab === 'live' ? 2 : 1,
+                        turn: tab === 'history' ? turn : tab === 'live' || observatory ? 2 : 1,
                       })
                     }
                   />
@@ -1210,7 +1249,11 @@ function DashboardContent({
                 incluídos.
               </div>
             )}
-            {tab === 'overview' && <DebateEntry onOpen={() => go('debate')} />}
+            {(tab === 'overview' || tab === 'live') && (
+              <ElectionStatusNotice
+                result={live.result?.uf === 'BR' ? live.result : overviewNational}
+              />
+            )}
             {tab === 'overview' && observatory && (
               <ObservatoryRoom
                 results={all}
@@ -1460,12 +1503,15 @@ function DashboardContent({
                 serviceReady={!!pushKey}
                 consentAccepted={pushConsentAccepted}
                 onConsent={setPushConsentAccepted}
-                onEnable={() => pushEnable({ ...prefs, debate: true })}
-                onRemoveReminder={() => void updateAlerts({ ...prefs, debate: false })}
-                onAlerts={() => go('alerts')}
+                onEnable={pushEnable}
+                onPrefs={updateAlerts}
+                onRetry={checkPush}
+                serviceMessage={pushMessage}
+                alertsRequest={debateAlertsRequest}
+                onAlertsOpen={requestDebateAlerts}
+                syncMessage={deliverySync}
                 onGo={go}
                 onNote={contextNote}
-                syncMessage={deliverySync}
                 reviewOnly={reviewOnly}
               />
             )}
@@ -2395,7 +2441,7 @@ function DashboardContent({
           </button>
         </div>
       )}
-      {welcome && (
+      {welcome && tab !== 'debate' && (
         <Onboarding
           observatory={observatory}
           reviewOnly={reviewOnly}
@@ -2413,8 +2459,8 @@ function DashboardContent({
           serviceMessage={pushMessage}
         />
       )}
-      {!welcome && !mobile && !night && <AppDock tab={tab} onGo={go} />}
-      {showTop && !welcome && !mobile && !night && (
+      {!welcome && tab !== 'debate' && !mobile && !night && <AppDock tab={tab} onGo={go} />}
+      {showTop && (!welcome || tab === 'debate') && !mobile && !night && (
         <button
           className="back-to-top"
           aria-label="Voltar ao topo"

@@ -13,6 +13,7 @@ const categories = {
   polls: true,
   coverage: false,
   debate: false,
+  debateLive: false,
 };
 export type AlertType = keyof typeof categories;
 export type AlertFrequency = 'immediate' | 'hourly' | 'daily';
@@ -39,7 +40,9 @@ export function alertPreferences(value: unknown): AlertPreferences {
 export const frequencyWindow = (prefs: AlertPreferences) =>
   prefs.frequency === 'hourly' ? 3600000 : prefs.frequency === 'daily' ? 86400000 : 900000;
 export const priorityAlert = (types: AlertType[], prefs: AlertPreferences) =>
-  types.some((t) => prefs[t] && ['winner', 'mathematical', 'lead', 'debate'].includes(t));
+  types.some(
+    (t) => prefs[t] && ['winner', 'mathematical', 'lead', 'debate', 'debateLive'].includes(t),
+  );
 /** Only common editorial updates change cadence. Never enable a category or delay a milestone. */
 export function adaptiveWindow(
   prefs: AlertPreferences,

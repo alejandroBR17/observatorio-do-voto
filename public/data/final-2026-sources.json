@@ -1,0 +1,454 @@
+{
+  "retrievedAt": "2026-10-26T03:19:36.999Z",
+  "description": "Resultados finais oficiais coletados diretamente no TSE. Brasil inclui exterior; regiões são agregadas pelas UFs.",
+  "sources": [
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "BR",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/br/br-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:47 (Brasília)",
+      "id": "2837531"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "RO",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ro/ro-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:40 (Brasília)",
+      "id": "2833766"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "AC",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ac/ac-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:40 (Brasília)",
+      "id": "2837527"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "AM",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/am/am-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:41 (Brasília)",
+      "id": "2839170"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "RR",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rr/rr-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:40 (Brasília)",
+      "id": "2838602"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "PA",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pa/pa-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:45 (Brasília)",
+      "id": "2838608"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "AP",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ap/ap-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:40 (Brasília)",
+      "id": "2837524"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "TO",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/to/to-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:42 (Brasília)",
+      "id": "2833769"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "MA",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ma/ma-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:45 (Brasília)",
+      "id": "2835812"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "PI",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pi/pi-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:46 (Brasília)",
+      "id": "2839174"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "CE",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ce/ce-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:44 (Brasília)",
+      "id": "2835000"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "RN",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rn/rn-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:43 (Brasília)",
+      "id": "2835810"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "PB",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pb/pb-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:44 (Brasília)",
+      "id": "2833770"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "PE",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pe/pe-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:44 (Brasília)",
+      "id": "2839173"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "AL",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/al/al-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:41 (Brasília)",
+      "id": "2835807"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "SE",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/se/se-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:41 (Brasília)",
+      "id": "2837528"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "BA",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ba/ba-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:55 (Brasília)",
+      "id": "2837532"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "MG",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/mg/mg-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:52:05 (Brasília)",
+      "id": "2838611"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "ES",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/es/es-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:41 (Brasília)",
+      "id": "2839171"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "RJ",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rj/rj-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:43 (Brasília)",
+      "id": "2835811"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "SP",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/sp/sp-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:59 (Brasília)",
+      "id": "2837533"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "PR",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pr/pr-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:50 (Brasília)",
+      "id": "2833772"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "SC",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/sc/sc-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:45 (Brasília)",
+      "id": "2836295"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "RS",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rs/rs-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:50 (Brasília)",
+      "id": "2836296"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "MS",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ms/ms-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:41 (Brasília)",
+      "id": "2837529"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "MT",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/mt/mt-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:42 (Brasília)",
+      "id": "2832694"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "GO",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/go/go-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:44 (Brasília)",
+      "id": "2832695"
+    },
+    {
+      "year": 2026,
+      "turn": 1,
+      "uf": "DF",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/df/df-c0001-e006257-u.json",
+      "generated": "05/10/2026 12:51:40 (Brasília)",
+      "id": "2834997"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "BR",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/br/br-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:27:02 (Brasília)",
+      "id": "4241309"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "RO",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/ro/ro-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:57 (Brasília)",
+      "id": "4244125"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "AC",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/ac/ac-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:56 (Brasília)",
+      "id": "4242890"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "AM",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/am/am-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:57 (Brasília)",
+      "id": "4241303"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "RR",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/rr/rr-c0001-e006258-u.json",
+      "generated": "25/10/2026 22:45:56 (Brasília)",
+      "id": "4241245"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "PA",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/pa/pa-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:59 (Brasília)",
+      "id": "4245983"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "AP",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/ap/ap-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:56 (Brasília)",
+      "id": "4246820"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "TO",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/to/to-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:58 (Brasília)",
+      "id": "4237130"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "MA",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/ma/ma-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:27:00 (Brasília)",
+      "id": "4241308"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "PI",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/pi/pi-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:59 (Brasília)",
+      "id": "4247863"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "CE",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/ce/ce-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:58 (Brasília)",
+      "id": "4244127"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "RN",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/rn/rn-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:58 (Brasília)",
+      "id": "4245123"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "PB",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/pb/pb-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:59 (Brasília)",
+      "id": "4242892"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "PE",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/pe/pe-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:59 (Brasília)",
+      "id": "4246823"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "AL",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/al/al-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:57 (Brasília)",
+      "id": "4247860"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "SE",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/se/se-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:57 (Brasília)",
+      "id": "4245979"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "BA",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/ba/ba-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:27:06 (Brasília)",
+      "id": "4237133"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "MG",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/mg/mg-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:27:09 (Brasília)",
+      "id": "4242894"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "ES",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/es/es-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:57 (Brasília)",
+      "id": "4246822"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "RJ",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/rj/rj-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:58 (Brasília)",
+      "id": "4245982"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "SP",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/sp/sp-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:27:11 (Brasília)",
+      "id": "4242895"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "PR",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/pr/pr-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:27:02 (Brasília)",
+      "id": "4247865"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "SC",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/sc/sc-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:27:01 (Brasília)",
+      "id": "4247864"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "RS",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/rs/rs-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:27:07 (Brasília)",
+      "id": "4237135"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "MS",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/ms/ms-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:57 (Brasília)",
+      "id": "4245120"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "MT",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/mt/mt-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:58 (Brasília)",
+      "id": "4245981"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "GO",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/go/go-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:59 (Brasília)",
+      "id": "4244130"
+    },
+    {
+      "year": 2026,
+      "turn": 2,
+      "uf": "DF",
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6258/dados/df/df-c0001-e006258-u.json",
+      "generated": "25/10/2026 23:26:57 (Brasília)",
+      "id": "4237129"
+    }
+  ]
+}

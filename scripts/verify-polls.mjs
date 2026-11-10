@@ -116,7 +116,46 @@ assert.equal(
   ).length,
   1,
 );
-assert.equal(pollSnapshots.length, 36);
+assert.equal(pollSnapshots.length, 49);
+const finalWave = (registration) => pollSnapshots.find((p) => p.registration === registration);
+assert.deepEqual(
+  [finalWave('BR-08234/2026').flavio, finalWave('BR-08234/2026').lula],
+  [50.5, 49.5],
+  'Nexus uses the whole sample, not its likely-voter model',
+);
+assert.equal(finalWave('BR-01794/2026').basis, 'total', 'Palver valid votes must not be estimated');
+assert.equal(
+  finalWave('BR-02136/2026').sample,
+  2032,
+  'MDA reports its actual sample separately from planned interviews',
+);
+assert.match(finalWave('BR-09327/2026').fieldwork, /^22 a 24/);
+assert.deepEqual([finalWave('BR-09540/2026').flavio, finalWave('BR-09540/2026').lula], [51, 49]);
+const veritaFinal = pollSnapshots.find((p) => p.registration === 'BR-06070/2026');
+assert.deepEqual([veritaFinal.flavio, veritaFinal.lula, veritaFinal.sample], [51.3, 48.7, 15554]);
+assert.match(veritaFinal.fieldwork, /^18 a 22/);
+const trendsFinal = pollSnapshots.find((p) => p.registration === 'BR-03365/2026');
+assert.deepEqual([trendsFinal.flavio, trendsFinal.lula], [51.9, 48.1]);
+assert.equal(
+  Object.values(trendsFinal.totalVotes).reduce((sum, n) => sum + n, 0),
+  101,
+);
+// October 23 originals: keep published valid votes distinct from rounded totals.
+for (const [registration, flavio, lula, sample, confidence, grouped] of [
+  ['BR-04350/2026', 50.5, 49.5, 1500, 95.45, 3],
+  ['BR-03259/2026', 49.4, 50.6, 2100, 95, 6],
+]) {
+  const poll = pollSnapshots.find((item) => item.registration === registration);
+  assert.ok(poll, registration);
+  assert.deepEqual([poll.flavio, poll.lula], [flavio, lula]);
+  assert.equal(poll.sample, sample);
+  assert.equal(poll.confidence, confidence);
+  assert.equal(poll.basis, 'valid');
+  assert.equal(poll.scope, 'Brasil');
+  assert.match(poll.fieldwork, /^20 a 22\/10\/2026/);
+  assert.equal(poll.totalVotes.other, grouped);
+  assert.match(poll.totalVotes.otherLabel, /branco\/nulo/);
+}
 const realTimeOctober23 = pollSnapshots.find((poll) => poll.registration === 'BR-09670/2026');
 assert.deepEqual([realTimeOctober23.flavio, realTimeOctober23.lula], [52, 48]);
 assert.deepEqual(realTimeOctober23.totalVotes, {
@@ -261,7 +300,7 @@ for (const omitted of ['O intervalo de confiança é de 95%.', 'com recursos pr�
 const atlasSnapshot = pollSnapshots.find((p) => p.registration === 'BR-03663/2026');
 const ipespeSnapshot = pollSnapshots.find((p) => p.registration === 'BR-00933/2026');
 const voxSnapshot = pollSnapshots.find((p) => p.registration === 'BR-09623/2026');
-const dataTrendsSnapshot = pollSnapshots.find((p) => p.institute === 'DataTrends');
+const dataTrendsSnapshot = pollSnapshots.find((p) => p.registration === 'BR-03576/2026');
 assert.equal(dataTrendsSnapshot.registration, 'BR-03576/2026');
 assert.equal(dataTrendsSnapshot.flavio, 53.1);
 assert.equal(dataTrendsSnapshot.lula, 46.9);

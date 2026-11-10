@@ -1,7 +1,8 @@
 'use client';
 import { useId, useState } from 'react';
 import { formatPercent as pct } from '@/lib/presentation';
-export type ProgressionPoint = { id?: string; counted: number; lula: number; bolsonaro: number };
+export type { ProgressionPoint } from '@/lib/progression';
+import type { ProgressionPoint } from '@/lib/progression';
 export function Progression({
   points,
   label = 'Progressão real da apuração presidencial de 2022',
@@ -21,50 +22,95 @@ export function Progression({
   const y = (n: number) => 180 - ((n - lower) / range) * 150,
     line = (k: 'lula' | 'bolsonaro') =>
       valid.map((p) => `${35 + p.counted * 6.1},${y(p[k])}`).join(' ');
+  if (!valid.length)
+    return (
+      <div className="progression-empty" role="status">
+        <strong>Nenhum boletim disponível para esta série.</strong>
+        <p>Os registros aparecerão quando forem obtidos da fonte.</p>
+      </div>
+    );
+  if (valid.length === 1)
+    return (
+      <div className="progression-empty" role="status">
+        <strong>Há apenas um boletim registrado.</strong>
+        <p>
+          {pct(valid[0].counted)} das seções apuradas · Lula {pct(valid[0].lula)} · {greenName}{' '}
+          {pct(valid[0].bolsonaro)}.
+        </p>
+        <p>Um único boletim não permite desenhar a evolução da apuração.</p>
+      </div>
+    );
   return (
     <>
-      <svg
-        viewBox="0 0 680 230"
-        role="img"
-        aria-labelledby={`${chartId}-title`}
-        aria-describedby={`${chartId}-description`}
-        className="line-chart"
+      <p className="progression-scroll-hint">Deslize o gráfico ↔</p>
+      <div
+        className="progression-chart-scroll"
+        tabIndex={0}
+        role="region"
+        aria-label="Gráfico da evolução da apuração, com rolagem horizontal em telas pequenas"
       >
-        <title id={`${chartId}-title`}>{label}</title>
-        <desc id={`${chartId}-description`}>
-          {valid.length
-            ? `${valid.length} atualizações. No último registro: ${pct(valid.at(-1)!.counted)} das seções totalizadas, Lula ${pct(valid.at(-1)!.lula)} e ${greenName} ${pct(valid.at(-1)!.bolsonaro)}. A tabela abaixo contém todos os valores.`
-            : 'Ainda não há registros de apuração.'}
-        </desc>
-        {Array.from({ length: 5 }, (_, i) => lower + (range * i) / 4).map((n) => (
-          <g key={n}>
-            <line x1="35" x2="645" y1={y(n)} y2={y(n)} stroke="var(--line)" strokeDasharray="3 5" />
-            <text x="0" y={y(n) + 4}>
-              {n.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%
+        <svg
+          viewBox="0 0 680 230"
+          role="img"
+          aria-labelledby={`${chartId}-title`}
+          aria-describedby={`${chartId}-description`}
+          className="line-chart"
+        >
+          <title id={`${chartId}-title`}>{label}</title>
+          <desc id={`${chartId}-description`}>
+            {valid.length
+              ? `${valid.length} atualizações. No último registro: ${pct(valid.at(-1)!.counted)} das seções totalizadas, Lula ${pct(valid.at(-1)!.lula)} e ${greenName} ${pct(valid.at(-1)!.bolsonaro)}. A tabela abaixo contém todos os valores.`
+              : 'Ainda não há registros de apuração.'}
+          </desc>
+          {Array.from({ length: 5 }, (_, i) => lower + (range * i) / 4).map((n) => (
+            <g key={n}>
+              <line
+                x1="35"
+                x2="645"
+                y1={y(n)}
+                y2={y(n)}
+                stroke="var(--line)"
+                strokeDasharray="3 5"
+              />
+              <text x="0" y={y(n) + 4}>
+                {n.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%
+              </text>
+            </g>
+          ))}
+          <polyline
+            className="line-series-lula"
+            points={line('lula')}
+            fill="none"
+            stroke="#c96856"
+            strokeWidth="3"
+          />
+          {valid.length <= 12 &&
+            valid.map((point, index) => (
+              <g key={point.id || index}>
+                <circle cx={35 + point.counted * 6.1} cy={y(point.lula)} r="3.5" fill="#c96856" />
+                <circle
+                  cx={35 + point.counted * 6.1}
+                  cy={y(point.bolsonaro)}
+                  r="3.5"
+                  fill="#24796d"
+                />
+              </g>
+            ))}
+          <polyline
+            className="line-series-bolsonaro"
+            points={line('bolsonaro')}
+            fill="none"
+            stroke="#24796d"
+            strokeWidth="3"
+            strokeDasharray="8 4"
+          />
+          {[0, 25, 50, 75, 100].map((n) => (
+            <text key={n} x={35 + n * 6.1} y="215" textAnchor="middle">
+              {n}% apurado
             </text>
-          </g>
-        ))}
-        <polyline
-          className="line-series-lula"
-          points={line('lula')}
-          fill="none"
-          stroke="#c96856"
-          strokeWidth="3"
-        />
-        <polyline
-          className="line-series-bolsonaro"
-          points={line('bolsonaro')}
-          fill="none"
-          stroke="#24796d"
-          strokeWidth="3"
-          strokeDasharray="8 4"
-        />
-        {[0, 25, 50, 75, 100].map((n) => (
-          <text key={n} x={35 + n * 6.1} y="215" textAnchor="middle">
-            {n}% apurado
-          </text>
-        ))}
-      </svg>
+          ))}
+        </svg>
+      </div>
       <div className="chart-legend">
         <span>Linha contínua: Lula</span>
         <span>Linha tracejada: {greenName}</span>

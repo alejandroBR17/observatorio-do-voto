@@ -58,6 +58,7 @@ self.addEventListener('push', (event) =>
       if (typeof data.expiresAt === 'number' && data.expiresAt <= Date.now()) return;
       const labels = {
         debate: 'Lembrete do debate na Globo',
+        debateLive: 'Avisos ao vivo do debate',
         winner: 'Resultado confirmado pelo TSE',
         mathematical: 'Vantagem numericamente irreversível',
         lead: 'Mudança na liderança',

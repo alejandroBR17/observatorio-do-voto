@@ -1,11 +1,11 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MotionConfig, motion } from 'motion/react';
-import { ArrowUpRight, BookmarkPlus, Check, Radio, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, BookmarkPlus, Check, Radio } from 'lucide-react';
 import { debateCoverage, debatePublicationTime, type DebatePhase } from '@/lib/debate';
 import type { MediaArticle } from '@/lib/media-types';
-import type { DebateContext, DebateVideo } from '@/lib/debate-context';
-import { Source } from './components/source-link';
+import type { DebateVideo } from '@/lib/debate-context';
+import type { DebateEditorial } from '@/lib/debate-editorial';
 import { DataFreshness } from './components/data-freshness';
 
 const EMPTY: MediaArticle[] = [];
@@ -41,8 +41,9 @@ export function DebatePlayer({ video }: { video: DebateVideo }) {
         Abrir vídeo na Globo <ArrowUpRight size={16} />
       </a>
       <p>
-        Ao carregar, você se conecta à Globo. O vídeo segue as condições da emissora. Se não
-        carregar aqui, abra na fonte.
+        {video.embedUrl
+          ? 'Ao carregar, você se conecta à Globo. O player pode exibir anúncios ou exigir cadastro, conforme as condições da emissora. Se não carregar aqui, abra na fonte.'
+          : 'A íntegra abre na página oficial da Globo, com os trechos do encontro. O acesso segue as condições da emissora e pode exigir cadastro ou exibir anúncios.'}
       </p>
     </div>
   );
@@ -50,20 +51,24 @@ export function DebatePlayer({ video }: { video: DebateVideo }) {
 
 export function DebateCompanion({
   articles = EMPTY,
-  context,
   phase,
   loading,
   checkedAt,
   stale,
   onMark,
+  editorial,
+  onAlerts,
+  liveAlertsActive,
 }: {
   articles?: MediaArticle[];
-  context?: Partial<DebateContext> | null;
   phase: DebatePhase;
   loading: boolean;
   checkedAt?: string | null;
   stale?: boolean;
   onMark: () => void;
+  editorial: DebateEditorial;
+  onAlerts: () => void;
+  liveAlertsActive: boolean;
 }) {
   const items = useMemo(() => debateCoverage(articles), [articles]);
   const [feed, setFeed] = useState<MediaArticle[] | null>(null);
@@ -151,14 +156,25 @@ export function DebateCompanion({
             </span>
           ))}
         </div>
-        <p className="debate-small">
-          {phase === 'scheduled'
-            ? 'A página está no modo de acompanhamento pelo horário previsto. Isso não confirma que o vídeo já começou.'
-            : phase === 'after'
-              ? 'Este é o modo de retrospectiva da programação. Os horários e as conclusões continuam atribuídos às fontes.'
-              : 'A página muda de apresentação automaticamente no horário previsto; o início do vídeo depende da emissora.'}
+        <p className="debate-small" role="status">
+          {editorial.state !== 'planned' && editorial.confirmedAt
+            ? editorial.state === 'ended'
+              ? `Página de pós-debate atualizada pelo Observatório às ${time(editorial.confirmedAt)} (Brasília).`
+              : `Início informado pelo acompanhamento do Observatório às ${time(editorial.confirmedAt)} (Brasília). A transmissão no seu aparelho pode ter atraso.`
+            : phase === 'scheduled'
+              ? 'A página está no modo de acompanhamento pelo horário previsto. Isso não confirma que o vídeo já começou.'
+              : phase === 'after'
+                ? 'Este é o modo de retrospectiva da programação. Os horários e as conclusões continuam atribuídos às fontes.'
+                : 'A página muda de apresentação automaticamente no horário previsto; o início do vídeo depende da emissora.'}
         </p>
         <div className="debate-companion-actions">
+          {(phase !== 'after' || liveAlertsActive) && (
+            <button id="debate-alerts-trigger" className="button primary" onClick={onAlerts}>
+              {liveAlertsActive
+                ? 'Gerenciar meus avisos do debate'
+                : 'Escolher avisos ao vivo do debate'}
+            </button>
+          )}
           <button
             className="button secondary"
             aria-pressed={recap}
@@ -180,6 +196,29 @@ export function DebateCompanion({
             </button>
           )}
         </div>
+        {editorial.updates.length > 0 && (
+          <section
+            className="debate-editorial-updates"
+            aria-label="Atualizações do acompanhamento"
+            aria-live="polite"
+          >
+            <span className="or-overline">DIRETO DO ACOMPANHAMENTO</span>
+            {[...editorial.updates]
+              .reverse()
+              .slice(0, 4)
+              .map((update) => (
+                <article key={update.id}>
+                  <span>{time(update.publishedAt)} · Observatório do Voto</span>
+                  <h3>{update.title}</h3>
+                  <p>{update.body}</p>
+                </article>
+              ))}
+            <p className="debate-small">
+              Avisos editoriais do acompanhamento. As checagens dos veículos aparecem separadamente,
+              com sua autoria.
+            </p>
+          </section>
+        )}
         {recap && (
           <p className="debate-small">
             {returning
@@ -260,45 +299,9 @@ export function DebateCompanion({
           fontes a cada minuto durante a faixa do debate e a cada cinco minutos fora dela. O veículo
           pode publicar com atraso. Horários de Brasília.
         </p>
-        <details className="debate-disclosure debate-verified-claims">
-          <summary>
-            <ShieldCheck size={18} />
-            Checagens publicadas pelas fontes<span aria-hidden="true">+</span>
-          </summary>
-          <div>
-            {context?.checks?.length ? (
-              context.checks.map((check) => (
-                <article className="debate-claim" key={check.url + check.claim}>
-                  <span>
-                    {check.source} · {time(debatePublicationTime(check.publishedAt))}
-                  </span>
-                  <h3>{check.claim}</h3>
-                  <p>
-                    <strong>Conclusão da fonte: {check.verdict}</strong>
-                  </p>
-                  <Source href={check.url}>Ler evidências e conclusão original</Source>
-                </article>
-              ))
-            ) : (
-              <p>
-                Ainda não há checagens estruturadas deste encontro identificadas nesta consulta. Uma
-                fala sem checagem não é automaticamente verdadeira nem falsa.
-              </p>
-            )}
-            <p>
-              O Observatório mostra a conclusão do veículo quando ela vem identificada na
-              publicação. Não produz vereditos automáticos sobre as falas.
-            </p>
-            <Source href="https://g1.globo.com/fato-ou-fake/">Fato ou Fake · g1</Source>
-            <Source href="https://noticias.uol.com.br/confere/">UOL Confere</Source>
-            {context?.status !== 'ready' && (
-              <p className="fine">
-                A consulta de checagens está temporariamente limitada. Os links das fontes continuam
-                disponíveis.
-              </p>
-            )}
-          </div>
-        </details>
+        <a className="button secondary" href="#debate-checagens">
+          Consultar checagens do debate
+        </a>
       </section>
     </MotionConfig>
   );

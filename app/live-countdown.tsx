@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Bell, Check, ArrowRight, Radio } from 'lucide-react';
+import { POST_ELECTION_DAY } from '@/lib/election-night';
 export const resultsStart = Date.parse('2026-10-25T17:00:00-03:00');
 export function countdownParts(now: number) {
   const total = Math.max(0, Math.floor((resultsStart - now) / 1000));
@@ -41,24 +42,37 @@ export function LiveCountdown({
       setBusy(false);
     }
   }
+  const postElection = now !== null && now >= POST_ELECTION_DAY;
   return (
     <div className="live-wait">
       <span className="live-date">
-        25 OUT 2026 <i /> DOMINGO · 17H · BRASÍLIA
+        {postElection ? (
+          '2º TURNO · VOTAÇÃO EM 25/10/2026'
+        ) : now === null ? (
+          'ELEIÇÕES 2026'
+        ) : (
+          <>
+            25 OUT 2026 <i /> DOMINGO · 17H · BRASÍLIA
+          </>
+        )}
       </span>
       <h2>
-        {now !== null && now >= resultsStart
-          ? 'Aguardando os primeiros votos.'
-          : onPrepare
-            ? 'Contagem para a apuração.'
-            : 'O próximo capítulo tem hora marcada.'}
+        {now === null || postElection
+          ? 'Consultando o resultado oficial.'
+          : now >= resultsStart
+            ? 'Aguardando os primeiros votos.'
+            : onPrepare
+              ? 'Contagem para a apuração.'
+              : 'O próximo capítulo tem hora marcada.'}
       </h2>
       <p>
-        {now !== null && now >= resultsStart
-          ? 'A votação terminou no horário previsto. Os resultados aparecerão quando o TSE começar a divulgá-los.'
-          : 'A divulgação começa após o encerramento da votação. Acompanhe desde os primeiros resultados.'}
+        {now === null || postElection
+          ? 'Buscando o boletim do segundo turno no TSE. Se a fonte não responder, tente novamente.'
+          : now >= resultsStart
+            ? 'A votação terminou no horário previsto. Os resultados aparecerão quando o TSE começar a divulgá-los.'
+            : 'A divulgação começa após o encerramento da votação. Acompanhe desde os primeiros resultados.'}
       </p>
-      {now === null || now < resultsStart ? (
+      {now !== null && now < resultsStart ? (
         <div
           className="countdown-clock"
           aria-label="Tempo até o horário previsto para divulgação dos resultados"
@@ -97,16 +111,21 @@ export function LiveCountdown({
         )}
       </div>
       <p className="fine" role="status">
-        {message ||
-          'Você pode receber pesquisas agora e os principais acontecimentos da apuração depois.'}
+        {message || 'Os avisos seguem as categorias que você escolher neste aparelho.'}
       </p>
       <a
         className="source"
-        href="https://www.tse.jus.br/comunicacao/noticias/2026/Agosto/resultados-das-eleicoes-2026-poderao-ser-acompanhados-em-tempo-real"
+        href={
+          postElection
+            ? 'https://resultados.tse.jus.br/oficial/app/index.html#/eleicao/6258'
+            : 'https://www.tse.jus.br/comunicacao/noticias/2026/Agosto/resultados-das-eleicoes-2026-poderao-ser-acompanhados-em-tempo-real'
+        }
         target="_blank"
         rel="noreferrer"
       >
-        Horário previsto de divulgação · TSE
+        {postElection
+          ? 'Consultar resultado oficial no TSE'
+          : 'Horário previsto de divulgação · TSE'}
       </a>
     </div>
   );
