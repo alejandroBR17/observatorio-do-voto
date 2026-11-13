@@ -256,8 +256,16 @@ export function PollExplorer({
       ...(data?.publications || []).map((p) => instituteFamily(p.institute)),
     ]),
   );
-  const publications = (data?.publications || []).filter(
+  const institutePublications = (data?.publications || []).filter(
     (p) => institute === 'Todos' || instituteFamily(p.institute) === institute,
+  );
+  const postElectionPublications = institutePublications
+    .filter((p) => p.category === 'Pós-eleição · opinião pública')
+    .sort(
+      (a, b) => (Date.parse(b.publishedAt || '') || 0) - (Date.parse(a.publishedAt || '') || 0),
+    );
+  const publications = institutePublications.filter(
+    (p) => p.category !== 'Pós-eleição · opinião pública',
   );
   return (
     <div
@@ -288,6 +296,42 @@ export function PollExplorer({
             'A consulta está indisponível ou em atualização. Os registros anteriores continuam identificados por data.'}
         </div>
       ) : null}
+      {postElectionPublications.length > 0 && (
+        <section
+          className="panel post-election-studies"
+          aria-labelledby="post-election-studies-title"
+        >
+          <div className="panel-head">
+            <div>
+              <span className="eyebrow">DEPOIS DAS URNAS · OPINIÃO PÚBLICA</span>
+              <h2 id="post-election-studies-title">O que as pesquisas mostram após a eleição</h2>
+            </div>
+            <Newspaper size={22} aria-hidden="true" />
+          </div>
+          <p className="fine">
+            Estes estudos acompanham temas como democracia, polarização e partidarismo. Eles não
+            medem intenção de voto e, por isso, aparecem separados do histórico eleitoral abaixo.
+          </p>
+          <div className="news-grid">
+            {postElectionPublications.map((p) => (
+              <a className="news-card" key={p.url} href={p.url} target="_blank" rel="noreferrer">
+                <NewsVisual url={p.url} title={p.title} source={p.publisher || p.institute} />
+                <div className="news-copy">
+                  <span className="eyebrow">
+                    {p.institute} · {p.category} · Publicada{' '}
+                    {p.dateOnly ? date(p.publishedAt) : time(p.publishedAt)}
+                  </span>
+                  <h3>{p.title}</h3>
+                  <span className="text-button">
+                    Abrir estudo e resultados
+                    <ArrowUpRight size={14} />
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
       <div className="filters">
         <div className="filter-selects">
           <label>
