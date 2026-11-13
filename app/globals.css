@@ -2133,6 +2133,136 @@ main {
   font-size: 10px;
   margin: 0;
 }
+.post-election-studies {
+  margin-bottom: 24px;
+}
+.post-election-intro {
+  max-width: 850px;
+  line-height: 1.65;
+}
+.post-election-method {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  margin: 18px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--green);
+  border-radius: 9px;
+  background: var(--soft);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.post-election-method strong {
+  color: var(--green);
+}
+.post-election-method span {
+  min-width: 0;
+}
+.post-election-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.post-election-card {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+}
+.post-election-card-heading .eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+.post-election-card h3 {
+  margin: 8px 0 6px;
+  font-size: 16px;
+  line-height: 1.35;
+}
+.post-election-card-heading p {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.post-election-findings {
+  display: grid;
+  gap: 12px;
+}
+.post-election-finding-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.post-election-finding-label span {
+  min-width: 0;
+}
+.post-election-finding-label strong {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+}
+.post-election-meter {
+  height: 6px;
+  margin-top: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--soft);
+}
+.post-election-meter span {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: inherit;
+  background: var(--green);
+}
+.post-election-note {
+  margin: 14px 0 0;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+.post-election-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+.post-election-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 650;
+  text-decoration: none;
+}
+.post-election-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .post-election-method {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    font-size: 11px;
+  }
+  .post-election-card {
+    padding: 16px;
+  }
+}
 .source-health {
   display: grid;
   grid-template-columns: 1fr 1fr;
